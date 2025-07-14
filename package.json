@@ -16,9 +16,11 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.2.0",
+    "eslint-plugin-react-dom": "^1.52.3",
     "i18next": "^25.3.2",
     "i18next-resources-to-backend": "^1.2.1",
     "jest": "^30.0.4",
+    "prettier": "^3.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.6.0"
