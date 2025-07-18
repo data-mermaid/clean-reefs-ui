@@ -2,6 +2,9 @@ import storybook from "eslint-plugin-storybook"
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y'
+import reactPlugin from 'eslint-plugin-react'
+
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import {globalIgnores} from 'eslint/config'
@@ -13,13 +16,6 @@ export default tseslint.config([
         rules: {
             camelcase: 'off',
             curly: 'error',
-
-            'react/jsx-key': [
-                1,
-                {
-                    checkFragmentShorthand: true,
-                },
-            ],
 
             'no-underscore-dangle': 'off',
             'react/jsx-props-no-spreading': 'off',
@@ -55,15 +51,15 @@ export default tseslint.config([
         extends: [
             js.configs.recommended,
             tseslint.configs.recommended,
-            reactX.configs['recommended-typescript'],
-            reactDom.configs.recommended,
+            reactPlugin.configs.flat.recommended,
+            jsxA11yPlugin.flatConfigs.recommended,
             reactHooks.configs['recommended-latest'],
             reactRefresh.configs.vite,
         ],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
-            parserOptions:{
+            parserOptions: {
                 project: ['./tsconfig.node.json', './tsconfig.app.json'],
                 tsconfigRootDir: import.meta.dirname,
             }
