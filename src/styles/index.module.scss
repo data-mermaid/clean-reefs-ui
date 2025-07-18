@@ -20,7 +20,13 @@ a {
   text-decoration: inherit;
 }
 
-body, select, input, textarea, button, p, a {
+body,
+select,
+input,
+textarea,
+button,
+p,
+a {
   font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
   font-size: 1.6rem;
   color: theme.$textColor;

@@ -1,7 +1,9 @@
 # Clean Reefs
+
 UI package for the Clean Reefs application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
 
 ## Getting started
+
 `yarn install`
 `yarn start`
 
