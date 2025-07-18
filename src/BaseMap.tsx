@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react'
+import React, { useEffect, useRef } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
 import Map from 'react-map-gl/maplibre'
@@ -22,7 +22,9 @@ export default function BaseMap() {
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   useEffect(() => {
-    if (map.current) { return } // stops map from initializing more than once
+    if (map.current) {
+      return
+    } // stops map from initializing more than once
   }, [])
 
   return (

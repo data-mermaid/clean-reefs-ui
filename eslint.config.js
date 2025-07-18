@@ -61,12 +61,12 @@ export default tseslint.config(
         ecmaVersion: 2020,
         globals: globals.browser,
       },
-        settings: {
-            "react": {
-                "version": "detect",
-            }
-        }
-    }
+      settings: {
+        react: {
+          version: 'detect',
+        },
+      },
+    },
   ],
   storybook.configs['flat/recommended'],
 )
