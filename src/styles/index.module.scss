@@ -1,4 +1,4 @@
-@use 'theme';
+@use "theme";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -26,7 +26,8 @@ textarea,
 button,
 p,
 a {
-  font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+  font-family:
+    "Open Sans", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
   font-size: 1.6rem;
   color: theme.$textColor;
   -webkit-font-smoothing: antialiased;
