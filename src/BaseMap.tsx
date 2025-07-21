@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
 import Map from 'react-map-gl/maplibre'
@@ -14,18 +14,15 @@ import styles from './styles/BaseMap.module.scss'
 export default function BaseMap() {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
-  const defaultLon = 121 //TODO: provide functionalitly to zoom into general user browser location
+  const defaultLon = 121 //TODO: provide functionality to zoom into general user browser location
   const defaultLat = 14
   const defaultMapZoom = 10
-  const map = useRef(null)
 
-  maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
-
-  useEffect(() => {
-    if (map.current) {
-      return
-    } // stops map from initializing more than once
-  }, [])
+    if (!import.meta.env.VITE_MAPTILER_API_KEY || import.meta.env.VITE_MAPTILER_API_KEY.trim() === '') {
+        throw new Error('Missing or empty API key: VITE_MAPTILER_API_KEY. Please set it in your environment variables.');
+    }
+    maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
+    const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   return (
     <div className={styles['map-wrap']}>
@@ -37,7 +34,7 @@ export default function BaseMap() {
           latitude: defaultLat,
           zoom: defaultMapZoom,
         }}
-        mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${import.meta.env.VITE_MAPTILER_API_KEY}`}
+        mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
       />
     </div>
   )
