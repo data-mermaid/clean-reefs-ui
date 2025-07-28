@@ -4,19 +4,15 @@ UI package for the Clean Reefs application - a map-based utility for exploring g
 
 ## Getting started
 
-`yarn install`
-`yarn start`
+- `yarn install`
+- `yarn start`
+- Builds to `localhost:5173`
 
 ## Code focuses:
-
 DRY, re-usable components that can be unit tested and visually tested in Storybook.
 Use MUI components and style guidelines.
 
-### MUI CSS
+## More Resources
 
-`[hash]-Mui[Component name]-[name of the slot]`
-
-## Resources
-
-[Translation best practices](https://github.com/data-mermaid/mermaid-webapp/blob/develop/docs/TranslationBestPractices.md)
-[Styling guidelines using BEM methodology](https://github.com/data-mermaid/mermaid-webapp/blob/develop/docs/StylingGuidelines.md)
+- [Translation best practices](https://github.com/data-mermaid/mermaid-webapp/blob/develop/docs/TranslationBestPractices.md)
+- [Styling guidelines using BEM methodology](https://github.com/data-mermaid/mermaid-webapp/blob/develop/docs/StylingGuidelines.md)

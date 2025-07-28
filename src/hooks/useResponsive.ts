@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const MOBILE_WIDTH_THRESHOLD = 1080;
+const MOBILE_WIDTH_THRESHOLD = 1024;
 const HEIGHT_THRESHOLD = 750;
 
 const useResponsive = () => {

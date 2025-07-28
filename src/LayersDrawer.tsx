@@ -1,22 +1,12 @@
-import {
-  Button,
-  Card,
-  Drawer,
-  List,
-  ListItem,
-  Switch,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { useState } from "react";
+import {Button, Card, SwipeableDrawer, Switch, Tooltip, Typography,} from "@mui/material";
+import {useState} from "react";
 import LayersIcon from "@mui/icons-material/Layers";
-import { useTranslation } from "react-i18next";
-import styles from "./styles/muiTheme.module.scss";
+import {useTranslation} from "react-i18next";
+import StyledSwipeableDrawer from "./components/SwipeableDrawer/StyledSwipeableDrawer";
 
 export default function LayersDrawer() {
   const { t } = useTranslation();
-
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -38,16 +28,13 @@ export default function LayersDrawer() {
           <LayersIcon />
         </Tooltip>
       </Button>
-      <Drawer
-        className={styles["mui-drawer"]}
+      <StyledSwipeableDrawer
         open={open}
+        anchor="left"
         onClose={toggleDrawer(false)}
-        style={{
-          width: "350px",
-          padding: "8px",
-        }}
-      >
+        onOpen={toggleDrawer(true)}>
         <h2 style={{ padding: "8px" }}>{t("pollution_layers")}</h2>
+
         {/*List of collapsible layer toggles go inside here*/}
         <Card sx={{ padding: "8px", backgroundColor: "gray" }}>
           <h3>Sediment</h3>
@@ -56,7 +43,9 @@ export default function LayersDrawer() {
           </Typography>
           <Switch sx={{ display: "inline-block" }} />
         </Card>
-      </Drawer>
+        {/* End temp code */}
+
+      </StyledSwipeableDrawer>
     </div>
   );
 }
