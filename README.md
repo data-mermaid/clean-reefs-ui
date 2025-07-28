@@ -10,8 +10,14 @@ UI package for the Clean Reefs application - a map-based utility for exploring g
 
 ## Code focuses:
 
-DRY, re-usable components that can be unit tested and visually tested in Storybook.
+DRY, re-usable components that can be unit tested. Basic components (Button, Input, Card or other components generally without children) to be visually tested using Storybook.
 Use MUI components and style guidelines.
+
+Use SCSS modules to override MUI styling. SCSS syntax for a class name:
+`.Mui<MuiComponentNameHere>-<SubComponent>`
+Examples:
+`.MuiSwipeableDrawer-root`
+`.MuiButton-paper`
 
 ## More Resources
 

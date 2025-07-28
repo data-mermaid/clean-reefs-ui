@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+    IconButton,
   SwipeableDrawer,
   Switch,
   Tooltip,
@@ -9,7 +10,9 @@ import {
 import { useState } from "react";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useTranslation } from "react-i18next";
-import StyledSwipeableDrawer from "./components/SwipeableDrawer/StyledSwipeableDrawer";
+import StyledSwipeableDrawer from "../StyledSwipeableDrawer/StyledSwipeableDrawer";
+import StyledIconButtonWithTooltip from "../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip";
+import styles from './LayersDrawer.module.scss'
 
 export default function LayersDrawer() {
   const { t } = useTranslation();
@@ -20,21 +23,12 @@ export default function LayersDrawer() {
   };
 
   return (
-    <div style={{ zIndex: 4, position: "relative", padding: "8px" }}>
-      <Button
-        variant="outlined"
-        onClick={toggleDrawer(true)}
-        style={{
-          position: "relative",
-          top: "0",
-          left: "0",
-          backgroundColor: "white",
-        }}
-      >
-        <Tooltip title={t("buttons.open_menu")}>
-          <LayersIcon />
-        </Tooltip>
-      </Button>
+    <div className={styles["LayersDrawer-root"]}>
+        <StyledIconButtonWithTooltip
+            tooltipText={t("buttons.open_menu")}
+            handleOnClick={toggleDrawer(true)}>
+            <LayersIcon />
+        </StyledIconButtonWithTooltip>
       <StyledSwipeableDrawer
         open={open}
         anchor="left"

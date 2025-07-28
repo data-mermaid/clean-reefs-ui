@@ -5,7 +5,7 @@ import Map from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
-import styles from "./styles/BaseMap.module.scss";
+import styles from "./BaseMap.module.scss";
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
