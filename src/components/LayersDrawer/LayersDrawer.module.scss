@@ -1,5 +1,7 @@
+@use "../../styles/theme";
+
 .LayersDrawer-root {
-  z-index: 4;
+  z-index: theme.$layersDrawer;
   position: relative;
   padding: 8px;
 }
