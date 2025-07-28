@@ -13,7 +13,7 @@ export const Primary: Story = {
     anchor: "left",
     open: false,
     onOpen: () => {},
-    onClose: () => {}
+    onClose: () => {},
   },
 };
 
