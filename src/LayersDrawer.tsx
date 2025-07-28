@@ -1,7 +1,14 @@
-import {Button, Card, SwipeableDrawer, Switch, Tooltip, Typography,} from "@mui/material";
-import {useState} from "react";
+import {
+  Button,
+  Card,
+  SwipeableDrawer,
+  Switch,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 import LayersIcon from "@mui/icons-material/Layers";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import StyledSwipeableDrawer from "./components/SwipeableDrawer/StyledSwipeableDrawer";
 
 export default function LayersDrawer() {
@@ -32,7 +39,8 @@ export default function LayersDrawer() {
         open={open}
         anchor="left"
         onClose={toggleDrawer(false)}
-        onOpen={toggleDrawer(true)}>
+        onOpen={toggleDrawer(true)}
+      >
         <h2 style={{ padding: "8px" }}>{t("pollution_layers")}</h2>
 
         {/*List of collapsible layer toggles go inside here*/}
@@ -44,7 +52,6 @@ export default function LayersDrawer() {
           <Switch sx={{ display: "inline-block" }} />
         </Card>
         {/* End temp code */}
-
       </StyledSwipeableDrawer>
     </div>
   );
