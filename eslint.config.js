@@ -1,29 +1,21 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
-
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import { globalIgnores } from "eslint/config";
 
 export default tseslint.config(
   [
-    globalIgnores(["dist"]),
+    globalIgnores(["dist", "node_modules"]),
     {
-      files: ["**/*.{ts,tsx}"],
+      files: ["**/*.{js,ts,tsx}"],
+      settings: { react: { version: "detect" } },
       rules: {
         camelcase: "off",
         curly: "error",
-
-        "react/jsx-key": [
-          1,
-          {
-            checkFragmentShorthand: true,
-          },
-        ],
-
         "no-underscore-dangle": "off",
         "react/jsx-props-no-spreading": "off",
         "react/jsx-boolean-value": "off",
@@ -51,7 +43,7 @@ export default tseslint.config(
         ],
         "@typescript-eslint/no-empty-function": "off",
         "no-param-reassign": "error",
-        "react/no-danger": "error",
+        // "react/no-danger": "error",
         "max-nested-callbacks": ["error", { max: 3 }],
         "consistent-return": "error",
       },
@@ -60,6 +52,7 @@ export default tseslint.config(
         tseslint.configs.recommended,
         reactHooks.configs["recommended-latest"],
         reactRefresh.configs.vite,
+        jsxA11yPlugin.flatConfigs.recommended,
       ],
       languageOptions: {
         ecmaVersion: 2020,

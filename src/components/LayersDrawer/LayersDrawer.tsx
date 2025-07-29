@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  IconButton,
-  SwipeableDrawer,
-  Switch,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Card, Switch, Typography } from "@mui/material";
 import { useState } from "react";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useTranslation } from "react-i18next";
