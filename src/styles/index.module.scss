@@ -1,13 +1,13 @@
 @use "theme";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color: rgba(255, 255, 255, 0.87);
   background-color: theme.$white;
 
+  line-height: 1.5;
+  font-family: theme.$defaultFonts;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: theme.$textColor;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,24 +19,8 @@ a {
   text-decoration: inherit;
 }
 
-body,
-select,
-input,
-textarea,
-button,
-p,
-a {
-  font-family:
-    "Open Sans", "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
-  font-size: 1.6rem;
-  color: theme.$textColor;
-  -webkit-font-smoothing: antialiased;
-}
-
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -44,4 +28,8 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+}
+
+section {
+  padding: theme.$defaultPadding;
 }
