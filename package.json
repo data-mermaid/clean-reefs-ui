@@ -1,7 +1,7 @@
 {
   "name": "clean-reefs-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "v1.22.19",
   "type": "module",
   "scripts": {
     "start": "vite",
