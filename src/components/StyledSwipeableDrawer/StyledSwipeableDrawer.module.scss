@@ -1,4 +1,6 @@
-.MuiSwipeableDrawer-root {
-  width: 350px;
-  padding: 8px;
+.MuiDrawer-root {
+  & .MuiDrawer-paper {
+    width: 350px;
+    padding: 8px;
+  }
 }

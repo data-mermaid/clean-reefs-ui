@@ -23,7 +23,11 @@ export default function StyledSwipeableDrawer({
       open={open}
       onOpen={onOpen}
       onClose={onClose}
-      className={styles.MuiSwipeableDrawer}
+      classes={{
+        root: styles["MuiDrawer-root"],
+        paper: styles["MuiDrawer-paper"],
+        modal: styles["MuiDrawer-modal"],
+      }}
     >
       {children}
     </SwipeableDrawer>
