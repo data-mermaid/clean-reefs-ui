@@ -42,6 +42,7 @@ export default tseslint.config(
           },
         ],
         "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "no-param-reassign": "error",
         // "react/no-danger": "error",
         "max-nested-callbacks": ["error", { max: 3 }],

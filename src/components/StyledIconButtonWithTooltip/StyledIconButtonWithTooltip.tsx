@@ -1,9 +1,9 @@
-import { Button, IconButton, Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import styles from "./StyledIconButtonWithTooltip.module.scss";
 
 interface StyledIconButtonWithTooltipProps {
   tooltipText: string;
-  children?: React.ReactNode;
+  children: React.ReactElement<unknown, any>;
   handleOnClick: () => void;
 }
 
@@ -18,9 +18,7 @@ export default function StyledIconButtonWithTooltip({
       onClick={handleOnClick}
       className={styles["MuiButton-root"]}
     >
-      <Tooltip title={tooltipText}>
-        <IconButton>{children}</IconButton>
-      </Tooltip>
+      <Tooltip title={tooltipText}>{children}</Tooltip>
     </Button>
   );
 }
