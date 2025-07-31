@@ -8,9 +8,9 @@ import "@maptiler/sdk/dist/maptiler-sdk.css";
 import styles from "./BaseMap.module.scss";
 import maplibregl from "maplibre-gl";
 import * as pmtiles from "pmtiles";
-import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
+import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 
-import {GLOBAL_LULC_URL, REGIONS_URL} from "../../constants";
+import { GLOBAL_LULC_URL, REGIONS_URL } from "../../constants";
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
@@ -34,7 +34,7 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
   useEffect(() => {
     const protocol = new pmtiles.Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
-    maplibregl.addProtocol('cog', cogProtocol);
+    maplibregl.addProtocol("cog", cogProtocol);
     return () => {
       maplibregl.removeProtocol("pmtiles");
     };
@@ -82,7 +82,7 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
               bounds?.getWest(),
               bounds?.getSouth(),
               bounds?.getEast(),
-              bounds?.getNorth()
+              bounds?.getNorth(),
             ]);
           }
         }}
@@ -108,22 +108,22 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
         {/*  )}*/}
         {/*</Source>*/}
         <Source
-            id="lulc-raster"
-            type="raster"
-            url={`${GLOBAL_LULC_URL}${viewportBounds ? `?bbox=${viewportBounds.join(',')}` : ''}`}
-            tileSize={256}
-            maxzoom={14}
-            minzoom={10}
+          id="lulc-raster"
+          type="raster"
+          url={`${GLOBAL_LULC_URL}${viewportBounds ? `?bbox=${viewportBounds.join(",")}` : ""}`}
+          tileSize={256}
+          maxzoom={14}
+          minzoom={10}
         >
           <Layer
-              id="lulc-layer"
-              type="raster"
-              source="lulc-raster"
-              source-layer="LULC_20202_Reclassified_colored" //naming...
-              // paint={{
-                // "line-color": "#01BFD9FF",
-                //*"line-width": 3,*/}
-              //*}}*/}
+            id="lulc-layer"
+            type="raster"
+            source="lulc-raster"
+            source-layer="LULC_20202_Reclassified_colored" //naming...
+            // paint={{
+            // "line-color": "#01BFD9FF",
+            //*"line-width": 3,*/}
+            //*}}*/}
           />
         </Source>
       </Map>
