@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import * as maptilersdk from "@maptiler/sdk";
 
 import { Map, Layer, Source } from "react-map-gl/maplibre";
@@ -8,6 +8,9 @@ import "@maptiler/sdk/dist/maptiler-sdk.css";
 import styles from "./BaseMap.module.scss";
 import maplibregl from "maplibre-gl";
 import * as pmtiles from "pmtiles";
+import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
+
+import {GLOBAL_LULC_URL, REGIONS_URL} from "../../constants";
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
@@ -17,9 +20,6 @@ interface BaseMapProps {
   protoLayerOn: boolean;
 }
 
-const PMTILES_URL =
-  "https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/other/regions/meow_boundaries/global_meow_boundaries%5E0/regions.pmtiles";
-
 export default function BaseMap({ protoLayerOn }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
@@ -27,11 +27,14 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
   const defaultLon = 178.4; //TODO: provide functionality to zoom into general user browser location
   const defaultLat = -17.3;
   const defaultMapZoom = 10;
+  const mapRef = useRef(null);
+  const [viewportBounds, setViewportBounds] = useState([]);
 
   // Register PMTiles protocol
   useEffect(() => {
     const protocol = new pmtiles.Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
+    maplibregl.addProtocol('cog', cogProtocol);
     return () => {
       maplibregl.removeProtocol("pmtiles");
     };
@@ -71,24 +74,57 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
         }}
         mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
+        onMoveEnd={() => {
+          if (mapRef.current) {
+            const map = mapRef.current?.getMap();
+            const bounds = map?.getBounds();
+            setViewportBounds([
+              bounds?.getWest(),
+              bounds?.getSouth(),
+              bounds?.getEast(),
+              bounds?.getNorth()
+            ]);
+          }
+        }}
       >
+        {/*<Source*/}
+        {/*  id="regions-pmtiles"*/}
+        {/*  type="vector"*/}
+        {/*  url={`pmtiles://${REGIONS_URL}`}*/}
+        {/*  maxzoom={14}*/}
+        {/*  minzoom={10}*/}
+        {/*>*/}
+        {/*  {protoLayerOn && (*/}
+        {/*    <Layer*/}
+        {/*      id="regions-layer"*/}
+        {/*      type="line"*/}
+        {/*      source="regions-pmtiles"*/}
+        {/*      source-layer="regions"*/}
+        {/*      paint={{*/}
+        {/*        "line-color": "#ff0000",*/}
+        {/*        "line-width": 3,*/}
+        {/*      }}*/}
+        {/*    />*/}
+        {/*  )}*/}
+        {/*</Source>*/}
         <Source
-          id="regions-pmtiles"
-          type="vector"
-          url={`pmtiles://${PMTILES_URL}`}
+            id="lulc-raster"
+            type="raster"
+            url={`${GLOBAL_LULC_URL}${viewportBounds ? `?bbox=${viewportBounds.join(',')}` : ''}`}
+            tileSize={256}
+            maxzoom={14}
+            minzoom={10}
         >
-          {protoLayerOn && (
-            <Layer
-              id="regions-layer"
-              type="line"
-              source="regions-pmtiles"
-              source-layer="regions"
-              paint={{
-                "line-color": "#ff0000",
-                "line-width": 3,
-              }}
-            />
-          )}
+          <Layer
+              id="lulc-layer"
+              type="raster"
+              source="lulc-raster"
+              source-layer="LULC_20202_Reclassified_colored" //naming...
+              // paint={{
+                // "line-color": "#01BFD9FF",
+                //*"line-width": 3,*/}
+              //*}}*/}
+          />
         </Source>
       </Map>
     </div>
