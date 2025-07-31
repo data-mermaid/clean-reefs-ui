@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as maptilersdk from "@maptiler/sdk";
 
-import Map, { Layer, Source } from "react-map-gl/maplibre";
+import { Map, Layer, Source } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import "@maptiler/sdk/dist/maptiler-sdk.css";

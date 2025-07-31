@@ -3,7 +3,7 @@ import styles from "./StyledIconButtonWithTooltip.module.scss";
 
 interface StyledIconButtonWithTooltipProps {
   tooltipText: string;
-  children: React.ReactElement<unknown, any>;
+  children: React.ReactElement;
   handleOnClick: () => void;
 }
 
