@@ -60,5 +60,7 @@
   "type_to_filter": "Type to filter",
   "watershed": "Watershed",
   "watershed_boundaries": "Watershed boundaries",
-  "year": "Year"
+  "year": "Year",
+  "share_view": "Share view",
+  "toggle_navigation_menu": "Toggle navigation menu"
 }

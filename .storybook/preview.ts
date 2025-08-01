@@ -1,4 +1,9 @@
-import type { Preview } from "@storybook/react-vite";
+import React from 'react'
+import type { Preview } from '@storybook/react'
+import { StyledEngineProvider } from '@mui/material'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '../i18n'
+import '../src/styles/index.module.scss'
 
 const preview: Preview = {
   parameters: {
@@ -13,9 +18,23 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: "todo",
+      test: 'todo',
     },
   },
-};
 
-export default preview;
+  // Global decorators that wrap ALL stories - essential for your app context
+  decorators: [
+    (Story) =>
+      React.createElement(
+        StyledEngineProvider,
+        { injectFirst: true }, // Ensures MUI styles have priority
+        React.createElement(
+          I18nextProvider,
+          { i18n }, // Provides translation context to all stories
+          React.createElement(Story),
+        ),
+      ),
+  ],
+}
+
+export default preview
