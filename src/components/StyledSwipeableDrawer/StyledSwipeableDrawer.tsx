@@ -1,17 +1,17 @@
-import * as React from "react";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import styles from "./StyledSwipeableDrawer.module.scss";
+import * as React from 'react'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import styles from './StyledSwipeableDrawer.module.scss'
 
 interface SwipeableDrawerProps {
-  anchor?: "left" | "right";
-  children?: React.ReactNode;
-  open: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  anchor?: 'left' | 'right'
+  children?: React.ReactNode
+  open: boolean
+  onOpen: () => void
+  onClose: () => void
 }
 
 export default function StyledSwipeableDrawer({
-  anchor = "left",
+  anchor = 'left',
   children,
   open,
   onOpen,
@@ -24,12 +24,12 @@ export default function StyledSwipeableDrawer({
       onOpen={onOpen}
       onClose={onClose}
       classes={{
-        root: styles["MuiDrawer-root"],
-        paper: styles["MuiDrawer-paper"],
-        modal: styles["MuiDrawer-modal"],
+        root: styles['MuiDrawer-root'],
+        paper: styles['MuiDrawer-paper'],
+        modal: styles['MuiDrawer-modal'],
       }}
     >
       {children}
     </SwipeableDrawer>
-  );
+  )
 }
