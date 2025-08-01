@@ -1,9 +1,9 @@
-import React from "react";
-import type { Preview } from "@storybook/react";
-import { StyledEngineProvider } from "@mui/material";
-import { I18nextProvider } from "react-i18next";
-import i18n from "../i18n";
-import "../src/styles/index.module.scss";
+import React from 'react'
+import type { Preview } from '@storybook/react'
+import { StyledEngineProvider } from '@mui/material'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '../i18n'
+import '../src/styles/index.module.scss'
 
 const preview: Preview = {
   parameters: {
@@ -18,7 +18,7 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: "todo",
+      test: 'todo',
     },
   },
 
@@ -35,6 +35,6 @@ const preview: Preview = {
         ),
       ),
   ],
-};
+}
 
-export default preview;
+export default preview

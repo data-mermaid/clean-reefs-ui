@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import StyledSwipeableDrawer from "../StyledSwipeableDrawer/StyledSwipeableDrawer";
-import { Card, Switch } from "@mui/material";
+import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
+import { Card, Switch } from '@mui/material'
 
 const meta = {
   component: StyledSwipeableDrawer,
-} satisfies Meta<typeof StyledSwipeableDrawer>;
+} satisfies Meta<typeof StyledSwipeableDrawer>
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof meta>
 
 export const Primary: Story = {
   args: {
-    anchor: "left",
+    anchor: 'left',
     open: true,
     onOpen: () => {},
     onClose: () => {},
@@ -24,6 +24,6 @@ export const Primary: Story = {
       </>
     ),
   },
-};
+}
 
-export default meta;
+export default meta
