@@ -6,12 +6,23 @@ import StyledSwipeableDrawer from "../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from "../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip";
 import styles from "./LayersDrawer.module.scss";
 
-export default function LayersDrawer() {
+interface LayersDrawerProps {
+  layerOn: boolean;
+  setLayerOn: (val: boolean) => void;
+}
+
+export default function LayersDrawer({
+  layerOn,
+  setLayerOn,
+}: LayersDrawerProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
+  };
+  const toggleLayer = () => {
+    setLayerOn(!layerOn);
   };
 
   return (
@@ -34,9 +45,13 @@ export default function LayersDrawer() {
         <Card sx={{ padding: "8px", backgroundColor: "gray" }}>
           <h3>Sediment</h3>
           <Typography sx={{ display: "inline-block" }}>
-            Layer to toggle
+            Toggle PMTiles layer
           </Typography>
-          <Switch sx={{ display: "inline-block" }} />
+          <Switch
+            sx={{ display: "inline-block" }}
+            checked={layerOn}
+            onChange={toggleLayer}
+          />
         </Card>
         {/* End temp code */}
       </StyledSwipeableDrawer>

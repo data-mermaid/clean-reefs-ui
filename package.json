@@ -23,6 +23,7 @@
     "i18next": "^25.3.2",
     "i18next-resources-to-backend": "^1.2.1",
     "jest": "^30.0.4",
+    "pmtiles": "^4.3.0",
     "prettier": "^3.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
