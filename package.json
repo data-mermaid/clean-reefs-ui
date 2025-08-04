@@ -23,12 +23,15 @@
     "i18next": "^25.3.2",
     "i18next-resources-to-backend": "^1.2.1",
     "jest": "^30.0.4",
+    "plotly.js": "^3.0.3",
+    "plotly.js-dist": "^3.0.3",
     "pmtiles": "^4.3.0",
     "prettier": "^3.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.6.0",
-    "react-map-gl": "^8.0.4"
+    "react-map-gl": "^8.0.4",
+    "react-plotly.js": "^2.6.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "4.0.1",

@@ -3,7 +3,7 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import styles from './StyledSwipeableDrawer.module.scss'
 
 interface SwipeableDrawerProps {
-  anchor?: 'left' | 'right'
+  anchor?: 'left' | 'right' | 'bottom' | 'top'
   children?: React.ReactNode
   open: boolean
   onOpen: () => void

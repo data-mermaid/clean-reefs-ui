@@ -1,6 +1,19 @@
+@use '../../styles/theme';
+
 .MuiDrawer-root {
-  & .MuiDrawer-paper {
+  & .MuiDrawer-paperAnchorLeft {
     width: 350px;
     padding: 8px;
+  }
+
+  & .MuiDrawer-paperAnchorBottom {
+  }
+
+  & .MuiDrawer-paper {
+    padding-top: 18px;
+    padding-right: theme.$defaultPadding;
+    padding-bottom: theme.$defaultPadding;
+    padding-left: theme.$defaultPadding;
+    background-color: theme.$grey;
   }
 }
