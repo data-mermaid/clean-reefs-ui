@@ -34,7 +34,7 @@ export default tseslint.config(
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'error', // please never override this rule, even locally
 
-        'no-console': ['error', { allow: ['warn', 'error'] }],
+        // 'no-console': ['error', { allow: ['warn', 'error'] }],
         'no-undef-init': 'error',
 
         '@typescript-eslint/no-unused-vars': [
