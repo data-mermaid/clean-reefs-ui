@@ -30,13 +30,14 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
   const mapRef = useRef(null);
   const [viewportBounds, setViewportBounds] = useState([]);
 
-  // Register PMTiles protocol
+  // Demo for COG protocol: https://github.com/geomatico/maplibre-cog-protocol/blob/main/README.md
   useEffect(() => {
     const protocol = new pmtiles.Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
     maplibregl.addProtocol("cog", cogProtocol);
     return () => {
       maplibregl.removeProtocol("pmtiles");
+      maplibregl.removeProtocol("cog");
     };
   }, []);
 
@@ -72,45 +73,13 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
           latitude: defaultLat,
           zoom: defaultMapZoom,
         }}
-        mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
+        mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
-        onMoveEnd={() => {
-          if (mapRef.current) {
-            const map = mapRef.current?.getMap();
-            const bounds = map?.getBounds();
-            setViewportBounds([
-              bounds?.getWest(),
-              bounds?.getSouth(),
-              bounds?.getEast(),
-              bounds?.getNorth(),
-            ]);
-          }
-        }}
       >
-        {/*<Source*/}
-        {/*  id="regions-pmtiles"*/}
-        {/*  type="vector"*/}
-        {/*  url={`pmtiles://${REGIONS_URL}`}*/}
-        {/*  maxzoom={14}*/}
-        {/*  minzoom={10}*/}
-        {/*>*/}
-        {/*  {protoLayerOn && (*/}
-        {/*    <Layer*/}
-        {/*      id="regions-layer"*/}
-        {/*      type="line"*/}
-        {/*      source="regions-pmtiles"*/}
-        {/*      source-layer="regions"*/}
-        {/*      paint={{*/}
-        {/*        "line-color": "#ff0000",*/}
-        {/*        "line-width": 3,*/}
-        {/*      }}*/}
-        {/*    />*/}
-        {/*  )}*/}
-        {/*</Source>*/}
         <Source
           id="lulc-raster"
           type="raster"
-          url={`${GLOBAL_LULC_URL}${viewportBounds ? `?bbox=${viewportBounds.join(",")}` : ""}`}
+          url={`cog://${GLOBAL_LULC_URL}${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(",")}` : ""}`}
           tileSize={256}
           maxzoom={14}
           minzoom={10}
@@ -119,11 +88,7 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
             id="lulc-layer"
             type="raster"
             source="lulc-raster"
-            source-layer="LULC_20202_Reclassified_colored" //naming...
-            // paint={{
-            // "line-color": "#01BFD9FF",
-            //*"line-width": 3,*/}
-            //*}}*/}
+            source-layer="LULC_20202_Reclassified_colored"
           />
         </Source>
       </Map>
