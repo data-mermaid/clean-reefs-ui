@@ -2,7 +2,8 @@
   "buttons": {
     "cancel": "Cancel",
     "go": "Go",
-    "open_menu": "Open menu"
+    "open_menu": "Open menu",
+    "share_view": "Share view"
   },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
@@ -60,5 +61,6 @@
   "type_to_filter": "Type to filter",
   "watershed": "Watershed",
   "watershed_boundaries": "Watershed boundaries",
-  "year": "Year"
+  "year": "Year",
+  "toggle_navigation_menu": "Toggle navigation menu"
 }

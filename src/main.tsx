@@ -4,10 +4,12 @@ import './styles/index.module.scss'
 import { StyledEngineProvider } from '@mui/material'
 import '../i18n'
 import MapContainer from './components/MapContainer/MapContainer'
+import NavigationHeader from './components/NavigationHeader/NavigationHeader'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <StyledEngineProvider injectFirst>
+      <NavigationHeader />
       <MapContainer />
     </StyledEngineProvider>
   </StrictMode>,

@@ -1,0 +1,66 @@
+@use '../../styles/theme';
+
+.MuiAppBar-root {
+  background-color: theme.$primary;
+
+  .MuiToolbar-root {
+    min-height: 43px;
+    padding: 0 10px;
+    font-size: 16px;
+    font-family: theme.$defaultFonts;
+
+    .logo {
+      font-size: 19px;
+      font-weight: 700;
+      color: theme.$white;
+      flex-grow: 1;
+    }
+
+    .navigation-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      .navigation-desktop-menu-box {
+        display: none;
+        gap: 20px;
+
+        @include theme.mobileUpBreakPoint {
+          display: flex;
+        }
+      }
+
+      .navigation-mobile-menu-box {
+        display: flex;
+
+        @include theme.mobileUpBreakPoint {
+          display: none;
+        }
+      }
+
+      .navigation-item-link {
+        color: theme.$white;
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.navigation-mobile-menu {
+  background-color: theme.$primary;
+}
+
+.navigation-menu-item {
+  text-align: center;
+  font-size: 16px;
+  color: white;
+}
+.header-icon {
+  width: 24px;
+  color: white;
+}
