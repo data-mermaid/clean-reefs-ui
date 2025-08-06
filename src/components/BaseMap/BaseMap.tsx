@@ -61,32 +61,32 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
           }}
         />
       )}
-      <Map
-        id="satellite-map"
-        style={{ width: '100%', height: '100%' }}
-        initialViewState={{
-          longitude: defaultLon,
-          latitude: defaultLat,
-          zoom: defaultMapZoom,
-        }}
-        mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
-        onLoad={() => setIsMapLoaded(true)}
-      >
-        <Source id="regions-pmtiles" type="vector" url={`pmtiles://${PMTILES_URL}`}>
-          {protoLayerOn && (
-            <Layer
-              id="regions-layer"
-              type="line"
-              source="regions-pmtiles"
-              source-layer="regions"
-              paint={{
-                'line-color': '#ff0000',
-                'line-width': 3,
-              }}
-            />
-          )}
-        </Source>
-      </Map>
+      {/*<Map*/}
+      {/*  id="satellite-map"*/}
+      {/*  style={{ width: '100%', height: '100%' }}*/}
+      {/*  initialViewState={{*/}
+      {/*    longitude: defaultLon,*/}
+      {/*    latitude: defaultLat,*/}
+      {/*    zoom: defaultMapZoom,*/}
+      {/*  }}*/}
+      {/*  mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}*/}
+      {/*  onLoad={() => setIsMapLoaded(true)}*/}
+      {/*>*/}
+      {/*  <Source id="regions-pmtiles" type="vector" url={`pmtiles://${PMTILES_URL}`}>*/}
+      {/*    {protoLayerOn && (*/}
+      {/*      <Layer*/}
+      {/*        id="regions-layer"*/}
+      {/*        type="line"*/}
+      {/*        source="regions-pmtiles"*/}
+      {/*        source-layer="regions"*/}
+      {/*        paint={{*/}
+      {/*          'line-color': '#ff0000',*/}
+      {/*          'line-width': 3,*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    )}*/}
+      {/*  </Source>*/}
+      {/*</Map>*/}
     </div>
   )
 }
