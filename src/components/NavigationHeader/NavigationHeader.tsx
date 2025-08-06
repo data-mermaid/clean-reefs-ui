@@ -1,4 +1,5 @@
 import * as React from 'react'
+
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -7,28 +8,30 @@ import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import ShareIcon from '@mui/icons-material/Share'
 import { Menu, MenuItem, Link } from '@mui/material'
+import type { PopoverOrigin } from '@mui/material'
+
 import { useTranslation } from 'react-i18next'
+
 import styles from './NavigationHeader.module.scss'
+import useResponsive from '../../hooks/useResponsive'
 
-const menuSx = {
-  '& .MuiPaper-root': {
-    backgroundColor: '#174b82',
-  },
-}
-
-const menuOriginConfig = {
+const menuOriginConfig: {
+  anchorOrigin: PopoverOrigin
+  transformOrigin: PopoverOrigin
+} = {
   anchorOrigin: {
-    vertical: 'bottom' as const,
-    horizontal: 'left' as const,
+    vertical: 'bottom',
+    horizontal: 'left',
   },
   transformOrigin: {
-    vertical: 'top' as const,
-    horizontal: 'left' as const,
+    vertical: 'top',
+    horizontal: 'left',
   },
 }
 
 export default function Header() {
   const { t } = useTranslation()
+  const { isMobileWidth } = useResponsive()
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
 
   const navItems = [
@@ -45,14 +48,14 @@ export default function Header() {
   }
 
   return (
-    <Box>
-      <AppBar position="sticky" className={styles['MuiAppBar-root']}>
-        <Toolbar className={styles['MuiToolbar-root']}>
-          <Typography className={styles['logo']}>GPW</Typography>
-          <div className={styles['navigation-container']}>
-            <IconButton aria-label={t('share_view')}>
-              <ShareIcon className={styles['header-icon']} />
-            </IconButton>
+    <AppBar position="sticky" className={styles['MuiAppBar-root']}>
+      <Toolbar className={styles['MuiToolbar-root']}>
+        <Typography className={styles['logo']}>GPW</Typography>
+        <div className={styles['navigation-container']}>
+          <IconButton aria-label={t('buttons.share_view')}>
+            <ShareIcon className={styles['header-icon']} />
+          </IconButton>
+          {!isMobileWidth && (
             <Box className={styles['navigation-desktop-menu-box']}>
               {navItems.map((item) => (
                 <Link
@@ -66,6 +69,8 @@ export default function Header() {
                 </Link>
               ))}
             </Box>
+          )}
+          {isMobileWidth && (
             <Box className={styles['navigation-mobile-menu-box']}>
               <IconButton
                 aria-label={t('toggle_navigation_menu')}
@@ -82,7 +87,11 @@ export default function Header() {
                 keepMounted
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={menuSx}
+                slotProps={{
+                  paper: {
+                    className: styles['navigation-mobile-menu'],
+                  },
+                }}
               >
                 {navItems.map((item) => (
                   <MenuItem key={item.label} onClick={handleCloseNavMenu}>
@@ -91,9 +100,9 @@ export default function Header() {
                 ))}
               </Menu>
             </Box>
-          </div>
-        </Toolbar>
-      </AppBar>
-    </Box>
+          )}
+        </div>
+      </Toolbar>
+    </AppBar>
   )
 }

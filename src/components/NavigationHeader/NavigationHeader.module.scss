@@ -25,7 +25,7 @@
         display: none;
         gap: 20px;
 
-        @include theme.mobileBreakpoint {
+        @include theme.mobileUpBreakPoint {
           display: flex;
         }
       }
@@ -33,7 +33,7 @@
       .navigation-mobile-menu-box {
         display: flex;
 
-        @include theme.mobileBreakpoint {
+        @include theme.mobileUpBreakPoint {
           display: none;
         }
       }
@@ -49,6 +49,10 @@
       }
     }
   }
+}
+
+.navigation-mobile-menu {
+  background-color: theme.$primary;
 }
 
 .navigation-menu-item {

@@ -17,7 +17,7 @@ $baseMap: 1;
 $breakpointMobile: 1024px;
 
 /** Mixins **/
-@mixin mobileBreakpoint {
+@mixin mobileUpBreakPoint {
   @media (min-width: $breakpointMobile) {
     @content;
   }
