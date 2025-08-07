@@ -12,21 +12,30 @@
   left: 0;
   right: 0;
   z-index: theme.$layersDrawer;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   padding: theme.$defaultPadding;
+  gap: 16px;
   pointer-events: none;
 
-  // Enable pointer events only on the child components
+  // Enable pointer events only on child components
   > * {
     pointer-events: auto;
   }
 
-  //   // Center the RegionSelect
+  > :nth-child(1) {
+    justify-self: start;
+  }
+
   > :nth-child(2) {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    justify-self: center;
+    width: 300px;
+  }
+
+  @include theme.mobileDownBreakPoint {
+    > :nth-child(2) {
+      width: 240px;
+    }
   }
 }
