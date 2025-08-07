@@ -24,8 +24,8 @@ $headerHeight: 43px;
 $breakpointMobile: 1024px;
 
 /** Mixins **/
-@mixin mobileUpBreakPoint {
-  @media (min-width: $breakpointMobile) {
+@mixin mobileDownBreakPoint {
+  @media (max-width: $breakpointMobile) {
     @content;
   }
 }
