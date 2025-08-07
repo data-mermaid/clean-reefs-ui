@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: space-between;
   padding: theme.$defaultPadding;
-  pointer-events: none; 
+  pointer-events: none;
 
   // Enable pointer events only on the child components
   > * {
