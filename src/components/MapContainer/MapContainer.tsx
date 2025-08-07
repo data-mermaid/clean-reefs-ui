@@ -1,14 +1,19 @@
+import React, { useState } from 'react'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
-import React, { useState } from 'react'
+import RegionSelect from '../RegionSelect/RegionSelect'
+import styles from './MapContainer.module.scss'
 
 export default function MapContainer() {
   const [layerOn, setLayerOn] = useState(true)
 
   return (
-    <>
-      <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
+    <div className={styles['MapContainer-root']}>
+      <div className={styles['layer-controls']}>
+        <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
+        <RegionSelect />
+      </div>
       <BaseMap protoLayerOn={layerOn} />
-    </>
+    </div>
   )
 }

@@ -1,0 +1,32 @@
+@use '../../styles/theme';
+
+.MapContainer-root {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - #{theme.$headerHeight});
+}
+
+.layer-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: theme.$layersDrawer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: theme.$defaultPadding;
+  pointer-events: none; 
+
+  // Enable pointer events only on the child components
+  > * {
+    pointer-events: auto;
+  }
+
+  //   // Center the RegionSelect
+  > :nth-child(2) {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
