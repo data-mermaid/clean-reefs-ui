@@ -42,7 +42,7 @@ export default function RegionSelect() {
     return a.label.localeCompare(b.label)
   })
 
-  const handleChange = (event: any, newValue: CountryOption | null) => {
+  const handleChange = (_, newValue: CountryOption | null) => {
     setSelectedValue(newValue || DEFAULT_OPTION)
   }
 
