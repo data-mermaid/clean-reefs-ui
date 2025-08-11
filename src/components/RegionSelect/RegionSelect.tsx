@@ -4,13 +4,12 @@ import TextField from '@mui/material/TextField'
 
 import styles from './RegionSelect.module.scss'
 
-// Mock data for countries with coral reefs
+/** TODO: Replace with actual country data */
 type CountryOption = {
   group: 'All Data' | 'Countries with Coral Reefs'
   label: string
 }
 
-// Define the default option as a constant
 const DEFAULT_OPTION: CountryOption = {
   group: 'All Data',
   label: 'Global',
@@ -31,6 +30,7 @@ const countryOptions: CountryOption[] = [
   { group: 'Countries with Coral Reefs', label: 'New Zealand' },
   { group: 'Countries with Coral Reefs', label: 'Saint Kitts' },
 ]
+/** End of mock data */
 
 export default function RegionSelect() {
   const [selectedValue, setSelectedValue] = useState<CountryOption | null>(DEFAULT_OPTION)
