@@ -30,7 +30,6 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
   const mapRef = useRef(null);
   const [viewportBounds, setViewportBounds] = useState([]);
 
-  // Demo for COG protocol: https://github.com/geomatico/maplibre-cog-protocol/blob/main/README.md
   useEffect(() => {
     const protocol = new pmtiles.Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -76,21 +75,23 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
       >
-        <Source
-          id="lulc-raster"
-          type="raster"
-          url={`cog://${GLOBAL_LULC_URL}${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(",")}` : ""}`}
-          tileSize={256}
-          maxzoom={14}
-          minzoom={10}
-        >
-          <Layer
-            id="lulc-layer"
+        {isMapLoaded && (
+          <Source
+            id="lulc-raster"
             type="raster"
-            source="lulc-raster"
-            source-layer="LULC_20202_Reclassified_colored"
-          />
-        </Source>
+            url={`cog://${GLOBAL_LULC_URL}${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(",")}` : ""}`}
+            tileSize={256}
+            maxzoom={16}
+            minzoom={6}
+          >
+            <Layer
+              id="lulc-layer"
+              type="raster"
+              source="lulc-raster"
+              source-layer="LULC_20202_Reclassified_colored"
+            />
+          </Source>
+        )}
       </Map>
     </div>
   );
