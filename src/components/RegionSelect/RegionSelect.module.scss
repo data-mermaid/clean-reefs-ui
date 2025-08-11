@@ -12,7 +12,7 @@
   border-radius: 4px;
 
   & .MuiAutocomplete-input {
-    font-size: 16px;
+    font-size: theme.$textSizeMedium;
   }
 
   & .MuiAutocomplete-clearIndicator {
@@ -30,7 +30,7 @@
 
 .custom-autocomplete-popper {
   .MuiAutocomplete-option {
-    font-size: theme.$textSize;
+    font-size: theme.$textSizeSmall;
 
     &[aria-selected='true'] {
       background-color: theme.$primary !important;
@@ -50,9 +50,9 @@
   }
 
   .MuiAutocomplete-noOptions {
-    font-size: theme.$textSize;
+    font-size: theme.$textSizeSmall;
     color: theme.$textSecondary;
-    padding: 8px 16px;
+    padding: theme.$spacingSmall theme.$spacingMedium;
   }
 }
 
@@ -60,15 +60,15 @@
   position: sticky;
   top: -8px;
   font-weight: bold;
-  padding: 8px 16px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
-  font-size: theme.$textSize;
+  padding: theme.$spacingSmall theme.$spacingMedium;
+  background-color: theme.$secondaryLight;
+  border-bottom: 1px solid theme.$secondary;
+  font-size: theme.$textSizeSmall;
 }
 
 .group-list {
   padding: 0;
   margin: 0;
   list-style: none;
-  font-size: theme.$textSize;
+  font-size: theme.$textSizeSmall;
 }

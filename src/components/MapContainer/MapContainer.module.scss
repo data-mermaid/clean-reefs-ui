@@ -15,8 +15,8 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: theme.$defaultPadding;
-  gap: 16px;
+  padding: theme.$spacingSmall;
+  gap: theme.$spacingMedium;
   pointer-events: none;
 
   // Enable pointer events only on child components
