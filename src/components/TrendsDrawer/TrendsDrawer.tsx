@@ -37,17 +37,7 @@ export default function TrendsDrawer() {
   const GraphPlaceholder = (graphName: string) => (
     <Card
       onClick={open ? () => {} : toggleDrawer}
-      className={styles['graph-card']}
-      style={{
-        display: open ? 'block' : 'inline-block',
-        float: open ? 'none' : 'left',
-        width: open ? '' : '300px',
-        height: open ? 'auto' : '55px',
-        backgroundColor: '#FAFBFC', //TODO
-        margin: open ? '0 0 10px 0' : '0 10px 0 0',
-        padding: '10px',
-      }}
-    >
+      className={styles['graph-card']}>
       {!open && graphName}
       {open && (
         <Plot
@@ -67,10 +57,9 @@ export default function TrendsDrawer() {
       swipeAreaWidth={100}
       variant="persistent"
       disableSwipeToOpen={false}
-      keepMounted
       classes={{
         root: styles['MuiDrawer-root'],
-        paper: `${styles['MuiDrawer-paper']} ${open && styles['open-drawer']}`,
+        paper: `${styles['MuiDrawer-paper']} ${open ? styles['open-drawer'] : styles['closed-drawer']}`,
         modal: styles['MuiDrawer-modal'],
         paperAnchorBottom: styles['MuiDrawer-paperAnchorBottom'],
         paperAnchorDockedBottom: styles['MuiDrawer-paperAnchorDockedBottom'],
@@ -86,23 +75,12 @@ export default function TrendsDrawer() {
         )}
       </div>
 
-      {/*<div*/}
-      {/*  style={{*/}
-      {/*      // position:'relative',*/}
-      {/*      overflow: 'scroll',*/}
-      {/*    // overflowX: open ? 'hidden' : 'scroll',*/}
-      {/*    // overflowY: open ? 'scroll' : 'hidden',*/}
-      {/*      marginTop: '30px',*/}
-      {/*      border: '1px solid blue',*/}
-      {/*    // marginLeft: open ? '5px' : 'inherit',*/}
-      {/*    width: open ? '100%' : 'max-content',*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  {GraphPlaceholder('Ecosystem extent exposed')}*/}
-      {/*  {GraphPlaceholder('Land use through time')}*/}
-      {/*  {GraphPlaceholder('Ecosystem')}*/}
-      {/*  {GraphPlaceholder('extent exposed')}*/}
-      {/*</div>*/}
+      <div className={styles['graphs-container']}>
+        {GraphPlaceholder('Ecosystem extent exposed')}
+        {GraphPlaceholder('Land use through time')}
+        {GraphPlaceholder('Ecosystem')}
+        {GraphPlaceholder('extent exposed')}
+      </div>
     </SwipeableDrawer>
   )
 }
