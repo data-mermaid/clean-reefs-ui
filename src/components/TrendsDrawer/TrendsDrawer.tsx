@@ -7,13 +7,13 @@ import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
 import { styled } from '@mui/material/styles'
 import * as React from 'react'
+import useResponsive from '../../hooks/useResponsive'
 
-const graphData = [
+const mockGraphData = [
   {
     x: ['giraffes', 'orangutans', 'monkeys'],
     y: [20, 14, 23],
     type: 'bar',
-    title: { text: 'graphs.contributing_watersheds' },
   },
 ]
 
@@ -29,20 +29,20 @@ const Puller = styled('div')(() => ({
 
 export default function TrendsDrawer() {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
+  const { isMobileWidth } = useResponsive()
+  const [open, setOpen] = useState(!isMobileWidth)
   const toggleDrawer = () => {
     setOpen(!open)
   }
 
-  const GraphPlaceholder = (graphName: string) => (
-    <Card
-      onClick={open ? () => {} : toggleDrawer}
-      className={styles['graph-card']}>
+  const GraphCard = (graphName: string) => (
+    <Card onClick={open ? () => {} : toggleDrawer} className={styles['graph-card']}>
       {!open && graphName}
       {open && (
         <Plot
-          data={graphData}
-          layout={{ margin: '0 auto', width: '350', title: { text: graphName } }}
+          data={mockGraphData}
+          className={styles['graph-plots']}
+          layout={{ title: { text: t(graphName) } }}
         />
       )}
     </Card>
@@ -50,25 +50,27 @@ export default function TrendsDrawer() {
 
   return (
     <SwipeableDrawer
-      anchor="bottom"
+      anchor={isMobileWidth ? 'bottom' : 'right'}
       open={open}
       onOpen={() => {}}
       onClose={() => {}}
       swipeAreaWidth={100}
-      variant="persistent"
+      variant={isMobileWidth ? 'persistent' : 'permanent'}
       disableSwipeToOpen={false}
       classes={{
         root: styles['MuiDrawer-root'],
         paper: `${styles['MuiDrawer-paper']} ${open ? styles['open-drawer'] : styles['closed-drawer']}`,
         modal: styles['MuiDrawer-modal'],
+        anchorRight: styles['MuiDrawer-anchorRight'],
         paperAnchorBottom: styles['MuiDrawer-paperAnchorBottom'],
+        paperAnchorRight: styles['MuiDrawer-paperAnchorRight'],
         paperAnchorDockedBottom: styles['MuiDrawer-paperAnchorDockedBottom'],
       }}
     >
       <div className={styles['drawer-tab']}>
-        {!open && <Puller onClick={toggleDrawer} />}
+        {!open && isMobileWidth && <Puller onClick={toggleDrawer} />}
         <h2 style={{ marginTop: open ? '4px' : '0' }}>{t('global_trends')}</h2>
-        {open && (
+        {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} onClick={toggleDrawer} />
           </IconButton>
@@ -76,10 +78,11 @@ export default function TrendsDrawer() {
       </div>
 
       <div className={styles['graphs-container']}>
-        {GraphPlaceholder('Ecosystem extent exposed')}
-        {GraphPlaceholder('Land use through time')}
-        {GraphPlaceholder('Ecosystem')}
-        {GraphPlaceholder('extent exposed')}
+        {/*  Temporary components */}
+        {GraphCard('graphs.land_use_historical')}
+        {GraphCard('graphs.ecosystem_extent_exposed')}
+        {GraphCard('graphs.sediment_exposure_historical')}
+        {/*  Temporary components */}
       </div>
     </SwipeableDrawer>
   )

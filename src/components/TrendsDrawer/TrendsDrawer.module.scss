@@ -1,18 +1,54 @@
 @use '../../styles/theme';
 
 .MuiDrawer-root {
-  position: absolute;
-
   & .MuiDrawer-paperAnchorBottom {
     height: 200px;
   }
 
   //Unopened state
   > .MuiDrawer-paper {
-    background-color: white;
+    background-color: theme.$grey;
   }
 
-  & .MuiDrawer-paper {
+  //paper
+  &.MuiDrawer-anchorRight {
+    .graphs-container {
+      width: 300px;
+      overflow-y: scroll;
+      height: 90%;
+    }
+  }
+
+  & .MuiDrawer-paperAnchorRight {
+    display: block;
+    top: 43px;
+    visibility: visible !important; //override MUI application
+    padding: theme.$defaultPadding;
+    overflow-y: hidden;
+
+    .graphs-container {
+      width: 300px;
+
+      .graph-card {
+        margin-bottom: theme.$defaultPadding;
+        width: 100%;
+
+        &:last-of-type {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    &.open-drawer {
+      //background-color: green;
+    }
+
+    &.closed-drawer {
+      //background-color: pink;
+    }
+  }
+
+  & .MuiDrawer-paperAnchorBottom {
     background-color: theme.$grey;
     visibility: visible !important; //override MUI application
 
@@ -21,8 +57,7 @@
       padding: 18px theme.$defaultPadding 0 theme.$defaultPadding;
 
       .graphs-container {
-        overflow-y: scroll;
-        //background-color: mediumpurple;
+        overflow-x: scroll;
       }
 
       .graph-card {
@@ -35,17 +70,18 @@
       .graph-card:last-of-type {
         margin-bottom: 0;
       }
-
     }
+
     &.closed-drawer {
       height: 120px;
       margin-top: theme.$defaultPadding;
       padding: 18px theme.$defaultPadding theme.$defaultPadding theme.$defaultPadding;
       transform: none !important; //override MUI application
+      overflow-y: clip;
 
       .graphs-container {
         width: max-content;
-        overflow-x:scroll;
+        overflow-x: scroll;
       }
 
       .graph-card {
@@ -54,24 +90,22 @@
         height: 55px;
         width: 300px;
         margin-right: theme.$defaultPadding;
+
         &:last-of-type {
           margin-right: 0;
         }
       }
-
     }
   }
-
 }
 
 .open-drawer {
-
   & .MuiDrawer-paper {
     padding-bottom: 0;
   }
+
   .drawer-tab {
     position: sticky;
-    top: -8;
     left: 0;
     display: flex;
     align-items: center;
@@ -89,6 +123,7 @@
 .graphs-container {
   margin-top: 10px;
 }
+
 .graph-card {
   background-color: white;
   padding: theme.$defaultPadding;
@@ -96,4 +131,10 @@
   &:last-of-type {
     margin-right: 0;
   }
+}
+
+.graph-plots {
+  margin: 0 auto;
+  display: block;
+  width: 300px;
 }
