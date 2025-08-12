@@ -14,3 +14,13 @@ $defaultPadding: 10px;
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
+
+/** Breakpoints **/
+$breakpointMobile: 1024px;
+
+/** Mixins **/
+@mixin mobileUpBreakPoint {
+  @media (min-width: $breakpointMobile) {
+    @content;
+  }
+}
