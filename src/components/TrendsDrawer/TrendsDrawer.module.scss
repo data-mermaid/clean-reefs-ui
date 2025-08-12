@@ -1,0 +1,54 @@
+@use '../../styles/theme';
+
+.MuiDrawer-root {
+  position: absolute;
+
+  & .MuiDrawer-paperAnchorBottom {
+    height: 200px;
+    background-color: greenyellow;
+  }
+
+  //Unopened state
+  > .MuiDrawer-paper {
+    background-color: white;
+  }
+
+  & .MuiDrawer-paper {
+    padding: 18px theme.$defaultPadding theme.$defaultPadding theme.$defaultPadding;
+    //padding-right: theme.$defaultPadding;
+    //padding-bottom: theme.$defaultPadding;
+    //padding-left: theme.$defaultPadding;
+    background-color: theme.$grey;
+    transform: none !important; //override MUI application
+    visibility: visible !important; //override MUI application
+    height: 120px;
+  }
+}
+
+.open-drawer {
+  height: 98vh !important;
+
+  & .MuiDrawer-paper {
+    padding-bottom: 0;
+  }
+  .drawer-tab {
+    position: sticky;
+    top: -8;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    visibility: visible;
+  }
+}
+
+.drawer-tab {
+  //position: sticky;
+
+  h2 {
+    font-size: 16px; //TODO: move to relevant location for h2
+  }
+}
+
+.graph-card {
+}
