@@ -34,7 +34,7 @@ MUI components consist of multiple components and usually render out several chi
 
 ## Visual tests
 
-Use Storybook stories.
+Use Storybook stories. [Writing Storybook tests...](https://storybook.js.org/docs/writing-tests)
 
 - `yarn storybook`
 - Builds to `http://localhost:6006/`

@@ -35,6 +35,8 @@ export default function LayersDrawer({ layerOn, setLayerOn }: LayersDrawerProps)
         anchor="left"
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
+        handleClick={toggleDrawer(!open)}
+        variant="temporary"
       >
         <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
 
