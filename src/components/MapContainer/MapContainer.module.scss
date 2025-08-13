@@ -1,14 +1,13 @@
 @use '../../styles/theme';
 
 .MapContainer-root {
-  position: relative;
   width: 100%;
-  height: calc(100vh - #{theme.$headerHeight});
+  height: 100%;
 }
 
 .layer-controls {
   position: absolute;
-  top: 0;
+  top: theme.$headerHeight;
   left: 0;
   right: 0;
   z-index: theme.$layersDrawer;

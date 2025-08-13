@@ -4,7 +4,7 @@
   background-color: theme.$primary;
 
   .MuiToolbar-root {
-    min-height: 43px;
+    min-height: theme.$headerHeight;
     padding: 0 10px;
     font-size: 16px;
     font-family: theme.$defaultFonts;
