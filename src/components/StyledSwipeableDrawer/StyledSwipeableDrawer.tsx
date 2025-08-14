@@ -32,7 +32,7 @@ export default function StyledSwipeableDrawer({
   handleClick,
   variant = undefined,
 }: SwipeableDrawerProps) {
-  const swipeArea = 100
+  // const swipeArea = 100
   return (
     <SwipeableDrawer
       anchor={anchor}
