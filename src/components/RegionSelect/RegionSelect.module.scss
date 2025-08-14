@@ -9,7 +9,7 @@
 .MuiAutocomplete-root {
   width: 100%;
   background-color: theme.$white;
-  border-radius: 4px;
+  border-radius: theme.$radiusSize;
 
   & .MuiAutocomplete-input {
     font-size: theme.$textSizeMedium;
@@ -17,13 +17,13 @@
 
   & .MuiAutocomplete-clearIndicator {
     & svg {
-      font-size: 20px;
+      font-size: theme.$svgSizeSmall;
     }
   }
 
   & .MuiAutocomplete-popupIndicator {
     & svg {
-      font-size: 26px;
+      font-size: theme.$svgSizeMedium;
     }
   }
 }
