@@ -1,44 +1,19 @@
-//@use '../../styles/theme';
-//
-//.MuiDrawer-root {
-//  position: absolute;
-//  //top: calc(100vh - 180px);
-//  //background-color: orange;
-//  height: 180px;
-//  //visibility: visible; //click conflict region with bottom drawer when open
-//
-//  .MuiModal-hidden {
-//    background-color: peachpuff;
-//  }
-//
-//  & .MuiDrawer-paperAnchorLeft {
-//    width: 350px;
-//    padding: 8px;
-//  }
-//  .MuiDrawer-paperAnchorDockedBottom {
-//    background-color: hotpink;
-//  }
-//  & .MuiDrawer-paperAnchorBottom {
-//    height: 200px;
-//    background-color: greenyellow;
-//  }
-//
-//  & .MuiPaper-root {
-//    background-color: pink;
-//  }
-//
-//  & .MuiDrawer-paper {
-//    //padding-top: open ? 18px : theme.$defaultPadding
-//    //width: 200px;
-//    //background-color: blue;
-//    padding-top: 18px;
-//    //padding-right: theme.$defaultPadding;
-//    //padding-bottom: theme.$defaultPadding;
-//    //padding-left: theme.$defaultPadding;
-//    //background-color: theme.$grey;
-//    transform: none !important; //override MUI application
-//    //visibility: visible !important;
-//    //height: open ? '' : 120px
-//    height: 120px;
-//  }
-//}
+@use '../../styles/theme';
+
+.MuiDrawer-root {
+  height: 180px;
+
+  & .MuiDrawer-paperAnchorLeft {
+    width: 350px;
+    padding: 8px;
+  }
+  & .MuiDrawer-paperAnchorBottom {
+    height: 200px;
+  }
+
+  & .MuiDrawer-paper {
+    padding-top: 18px;
+    transform: none !important; //override MUI application
+    //visibility: visible !important;
+  }
+}

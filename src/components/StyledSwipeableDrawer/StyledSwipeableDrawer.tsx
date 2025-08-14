@@ -39,7 +39,7 @@ export default function StyledSwipeableDrawer({
       open={open}
       onOpen={onOpen}
       onClose={onClose}
-      swipeAreaWidth={swipeArea}
+      // swipeAreaWidth={swipeArea}
       classes={{
         root: styles['MuiDrawer-root'],
         paper: styles['MuiDrawer-paper'],
