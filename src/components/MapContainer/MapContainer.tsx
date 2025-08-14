@@ -12,10 +12,10 @@ export default function MapContainer() {
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
         <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
-        <TrendsDrawer />
         <RegionSelect />
       </div>
-      <BaseMap protoLayerOn={layerOn} />
+        <TrendsDrawer />
+        <BaseMap protoLayerOn={layerOn} />
     </div>
   )
 }

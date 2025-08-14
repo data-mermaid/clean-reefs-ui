@@ -7,12 +7,11 @@ $white: #ffffff;
 $grey: #dedfe3;
 $greyWhite: #fafbfc;
 
-/** Fonts, font styling, text, spacing **/
 /** Fonts, font styling, text **/
 $textColor: #393939;
+$textSecondary: #666666;
 $defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
 
-$textSecondary: #666666;
 
 $textSizeSmall: 14px;
 $textSizeMedium: 16px;
@@ -20,14 +19,15 @@ $textSizeMedium: 16px;
 $svgSizeSmall: 20px;
 $svgSizeMedium: 26px;
 
+
+
+$borderRadius: 4px;
+
+/** Layout, spacing **/
+$defaultPadding: 10px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
 $spacingLarge: 24px;
-
-$radiusSize: 4px;
-
-/** Layout **/
-$defaultPadding: 10px;
 
 /** Z-indexes **/
 $layersDrawer: 4;

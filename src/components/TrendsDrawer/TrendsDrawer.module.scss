@@ -1,10 +1,6 @@
 @use '../../styles/theme';
 
 .MuiDrawer-root {
-  & .MuiDrawer-paperAnchorBottom {
-    height: 200px;
-  }
-
   //Unopened state
   > .MuiDrawer-paper {
     background-color: theme.$grey;
@@ -20,11 +16,6 @@
   }
 
   & .MuiDrawer-paperAnchorRight {
-    display: block;
-    top: 43px;
-    visibility: visible !important; //override MUI application
-    padding: theme.$defaultPadding;
-    overflow-y: hidden;
 
     .graphs-container {
       width: 300px;
@@ -38,19 +29,9 @@
         }
       }
     }
-
-    &.open-drawer {
-      //background-color: green;
-    }
-
-    &.closed-drawer {
-      //background-color: pink;
-    }
   }
 
   & .MuiDrawer-paperAnchorBottom {
-    background-color: theme.$grey;
-    visibility: visible !important; //override MUI application
 
     &.open-drawer {
       height: 98vh;

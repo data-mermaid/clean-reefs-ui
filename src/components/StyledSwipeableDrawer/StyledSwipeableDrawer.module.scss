@@ -3,17 +3,49 @@
 .MuiDrawer-root {
   height: 180px;
 
+  & .MuiDrawer-paperAnchorRight {
+    display: block;
+    top: 43px;
+    visibility: visible !important; //override MUI application
+    padding: theme.$defaultPadding;
+    overflow-y: hidden;
+
+  }
+
+  & .MuiDrawer-paperAnchorBottom {
+    background-color: theme.$grey;
+    height: 200px;
+    visibility: visible !important; //override MUI application
+
+    &.open-drawer {
+      height: 98vh;
+      padding: 18px theme.$defaultPadding 0 theme.$defaultPadding;
+    }
+    &.closed-drawer {
+      height: 120px;
+      margin-top: theme.$defaultPadding;
+      padding: 18px theme.$defaultPadding theme.$defaultPadding theme.$defaultPadding;
+      transform: none !important; //override MUI application
+      overflow-y: clip;
+    }
+  }
+
   & .MuiDrawer-paperAnchorLeft {
     width: 350px;
     padding: 8px;
   }
-  & .MuiDrawer-paperAnchorBottom {
-    height: 200px;
-  }
-
   & .MuiDrawer-paper {
     padding-top: 18px;
     transform: none !important; //override MUI application
-    //visibility: visible !important;
   }
+}
+
+.drawer-puller {
+  position: absolute;
+  left: calc(50% - 53px);
+  top: 20px;
+  width: 106px;
+  height: 6px;
+  background-color: theme.$grey;
+  border-radius: theme.$borderRadius;
 }
