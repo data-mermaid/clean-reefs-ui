@@ -25,7 +25,14 @@
 
     > :nth-child(2) {
       justify-self: center;
-      width: 300px;
+      width: 400px;
+    }
+
+    .selectors {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     @include theme.mobileDownBreakPoint {
