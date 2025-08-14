@@ -4,20 +4,30 @@ import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import YearSelect from '../YearSelect/YearSelect'
+import useResponsive from '../../hooks/useResponsive'
 
 export default function MapContainer() {
+  const { isMobileWidth } = useResponsive()
   const [layerOn, setLayerOn] = useState(true)
   const [selectedYear, setSelectedYear] = useState(2020)
 
   return (
     <div className={styles['MapContainer-root']}>
-      <div className={styles['layer-controls']}>
-        <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
-        <div className={styles['selectors']}>
+      {isMobileWidth ? (
+        <div className={styles['layer-controls-mobile']}>
+          <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
           <RegionSelect />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
         </div>
-      </div>
+      ) : (
+        <div className={styles['layer-controls-desktop']}>
+          <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
+          <div>
+            <RegionSelect />
+            <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+          </div>
+        </div>
+      )}
       <BaseMap protoLayerOn={layerOn} />
     </div>
   )
