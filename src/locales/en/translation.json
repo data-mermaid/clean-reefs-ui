@@ -66,5 +66,6 @@
   "watershed": "Watershed",
   "watershed_boundaries": "Watershed boundaries",
   "year": "Year",
-  "toggle_navigation_menu": "Toggle navigation menu"
+  "toggle_navigation_menu": "Toggle navigation menu",
+  "select_region": "Select region"
 }
