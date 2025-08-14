@@ -14,8 +14,8 @@ export default function MapContainer() {
         <LayersDrawer layerOn={layerOn} setLayerOn={setLayerOn} />
         <RegionSelect />
       </div>
-        <TrendsDrawer />
-        <BaseMap protoLayerOn={layerOn} />
+      <TrendsDrawer />
+      <BaseMap protoLayerOn={layerOn} />
     </div>
   )
 }
