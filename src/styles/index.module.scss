@@ -21,8 +21,10 @@ a {
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  // min-width: 320px;
+  // min-height: 100vh;
+  // overflow: hidden;
 }
 
 h1 {
@@ -31,5 +33,5 @@ h1 {
 }
 
 section {
-  padding: theme.$defaultPadding;
+  padding: theme.$spacingSmall;
 }
