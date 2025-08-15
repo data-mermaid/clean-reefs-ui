@@ -1,0 +1,95 @@
+@use '../../styles/theme';
+
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.selectedYearButton {
+  background: theme.$greyWhite !important;
+  font-size: theme.$textSizeMedium !important;
+  color: theme.$textColor !important;
+  height: 40px;
+  padding: theme.$spacingSmall theme.$spacingSmall;
+  line-height: 120%;
+  box-shadow: 1px 1px 6px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover:not(:disabled) {
+    background: darken(theme.$greyWhite, 5%) !important;
+    box-shadow: 1px 1px 8px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  &.open {
+    box-shadow: 1px 1px 8px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.yearList {
+  position: absolute;
+  top: calc(100% + theme.$spacingSmall);
+  left: 0;
+  right: 0;
+  z-index: theme.$layersDrawer;
+  background: theme.$greyWhite;
+  padding: 0;
+  margin: 0;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yearButton {
+  width: 100%;
+  color: theme.$textColor;
+  font-size: theme.$textSizeMedium;
+  padding: theme.$spacingSmall theme.$spacingMedium;
+  border-radius: 0;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background: theme.$primaryLight;
+    color: theme.$textColor;
+  }
+
+  &.selected {
+    background: theme.$primary !important;
+    color: theme.$white !important;
+    font-weight: bold;
+
+    &:hover {
+      background: theme.$primary !important;
+      color: theme.$white !important;
+      opacity: 0.9;
+    }
+  }
+}
+
+// Responsive adjustments
+@include theme.mobileDownBreakPoint {
+  .selectedYearButton {
+    font-size: theme.$textSizeSmall !important;
+  }
+
+  .yearButton {
+    font-size: theme.$textSizeSmall !important;
+  }
+}

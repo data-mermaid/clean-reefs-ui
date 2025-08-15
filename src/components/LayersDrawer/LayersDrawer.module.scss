@@ -4,3 +4,15 @@
   display: flex;
   align-items: center;
 }
+
+.layerToggleButton {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 40px;
+
+  & svg {
+    width: theme.$svgSizeSmall;
+    color: theme.$textColor;
+  }
+}

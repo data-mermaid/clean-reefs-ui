@@ -18,20 +18,23 @@ $textSizeMedium: 16px;
 $svgSizeSmall: 20px;
 $svgSizeMedium: 26px;
 
-$borderRadius: 4px;
-
 /** Layout, spacing **/
+$spacingXSmall: 5px;
+
 $defaultPadding: 10px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
 $spacingLarge: 24px;
 
+$borderRadius: 4px;
+$radiusSize: 4px;
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
 
-/** Header height **/
+/** Component dimensions **/
 $headerHeight: 54px;
+$regionSelectWidth: 300px;
 
 /** Breakpoints **/
 $breakpointMobile: 1024px;

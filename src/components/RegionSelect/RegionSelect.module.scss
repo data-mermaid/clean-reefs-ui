@@ -4,11 +4,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: theme.$regionSelectWidth;
+
+  @include theme.mobileDownBreakPoint {
+    width: 100%;
+  }
 }
 
 .MuiAutocomplete-root {
   width: 100%;
-  background-color: theme.$white;
+  background-color: theme.$greyWhite;
   border-radius: theme.$borderRadius;
 
   & .MuiAutocomplete-input {
@@ -35,6 +40,7 @@
     &[aria-selected='true'] {
       background-color: theme.$primary !important;
       color: theme.$white !important;
+      font-weight: 700;
 
       &:hover {
         background-color: theme.$primary;

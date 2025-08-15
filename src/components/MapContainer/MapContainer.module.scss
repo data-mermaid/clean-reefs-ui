@@ -4,7 +4,7 @@
   width: 100%;
   height: 100%;
 
-  .layer-controls {
+  .layer-controls-desktop {
     position: relative;
     z-index: theme.$layersDrawer;
     display: grid;
@@ -25,13 +25,18 @@
 
     > :nth-child(2) {
       justify-self: center;
-      width: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: theme.$spacingXSmall;
     }
+  }
 
-    @include theme.mobileDownBreakPoint {
-      > :nth-child(2) {
-        width: 240px;
-      }
-    }
+  .layer-controls-mobile {
+    position: relative;
+    z-index: theme.$layersDrawer;
+    display: flex;
+    gap: theme.$spacingXSmall;
+    padding: theme.$spacingXSmall;
   }
 }
