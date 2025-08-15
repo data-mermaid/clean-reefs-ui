@@ -9,7 +9,6 @@ interface SwipeableDrawerProps {
   open: boolean
   onOpen: () => void
   onClose: () => void
-  handleClick: () => void
   variant?: DrawerProps['variant']
   testId?: string
   swipeAreaWidth?: number
@@ -21,7 +20,6 @@ export default function StyledSwipeableDrawer({
   open,
   onOpen,
   onClose,
-  handleClick,
   variant = undefined,
   testId = '',
   swipeAreaWidth,

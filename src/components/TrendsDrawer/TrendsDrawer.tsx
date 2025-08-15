@@ -44,9 +44,8 @@ export default function TrendsDrawer() {
     <StyledSwipeableDrawer
       anchor={isMobileWidth ? 'bottom' : 'right'}
       open={open}
-      onOpen={() => {}}
-      onClose={() => {}}
-      handleClick={toggleDrawer}
+      onOpen={toggleDrawer}
+      onClose={toggleDrawer}
       swipeAreaWidth={100}
       variant={isMobileWidth ? 'persistent' : 'permanent'}
     >

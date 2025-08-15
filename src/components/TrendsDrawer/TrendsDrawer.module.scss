@@ -16,6 +16,7 @@
 }
 
 .graphs-container--open {
+  overflow-y: scroll;
   //Temporary component styling
   .graph-card {
     margin-bottom: theme.$defaultPadding;

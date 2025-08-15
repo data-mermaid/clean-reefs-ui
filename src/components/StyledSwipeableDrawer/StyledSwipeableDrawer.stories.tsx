@@ -25,7 +25,6 @@ export const LeftOpen: Story = {
     open: true,
     onOpen: () => {},
     onClose: () => {},
-    handleClick: () => {},
     children: (
       <>
         <div>
@@ -43,7 +42,6 @@ export const RightOpen: Story = {
     open: true,
     onOpen: () => {},
     onClose: () => {},
-    handleClick: () => {},
     children: (
       <>
         <div>
@@ -61,7 +59,6 @@ export const BottomClosedPersistent: Story = {
     open: false,
     onOpen: () => {},
     onClose: () => {},
-    handleClick: () => {},
     testId: 'bottom',
     variant: 'persistent',
     children: (
@@ -83,7 +80,6 @@ export const BottomOpenPersistent: Story = {
     open: true,
     onOpen: () => {},
     onClose: () => {},
-    handleClick: () => {},
     variant: 'persistent',
     children: (
       <>
@@ -92,6 +88,8 @@ export const BottomOpenPersistent: Story = {
         </div>
 
         <div className={styles['graphs-container']}>
+          <Card>Placeholder card</Card>
+          <Card>Placeholder card</Card>
           <Card>Placeholder card</Card>
         </div>
       </>
