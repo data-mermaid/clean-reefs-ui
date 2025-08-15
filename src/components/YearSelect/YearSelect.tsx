@@ -11,7 +11,7 @@ const AVAILABLE_YEARS = [2020, 2015, 2010, 2005, 2000] as const
 
 export interface YearSelectProps {
   selectedYear: number
-  onChange: (year: number) => void
+  onChange?: (year: number) => void
   className?: string
   disabled?: boolean
   'aria-label'?: string
@@ -35,7 +35,7 @@ export const YearSelect = ({
 
   const handleYearSelect = useCallback(
     (year: number) => {
-      onChange(year)
+      onChange?.(year)
       setIsOpen(false)
     },
     [onChange],
@@ -45,7 +45,6 @@ export const YearSelect = ({
     setIsOpen(false)
   }, [])
 
-  // Close dropdown on outside click
   useEffect(() => {
     if (!isOpen) return
 
@@ -59,7 +58,6 @@ export const YearSelect = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isOpen, handleCloseDropdown])
 
-  // Simple escape key handling
   useEffect(() => {
     if (!isOpen) return
 
