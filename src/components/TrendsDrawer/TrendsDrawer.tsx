@@ -27,8 +27,9 @@ export default function TrendsDrawer() {
   ]
   const GraphCard = (graphName: string) => (
     <Card onClick={open ? () => {} : toggleDrawer} className={styles['graph-card']}>
-      {!open && graphName}
-      {open && (
+      {!open ? (
+        t(graphName)
+      ) : (
         <Plot
           data={mockGraphData}
           className={styles['graph-plots']}
@@ -37,6 +38,7 @@ export default function TrendsDrawer() {
       )}
     </Card>
   )
+  //End temporary component
 
   return (
     <StyledSwipeableDrawer
@@ -48,8 +50,7 @@ export default function TrendsDrawer() {
       swipeAreaWidth={100}
       variant={isMobileWidth ? 'persistent' : 'permanent'}
     >
-      <div className={styles['drawer-tab']}>
-        {/*{!open && isMobileWidth && <div className={styles['drawer-puller']} />}*/}
+      <div className={styles['drawer-header']}>
         <h2 style={{ marginTop: open ? '4px' : '0' }}>{t('global_trends')}</h2>
         {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')}>
@@ -58,9 +59,11 @@ export default function TrendsDrawer() {
         )}
       </div>
 
-      <div className={styles['graphs-container']}>
+      <div className={styles[`graphs-container--${open ? 'open' : 'closed'}`]}>
         {/*  Temporary components */}
         {GraphCard('graphs.land_use_historical')}
+        {GraphCard('graphs.ecosystem_extent_exposed')}
+        {GraphCard('graphs.ecosystem_extent_exposed')}
         {GraphCard('graphs.ecosystem_extent_exposed')}
         {GraphCard('graphs.sediment_exposure_historical')}
         {/*  Temporary components */}

@@ -5,7 +5,6 @@
 
   line-height: 1.5;
   font-family: theme.$defaultFonts;
-  //font-size: 1.6rem;
   font-weight: 400;
   color: theme.$textColor;
   font-synthesis: none;
@@ -22,9 +21,6 @@ a {
 body {
   margin: 0;
   padding: 0;
-  // min-width: 320px;
-  // min-height: 100vh;
-  // overflow: hidden;
 }
 
 h1 {
@@ -33,6 +29,7 @@ h1 {
 }
 
 h2 {
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
 }

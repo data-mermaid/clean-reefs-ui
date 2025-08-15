@@ -87,7 +87,7 @@ export const BottomOpenPersistent: Story = {
     variant: 'persistent',
     children: (
       <>
-        <div className={styles['drawer-tab']}>
+        <div className={styles['drawer-header']}>
           <h2>Regional trends</h2>
         </div>
 

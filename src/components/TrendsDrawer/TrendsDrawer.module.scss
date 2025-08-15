@@ -1,117 +1,58 @@
 @use '../../styles/theme';
 
-.MuiDrawer-root {
-  //Unopened state
-  > .MuiDrawer-paper {
-    background-color: theme.$grey;
-  }
-
-  //paper
-  &.MuiDrawer-anchorRight {
-    .graphs-container {
-      width: 300px;
-      overflow-y: scroll;
-      height: 90%;
-    }
-  }
-
-  & .MuiDrawer-paperAnchorRight {
-    .graphs-container {
-      width: 300px;
-
-      .graph-card {
-        margin-bottom: theme.$defaultPadding;
-        width: 100%;
-
-        &:last-of-type {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-
-  & .MuiDrawer-paperAnchorBottom {
-    &.open-drawer {
-      height: 98vh;
-      padding: 18px theme.$defaultPadding 0 theme.$defaultPadding;
-
-      .graphs-container {
-        overflow-x: scroll;
-      }
-
-      .graph-card {
-        display: block;
-        height: auto;
-        width: 100%;
-        margin-bottom: theme.$defaultPadding;
-      }
-
-      .graph-card:last-of-type {
-        margin-bottom: 0;
-      }
-    }
-
-    &.closed-drawer {
-      height: 120px;
-      margin-top: theme.$defaultPadding;
-      padding: 18px theme.$defaultPadding theme.$defaultPadding theme.$defaultPadding;
-      transform: none !important; //override MUI application
-      overflow-y: clip;
-
-      .graphs-container {
-        width: max-content;
-        overflow-x: scroll;
-      }
-
-      .graph-card {
-        float: left;
-        display: inline-block;
-        height: 55px;
-        width: 300px;
-        margin-right: theme.$defaultPadding;
-
-        &:last-of-type {
-          margin-right: 0;
-        }
-      }
-    }
-  }
+.drawer-header {
+  position: sticky;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  visibility: visible;
 }
 
-.open-drawer {
-  & .MuiDrawer-paper {
-    padding-bottom: 0;
-  }
-
-  .drawer-tab {
-    position: sticky;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    visibility: visible;
-  }
-}
-
-.drawer-tab {
-  h2 {
-    font-size: 16px; //TODO: move to relevant location for h2
-  }
-}
-
-.graphs-container {
-  margin-top: 10px;
-}
-
+//Temporary component styling
 .graph-card {
   background-color: white;
   padding: theme.$defaultPadding;
-
-  &:last-of-type {
-    margin-right: 0;
-  }
 }
 
+.graphs-container--open {
+  //Temporary component styling
+  .graph-card {
+    margin-bottom: theme.$defaultPadding;
+    width: 100%;
+    display: block;
+    height: auto;
+  }
+  .graph-card:last-of-type {
+    margin-bottom: 0;
+  }
+  //End temporary component styling
+}
+
+.graphs-container--closed {
+  margin-top: theme.$defaultPadding;
+  min-width: 100%;
+  width: max-content;
+  overflow-x: auto;
+  display: flex;
+  flex-wrap: nowrap;
+
+  //Temporary component styling
+  .graph-card {
+    display: block;
+    flex: 0 0 auto;
+    height: 55px;
+    width: 300px;
+    margin-right: theme.$defaultPadding;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+  //End temporary component styling
+}
+
+//Temporary component styling
 .graph-plots {
   margin: 0 auto;
   display: block;

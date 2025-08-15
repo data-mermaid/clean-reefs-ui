@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { styled } from '@mui/material/styles'
 import styles from './StyledSwipeableDrawer.module.scss'
 import { DrawerProps, SwipeableDrawer } from '@mui/material'
 import useResponsive from '../../hooks/useResponsive'
@@ -15,16 +14,6 @@ interface SwipeableDrawerProps {
   testId?: string
   swipeAreaWidth?: number
 }
-
-// const Puller = styled('div')(() => ({
-//   width: 30,
-//   height: 6,
-//   backgroundColor: 'grey',
-//   borderRadius: 3,
-//   position: 'absolute',
-//   top: 8,
-//   left: 'calc(50% - 15px)',
-// }))
 
 export default function StyledSwipeableDrawer({
   anchor = 'left',
