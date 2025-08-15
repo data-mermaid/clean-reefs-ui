@@ -2,7 +2,15 @@
   "buttons": {
     "cancel": "Cancel",
     "go": "Go",
-    "open_menu": "Open menu"
+    "open_menu": "Open menu",
+    "share_view": "Share view"
+  },
+  "graphs": {
+    "contributing_watersheds": "Contributing watersheds",
+    "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
+    "land_use_historical": "Land use through time",
+    "sediment_exposure_historical": "Sediment exposure through time",
+    "sediment_load_historical": "Sediment load through time"
   },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
@@ -22,7 +30,6 @@
   "cropland": "Cropland",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
-  "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
   "global": "Global",
   "global_trends": "Global trends",
   "google_satellite": "Google satellite",
@@ -32,7 +39,6 @@
   "labels": "Labels",
   "land_use": "Land use",
   "land_use_cover": "Land use / Land cover",
-  "land_use_historical": "Land use through time",
   "large_area": "Large area",
   "light": "Light",
   "low_concentration": "Low concentration",
@@ -52,7 +58,6 @@
   "seagrass": "Seagrass",
   "sediment": "Sediment",
   "sediment_exposure": "Sediment exposure",
-  "sediment_exposure_historical": "Sediment exposure through time",
   "select_data_region": "Select data region",
   "shrubland_grassland": "Shrubland  / grassland",
   "small_area": "Small area",
@@ -60,5 +65,7 @@
   "type_to_filter": "Type to filter",
   "watershed": "Watershed",
   "watershed_boundaries": "Watershed boundaries",
-  "year": "Year"
+  "year": "Year",
+  "toggle_navigation_menu": "Toggle navigation menu",
+  "select_region": "Select region"
 }

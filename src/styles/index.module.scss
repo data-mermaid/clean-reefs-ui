@@ -1,11 +1,10 @@
-@use "theme";
+@use 'theme';
 
 :root {
   background-color: theme.$white;
 
   line-height: 1.5;
   font-family: theme.$defaultFonts;
-  font-size: 1.6rem;
   font-weight: 400;
   color: theme.$textColor;
   font-synthesis: none;
@@ -21,8 +20,7 @@ a {
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
 }
 
 h1 {
@@ -30,6 +28,17 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h3 {
+  font-weight: 700;
+  color: theme.$textColor;
+}
+
 section {
-  padding: theme.$defaultPadding;
+  padding: theme.$spacingSmall;
 }

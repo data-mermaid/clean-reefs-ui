@@ -1,14 +1,44 @@
 /** Theme colors **/
 $primary: #174b82;
+$primaryLight: #a3b8c8;
 $secondary: #dddce4;
+$secondaryLight: #f5f5f5;
 $white: #ffffff;
+$grey: #dedfe3;
+$greyWhite: #fafbfc;
 
 /** Fonts, font styling, text **/
-$textColor: #13124a;
+$textColor: #393939;
+$textSecondary: #666666;
+$defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
 
-$defaultFonts: "Titillium Web", "Open Sans", sans-serif;
-$defaultPadding: 8px;
+$textSizeSmall: 14px;
+$textSizeMedium: 16px;
+
+$svgSizeSmall: 20px;
+$svgSizeMedium: 26px;
+
+$borderRadius: 4px;
+
+/** Layout, spacing **/
+$defaultPadding: 10px;
+$spacingSmall: 8px;
+$spacingMedium: 16px;
+$spacingLarge: 24px;
 
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
+
+/** Header height **/
+$headerHeight: 54px;
+
+/** Breakpoints **/
+$breakpointMobile: 1024px;
+
+/** Mixins **/
+@mixin mobileDownBreakPoint {
+  @media (max-width: $breakpointMobile) {
+    @content;
+  }
+}

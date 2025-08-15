@@ -1,29 +1,98 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import StyledSwipeableDrawer from "../StyledSwipeableDrawer/StyledSwipeableDrawer";
-import { Card, Switch } from "@mui/material";
+import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
+import { Card } from '@mui/material'
+import styles from '../TrendsDrawer/TrendsDrawer.module.scss'
 
 const meta = {
+  title: 'StyledSwipeableDrawer',
   component: StyledSwipeableDrawer,
-} satisfies Meta<typeof StyledSwipeableDrawer>;
+  decorators: [
+    (Story) => (
+      <div style={{ position: 'relative' }}>
+        <Story />
+      </div>
+    ),
+  ],
+} satisfies Meta<typeof StyledSwipeableDrawer>
+export default meta
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof meta>
 
-export const Primary: Story = {
+export const LeftOpen: Story = {
   args: {
-    anchor: "left",
+    anchor: 'left',
     open: true,
     onOpen: () => {},
     onClose: () => {},
     children: (
       <>
-        <h2>Pollution layers</h2>
-        <Card>
-          Sediment Layer <Switch />
-        </Card>
+        <div>
+          <h2>Pollution layers</h2>
+          <Card>Placeholder card</Card>
+        </div>
       </>
     ),
   },
-};
+}
 
-export default meta;
+export const RightOpen: Story = {
+  args: {
+    anchor: 'right',
+    open: true,
+    onOpen: () => {},
+    onClose: () => {},
+    children: (
+      <>
+        <div>
+          <h2>Pollution layers</h2>
+          <Card>Placeholder card</Card>
+        </div>
+      </>
+    ),
+  },
+}
+
+export const BottomClosedPersistent: Story = {
+  args: {
+    anchor: 'bottom',
+    open: false,
+    onOpen: () => {},
+    onClose: () => {},
+    testId: 'bottom',
+    variant: 'persistent',
+    children: (
+      <>
+        <div>
+          <h2>Pollution layers</h2>
+          <Card>Placeholder card</Card>
+        </div>
+      </>
+    ),
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
+  },
+}
+export const BottomOpenPersistent: Story = {
+  args: {
+    anchor: 'bottom',
+    open: true,
+    onOpen: () => {},
+    onClose: () => {},
+    variant: 'persistent',
+    children: (
+      <>
+        <div className={styles['drawer-header']}>
+          <h2>Regional trends</h2>
+        </div>
+
+        <div className={styles['graphs-container']}>
+          <Card>Placeholder card</Card>
+          <Card>Placeholder card</Card>
+          <Card>Placeholder card</Card>
+        </div>
+      </>
+    ),
+  },
+}
