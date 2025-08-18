@@ -1,6 +1,6 @@
-import type {Meta, StoryObj} from '@storybook/react-vite'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
-import {Card} from '@mui/material'
+import { Card } from '@mui/material'
 import styles from '../TrendsDrawer/TrendsDrawer.module.scss'
 
 const meta = {
@@ -68,12 +68,12 @@ export const BottomClosed: Story = {
       </>
     ),
   },
-    parameters: {
-      viewport: { defaultViewport: 'mobile1'},
-    },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
   play: async ({ canvas, userEvent }) => {
-      // const canvas = within(canvasElement)
-      await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
+    // const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
     await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
   },
 }
