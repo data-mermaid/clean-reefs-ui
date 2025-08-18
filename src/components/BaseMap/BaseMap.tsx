@@ -71,6 +71,7 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
         }}
         mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
+        attributionControl={false}
       >
         <Source id="regions-pmtiles" type="vector" url={`pmtiles://${PMTILES_URL}`}>
           {protoLayerOn && (
