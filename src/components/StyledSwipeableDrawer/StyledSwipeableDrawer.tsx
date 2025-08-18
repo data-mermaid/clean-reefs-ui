@@ -9,7 +9,6 @@ interface SwipeableDrawerProps {
   open: boolean
   onOpen: () => void
   onClose: () => void
-  variant?: DrawerProps['variant']
   testId?: string
   swipeAreaWidth?: number
 }
@@ -20,7 +19,6 @@ export default function StyledSwipeableDrawer({
   open,
   onOpen,
   onClose,
-  variant = undefined,
   testId = '',
   swipeAreaWidth,
 }: SwipeableDrawerProps) {
@@ -44,9 +42,8 @@ export default function StyledSwipeableDrawer({
         paperAnchorRight: styles['MuiDrawer-paperAnchorRight'],
       }}
       allowSwipeInChildren
-      variant={variant}
     >
-      {!open && variant === 'persistent' && isMobileWidth && (
+      {!open && isMobileWidth && (
         <div className={styles['drawer-puller']} data-testid={`${testId}-drawer-puller`} />
       )}
       {children}

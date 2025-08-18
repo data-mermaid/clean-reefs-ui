@@ -12,14 +12,14 @@
 //Temporary component styling
 .graph-card {
   background-color: white;
-  padding: theme.$defaultPadding;
+  padding: theme.$defaultSpacing;
 }
 
 .graphs-container--open {
   overflow-y: scroll;
   //Temporary component styling
   .graph-card {
-    margin-bottom: theme.$defaultPadding;
+    margin-bottom: theme.$defaultSpacing;
     width: 100%;
     display: block;
     height: auto;
@@ -31,7 +31,7 @@
 }
 
 .graphs-container--closed {
-  margin-top: theme.$defaultPadding;
+  margin-top: theme.$defaultSpacing;
   min-width: 100%;
   width: max-content;
   overflow-x: auto;
@@ -44,7 +44,7 @@
     flex: 0 0 auto;
     height: 55px;
     width: 300px;
-    margin-right: theme.$defaultPadding;
+    margin-right: theme.$defaultSpacing;
 
     &:last-of-type {
       margin-right: 0;
