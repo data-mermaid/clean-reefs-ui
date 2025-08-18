@@ -1,6 +1,7 @@
 {
   "buttons": {
     "cancel": "Cancel",
+    "close": "Close",
     "go": "Go",
     "open_menu": "Open menu",
     "share_view": "Share view"
