@@ -34,8 +34,8 @@ classes={{
 
 MUI components consist of multiple components and usually render out several children `divs` with subcomponent class names.
 
-
 Theme style constants go into the `theme.scss` style sheet including:
+
 - colors
 - spacing (padding, margins)
 - font details
@@ -43,12 +43,13 @@ Theme style constants go into the `theme.scss` style sheet including:
 - heights
 
 Data constants go into 'constants.ts', which include:
+
 - Links
 - Data used across the app (years, etc)
 
 ## Visual tests
 
-Use Storybook stories. [Writing Storybook tests...](https://storybook.js.org/docs/writing-tests)
+Use Storybook stories. [Writing Storybook tests and types of tests](https://storybook.js.org/docs/writing-tests)
 
 - `yarn storybook`
 - Builds to `http://localhost:6006/`
