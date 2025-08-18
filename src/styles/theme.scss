@@ -11,14 +11,19 @@ $greyWhite: #fafbfc;
 $textColor: #393939;
 $textSecondary: #666666;
 $defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
+$regular: 500;
+$semiBold: 600;
+$bold: 700;
 
 $textSizeSmall: 14px;
-$textSizeMedium: 16px;
+$defaultTextSize: 16px;
+$textSizeXLarge: 52px;
 
 $svgSizeSmall: 20px;
 $svgSizeMedium: 26px;
 
 /** Layout, spacing **/
+$defaultSpacing: 10px;
 $spacingXSmall: 5px;
 
 $defaultPadding: 10px;
@@ -27,13 +32,16 @@ $spacingMedium: 16px;
 $spacingLarge: 24px;
 
 $borderRadius: 4px;
-$radiusSize: 4px;
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
 
 /** Component dimensions **/
 $headerHeight: 54px;
+$drawerWidth: 350px;
+$drawerPullerWidth: 90px;
+$drawerPullerHeight: 6px;
+$closedBottomDrawerHeight: 120px;
 $regionSelectWidth: 300px;
 
 /** Breakpoints **/

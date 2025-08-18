@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import { Card } from '@mui/material'
 import styles from '../TrendsDrawer/TrendsDrawer.module.scss'
@@ -53,14 +52,13 @@ export const RightOpen: Story = {
   },
 }
 
-export const BottomClosedPersistent: Story = {
+export const BottomClosed: Story = {
   args: {
     anchor: 'bottom',
     open: false,
     onOpen: () => {},
     onClose: () => {},
     testId: 'bottom',
-    variant: 'persistent',
     children: (
       <>
         <div>
@@ -70,17 +68,21 @@ export const BottomClosedPersistent: Story = {
       </>
     ),
   },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
   play: async ({ canvas, userEvent }) => {
+    // const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
     await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
   },
 }
-export const BottomOpenPersistent: Story = {
+export const BottomOpen: Story = {
   args: {
     anchor: 'bottom',
     open: true,
     onOpen: () => {},
     onClose: () => {},
-    variant: 'persistent',
     children: (
       <>
         <div className={styles['drawer-header']}>

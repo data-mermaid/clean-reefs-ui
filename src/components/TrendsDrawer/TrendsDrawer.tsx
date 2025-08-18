@@ -47,13 +47,12 @@ export default function TrendsDrawer() {
       onOpen={toggleDrawer}
       onClose={toggleDrawer}
       swipeAreaWidth={100}
-      variant={isMobileWidth ? 'persistent' : 'permanent'}
     >
       <div className={styles['drawer-header']}>
         <h2 style={{ marginTop: open ? '4px' : '0' }}>{t('global_trends')}</h2>
         {open && isMobileWidth && (
-          <IconButton aria-label={t('buttons.close')}>
-            <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} onClick={toggleDrawer} />
+          <IconButton aria-label={t('buttons.close')} onClick={toggleDrawer}>
+            <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
           </IconButton>
         )}
       </div>

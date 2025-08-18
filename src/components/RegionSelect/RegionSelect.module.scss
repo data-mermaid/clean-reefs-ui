@@ -17,7 +17,7 @@
   border-radius: theme.$borderRadius;
 
   & .MuiAutocomplete-input {
-    font-size: theme.$textSizeMedium;
+    font-size: theme.$defaultTextSize;
   }
 
   & .MuiAutocomplete-clearIndicator {
