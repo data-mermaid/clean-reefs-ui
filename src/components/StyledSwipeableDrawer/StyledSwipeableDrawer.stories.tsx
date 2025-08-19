@@ -72,8 +72,6 @@ export const BottomClosed: Story = {
     viewport: { defaultViewport: 'mobile1' },
   },
   play: async ({ canvas, userEvent }) => {
-    // const canvas = within(canvasElement)
-    await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
     await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
   },
 }
