@@ -31,6 +31,7 @@ export default function StyledSwipeableDrawer({
       onOpen={onOpen}
       onClose={onClose}
       swipeAreaWidth={swipeAreaWidth}
+      variant={isMobileWidth ? 'temporary' : 'permanent'}
       classes={{
         root: styles['MuiDrawer-root'],
         paper: `${styles['MuiDrawer-paper']} ${open ? styles['open-drawer'] : styles['closed-drawer']}`,
