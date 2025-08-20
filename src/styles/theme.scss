@@ -4,24 +4,31 @@ $primaryLight: #a3b8c8;
 $secondary: #dddce4;
 $secondaryLight: #f5f5f5;
 $white: #ffffff;
+$grey: #dedfe3;
+$greyWhite: #fafbfc;
 
-/** Fonts, font styling, text, spacing **/
-$defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
-
-$textColor: #13124a;
+/** Fonts, font styling, text **/
+$textColor: #393939;
 $textSecondary: #666666;
+$defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
+$regular: 500;
+$semiBold: 600;
+$bold: 700;
 
 $textSizeSmall: 14px;
-$textSizeMedium: 16px;
+$defaultTextSize: 16px;
+$textSizeXLarge: 52px;
 
 $svgSizeSmall: 20px;
 $svgSizeMedium: 26px;
 
+$borderRadius: 4px;
+
+/** Layout, spacing **/
+$defaultSpacing: 10px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
 $spacingLarge: 24px;
-
-$radiusSize: 4px;
 
 /** Z-indexes **/
 $layersDrawer: 4;
@@ -29,6 +36,10 @@ $baseMap: 1;
 
 /** Header height **/
 $headerHeight: 54px;
+$drawerWidth: 350px;
+$drawerPullerWidth: 90px;
+$drawerPullerHeight: 6px;
+$closedBottomDrawerHeight: 120px;
 
 /** Breakpoints **/
 $breakpointMobile: 1024px;

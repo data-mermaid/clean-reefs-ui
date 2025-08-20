@@ -9,10 +9,10 @@
 .MuiAutocomplete-root {
   width: 100%;
   background-color: theme.$white;
-  border-radius: theme.$radiusSize;
+  border-radius: theme.$borderRadius;
 
   & .MuiAutocomplete-input {
-    font-size: theme.$textSizeMedium;
+    font-size: theme.$defaultTextSize;
   }
 
   & .MuiAutocomplete-clearIndicator {
