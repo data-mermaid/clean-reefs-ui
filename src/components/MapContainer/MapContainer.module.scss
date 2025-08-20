@@ -6,18 +6,14 @@
 
   .layer-controls-desktop {
     position: relative;
+    top: -40px;
     z-index: theme.$layersDrawer;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
     align-items: center;
     padding: theme.$spacingSmall;
-    gap: theme.$spacingMedium;
 
-    > :nth-child(2) {
+    > div {
       justify-self: center;
       display: flex;
-      align-items: center;
-      justify-content: center;
       gap: theme.$spacingXSmall;
     }
   }

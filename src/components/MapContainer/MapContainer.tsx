@@ -20,6 +20,7 @@ export default function MapContainer() {
           <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
           <RegionSelect />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+          <TrendsDrawer />
         </div>
       ) : (
         <div className={styles['layer-controls-desktop']}>
@@ -28,9 +29,10 @@ export default function MapContainer() {
             <RegionSelect />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
+          <TrendsDrawer />
         </div>
       )}
-      <TrendsDrawer />
+      {/*<TrendsDrawer />*/}
       <BaseMap layersOn={layersOn} />
     </div>
   )
