@@ -13,6 +13,9 @@
     "sediment_exposure_historical": "Sediment exposure through time",
     "sediment_load_historical": "Sediment load through time"
   },
+  "map_layers": {
+    "land_use_cover": "Land use / Land cover"
+  },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -39,7 +42,6 @@
   "high_sediment": "High sediment",
   "labels": "Labels",
   "land_use": "Land use",
-  "land_use_cover": "Land use / Land cover",
   "large_area": "Large area",
   "light": "Light",
   "low_concentration": "Low concentration",

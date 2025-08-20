@@ -16,10 +16,10 @@
   border-radius: 4px;
   transition: all 0.2s ease-in-out;
 
-  &:hover:not(:disabled) {
-    background: darken(theme.$greyWhite, 5%) !important;
-    box-shadow: 1px 1px 8px 6px rgba(0, 0, 0, 0.35);
-  }
+  //&:hover:not(:disabled) {
+  //  //background: darken(theme.$greyWhite, 5%) !important;
+  //  //box-shadow: 1px 1px 8px 6px rgba(0, 0, 0, 0.35);
+  //}
 
   &.open {
     box-shadow: 1px 1px 8px 6px rgba(0, 0, 0, 0.35);

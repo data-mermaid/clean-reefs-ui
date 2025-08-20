@@ -2,6 +2,7 @@
 
 .LayersDrawer-root {
   display: flex;
+  width: theme.$drawerWidth;
   align-items: center;
 }
 
@@ -15,4 +16,10 @@
     width: theme.$svgSizeSmall;
     color: theme.$textColor;
   }
+}
+
+.layer-card {
+  margin: theme.$defaultPadding;
+  padding: theme.$defaultPadding;
+  background-color: theme.$greyWhite;
 }

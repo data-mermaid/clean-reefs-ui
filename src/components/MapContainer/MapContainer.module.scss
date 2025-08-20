@@ -12,16 +12,6 @@
     align-items: center;
     padding: theme.$spacingSmall;
     gap: theme.$spacingMedium;
-    pointer-events: none;
-
-    // Enable pointer events only on child components
-    > * {
-      pointer-events: auto;
-    }
-
-    > :nth-child(1) {
-      justify-self: start;
-    }
 
     > :nth-child(2) {
       justify-self: center;
