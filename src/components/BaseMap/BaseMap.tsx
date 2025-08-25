@@ -75,6 +75,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
+        attributionControl={false}
       >
         {isMapLoaded && layersOn[0].isLayerOn && (
           <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_URL}`}>

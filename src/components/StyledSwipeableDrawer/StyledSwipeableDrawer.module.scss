@@ -1,6 +1,10 @@
 @use '../../styles/theme';
 
 .MuiDrawer-root {
+  //overlay only shows on temporary drawers
+  max-width: 100vw;
+  overflow-x: visible;
+
   & .MuiDrawer-paperAnchorRight {
     display: block;
     top: theme.$headerHeight;
@@ -10,7 +14,6 @@
 
   & .MuiDrawer-paperAnchorBottom {
     background-color: theme.$grey;
-    visibility: visible !important; //override MUI application
 
     &.open-drawer {
       height: 98vh;
@@ -21,7 +24,8 @@
       height: theme.$closedBottomDrawerHeight;
       margin-top: theme.$defaultSpacing;
       padding: theme.$spacingMedium theme.$defaultSpacing theme.$defaultSpacing;
-      transform: none !important; //override MUI application
+      visibility: visible !important; //override MUI component styles
+      transform: none !important; //override MUI component styles
       overflow-y: hidden;
       overflow-x: visible;
       width: 100% !important;
@@ -29,6 +33,7 @@
   }
 
   & .MuiDrawer-paperAnchorLeft {
+    display: block;
     top: theme.$headerHeight;
     width: theme.$drawerWidth;
     padding: theme.$spacingSmall;
