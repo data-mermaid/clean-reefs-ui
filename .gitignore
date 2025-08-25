@@ -26,5 +26,7 @@ tsconfig.tsbuildinfo
 *.sw?
 .env
 
+.eslintcache
+
 *storybook.log
 storybook-static

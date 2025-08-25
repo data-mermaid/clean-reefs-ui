@@ -32,7 +32,6 @@ export default function MapContainer() {
           <TrendsDrawer />
         </div>
       )}
-      {/*<TrendsDrawer />*/}
       <BaseMap layersOn={layersOn} />
     </div>
   )
