@@ -5,6 +5,7 @@ import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
+import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
@@ -28,6 +29,7 @@ export default function MapContainer() {
           </div>
         </div>
       )}
+      <TrendsDrawer />
       <BaseMap protoLayerOn={layerOn} />
     </div>
   )

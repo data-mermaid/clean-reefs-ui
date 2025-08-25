@@ -1,5 +1,7 @@
 ## Every PR
 
+Before merging, the developer of this pull request has checked the following:
+
 - [ ] Changes have been tested locally without errors
 - [ ] Lint has run and any errors have been resolved
 - [ ] Prettier has run on any changed files

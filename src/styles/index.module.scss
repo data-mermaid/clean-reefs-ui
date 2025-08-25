@@ -5,8 +5,7 @@
 
   line-height: 1.5;
   font-family: theme.$defaultFonts;
-  font-size: 1.6rem;
-  font-weight: 400;
+  font-weight: theme.$regular;
   color: theme.$textColor;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,21 +14,29 @@
 }
 
 a {
-  font-weight: 500;
+  font-weight: theme.$semiBold;
   text-decoration: inherit;
 }
 
 body {
   margin: 0;
   padding: 0;
-  // min-width: 320px;
-  // min-height: 100vh;
-  // overflow: hidden;
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: theme.$textSizeXLarge;
   line-height: 1.1;
+}
+
+h2 {
+  font-size: theme.$defaultTextSize;
+  font-weight: theme.$bold;
+  line-height: 1.2;
+}
+
+h3 {
+  font-weight: theme.$bold;
+  color: theme.$textColor;
 }
 
 section {

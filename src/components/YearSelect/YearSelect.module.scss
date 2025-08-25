@@ -7,7 +7,7 @@
 
 .selectedYearButton {
   background: theme.$greyWhite !important;
-  font-size: theme.$textSizeMedium !important;
+  font-size: theme.$defaultTextSize !important;
   color: theme.$textColor !important;
   height: 40px;
   padding: theme.$spacingSmall theme.$spacingSmall;
@@ -60,7 +60,7 @@
 .yearButton {
   width: 100%;
   color: theme.$textColor;
-  font-size: theme.$textSizeMedium;
+  font-size: theme.$defaultTextSize;
   padding: theme.$spacingSmall theme.$spacingMedium;
   border-radius: 0;
   transition: all 0.15s ease-in-out;

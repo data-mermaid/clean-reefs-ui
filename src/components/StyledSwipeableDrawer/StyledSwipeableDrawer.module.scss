@@ -1,6 +1,55 @@
+@use '../../styles/theme';
+
 .MuiDrawer-root {
-  & .MuiDrawer-paper {
-    width: 350px;
-    padding: 8px;
+  //overlay only shows on temporary drawers
+  max-width: 100vw;
+  overflow-x: visible;
+
+  & .MuiDrawer-paperAnchorRight {
+    display: block;
+    top: theme.$headerHeight;
+    visibility: visible !important; //override MUI application
+    padding: theme.$defaultSpacing;
   }
+
+  & .MuiDrawer-paperAnchorBottom {
+    background-color: theme.$grey;
+
+    &.open-drawer {
+      height: 98vh;
+      overflow-y: clip;
+      padding: theme.$spacingMedium theme.$defaultSpacing 0;
+    }
+    &.closed-drawer {
+      height: theme.$closedBottomDrawerHeight;
+      margin-top: theme.$defaultSpacing;
+      padding: theme.$spacingMedium theme.$defaultSpacing theme.$defaultSpacing;
+      visibility: visible !important; //override MUI component styles
+      transform: none !important; //override MUI component styles
+      overflow-y: hidden;
+      overflow-x: visible;
+      width: 100% !important;
+    }
+  }
+
+  & .MuiDrawer-paperAnchorLeft {
+    display: block;
+    top: theme.$headerHeight;
+    width: theme.$drawerWidth;
+    padding: theme.$spacingSmall;
+  }
+  & .MuiDrawer-paper {
+    padding-top: theme.$spacingMedium;
+    transform: none !important; //override MUI application
+  }
+}
+
+.drawer-puller {
+  position: sticky;
+  left: calc(50% - 45px); // 1/2 of theme.$drawerPullerWidth
+  top: 0;
+  width: theme.$drawerPullerWidth;
+  height: theme.$drawerPullerHeight;
+  background-color: theme.$textSecondary;
+  border-radius: theme.$borderRadius;
 }
