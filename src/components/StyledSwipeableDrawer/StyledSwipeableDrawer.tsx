@@ -43,7 +43,6 @@ export default function StyledSwipeableDrawer({
         paperAnchorRight: styles['MuiDrawer-paperAnchorRight'],
         paperAnchorLeft: styles['MuiDrawer-paperAnchorLeft'],
       }}
-      variant={isMobileWidth ? 'persistent' : 'permanent'}
       allowSwipeInChildren
     >
       {!open && isMobileWidth && (

@@ -9,12 +9,6 @@
   visibility: visible;
 }
 
-//Temporary component styling
-.graph-card {
-  background-color: white;
-  padding: theme.$defaultSpacing;
-}
-
 .graphs-container--open {
   overflow-y: scroll;
   //Temporary component styling
@@ -51,11 +45,4 @@
     }
   }
   //End temporary component styling
-}
-
-//Temporary component styling
-.graph-plots {
-  margin: 0 auto;
-  display: block;
-  width: 300px;
 }

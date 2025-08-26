@@ -10,8 +10,7 @@ import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 
-import { GLOBAL_LULC_URL, REGIONS_URL } from '../../constants'
-import { LayerInfo } from '../../data/mapData'
+import { LayerInfo, layers } from '../../data/mapData'
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
@@ -29,7 +28,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   const defaultLat = -17.3
   const defaultMapZoom = 10
   const mapRef = useRef(null)
-  const [viewportBounds, setViewportBounds] = useState([])
+  const [viewportBounds, setViewportBounds] = useState([-17.816028, 177.798671, 10])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -77,38 +76,60 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
         onLoad={() => setIsMapLoaded(true)}
         attributionControl={false}
       >
-        {isMapLoaded && layersOn[0].isLayerOn && (
-          <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_URL}`}>
-            <Layer
-              id="regions-layer"
-              type="line"
-              source="regions-pmtiles"
-              source-layer="regions"
-              paint={{
-                'line-color': '#ff0000',
-                'line-width': 3,
-              }}
-            />
-          </Source>
-        )}
-
-        {isMapLoaded && layersOn[1].isLayerOn && (
-          <Source
-            id="lulc-raster"
-            type="raster"
-            url={`cog://${GLOBAL_LULC_URL}${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(',')}` : ''}`}
-            tileSize={256}
-            maxzoom={16}
-            minzoom={6}
-          >
-            <Layer
-              id="lulc-layer"
+        {layers.map((layer) => {
+          return layer.dataType === 'pmtiles' ? (
+            <Source id={layer.sourceId} type="vector" url={`pmtiles://${layer.link}`}>
+              <Layer
+                id={layer.layerId}
+                type="line"
+                source={layer.sourceId}
+                source-layer={layer.sourceName}
+              />
+            </Source>
+          ) : (
+            <Source
+              id={layer.sourceId}
               type="raster"
-              source="lulc-raster"
-              source-layer="LULC_20202_Reclassified_colored"
-            />
-          </Source>
-        )}
+              tiles={[`${layer.link}`]}
+              tileSize={256}
+              maxzoom={16}
+              minzoom={6}
+            >
+              <Layer id={layer.layerId} type="raster" source={layer.sourceId} />
+            </Source>
+          )
+        })}
+        {/*{isMapLoaded && layersOn[0].isLayerOn && (*/}
+        {/*  <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_PMTILES_URL}`}>*/}
+        {/*    <Layer*/}
+        {/*      id="regions-layer"*/}
+        {/*      type="line"*/}
+        {/*      source="regions-pmtiles"*/}
+        {/*      source-layer="regions"*/}
+        {/*      paint={{*/}
+        {/*        'line-color': '#ff0000',*/}
+        {/*        'line-width': 3,*/}
+        {/*      }}*/}
+        {/*    />*/}
+        {/*  </Source>*/}
+        {/*)}*/}
+
+        {/*{isMapLoaded && layersOn[1].isLayerOn && (*/}
+        {/*  <Source*/}
+        {/*    id="lulc-raster"*/}
+        {/*    type="raster"*/}
+        {/*    tiles={[LULC_2000_TILES_URL]}*/}
+        {/*    tileSize={256}*/}
+        {/*    maxzoom={16}*/}
+        {/*    minzoom={6}*/}
+        {/*  >*/}
+        {/*    <Layer*/}
+        {/*      id="lulc-layer"*/}
+        {/*      type="raster"*/}
+        {/*      source="lulc-raster"*/}
+        {/*    />*/}
+        {/*  </Source>*/}
+        {/*)}*/}
       </Map>
     </div>
   )

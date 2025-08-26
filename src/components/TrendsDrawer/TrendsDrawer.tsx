@@ -1,13 +1,13 @@
-import { Card, IconButton } from '@mui/material'
+import { IconButton } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import Plot from 'react-plotly.js'
 import * as React from 'react'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
+import GraphCard from '../GraphCard/GraphCard'
 
 export default function TrendsDrawer() {
   const { t } = useTranslation()
@@ -16,29 +16,6 @@ export default function TrendsDrawer() {
   const toggleDrawer = () => {
     setOpen(!open)
   }
-
-  // Temporary component
-  const mockGraphData = [
-    {
-      x: ['giraffes', 'orangutans', 'monkeys'],
-      y: [20, 14, 23],
-      type: 'bar',
-    },
-  ]
-  const GraphCard = (graphName: string) => (
-    <Card onClick={open ? () => {} : toggleDrawer} className={styles['graph-card']}>
-      {!open ? (
-        t(graphName)
-      ) : (
-        <Plot
-          data={mockGraphData}
-          className={styles['graph-plots']}
-          layout={{ title: { text: t(graphName) } }}
-        />
-      )}
-    </Card>
-  )
-  //End temporary component
 
   return (
     <StyledSwipeableDrawer
