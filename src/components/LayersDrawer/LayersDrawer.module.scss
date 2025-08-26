@@ -3,4 +3,16 @@
 .LayersDrawer-root {
   display: flex;
   align-items: center;
+
+  .layer-toggle-button {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 40px;
+
+    & svg {
+      width: theme.$svgSizeSmall;
+      color: theme.$textColor;
+    }
+  }
 }
