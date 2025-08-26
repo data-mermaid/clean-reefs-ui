@@ -11,7 +11,7 @@ const meta: Meta<typeof YearSelect> = {
 type Story = StoryObj<typeof YearSelect>
 
 const StoryBookYearSelect = (props: React.ComponentProps<typeof YearSelect>) => {
-  const { selectedYear: initialSelectedYear = 2020, onChange } = props
+  const { selectedYear: initialSelectedYear = 2020, onChange, ...rest } = props
   const [selectedYear, setSelectedYear] = useState<number>(initialSelectedYear)
 
   const handleChange = (year: number) => {
@@ -19,7 +19,7 @@ const StoryBookYearSelect = (props: React.ComponentProps<typeof YearSelect>) => 
     onChange?.(year)
   }
 
-  return <YearSelect selectedYear={selectedYear} onChange={handleChange} />
+  return <YearSelect selectedYear={selectedYear} onChange={handleChange} {...rest} />
 }
 
 export const Primary: Story = {
