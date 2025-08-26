@@ -46,25 +46,12 @@ export const YearSelect = ({
   }, [])
 
   useEffect(() => {
-    if (!isOpen) {
-      return () => {}
-    }
+    if (!isOpen) return
 
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         handleCloseDropdown()
       }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, handleCloseDropdown])
-
-  useEffect(() => {
-    if (!isOpen) {
-      return () => {}
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -73,8 +60,11 @@ export const YearSelect = ({
       }
     }
 
+    document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleKeyDown)
+
     return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, handleCloseDropdown])
