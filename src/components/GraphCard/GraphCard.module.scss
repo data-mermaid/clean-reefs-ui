@@ -1,0 +1,13 @@
+@use '../../styles/theme';
+
+.graph-card {
+  background-color: white;
+  padding: theme.$defaultSpacing;
+  width: max-content;
+}
+
+.graph-plots {
+  margin: 0 auto;
+  display: block;
+  width: 300px;
+}
