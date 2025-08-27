@@ -3,6 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 
 import styles from './RegionSelect.module.scss'
+import { useTranslation } from 'react-i18next'
 
 /** TODO: Replace with actual country data */
 type CountryOption = {
@@ -33,6 +34,7 @@ const countryOptions: CountryOption[] = [
 /** End of mock data */
 
 export default function RegionSelect() {
+  const { t } = useTranslation()
   const [selectedValue, setSelectedValue] = useState<CountryOption | null>(DEFAULT_OPTION)
 
   const sortedOptions = countryOptions.sort((a, b) => {
@@ -57,6 +59,7 @@ export default function RegionSelect() {
         options={sortedOptions}
         groupBy={(option) => option.group}
         getOptionLabel={(option) => option.label}
+        aria-label={t('select_region')}
         value={selectedValue}
         onChange={handleChange}
         isOptionEqualToValue={isOptionEqual}

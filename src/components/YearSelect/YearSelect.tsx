@@ -6,15 +6,15 @@ import ListItem from '@mui/material/ListItem'
 import clsx from 'clsx'
 
 import styles from './YearSelect.module.scss'
+import { useTranslation } from 'react-i18next'
 
-const AVAILABLE_YEARS = [2020, 2015, 2010, 2005, 2000] as const
+const availableYears = [2020, 2015, 2010, 2005, 2000]
 
 export interface YearSelectProps {
   selectedYear: number
   onChange?: (year: number) => void
   className?: string
   disabled?: boolean
-  'aria-label'?: string
 }
 
 export const YearSelect = ({
@@ -22,8 +22,8 @@ export const YearSelect = ({
   onChange,
   className,
   disabled = false,
-  'aria-label': ariaLabel = 'Select year',
 }: YearSelectProps) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -56,52 +56,51 @@ export const YearSelect = ({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, handleCloseDropdown])
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         handleCloseDropdown()
       }
     }
 
+    document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [isOpen, handleCloseDropdown])
 
   return (
-    <Box ref={containerRef} className={clsx(styles.dropdownContainer, className)}>
+    <Box ref={containerRef} className={clsx(styles['dropdown'], className)}>
       <Button
         size="small"
         variant="contained"
+        aria-label={t('select_year')}
         disabled={disabled}
-        aria-label={ariaLabel}
         onClick={handleToggleDropdown}
         className={clsx(
-          styles.selectedYearButton,
-          isOpen && styles.open,
-          disabled && styles.disabled,
+          styles['dropdown__button'],
+          isOpen && styles['dropdown__button--open'],
+          disabled && styles['dropdown__button--disabled'],
         )}
       >
         {selectedYear}
       </Button>
 
       {isOpen && (
-        <List className={styles.yearList}>
-          {AVAILABLE_YEARS.map((year) => {
+        <List className={styles['dropdown__list']}>
+          {availableYears.map((year) => {
             const isSelected = year === selectedYear
 
             return (
               <ListItem key={year} disablePadding>
                 <Button
                   onClick={() => handleYearSelect(year)}
-                  className={clsx(styles.yearButton, isSelected && styles.selected)}
+                  className={clsx(
+                    styles['dropdown__option'],
+                    isSelected && styles['dropdown__option--selected'],
+                  )}
                 >
                   {year}
                 </Button>
