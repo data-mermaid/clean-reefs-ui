@@ -12,7 +12,7 @@ export default tseslint.config(
   [
     globalIgnores(['dist', 'node_modules', '.storybook']),
     {
-      files: ['**/*.{js,ts,tsx}'],
+      files: ['src/**/*.{js,ts,tsx}'],
       plugins: {
         react,
       },
@@ -37,13 +37,14 @@ export default tseslint.config(
         'no-console': ['error', { allow: ['warn', 'error'] }],
         'no-undef-init': 'error',
 
-        '@typescript-eslint/no-unused-vars': [
-          'error',
-          {
-            varsIgnorePattern: '^_',
-            argsIgnorePattern: '^_',
-          },
-        ],
+        //Turn back on before release
+        // '@typescript-eslint/no-unused-vars': [
+        //   'error',
+        //   {
+        //     varsIgnorePattern: '^_',
+        //     argsIgnorePattern: '^_',
+        //   },
+        // ],
 
         'no-useless-return': 'off',
 

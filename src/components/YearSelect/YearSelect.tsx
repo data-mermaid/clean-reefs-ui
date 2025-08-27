@@ -64,11 +64,6 @@ export const YearSelect = ({
 
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
   }, [isOpen, handleCloseDropdown])
 
   return (

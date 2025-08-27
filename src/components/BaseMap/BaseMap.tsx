@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
-import { Map, Layer, Source } from 'react-map-gl/maplibre'
+import { Layer, Map, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -28,8 +28,8 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   const defaultLon = 178.4 //TODO: provide functionality to zoom into general user browser location
   const defaultLat = -17.3
   const defaultMapZoom = 10
-  const mapRef = useRef(null)
-  const [viewportBounds, setViewportBounds] = useState([])
+  // const mapRef = useRef(null)
+  const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -40,6 +40,8 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
       maplibregl.removeProtocol('cog')
     }
   }, [])
+
+  setViewportBounds([-17.816028, 177.798671, 10])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
