@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { LayerInfo, layers } from '../../data/mapData'
+import { LayerInfo } from '../../data/mapData'
 
 interface LayersDrawerProps {
   layersOn: LayerInfo[]
@@ -19,14 +19,11 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
     setOpen(newOpen)
   }
   const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const layerToToggle = event.target.id
-    const layerChecked: boolean = event.target.checked
-    const updatedLayers = layersOn.map(
-      (layer) =>
-        layer.layerId === layerToToggle
-          ? { ...layer, isLayerOn: layerChecked } // Create new object with updated property
-          : layer, // Keep other layers unchanged
-    )
+    const updatedLayers = layersOn.map((layer) => {
+      return layer.layerId === event.target.id
+        ? { ...layer, isLayerOn: !layer.isLayerOn } // Create new object with updated property
+        : layer // Keep other layers unchanged
+    })
     setLayersOn(updatedLayers)
   }
 
@@ -48,36 +45,14 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
         <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
 
         {/*List of collapsible layer toggles go inside here*/}
-        {layers.map((layer) => {
+        {layersOn.map((layer) => {
           return (
-            <Card className={styles['layer-card']}>
+            <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
               <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>
               <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
             </Card>
           )
         })}
-        {/*<Card className={styles['layer-card']}>*/}
-        {/*  <Typography sx={{ display: 'inline-block' }}>PMTiles layer</Typography>*/}
-        {/*  <Switch*/}
-        {/*    id="0-regions"*/}
-        {/*    key={0}*/}
-        {/*    sx={{ display: 'inline-block' }}*/}
-        {/*    checked={layersOn[0].isLayerOn}*/}
-        {/*    onChange={toggleLayer}*/}
-        {/*  />*/}
-        {/*</Card>*/}
-
-        {/*<Card className={styles['layer-card']}>*/}
-        {/*  <Typography sx={{ display: 'inline-block' }}>{t('map_layers.land_use_cover')}</Typography>*/}
-        {/*  <Switch*/}
-        {/*    id="1-lulc"*/}
-        {/*    key={1}*/}
-        {/*    sx={{ display: 'inline-block' }}*/}
-        {/*    checked={layersOn[1].isLayerOn}*/}
-        {/*    onChange={toggleLayer}*/}
-        {/*  />*/}
-        {/*</Card>*/}
-        {/* End temp code */}
       </StyledSwipeableDrawer>
     </div>
   )

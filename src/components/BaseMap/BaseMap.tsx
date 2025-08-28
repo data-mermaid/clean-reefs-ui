@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-
 import { Layer, Map, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -9,8 +8,6 @@ import styles from './BaseMap.module.scss'
 import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-
-import { GLOBAL_LULC_URL, REGIONS_URL } from '../../constants'
 import { LayerInfo } from '../../data/mapData'
 
 // const isValidLatLng = (lat:number, lng:number) => {
@@ -81,25 +78,39 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
       >
         {layersOn.map((layer) => {
           return layer.dataType === 'pmtiles' ? (
-            <Source id={layer.sourceId} type="vector" url={`pmtiles://${layer.link}`}>
-              <Layer
-                id={layer.layerId}
-                type="line"
-                source={layer.sourceId}
-                source-layer={layer.sourceName}
-              />
-            </Source>
+            <>
+              {isMapLoaded && layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}`}
+                  type="vector"
+                  url={`pmtiles://${layer.link}`}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="line"
+                    source={layer.sourceId}
+                    source-layer={layer.sourceName}
+                  />
+                </Source>
+              )}
+            </>
           ) : (
-            <Source
-              id={layer.sourceId}
-              type="raster"
-              tiles={[`${layer.link}`]}
-              tileSize={256}
-              maxzoom={16}
-              minzoom={6}
-            >
-              <Layer id={layer.layerId} type="raster" source={layer.sourceId} />
-            </Source>
+            <>
+              {isMapLoaded && layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-source`}
+                  type="raster"
+                  tiles={[`${layer.link}`]}
+                  tileSize={256}
+                  maxzoom={16}
+                  minzoom={6}
+                >
+                  <Layer id={layer.layerId} type="raster" source={layer.sourceId} />
+                </Source>
+              )}
+            </>
           )
         })}
       </Map>
