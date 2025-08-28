@@ -25,8 +25,8 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLon = 178.4 //TODO: provide functionality to zoom into general user browser location
-  const defaultLat = -17.3
+  const defaultLon = -17.816028 //Initial location - Fiji
+  const defaultLat = -17.816028
   const defaultMapZoom = 10
   // const mapRef = useRef(null)
   const [viewportBounds, setViewportBounds] = useState<number[]>([])
@@ -35,13 +35,13 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
     maplibregl.addProtocol('cog', cogProtocol)
+
+    setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
     return () => {
       maplibregl.removeProtocol('pmtiles')
       maplibregl.removeProtocol('cog')
     }
-  }, [])
-
-  setViewportBounds([-17.816028, 177.798671, 10])
+  }, [defaultLon, defaultLat])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
@@ -103,12 +103,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
             maxzoom={16}
             minzoom={6}
           >
-            <Layer
-              id="lulc-layer"
-              type="raster"
-              source="lulc-raster"
-              source-layer="LULC_20202_Reclassified_colored"
-            />
+            <Layer id="lulc-layer" type="raster" source="lulc-raster" />
           </Source>
         )}
       </Map>
