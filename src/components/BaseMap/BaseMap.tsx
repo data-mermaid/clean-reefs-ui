@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
-import { Map, Layer, Source } from 'react-map-gl/maplibre'
+import { Layer, Map, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -10,7 +10,8 @@ import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 
-import { LayerInfo, layers } from '../../data/mapData'
+import { GLOBAL_LULC_URL, REGIONS_URL } from '../../constants'
+import { LayerInfo } from '../../data/mapData'
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
@@ -24,21 +25,23 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLon = 178.4 //TODO: provide functionality to zoom into general user browser location
-  const defaultLat = -17.3
+  const defaultLon = 178.4 //Initial location - Fiji
+  const defaultLat = -17.816028
   const defaultMapZoom = 10
-  const mapRef = useRef(null)
-  const [viewportBounds, setViewportBounds] = useState([-17.816028, 177.798671, 10])
+  // const mapRef = useRef(null)
+  const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
     maplibregl.addProtocol('cog', cogProtocol)
+
+    setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
     return () => {
       maplibregl.removeProtocol('pmtiles')
       maplibregl.removeProtocol('cog')
     }
-  }, [])
+  }, [defaultLon, defaultLat])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
@@ -76,7 +79,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
         onLoad={() => setIsMapLoaded(true)}
         attributionControl={false}
       >
-        {layers.map((layer) => {
+        {layersOn.map((layer) => {
           return layer.dataType === 'pmtiles' ? (
             <Source id={layer.sourceId} type="vector" url={`pmtiles://${layer.link}`}>
               <Layer
@@ -99,37 +102,6 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
             </Source>
           )
         })}
-        {/*{isMapLoaded && layersOn[0].isLayerOn && (*/}
-        {/*  <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_PMTILES_URL}`}>*/}
-        {/*    <Layer*/}
-        {/*      id="regions-layer"*/}
-        {/*      type="line"*/}
-        {/*      source="regions-pmtiles"*/}
-        {/*      source-layer="regions"*/}
-        {/*      paint={{*/}
-        {/*        'line-color': '#ff0000',*/}
-        {/*        'line-width': 3,*/}
-        {/*      }}*/}
-        {/*    />*/}
-        {/*  </Source>*/}
-        {/*)}*/}
-
-        {/*{isMapLoaded && layersOn[1].isLayerOn && (*/}
-        {/*  <Source*/}
-        {/*    id="lulc-raster"*/}
-        {/*    type="raster"*/}
-        {/*    tiles={[LULC_2000_TILES_URL]}*/}
-        {/*    tileSize={256}*/}
-        {/*    maxzoom={16}*/}
-        {/*    minzoom={6}*/}
-        {/*  >*/}
-        {/*    <Layer*/}
-        {/*      id="lulc-layer"*/}
-        {/*      type="raster"*/}
-        {/*      source="lulc-raster"*/}
-        {/*    />*/}
-        {/*  </Source>*/}
-        {/*)}*/}
       </Map>
     </div>
   )

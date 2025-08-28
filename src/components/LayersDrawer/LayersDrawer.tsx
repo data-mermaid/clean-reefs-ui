@@ -35,7 +35,7 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
       <StyledIconButtonWithTooltip
         tooltipText={t('buttons.open_menu')}
         handleOnClick={toggleDrawer(true)}
-        className={styles.layerToggleButton}
+        className={styles['layer-toggle-button']}
       >
         <LayersIcon />
       </StyledIconButtonWithTooltip>

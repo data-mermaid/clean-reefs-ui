@@ -10,8 +10,8 @@ import { layers } from '../../data/mapData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
+  const [selectedYear, setSelectedYear] = useState(2020)
   const [layersOn, setLayersOn] = useState(layers)
-  const [selectedYear, setSelectedYear] = useState(2000)
 
   return (
     <div className={styles['MapContainer-root']}>
