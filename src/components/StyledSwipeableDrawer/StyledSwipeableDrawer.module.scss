@@ -34,9 +34,12 @@
 
   & .MuiDrawer-paperAnchorLeft {
     display: block;
-    top: theme.$headerHeight;
     width: theme.$drawerWidth;
     padding: theme.$spacingSmall;
+
+    @include theme.mobileUpBreakPoint {
+      top: theme.$headerHeight;
+    }
   }
   & .MuiDrawer-paper {
     padding-top: theme.$spacingMedium;

@@ -1,9 +1,6 @@
 @use '../../styles/theme';
 
 .LayersDrawer-root {
-  display: flex;
-  align-items: center;
-
   .layer-toggle-button {
     position: relative;
     top: 0;
@@ -15,4 +12,10 @@
       color: theme.$textColor;
     }
   }
+}
+
+.layer-card {
+  margin: theme.$defaultSpacing;
+  padding: theme.$defaultSpacing;
+  background-color: theme.$greyWhite;
 }

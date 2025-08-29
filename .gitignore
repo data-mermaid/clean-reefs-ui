@@ -8,9 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+build
 dist
 dist-ssr
 *.local
+tsconfig.tsbuildinfo
 
 # Editor directories and files
 .vscode/*
@@ -23,6 +25,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+.eslintcache
 
 *storybook.log
 storybook-static

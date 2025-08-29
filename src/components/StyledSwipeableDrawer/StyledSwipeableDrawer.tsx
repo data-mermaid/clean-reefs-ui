@@ -41,6 +41,7 @@ export default function StyledSwipeableDrawer({
         modal: styles['MuiDrawer-modal'],
         anchorRight: styles['MuiDrawer-anchorRight'],
         paperAnchorRight: styles['MuiDrawer-paperAnchorRight'],
+        paperAnchorLeft: styles['MuiDrawer-paperAnchorLeft'],
       }}
       allowSwipeInChildren
     >

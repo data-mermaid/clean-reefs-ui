@@ -14,10 +14,6 @@
     border-radius: theme.$borderRadius;
     transition: all 0.2s ease-in-out;
 
-    &:hover:not(:disabled) {
-      background: darken(theme.$greyWhite, 5%) !important;
-    }
-
     @include theme.mobileDownBreakPoint {
       font-size: theme.$textSizeSmall !important;
     }

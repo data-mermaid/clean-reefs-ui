@@ -1,41 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
-import { Map, Layer, Source } from 'react-map-gl/maplibre'
+import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
 import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
+import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
+
+import { GLOBAL_LULC_URL, REGIONS_URL } from '../../constants'
+import { LayerInfo } from '../../data/mapData'
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
 // }
 
 interface BaseMapProps {
-  protoLayerOn: boolean
+  layersOn: LayerInfo[]
 }
 
-const PMTILES_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/other/regions/meow_boundaries/global_meow_boundaries%5E0/regions.pmtiles'
-
-export default function BaseMap({ protoLayerOn }: BaseMapProps) {
+export default function BaseMap({ layersOn }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLon = 178.4 //TODO: provide functionality to zoom into general user browser location
-  const defaultLat = -17.3
+  const defaultLon = 178.4 //Initial location - Fiji
+  const defaultLat = -17.816028
   const defaultMapZoom = 10
+  // const mapRef = useRef(null)
+  const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
-  // Register PMTiles protocol
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
+    maplibregl.addProtocol('cog', cogProtocol)
+
+    setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
     return () => {
       maplibregl.removeProtocol('pmtiles')
+      maplibregl.removeProtocol('cog')
     }
-  }, [])
+  }, [defaultLon, defaultLat])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
@@ -61,7 +67,7 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
           }}
         />
       )}
-      <Map
+      <MapGL
         id="satellite-map"
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
@@ -69,12 +75,12 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
           latitude: defaultLat,
           zoom: defaultMapZoom,
         }}
-        mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`}
+        mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
         attributionControl={false}
       >
-        <Source id="regions-pmtiles" type="vector" url={`pmtiles://${PMTILES_URL}`}>
-          {protoLayerOn && (
+        {isMapLoaded && layersOn[0].isLayerOn && (
+          <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_URL}`}>
             <Layer
               id="regions-layer"
               type="line"
@@ -85,9 +91,22 @@ export default function BaseMap({ protoLayerOn }: BaseMapProps) {
                 'line-width': 3,
               }}
             />
-          )}
-        </Source>
-      </Map>
+          </Source>
+        )}
+
+        {isMapLoaded && layersOn[1].isLayerOn && (
+          <Source
+            id="lulc-raster"
+            type="raster"
+            url={`cog://${GLOBAL_LULC_URL}${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(',')}` : ''}`}
+            tileSize={256}
+            maxzoom={16}
+            minzoom={6}
+          >
+            <Layer id="lulc-layer" type="raster" source="lulc-raster" />
+          </Source>
+        )}
+      </MapGL>
     </div>
   )
 }

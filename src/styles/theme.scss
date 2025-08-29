@@ -17,12 +17,11 @@ $bold: 700;
 
 $textSizeSmall: 14px;
 $defaultTextSize: 16px;
+$textSizeMedium: $defaultTextSize;
 $textSizeXLarge: 52px;
 
 $svgSizeSmall: 20px;
 $svgSizeMedium: 26px;
-
-$borderRadius: 4px;
 
 /** Layout, spacing **/
 $defaultSpacing: 10px;
@@ -31,6 +30,7 @@ $spacingSmall: 8px;
 $spacingMedium: 16px;
 $spacingLarge: 24px;
 
+$borderRadius: 4px;
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
@@ -48,6 +48,11 @@ $closedBottomDrawerHeight: 120px;
 $breakpointMobile: 1024px;
 
 /** Mixins **/
+@mixin mobileUpBreakPoint {
+  @media (min-width: $breakpointMobile) {
+    @content;
+  }
+}
 @mixin mobileDownBreakPoint {
   @media (max-width: $breakpointMobile) {
     @content;
