@@ -29,13 +29,15 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
 
   return (
     <div className={styles['LayersDrawer-root']}>
-      <StyledIconButtonWithTooltip
-        tooltipText={t('buttons.open_menu')}
-        handleOnClick={toggleDrawer(true)}
-        className={styles['layer-toggle-button']}
-      >
-        <LayersIcon />
-      </StyledIconButtonWithTooltip>
+      {!open && (
+        <StyledIconButtonWithTooltip
+          tooltipText={t('buttons.open_menu')}
+          handleOnClick={toggleDrawer(true)}
+          className={styles['layer-toggle-button']}
+        >
+          <LayersIcon />
+        </StyledIconButtonWithTooltip>
+      )}
       <StyledSwipeableDrawer
         open={open}
         anchor="left"

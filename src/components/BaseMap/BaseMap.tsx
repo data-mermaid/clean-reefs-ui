@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-import { Layer, Map, Source } from 'react-map-gl/maplibre'
+
+import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -64,7 +65,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
           }}
         />
       )}
-      <Map
+      <MapGL
         id="satellite-map"
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
@@ -113,7 +114,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
             </>
           )
         })}
-      </Map>
+      </MapGL>
     </div>
   )
 }

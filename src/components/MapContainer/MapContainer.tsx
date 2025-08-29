@@ -16,14 +16,14 @@ export default function MapContainer() {
   return (
     <div className={styles['MapContainer-root']}>
       {isMobileWidth ? (
-        <div className={styles['layer-controls-mobile']}>
+        <div className={styles['layer-controls--mobile']}>
           <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
           <RegionSelect />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           <TrendsDrawer />
         </div>
       ) : (
-        <div className={styles['layer-controls-desktop']}>
+        <div className={styles['layer-controls--desktop']}>
           <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
           <div>
             <RegionSelect />

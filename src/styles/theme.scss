@@ -26,8 +26,6 @@ $svgSizeMedium: 26px;
 /** Layout, spacing **/
 $defaultSpacing: 10px;
 $spacingXSmall: 5px;
-
-$defaultPadding: 10px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
 $spacingLarge: 24px;
@@ -50,6 +48,11 @@ $closedBottomDrawerHeight: 120px;
 $breakpointMobile: 1024px;
 
 /** Mixins **/
+@mixin mobileUpBreakPoint {
+  @media (min-width: $breakpointMobile) {
+    @content;
+  }
+}
 @mixin mobileDownBreakPoint {
   @media (max-width: $breakpointMobile) {
     @content;
