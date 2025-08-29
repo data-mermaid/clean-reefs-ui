@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
-import { Layer, Map, Source } from 'react-map-gl/maplibre'
+import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -25,7 +25,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLon = -17.816028 //Initial location - Fiji
+  const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
   // const mapRef = useRef(null)
@@ -67,7 +67,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
           }}
         />
       )}
-      <Map
+      <MapGL
         id="satellite-map"
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
@@ -106,7 +106,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
             <Layer id="lulc-layer" type="raster" source="lulc-raster" />
           </Source>
         )}
-      </Map>
+      </MapGL>
     </div>
   )
 }
