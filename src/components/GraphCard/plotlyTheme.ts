@@ -1,13 +1,4 @@
 export const plotlyTheme = {
-  chartCategoryType: {
-    bare_ground: '#FEFECC',
-    shrubland_grassland: '#B0B006',
-    mixed_forest: '#609C30',
-    high_canopy_forest: '#065106',
-    surface_water: '#0E39D6',
-    cropland: '#FF7D00',
-    built_up: '#64DCDC',
-  },
   layout: {
     width: '100%',
     xaxis: {

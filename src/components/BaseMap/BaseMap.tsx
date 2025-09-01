@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-
 import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -10,31 +9,29 @@ import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
-
-// const isValidLatLng = (lat:number, lng:number) => {
-//     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
-// }
+import { ChartedData, updateGraph } from '../../utils/updateGraph'
 
 interface BaseMapProps {
   layersOn: LayerInfo[]
+  setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
 }
 
-export default function BaseMap({ layersOn }: BaseMapProps) {
+export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   // const {t} = useTranslation()
   // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
-  // const mapRef = useRef(null)
-  const [viewportBounds, setViewportBounds] = useState<number[]>([])
+  const mapRef = useRef(null)
+  // const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
     maplibregl.addProtocol('cog', cogProtocol)
 
-    setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
+    // setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
     return () => {
       maplibregl.removeProtocol('pmtiles')
       maplibregl.removeProtocol('cog')
@@ -52,6 +49,21 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
+  const handleMapClick = (event) => {
+    if (!mapRef.current) return undefined
+    const map = mapRef.current.getMap()
+
+    //query the layers corresponding with graphs and with layers that are on
+    const features = map.queryRenderedFeatures(event.point, {
+      layers: ['watershed'], //TODO: replace w/list of layer ids that are on
+    })
+
+    if (features.length > 0) {
+      const properties = features[0].properties
+      setLulcGraphData(updateGraph(properties))
+    }
+  }
+
   return (
     <div className={styles['map-wrap']}>
       {!isMapLoaded && (
@@ -67,6 +79,7 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
       )}
       <MapGL
         id="satellite-map"
+        ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
           longitude: defaultLon,
@@ -76,8 +89,9 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => setIsMapLoaded(true)}
         attributionControl={false}
+        onClick={handleMapClick}
       >
-        {layersOn.map((layer) => {
+        {layersOn.map((layer, index) => {
           return layer.dataType === 'pmtiles' ? (
             <>
               {isMapLoaded && layer.isLayerOn && (
@@ -89,9 +103,15 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
                 >
                   <Layer
                     id={layer.layerId}
-                    type="line"
+                    type="fill"
+                    key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
+                    paint={{
+                      'fill-color': 'red',
+                      'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
+                      'fill-outline-color': '#000',
+                    }}
                   />
                 </Source>
               )}
@@ -101,14 +121,19 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
               {isMapLoaded && layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
-                  key={`${layer.sourceId}-source`}
+                  key={`${layer.sourceId}-${index}`}
                   type="raster"
                   tiles={[`${layer.link}`]}
                   tileSize={256}
                   maxzoom={16}
                   minzoom={6}
                 >
-                  <Layer id={layer.layerId} type="raster" source={layer.sourceId} />
+                  <Layer
+                    id={layer.layerId}
+                    type="raster"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                  />
                 </Source>
               )}
             </>

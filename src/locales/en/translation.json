@@ -23,7 +23,10 @@
     "surface_water": "Surface water"
   },
   "map_layers": {
-    "land_use_cover": "Land use / Land cover"
+    "country_boundaries": "Country boundaries",
+    "land_use_cover": "Land use / Land cover",
+    "regional_boundaries": "Regional boundaries",
+    "watershed_boundaries": "Watershed boundaries"
   },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
@@ -37,7 +40,6 @@
   "coral_reef_regions": "Coral reef regions",
   "coral_algae": "Coral/Algae",
   "countries_with_coral": "Countries with coral reefs",
-  "country_boundaries": "Country boundaries",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
   "global": "Global",
@@ -57,7 +59,6 @@
   "pollution_export": "Pollution export",
   "reef_extent_exposure": "Reef ecosystem extent exposure",
   "reef_extent": "Reef extent",
-  "regional_boundaries": "Regional boundaries",
   "rock": "Rock",
   "rubble": "Rubble",
   "sand": "Sand",
@@ -69,7 +70,6 @@
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
   "watershed": "Watershed",
-  "watershed_boundaries": "Watershed boundaries",
   "year": "Year",
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_region": "Select region",

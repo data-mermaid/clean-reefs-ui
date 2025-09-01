@@ -13,14 +13,14 @@ const mockGraphData = [
     y: [14, 23, 17, 10, 4],
     name: 'Bare Ground',
     type: 'bar',
-    width: 10,
+    width: 3,
   },
   {
     x: ['2000', '2005', '2010', '2015', '2020'],
     y: [20, 14, 23, 4, 17],
     name: 'Shrub',
     type: 'bar',
-    width: 10,
+    width: 3,
   },
 ]
 export const Primary: Story = {
