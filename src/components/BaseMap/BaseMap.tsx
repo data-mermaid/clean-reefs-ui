@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 
-import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
+import { Layer, Map as MapGL, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -12,6 +12,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 
 import { GLOBAL_LULC_URL, REGIONS_URL } from '../../constants'
 import { LayerInfo } from '../../data/mapData'
+import useResponsive from '../../hooks/useResponsive'
 
 // const isValidLatLng = (lat:number, lng:number) => {
 //     return lat >= -90 && lat <= 90 && lat !== null && lng >= -180 && lng <= 180 && lng !== null
@@ -23,7 +24,7 @@ interface BaseMapProps {
 
 export default function BaseMap({ layersOn }: BaseMapProps) {
   // const {t} = useTranslation()
-  // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
+  const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
@@ -79,6 +80,15 @@ export default function BaseMap({ layersOn }: BaseMapProps) {
         onLoad={() => setIsMapLoaded(true)}
         attributionControl={false}
       >
+        {isDesktopWidth && (
+          <NavigationControl
+            position={'bottom-right'}
+            showCompass={false}
+            style={{
+              marginRight: '380px',
+            }}
+          />
+        )}
         {isMapLoaded && layersOn[0].isLayerOn && (
           <Source id="regions-pmtiles" type="vector" url={`pmtiles://${REGIONS_URL}`}>
             <Layer
