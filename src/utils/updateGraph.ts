@@ -1,17 +1,22 @@
+import { graphConfigData } from '../data/landUseThroughTimeGraphData'
+
 export interface GraphData {
   [name: string]: Record<string, number>
 }
 
-//'Built_pct_2000' --> 'built_up': {["2000", val]...}
-const graphDataExample = {
-  built_up: {
-    '2000': 2,
-    '2005': 3,
-    '2010': 0,
-    '2015': 0,
-    '2020': 0,
-  },
-}
+//'Built_pct_2000': val --> 'built_up': {["2000", val]...}
+// const graphDataExample = {
+//   built_up: {
+//     '2000': 2,
+//     '2005': 3,
+//     '2010': 0,
+//     '2015': 0,
+//     '2020': 0,
+//   },
+// }
+const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
+const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
+
 export const updateGraph = (pointProperties) /*: GraphData*/ => {
   //group data by type
   const mappedGraphData = {
@@ -23,8 +28,6 @@ export const updateGraph = (pointProperties) /*: GraphData*/ => {
     shrubland_grassland: {},
     surface_water: {},
   }
-  const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
-  const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
   for (const point in pointProperties) {
     const val = pointProperties[point]
     if (
@@ -39,6 +42,8 @@ export const updateGraph = (pointProperties) /*: GraphData*/ => {
       //get the year
       const yearIndex = point.indexOf('2')
       const year = yearIndex > -1 ? point.substring(yearIndex) : '0'
+      //br_gr_ground_2020
+      //brgrground_2020
 
       const strang = point.split('2')
 
@@ -80,6 +85,7 @@ export interface ChartedData {
   y: number[]
   type: 'bar'
   name: string
+  marker: object
   width: number
 }
 export const setGraphData = (sortedProperties: GraphData) => {
@@ -94,6 +100,9 @@ export const setGraphData = (sortedProperties: GraphData) => {
       y: sortedYears.map((year) => yearData[year]),
       name: category,
       type: 'bar',
+      marker: {
+        color: graphConfigData['graphs.land_use_historical'].legendColors[category],
+      },
       width: 3, //todo: update width according to graph type
     })
   })

@@ -11,47 +11,52 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-a {
-  font-weight: theme.$semiBold;
-  text-decoration: inherit;
-}
+  a {
+    font-weight: theme.$semiBold;
+    text-decoration: inherit;
+  }
 
-body {
-  margin: 0;
-  padding: 0;
-}
+  body {
+    margin: 0;
+    padding: 0;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-a,
-blockquote,
-pre {
-  font-family: theme.$defaultFonts;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  a,
+  blockquote,
+  pre {
+    font-family: theme.$defaultFonts;
+  }
 
-h1 {
-  font-size: theme.$textSizeXLarge;
-  line-height: 1.1;
-}
+  h1 {
+    font-size: theme.$textSizeXLarge;
+    line-height: 1.1;
+  }
 
-h2 {
-  font-size: theme.$defaultTextSize;
-  font-weight: theme.$bold;
-  line-height: 1.2;
-}
+  h2 {
+    font-size: theme.$defaultTextSize;
+    font-weight: theme.$bold;
+  }
 
-h3 {
-  font-weight: theme.$bold;
-  color: theme.$textColor;
-}
+  h3 {
+    font-weight: theme.$bold;
+    color: theme.$textColor;
+    margin-bottom: theme.$defaultSpacing;
+  }
 
-section {
-  padding: theme.$spacingSmall;
+  section {
+    padding: theme.$spacingSmall;
+  }
+
+  .region-label {
+    font-weight: theme.$light;
+    color: theme.$textSecondary;
+  }
 }

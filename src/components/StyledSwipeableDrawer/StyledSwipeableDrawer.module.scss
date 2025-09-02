@@ -10,6 +10,7 @@
     top: theme.$headerHeight;
     visibility: visible !important; //override MUI application
     padding: theme.$defaultSpacing;
+    background-color: theme.$grey;
   }
 
   & .MuiDrawer-paperAnchorBottom {
@@ -17,7 +18,7 @@
 
     &.open-drawer {
       height: 98vh;
-      overflow-y: clip;
+      overflow-y: scroll;
       padding: theme.$spacingMedium theme.$defaultSpacing 0;
     }
     &.closed-drawer {
@@ -33,6 +34,7 @@
   }
 
   & .MuiDrawer-paperAnchorLeft {
+    background-color: theme.$grey;
     display: block;
     width: theme.$drawerWidth;
     padding: theme.$spacingSmall;

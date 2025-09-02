@@ -1,13 +1,33 @@
 @use '../../styles/theme';
 
 .graph-card {
-  background-color: white;
+  margin-right: theme.$defaultSpacing;
+
+  margin-bottom: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;
-  width: max-content;
+  background-color: theme.$greyWhite;
+  width: 100%; //300px;
+
+  //closed and mobile
+  //width:max-content;
+
+  h3 {
+    line-height: 1.2;
+    @include theme.mobileDownBreakPoint {
+    }
+    @include theme.mobileUpBreakPoint {
+      margin-top: theme.$defaultSpacing;
+    }
+  }
 }
 
 .graph-plots {
-  margin: 0 auto;
   display: block;
-  width: 350px;
+  margin: 0 auto;
+}
+.region-label {
+  margin-bottom: 0;
+  font-size: theme.$textSizeXSmall;
+  font-weight: theme.$light;
+  color: theme.$textSecondary;
 }

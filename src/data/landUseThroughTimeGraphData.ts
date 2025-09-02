@@ -1,5 +1,5 @@
 //todo: update this data with config for all graphs
-const graphConfigData = {
+export const graphConfigData = {
   'graphs.land_use_historical': {
     width: 2,
     legendColors: {

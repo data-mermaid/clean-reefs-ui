@@ -10,18 +10,17 @@
 }
 
 .graphs-container--open {
-  overflow-y: scroll;
-  //Temporary component styling
-  .graph-card {
-    margin-bottom: theme.$defaultSpacing;
-    width: 100%;
-    display: block;
-    height: auto;
-  }
-  .graph-card:last-of-type {
-    margin-bottom: 0;
-  }
-  //End temporary component styling
+  //.graph-card {
+  //  margin-bottom: theme.$defaultSpacing;
+  //  width: 100%;
+  //  display: block;
+  //  padding: theme.$defaultSpacing;
+  //
+  //  height: auto;
+  //}
+  //.graph-card:last-of-type {
+  //  margin-bottom: 0;
+  //}
 }
 
 .graphs-container--closed {
@@ -32,16 +31,20 @@
   display: flex;
   flex-wrap: nowrap;
 
-  //Temporary component styling
   .graph-card {
+    padding: theme.$defaultSpacing;
     display: block;
     flex: 0 0 auto;
     height: 55px;
-    width: 300px;
+    width: max-content;
     margin-right: theme.$defaultSpacing;
 
+    h3 {
+      margin: 0;
+    }
+
     &:last-of-type {
-      margin-right: 0;
+      //margin-right: 0;
     }
   }
   //End temporary component styling
