@@ -1,23 +1,14 @@
-import { graphConfigData } from '../data/landUseThroughTimeGraphData'
+import { graphLayoutConfig } from '../data/mapData'
 
 export interface GraphData {
   [name: string]: Record<string, number>
 }
 
-//'Built_pct_2000': val --> 'built_up': {["2000", val]...}
-// const graphDataExample = {
-//   built_up: {
-//     '2000': 2,
-//     '2005': 3,
-//     '2010': 0,
-//     '2015': 0,
-//     '2020': 0,
-//   },
-// }
+//'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
-export const updateGraph = (pointProperties) /*: GraphData*/ => {
+export const updateGraph = (pointProperties) => {
   //group data by type
   const mappedGraphData = {
     bare_ground: {},
@@ -42,12 +33,9 @@ export const updateGraph = (pointProperties) /*: GraphData*/ => {
       //get the year
       const yearIndex = point.indexOf('2')
       const year = yearIndex > -1 ? point.substring(yearIndex) : '0'
-      //br_gr_ground_2020
-      //brgrground_2020
 
-      const strang = point.split('2')
-
-      switch (strang[0]) {
+      const categoryString = point.split('2')
+      switch (categoryString[0]) {
         case 'Bare_Gr_pct_':
           mappedGraphData.bare_ground[year] = val
           break
@@ -85,13 +73,13 @@ export interface ChartedData {
   y: number[]
   type: 'bar'
   name: string
-  marker: object
+  marker?: object
   width: number
 }
 export const setGraphData = (sortedProperties: GraphData) => {
   const chartData: ChartedData[] = []
 
-  // For each category (built_up, bare_ground, etc.)
+  // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
@@ -101,7 +89,7 @@ export const setGraphData = (sortedProperties: GraphData) => {
       name: category,
       type: 'bar',
       marker: {
-        color: graphConfigData['graphs.land_use_historical'].legendColors[category],
+        color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
       },
       width: 3, //todo: update width according to graph type
     })

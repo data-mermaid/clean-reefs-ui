@@ -6,15 +6,10 @@
   margin-bottom: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;
   background-color: theme.$greyWhite;
-  width: 100%; //300px;
-
-  //closed and mobile
-  //width:max-content;
+  width: 100%;
 
   h3 {
     line-height: 1.2;
-    @include theme.mobileDownBreakPoint {
-    }
     @include theme.mobileUpBreakPoint {
       margin-top: theme.$defaultSpacing;
     }

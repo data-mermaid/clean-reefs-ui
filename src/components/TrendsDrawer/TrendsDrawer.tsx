@@ -8,7 +8,7 @@ import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import GraphCard from '../GraphCard/GraphCard'
 import { ChartedData } from '../../utils/updateGraph'
-import { mockGraphData } from '../GraphCard/GraphCard.stories'
+import { MockGraphData } from '../GraphCard/GraphCard.stories'
 
 interface TrendsDrawerProps {
   // layersOn: LayerInfo[] //todo: show graphs available based on layers on
@@ -52,13 +52,13 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
           open={open}
           {...(isMobileWidth ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.ecosystem_extent_exposed'}
-          graphData={mockGraphData}
+          graphData={MockGraphData}
         />
         <GraphCard
           open={open}
           {...(isMobileWidth ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
-          graphData={mockGraphData}
+          graphData={MockGraphData}
         />
       </div>
     </StyledSwipeableDrawer>

@@ -8,7 +8,7 @@ const meta = {
 } satisfies Meta<typeof GraphCard>
 
 type Story = StoryObj<typeof meta>
-export const mockGraphData: ChartedData[] = [
+export const MockGraphData: ChartedData[] = [
   {
     x: ['2000', '2005', '2010', '2015', '2020'],
     y: [16, 14, 14, 10, 4],
@@ -63,7 +63,7 @@ export const Primary: Story = {
   args: {
     open: true,
     graphName: 'Primary graph card',
-    graphData: mockGraphData,
+    graphData: MockGraphData,
   },
 }
 
@@ -71,7 +71,7 @@ export const Closed: Story = {
   args: {
     open: false,
     graphName: 'Closed graph card',
-    graphData: mockGraphData,
+    graphData: MockGraphData,
   },
 }
 

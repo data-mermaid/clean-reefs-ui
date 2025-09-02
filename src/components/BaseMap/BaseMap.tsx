@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-import { Layer, Map as MapGL, Source } from 'react-map-gl/maplibre'
+import { Layer, Map as MapGL, Source, MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -23,7 +23,7 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
-  const mapRef = useRef(null)
+  const mapRef = useRef<MapRef | null>(null)
   // const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
   useEffect(() => {
@@ -50,17 +50,18 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   const handleMapClick = (event) => {
-    if (!mapRef.current) return undefined
-    const map = mapRef.current.getMap()
+    if (mapRef.current) {
+      const map = mapRef.current?.getMap()
 
-    //query the layers corresponding with graphs and with layers that are on
-    const features = map.queryRenderedFeatures(event.point, {
-      layers: ['watershed'], //TODO: replace w/list of layer ids that are on
-    })
+      //query the layers corresponding with graphs and with layers that are on
+      const features = map.queryRenderedFeatures(event.point, {
+        layers: ['watershed'], //TODO: replace w/list of layer ids that are on
+      })
 
-    if (features.length > 0) {
-      const properties = features[0].properties
-      setLulcGraphData(updateGraph(properties))
+      if (features.length > 0) {
+        const properties = features[0].properties
+        setLulcGraphData(updateGraph(properties))
+      }
     }
   }
 
