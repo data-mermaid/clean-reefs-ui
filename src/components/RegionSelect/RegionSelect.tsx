@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import Autocomplete from '@mui/material/Autocomplete'
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 
@@ -81,6 +81,8 @@ export default function RegionSelect() {
     })
   }, [])
 
+  const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
+
   const createEmptyFilterOptions = useCallback((): RegionOption[] => {
     const noDataGroups = [
       {
@@ -107,7 +109,7 @@ export default function RegionSelect() {
       <Autocomplete<RegionOption>
         size="small"
         options={sortedOptions}
-        groupBy={(option) => option.groupName}
+        groupBy={(option) => t(option.groupKey)}
         getOptionLabel={(option) => option.label}
         getOptionDisabled={(option) =>
           option.label === noCountriesMatchText || option.label === noRegionsMatchText
@@ -116,19 +118,12 @@ export default function RegionSelect() {
         value={selectedValue}
         onChange={handleChange}
         isOptionEqualToValue={(option, value) =>
-          option.label === value.label && option.groupName === value.groupName
+          option.label === value.label && option.groupKey === value.groupKey
         }
         noOptionsText=""
-        filterOptions={(options, { inputValue }) => {
-          const filtered = options.filter((option) =>
-            option.label.toLowerCase().includes(inputValue.toLowerCase()),
-          )
-
-          if (filtered.length === 0) {
-            return createEmptyFilterOptions()
-          }
-
-          return filtered
+        filterOptions={(options, state) => {
+          const filtered = muiFilterOptions(options, state)
+          return filtered.length ? filtered : createEmptyFilterOptions()
         }}
         classes={{
           root: styles['MuiAutocomplete-root'],
