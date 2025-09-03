@@ -7,11 +7,9 @@ import styles from './RegionSelect.module.scss'
 
 /** TODO: Replace with actual country data */
 type GroupKey = 'all_data' | 'countries_with_coral' | 'coral_reef_regions'
-type GroupName = 'All Data' | 'Countries with Coral Reefs' | 'Coral reef regions'
 
 interface RegionOption {
   groupKey: GroupKey
-  groupName: GroupName
   label: string
 }
 
@@ -19,48 +17,43 @@ const groupOrders: GroupKey[] = ['all_data', 'countries_with_coral', 'coral_reef
 
 const defaultOption: RegionOption = {
   groupKey: 'all_data',
-  groupName: 'All Data',
   label: 'Global',
 }
 
 const regionOptions: RegionOption[] = [
-  { groupKey: 'all_data', groupName: 'All Data', label: 'Global' },
+  { groupKey: 'all_data', label: 'Global' },
   {
     groupKey: 'countries_with_coral',
-    groupName: 'Countries with Coral Reefs',
     label: 'Antigua and Barbuda',
   },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Australia' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Bahamas' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Barbados' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Belize' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Dominica' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Fiji' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Grenada' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Jamaica' },
-  { groupKey: 'countries_with_coral', groupName: 'Countries with Coral Reefs', label: 'Malaysia' },
+  { groupKey: 'countries_with_coral', label: 'Australia' },
+  { groupKey: 'countries_with_coral', label: 'Bahamas' },
+  { groupKey: 'countries_with_coral', label: 'Barbados' },
+  { groupKey: 'countries_with_coral', label: 'Belize' },
+  { groupKey: 'countries_with_coral', label: 'Dominica' },
+  { groupKey: 'countries_with_coral', label: 'Fiji' },
+  { groupKey: 'countries_with_coral', label: 'Grenada' },
+  { groupKey: 'countries_with_coral', label: 'Jamaica' },
+  { groupKey: 'countries_with_coral', label: 'Malaysia' },
   {
     groupKey: 'countries_with_coral',
-    groupName: 'Countries with Coral Reefs',
     label: 'New Zealand',
   },
   {
     groupKey: 'countries_with_coral',
-    groupName: 'Countries with Coral Reefs',
     label: 'Saint Kitts',
   },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Great Barrier Reef' },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Caribbean Sea' },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Red Sea' },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Indo-Pacific' },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Coral Triangle' },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Mesoamerican Reef' },
+  { groupKey: 'coral_reef_regions', label: 'Great Barrier Reef' },
+  { groupKey: 'coral_reef_regions', label: 'Caribbean Sea' },
+  { groupKey: 'coral_reef_regions', label: 'Red Sea' },
+  { groupKey: 'coral_reef_regions', label: 'Indo-Pacific' },
+  { groupKey: 'coral_reef_regions', label: 'Coral Triangle' },
+  { groupKey: 'coral_reef_regions', label: 'Mesoamerican Reef' },
   {
     groupKey: 'coral_reef_regions',
-    groupName: 'Coral reef regions',
     label: 'Hawaiian Archipelago',
   },
-  { groupKey: 'coral_reef_regions', groupName: 'Coral reef regions', label: 'Ningaloo Reef' },
+  { groupKey: 'coral_reef_regions', label: 'Ningaloo Reef' },
 ]
 /** End of mock data */
 
@@ -87,12 +80,10 @@ export default function RegionSelect() {
     return [
       {
         groupKey: 'countries_with_coral',
-        groupName: 'Countries with Coral Reefs',
         label: noCountriesMatchText,
       },
       {
         groupKey: 'coral_reef_regions',
-        groupName: 'Coral reef regions',
         label: noRegionsMatchText,
       },
     ]
