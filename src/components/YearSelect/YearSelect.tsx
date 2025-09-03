@@ -7,23 +7,17 @@ import clsx from 'clsx'
 
 import styles from './YearSelect.module.scss'
 import { useTranslation } from 'react-i18next'
-
-const availableYears = [2020, 2015, 2010, 2005, 2000]
+import { availableYears } from '../../constants'
+import { useFilterSelect } from '../../contexts/FilterSelectContext'
 
 export interface YearSelectProps {
-  selectedYear: number
-  onChange?: (year: number) => void
   className?: string
   disabled?: boolean
 }
 
-export const YearSelect = ({
-  selectedYear,
-  onChange,
-  className,
-  disabled = false,
-}: YearSelectProps) => {
+export const YearSelect = ({ className, disabled = false }: YearSelectProps) => {
   const { t } = useTranslation()
+  const { selectedYear, updateSelectedYear } = useFilterSelect()
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -32,14 +26,6 @@ export const YearSelect = ({
       setIsOpen((prev) => !prev)
     }
   }, [disabled])
-
-  const handleYearSelect = useCallback(
-    (year: number) => {
-      onChange?.(year)
-      setIsOpen(false)
-    },
-    [onChange],
-  )
 
   const handleCloseDropdown = useCallback(() => {
     setIsOpen(false)
@@ -91,7 +77,7 @@ export const YearSelect = ({
             return (
               <ListItem key={year} disablePadding>
                 <Button
-                  onClick={() => handleYearSelect(year)}
+                  onClick={() => updateSelectedYear(year)}
                   className={clsx(
                     styles['dropdown__option'],
                     isSelected && styles['dropdown__option--selected'],

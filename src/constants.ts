@@ -4,3 +4,5 @@ export const REGIONS_URL =
 
 export const GLOBAL_LULC_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/outputs/land/global/global_lulc/lulc_2000_visual.tif'
+
+export const availableYears = ['2020', '2015', '2010', '2005', '2000']

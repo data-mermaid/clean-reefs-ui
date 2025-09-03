@@ -10,7 +10,6 @@ import { layers } from '../../data/mapData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [selectedYear, setSelectedYear] = useState(2020)
   const [layersOn, setLayersOn] = useState(layers)
 
   return (
@@ -19,7 +18,7 @@ export default function MapContainer() {
         <div className={styles['layer-controls--mobile']}>
           <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
           <RegionSelect />
-          <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+          <YearSelect />
           <TrendsDrawer />
         </div>
       ) : (
@@ -27,7 +26,7 @@ export default function MapContainer() {
           <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
           <div>
             <RegionSelect />
-            <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+            <YearSelect />
           </div>
           <TrendsDrawer />
         </div>
