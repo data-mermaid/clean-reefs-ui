@@ -1,0 +1,16 @@
+{
+  "features": [
+    { "type": "Feature", "name": "Arctic" },
+    { "type": "Feature", "name": "Central Indo-Pacific" },
+    { "type": "Feature", "name": "Eastern Indo-Pacific" },
+    { "type": "Feature", "name": "Southern Ocean" },
+    { "type": "Feature", "name": "Temperate Australasia" },
+    { "type": "Feature", "name": "Temperate Northern Atlantic" },
+    { "type": "Feature", "name": "Temperate Northern Pacific" },
+    { "type": "Feature", "name": "Temperate South America" },
+    { "type": "Feature", "name": "Temperate Southern Africa" },
+    { "type": "Feature", "name": "Tropical Atlantic" },
+    { "type": "Feature", "name": "Tropical Eastern Pacific" },
+    { "type": "Feature", "name": "Western Indo-Pacific" }
+  ]
+}
