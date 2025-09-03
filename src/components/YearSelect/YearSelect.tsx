@@ -8,7 +8,7 @@ import clsx from 'clsx'
 import styles from './YearSelect.module.scss'
 import { useTranslation } from 'react-i18next'
 import { availableYears } from '../../constants'
-import { useFilterSelect } from '../../contexts/FilterSelectContext'
+import { useFilterSelect } from '../../hooks/useGlobalContext'
 
 export interface YearSelectProps {
   className?: string
