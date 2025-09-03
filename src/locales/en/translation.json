@@ -72,6 +72,6 @@
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_region": "Select region",
   "select_year": "Select year",
-  "no_countries_match": "No countries match your filter",
-  "no_regions_match": "No regions match your filter"
+  "no_countries_match": "No countries match your search",
+  "no_regions_match": "No regions match your search"
 }

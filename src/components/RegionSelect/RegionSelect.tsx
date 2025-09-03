@@ -84,7 +84,7 @@ export default function RegionSelect() {
   const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
 
   const createEmptyFilterOptions = useCallback((): RegionOption[] => {
-    const noDataGroups = [
+    return [
       {
         groupKey: 'countries_with_coral',
         groupName: 'Countries with Coral Reefs',
@@ -96,8 +96,6 @@ export default function RegionSelect() {
         label: noRegionsMatchText,
       },
     ]
-
-    return noDataGroups as RegionOption[]
   }, [noCountriesMatchText, noRegionsMatchText])
 
   const handleChange = (_: unknown, newValue: RegionOption | null) => {
