@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-import { Layer, Map as MapGL, Source, MapRef } from 'react-map-gl/maplibre'
+import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -9,6 +9,8 @@ import maplibregl from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
+import useResponsive from '../../hooks/useResponsive'
+
 import { ChartedData, updateGraph } from '../../utils/updateGraph'
 
 interface BaseMapProps {
@@ -18,7 +20,7 @@ interface BaseMapProps {
 
 export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   // const {t} = useTranslation()
-  // const { isDesktopWidth, isShorterWindowHeight } = useResponsive()
+  const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
@@ -92,6 +94,15 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
         attributionControl={false}
         onClick={handleMapClick}
       >
+        {isDesktopWidth && (
+          <NavigationControl
+            position={'bottom-right'}
+            showCompass={false}
+            style={{
+              marginRight: '380px',
+            }}
+          />
+        )}
         {layersOn.map((layer, index) => {
           return layer.dataType === 'pmtiles' ? (
             <>
