@@ -1,68 +1,119 @@
-import { useState } from 'react'
-import Autocomplete from '@mui/material/Autocomplete'
+import { useState, useMemo, useCallback } from 'react'
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
-
-import styles from './RegionSelect.module.scss'
 import { useTranslation } from 'react-i18next'
 
+import styles from './RegionSelect.module.scss'
+
 /** TODO: Replace with actual country data */
-type CountryOption = {
-  group: 'All Data' | 'Countries with Coral Reefs'
+type GroupKey = 'all_data' | 'countries_with_coral' | 'coral_reef_regions'
+
+interface RegionOption {
+  groupKey: GroupKey
   label: string
 }
 
-const DEFAULT_OPTION: CountryOption = {
-  group: 'All Data',
+const groupOrders: GroupKey[] = ['all_data', 'countries_with_coral', 'coral_reef_regions']
+
+const defaultOption: RegionOption = {
+  groupKey: 'all_data',
   label: 'Global',
 }
 
-const countryOptions: CountryOption[] = [
-  { group: 'All Data', label: 'Global' },
-  { group: 'Countries with Coral Reefs', label: 'Antigua and Barbuda' },
-  { group: 'Countries with Coral Reefs', label: 'Australia' },
-  { group: 'Countries with Coral Reefs', label: 'Bahamas' },
-  { group: 'Countries with Coral Reefs', label: 'Barbados' },
-  { group: 'Countries with Coral Reefs', label: 'Belize' },
-  { group: 'Countries with Coral Reefs', label: 'Dominica' },
-  { group: 'Countries with Coral Reefs', label: 'Fiji' },
-  { group: 'Countries with Coral Reefs', label: 'Grenada' },
-  { group: 'Countries with Coral Reefs', label: 'Jamaica' },
-  { group: 'Countries with Coral Reefs', label: 'Malaysia' },
-  { group: 'Countries with Coral Reefs', label: 'New Zealand' },
-  { group: 'Countries with Coral Reefs', label: 'Saint Kitts' },
+const regionOptions: RegionOption[] = [
+  { groupKey: 'all_data', label: 'Global' },
+  {
+    groupKey: 'countries_with_coral',
+    label: 'Antigua and Barbuda',
+  },
+  { groupKey: 'countries_with_coral', label: 'Australia' },
+  { groupKey: 'countries_with_coral', label: 'Bahamas' },
+  { groupKey: 'countries_with_coral', label: 'Barbados' },
+  { groupKey: 'countries_with_coral', label: 'Belize' },
+  { groupKey: 'countries_with_coral', label: 'Dominica' },
+  { groupKey: 'countries_with_coral', label: 'Fiji' },
+  { groupKey: 'countries_with_coral', label: 'Grenada' },
+  { groupKey: 'countries_with_coral', label: 'Jamaica' },
+  { groupKey: 'countries_with_coral', label: 'Malaysia' },
+  {
+    groupKey: 'countries_with_coral',
+    label: 'New Zealand',
+  },
+  {
+    groupKey: 'countries_with_coral',
+    label: 'Saint Kitts',
+  },
+  { groupKey: 'coral_reef_regions', label: 'Great Barrier Reef' },
+  { groupKey: 'coral_reef_regions', label: 'Caribbean Sea' },
+  { groupKey: 'coral_reef_regions', label: 'Red Sea' },
+  { groupKey: 'coral_reef_regions', label: 'Indo-Pacific' },
+  { groupKey: 'coral_reef_regions', label: 'Coral Triangle' },
+  { groupKey: 'coral_reef_regions', label: 'Mesoamerican Reef' },
+  {
+    groupKey: 'coral_reef_regions',
+    label: 'Hawaiian Archipelago',
+  },
+  { groupKey: 'coral_reef_regions', label: 'Ningaloo Reef' },
 ]
 /** End of mock data */
 
 export default function RegionSelect() {
   const { t } = useTranslation()
-  const [selectedValue, setSelectedValue] = useState<CountryOption | null>(DEFAULT_OPTION)
+  const [selectedValue, setSelectedValue] = useState<RegionOption | null>(defaultOption)
+  const noCountriesMatchText = t('no_countries_match')
+  const noRegionsMatchText = t('no_regions_match')
 
-  const sortedOptions = countryOptions.sort((a, b) => {
-    if (a.group !== b.group) {
-      return a.group.localeCompare(b.group)
-    }
-    return a.label.localeCompare(b.label)
-  })
+  const sortedOptions = useMemo(() => {
+    return [...regionOptions].sort((a, b) => {
+      if (a.groupKey !== b.groupKey) {
+        const aIndex = groupOrders.indexOf(a.groupKey)
+        const bIndex = groupOrders.indexOf(b.groupKey)
+        return aIndex - bIndex
+      }
+      return a.label.localeCompare(b.label)
+    })
+  }, [])
 
-  const handleChange = (_, newValue: CountryOption | null) => {
-    setSelectedValue(newValue || DEFAULT_OPTION)
-  }
+  const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
 
-  const isOptionEqual = (option: CountryOption, value: CountryOption) => {
-    return option.label === value.label && option.group === value.group
+  const createEmptyFilterOptions = useCallback((): RegionOption[] => {
+    return [
+      {
+        groupKey: 'countries_with_coral',
+        label: noCountriesMatchText,
+      },
+      {
+        groupKey: 'coral_reef_regions',
+        label: noRegionsMatchText,
+      },
+    ]
+  }, [noCountriesMatchText, noRegionsMatchText])
+
+  const handleChange = (_: unknown, newValue: RegionOption | null) => {
+    setSelectedValue(newValue || defaultOption)
   }
 
   return (
     <div className={styles['RegionSelect-root']}>
-      <Autocomplete
+      <Autocomplete<RegionOption>
         size="small"
         options={sortedOptions}
-        groupBy={(option) => option.group}
+        groupBy={(option) => t(option.groupKey)}
         getOptionLabel={(option) => option.label}
+        getOptionDisabled={(option) =>
+          option.label === noCountriesMatchText || option.label === noRegionsMatchText
+        }
         aria-label={t('select_region')}
         value={selectedValue}
         onChange={handleChange}
-        isOptionEqualToValue={isOptionEqual}
+        isOptionEqualToValue={(option, value) =>
+          option.label === value.label && option.groupKey === value.groupKey
+        }
+        noOptionsText=""
+        filterOptions={(options, state) => {
+          const filtered = muiFilterOptions(options, state)
+          return filtered.length ? filtered : createEmptyFilterOptions()
+        }}
         classes={{
           root: styles['MuiAutocomplete-root'],
           input: styles['MuiAutocomplete-input'],
@@ -77,6 +128,23 @@ export default function RegionSelect() {
           },
         }}
         renderInput={(params) => <TextField {...params} />}
+        renderOption={(props, option) => {
+          const { key, ...otherProps } = props
+          return (
+            <li
+              key={key}
+              {...otherProps}
+              style={{
+                opacity:
+                  option.label === noCountriesMatchText || option.label === noRegionsMatchText
+                    ? 0.6
+                    : 1,
+              }}
+            >
+              {option.label}
+            </li>
+          )
+        }}
         renderGroup={(params) => (
           <li key={params.key}>
             <div className={styles['group-header']}>{params.group}</div>
