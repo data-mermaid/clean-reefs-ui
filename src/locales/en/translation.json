@@ -6,6 +6,9 @@
     "open_menu": "Open menu",
     "share_view": "Share view"
   },
+  "chart_information": {
+    "land_cover_pct": "Land Cover (%)"
+  },
   "graphs": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
@@ -66,7 +69,6 @@
   "seagrass": "Seagrass",
   "sediment": "Sediment",
   "sediment_exposure": "Sediment exposure",
-  "select_data_region": "Select data region",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
   "watershed": "Watershed",

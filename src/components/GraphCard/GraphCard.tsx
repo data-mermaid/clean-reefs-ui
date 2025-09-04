@@ -20,8 +20,8 @@ export default function GraphCard({
   open = true,
   onClick,
   region = 'global',
-  yAxisTitle = 'Land Cover (%)',
-  xAxisTitle = 'Year',
+  yAxisTitle = 'chart_information.land_cover_pct',
+  xAxisTitle = 'year',
   graphData,
   graphName,
 }: GraphCardProps) {
@@ -43,8 +43,8 @@ export default function GraphCard({
             config={plotlyTheme.config}
             layout={{
               ...plotlyTheme.layout,
-              yaxis: { title: { text: yAxisTitle } },
-              xaxis: { title: { text: xAxisTitle } },
+              yaxis: { title: { text: t(yAxisTitle) } },
+              xaxis: { title: { text: t(xAxisTitle) } },
             }}
             style={{ width: '100%', height: '100%' }}
           />

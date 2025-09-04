@@ -1,4 +1,5 @@
 import { graphLayoutConfig } from '../data/mapData'
+import i18next from 'i18next'
 
 export interface GraphData {
   [name: string]: Record<string, number>
@@ -86,7 +87,7 @@ export const setGraphData = (sortedProperties: GraphData) => {
     chartData.push({
       x: sortedYears,
       y: sortedYears.map((year) => yearData[year]),
-      name: category,
+      name: i18next.t(category),
       type: 'bar',
       marker: {
         color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
