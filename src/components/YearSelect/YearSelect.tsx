@@ -56,7 +56,7 @@ export const YearSelect = ({ className, disabled = false }: YearSelectProps) => 
     <Box ref={containerRef} className={clsx(styles['dropdown'], className)}>
       <Button
         size="small"
-        variant="contained"
+        variant="outlined"
         aria-label={t('select_year')}
         disabled={disabled}
         onClick={handleToggleDropdown}
