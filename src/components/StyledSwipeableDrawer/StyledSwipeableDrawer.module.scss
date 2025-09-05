@@ -11,6 +11,8 @@
     visibility: visible !important; //override MUI application
     padding: theme.$defaultSpacing;
     background-color: theme.$grey;
+    width: 350px;
+    height: calc(100vh - theme.$headerHeight);
   }
 
   & .MuiDrawer-paperAnchorBottom {

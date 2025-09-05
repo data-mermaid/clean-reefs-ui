@@ -1,28 +1,48 @@
 @use '../../styles/theme';
 
-.graph-card {
-  margin-right: theme.$defaultSpacing;
-
-  margin-bottom: theme.$defaultSpacing;
-  padding: theme.$defaultSpacing;
-  background-color: theme.$greyWhite;
+.graph-card--open {
+  position: relative;
   width: 100%;
+  margin-bottom: theme.$defaultSpacing;
+}
 
-  h3 {
-    line-height: 1.2;
-    @include theme.mobileUpBreakPoint {
-      margin-top: theme.$defaultSpacing;
-    }
-  }
+.graph-card--closed {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.labels-container--open {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: 80%;
+  padding: theme.$defaultSpacing;
+}
+
+.labels-container--closed {
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .graph-plots {
   display: block;
   margin: 0 auto;
 }
+
 .region-label {
   margin-bottom: 0;
   font-size: theme.$textSizeXSmall;
   font-weight: theme.$light;
   color: theme.$textSecondary;
+}
+
+.graph-label {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$bold;
+  line-height: 1.2;
 }

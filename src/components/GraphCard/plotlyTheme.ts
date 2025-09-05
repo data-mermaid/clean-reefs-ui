@@ -2,39 +2,37 @@ export const plotlyTheme = {
   layout: {
     barmode: 'stack',
     bargap: 0.1,
-    height: 400,
+    height: 500,
     autosize: true,
     margin: {
       l: 60,
-      t: 30,
+      t: 80,
       r: 20,
-      b: 50,
+      b: 10,
     },
-    width: 280,
     dragmode: false,
-
     xaxis: {
       fixedrange: true,
       linecolor: 'black',
       linewidth: 1,
+      title: { standoff: 5 },
     },
     yaxis: {
       fixedrange: true,
       linecolor: 'black',
       linewidth: 1,
+      title: { standoff: 5 },
     },
     showlegend: true,
     legend: {
       orientation: 'h',
-      xanchor: 'center',
-      x: 0.25,
       y: -0.25,
       font: {
-        size: 9,
+        size: 12,
       },
     },
     modebar: {
-      orientation: 'v',
+      orientation: 'h',
     },
   },
   config: {

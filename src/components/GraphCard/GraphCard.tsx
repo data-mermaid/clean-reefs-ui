@@ -1,10 +1,11 @@
-import { Card } from '@mui/material'
+import { Card, Typography } from '@mui/material'
 import styles from './GraphCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import { ChartedData } from '../../utils/updateGraph'
 import { MouseEventHandler } from 'react'
+import clsx from 'clsx'
 
 interface GraphCardProps {
   open: boolean
@@ -31,11 +32,13 @@ export default function GraphCard({
       <Card
         {...(onClick ? { onClick: onClick } : {})}
         classes={{
-          root: styles['graph-card'],
+          root: styles[`graph-card--${open ? 'open' : 'closed'}`],
         }}
       >
-        <span className={styles['region-label']}>{t(region)}</span>
-        <h3>{t(graphName)}</h3>
+        <div className={styles[`labels-container--${open ? 'open' : 'closed'}`]}>
+          <Typography className={styles['region-label']}>{t(region)}</Typography>
+          <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
+        </div>
         {open && (
           <Plot
             data={graphData}
@@ -43,8 +46,8 @@ export default function GraphCard({
             config={plotlyTheme.config}
             layout={{
               ...plotlyTheme.layout,
-              yaxis: { title: { text: t(yAxisTitle) } },
-              xaxis: { title: { text: t(xAxisTitle) } },
+              yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
+              xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
             }}
             style={{ width: '100%', height: '100%' }}
           />
