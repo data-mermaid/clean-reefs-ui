@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import { ChartedData } from '../../utils/updateGraph'
 import { MouseEventHandler } from 'react'
-import clsx from 'clsx'
 
 interface GraphCardProps {
   open: boolean

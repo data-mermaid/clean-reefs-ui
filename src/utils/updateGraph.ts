@@ -83,11 +83,11 @@ export const setGraphData = (sortedProperties: GraphData) => {
   // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
-
     chartData.push({
       x: sortedYears,
       y: sortedYears.map((year) => yearData[year]),
-      name: i18next.t(category),
+      // @ts-expect-error TS doesn't like the namespace added
+      name: i18next.t(`land_types.${category}`, { ns: 'translation' }),
       type: 'bar',
       marker: {
         color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
