@@ -15,7 +15,7 @@ interface GraphCardProps {
   graphName: string
   graphData: ChartedData[] | null
 }
-//todo: trigger trends drawer/card open when on mobile and clicking card
+
 export default function GraphCard({
   open = true,
   onClick,

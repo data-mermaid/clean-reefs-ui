@@ -46,7 +46,12 @@ export default function StyledSwipeableDrawer({
       allowSwipeInChildren
     >
       {!open && isMobileWidth && (
-        <div className={styles['drawer-puller']} data-testid={`${testId}-drawer-puller`} />
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+        <div
+          className={styles['drawer-puller']}
+          onClick={onOpen}
+          data-testid={`${testId}-drawer-puller`}
+        />
       )}
       {children}
     </SwipeableDrawer>

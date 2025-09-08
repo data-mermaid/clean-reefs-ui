@@ -1,7 +1,4 @@
-//mapGraphAttributes
-//test: failed/updated/incorrect data throws an error that will populate the page
-
-import { updateGraph, mapGraphAttributes } from '../utils/updateGraph'
+import { mapGraphAttributes, updateGraph } from '../utils/updateGraph'
 import mockOutputGraphData from './mockOutputGraphData.json'
 
 const groupedProperties = {
