@@ -29,23 +29,26 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   // const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
   //TODO: kick this off when source layer is available
-  const loadGraphData = useCallback((point) => {
-    if (mapRef.current) {
-      const map = mapRef.current?.getMap()
+  const loadGraphData = useCallback(
+    (point) => {
+      if (mapRef.current) {
+        const map = mapRef.current?.getMap()
 
-      //query the layers corresponding with graphs and with layers that are on
-      const features = map.queryRenderedFeatures(point, {
-        layers: ['watershed'], //TODO: replace w/list of layer ids that are on
-      })
-      //TODO: test whether or not the layer has loaded before trying to load the data
+        //query the layers corresponding with graphs and with layers that are on
+        const features = map.queryRenderedFeatures(point, {
+          layers: ['watershed'], //TODO: replace w/list of layer ids that are on
+        })
+        //TODO: test whether or not the layer has loaded before trying to load the data
 
-      if (features.length > 0) {
-        const properties = features[0].properties
-        const sortedData = updateGraph(properties)
-        setLulcGraphData(mapGraphAttributes(sortedData))
+        if (features.length > 0) {
+          const properties = features[0].properties
+          const sortedData = updateGraph(properties)
+          setLulcGraphData(mapGraphAttributes(sortedData))
+        }
       }
-    }
-  }, [])
+    },
+    [setLulcGraphData],
+  )
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
