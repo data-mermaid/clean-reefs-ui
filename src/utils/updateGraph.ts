@@ -5,6 +5,16 @@ export interface GraphData {
   [name: string]: Record<string, number>
 }
 
+export interface ChartedData {
+  x: string[]
+  y: number[]
+  type: 'bar'
+  name: string
+  marker?: object
+  hovertemplate?: string
+  width: number
+}
+
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -66,33 +76,31 @@ export const updateGraph = (pointProperties) => {
       }
     }
   }
-  return setGraphData(mappedGraphData)
+  return mappedGraphData
 }
 
-export interface ChartedData {
-  x: string[]
-  y: number[]
-  type: 'bar'
-  name: string
-  marker?: object
-  width: number
-}
-export const setGraphData = (sortedProperties: GraphData) => {
+export const mapGraphAttributes = (sortedProperties: GraphData) => {
   const chartData: ChartedData[] = []
 
   // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
+
+    // @ts-expect-error TS doesn't like the namespace added
+    const categoryName = i18next.t(`land_types.${category}`, { ns: 'translation' })
+    // @ts-expect-error TS doesn't like the namespace added
+    const xAxisTitle = i18next.t(`year`, { ns: 'translation' })
+
     chartData.push({
       x: sortedYears,
       y: sortedYears.map((year) => yearData[year]),
-      // @ts-expect-error TS doesn't like the namespace added
-      name: i18next.t(`land_types.${category}`, { ns: 'translation' }),
+      name: categoryName,
       type: 'bar',
       marker: {
         color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
       },
-      width: 3, //todo: update width according to graph type
+      hovertemplate: `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`,
+      width: 3, //todo: update width according to graph type,
     })
   })
   return chartData

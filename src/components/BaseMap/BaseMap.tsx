@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -11,7 +11,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { ChartedData, updateGraph } from '../../utils/updateGraph'
+import { ChartedData, mapGraphAttributes, updateGraph } from '../../utils/updateGraph'
 
 interface BaseMapProps {
   layersOn: LayerInfo[]
@@ -27,6 +27,25 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
   // const [viewportBounds, setViewportBounds] = useState<number[]>([])
+
+  //TODO: kick this off when source layer is available
+  const loadGraphData = useCallback((point) => {
+    if (mapRef.current) {
+      const map = mapRef.current?.getMap()
+
+      //query the layers corresponding with graphs and with layers that are on
+      const features = map.queryRenderedFeatures(point, {
+        layers: ['watershed'], //TODO: replace w/list of layer ids that are on
+      })
+      //TODO: test whether or not the layer has loaded before trying to load the data
+
+      if (features.length > 0) {
+        const properties = features[0].properties
+        const sortedData = updateGraph(properties)
+        setLulcGraphData(mapGraphAttributes(sortedData))
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -52,19 +71,7 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   const handleMapClick = (event) => {
-    if (mapRef.current) {
-      const map = mapRef.current?.getMap()
-
-      //query the layers corresponding with graphs and with layers that are on
-      const features = map.queryRenderedFeatures(event.point, {
-        layers: ['watershed'], //TODO: replace w/list of layer ids that are on
-      })
-
-      if (features.length > 0) {
-        const properties = features[0].properties
-        setLulcGraphData(updateGraph(properties))
-      }
-    }
+    loadGraphData(event.point)
   }
 
   return (
@@ -121,7 +128,7 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
                     source-layer={layer.sourceName}
                     paint={{
                       'fill-color': 'red',
-                      'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
+                      'fill-opacity': 0.25, //vector layers need fill to make individual polygons selectable
                       'fill-outline-color': '#000',
                     }}
                   />

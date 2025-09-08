@@ -3,6 +3,7 @@
     "marker": {
       "color": "#FEFECC"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2000", "2005"],
@@ -12,6 +13,7 @@
     "marker": {
       "color": "#64DCDC"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2000"],
@@ -21,6 +23,7 @@
     "marker": {
       "color": "#FF7D00"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2005"],
@@ -30,6 +33,7 @@
     "marker": {
       "color": "#065106"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2010"],
@@ -39,6 +43,7 @@
     "marker": {
       "color": "#609C30"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2015"],
@@ -48,6 +53,7 @@
     "marker": {
       "color": "#B0B006"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2020"],
@@ -57,6 +63,7 @@
     "marker": {
       "color": "#0E39D6"
     },
+    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
     "type": "bar",
     "width": 3,
     "x": ["2000"],

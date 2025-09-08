@@ -44,19 +44,19 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
         {/*TODO: map out possible graphs from data list*/}
         <GraphCard
           open={open}
-          {...(isMobileWidth ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.land_use_historical'}
           graphData={lulcGraphData}
         />
         <GraphCard
           open={open}
-          {...(isMobileWidth ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.ecosystem_extent_exposed'}
           graphData={MockGraphData}
         />
         <GraphCard
           open={open}
-          {...(isMobileWidth ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
           graphData={MockGraphData}
         />
