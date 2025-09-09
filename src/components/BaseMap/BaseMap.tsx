@@ -2,7 +2,6 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useSta
 import * as maptilersdk from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import CircularProgress from '@mui/material/CircularProgress'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
 import maplibregl from 'maplibre-gl'
@@ -10,8 +9,8 @@ import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
-
 import { ChartedData, mapGraphAttributes, updateGraph } from '../../utils/updateGraph'
+import LoadingState from '../LoadingState/LoadingState'
 
 interface BaseMapProps {
   layersAvailable: LayerInfo[]
@@ -80,17 +79,7 @@ export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapPr
 
   return (
     <div className={styles['map-wrap']}>
-      {!isMapLoaded && (
-        <CircularProgress
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            margin: '0 auto',
-            height: '99%', //rotation causes overflow issues
-          }}
-        />
-      )}
+      {!isMapLoaded && <LoadingState />}
       <MapGL
         id="satellite-map"
         ref={mapRef}

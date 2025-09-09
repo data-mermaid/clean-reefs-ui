@@ -3,8 +3,7 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import { Card } from '@mui/material'
 import styles from '../TrendsDrawer/TrendsDrawer.module.scss'
 
-const meta = {
-  title: 'StyledSwipeableDrawer',
+const meta: Meta<typeof StyledSwipeableDrawer> = {
   component: StyledSwipeableDrawer,
   decorators: [
     (Story) => (
@@ -13,10 +12,9 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof StyledSwipeableDrawer>
-export default meta
+}
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof StyledSwipeableDrawer>
 
 export const LeftOpen: Story = {
   args: {
@@ -94,3 +92,5 @@ export const BottomOpen: Story = {
     ),
   },
 }
+
+export default meta

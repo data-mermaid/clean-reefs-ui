@@ -3,6 +3,7 @@
 .graph-card--open {
   position: relative;
   width: 100%;
+  max-width: 500px;
   margin-bottom: theme.$defaultSpacing;
 }
 
