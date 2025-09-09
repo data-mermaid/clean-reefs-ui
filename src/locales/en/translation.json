@@ -32,13 +32,15 @@
     "watershed_boundaries": "Watershed boundaries"
   },
   "regions": {
+    "coral_reef_regions": "Coral reef regions",
+    "countries_with_coral": "Countries with coral reefs",
+    "country": "Country",
+    "global": "Global",
     "no_countries_match": "No countries match your search",
     "no_regions_match": "No regions match your search",
-    "global": "Global",
-    "watershed": "Watershed",
-    "countries_with_coral": "Countries with coral reefs",
-    "coral_reef_regions": "Coral reef regions",
-    "select_region": "Select region"
+    "region": "Region",
+    "select_region": "Select region",
+    "watershed": "Watershed"
   },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",

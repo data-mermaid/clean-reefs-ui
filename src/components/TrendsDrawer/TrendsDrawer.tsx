@@ -24,13 +24,15 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
   const toggleDrawer = () => {
     setOpen(!open)
   }
-  //
-  // let drawerTitle
-  // if (selectedRegion.regionType === 'global') {
-  //   drawerTitle = 'global_trends'
-  // } else {
-  //   drawerTitle = selectedRegion.label
-  // }
+
+  let drawerTitle
+  if (selectedRegion.regionType === 'global') {
+    drawerTitle = 'global_trends'
+    // } else if (layersOn.includes('watershed') {
+    //   drawerTitle = selectedRegion.label
+  } else {
+    drawerTitle = selectedRegion.label
+  }
 
   return (
     <StyledSwipeableDrawer
@@ -41,7 +43,7 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
       swipeAreaWidth={100}
     >
       <div className={styles['drawer-header']}>
-        {open && <h2 style={{ marginTop: '4px' }}>{t('global_trends')}</h2>}
+        {open && <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>}
         {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')} onClick={toggleDrawer}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
@@ -55,19 +57,14 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
           open={open}
           {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.land_use_historical'}
-          region={selectedRegion.label}
+          region={selectedRegion.regionType}
           graphData={lulcGraphData}
         />
         <GraphCard
           open={open}
           {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
-          graphName={'graphs.ecosystem_extent_exposed'}
-          graphData={MockGraphData}
-        />
-        <GraphCard
-          open={open}
-          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
+          region={selectedRegion.regionType}
           graphData={MockGraphData}
         />
       </div>

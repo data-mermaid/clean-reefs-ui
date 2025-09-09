@@ -3,49 +3,12 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
-import { GroupKey, RegionOption, defaultOption } from '../../types/RegionDataTypes'
-
-/** TODO: Replace with actual country data */
-
-const groupOrders: GroupKey[] = ['global', 'countries_with_coral', 'coral_reef_regions']
-
-const regionOptions: RegionOption[] = [
-  { groupKey: 'global', label: 'Global' },
-  {
-    groupKey: 'countries_with_coral',
-    label: 'Antigua and Barbuda',
-  },
-  { groupKey: 'countries_with_coral', label: 'Australia' },
-  { groupKey: 'countries_with_coral', label: 'Bahamas' },
-  { groupKey: 'countries_with_coral', label: 'Barbados' },
-  { groupKey: 'countries_with_coral', label: 'Belize' },
-  { groupKey: 'countries_with_coral', label: 'Dominica' },
-  { groupKey: 'countries_with_coral', label: 'Fiji' },
-  { groupKey: 'countries_with_coral', label: 'Grenada' },
-  { groupKey: 'countries_with_coral', label: 'Jamaica' },
-  { groupKey: 'countries_with_coral', label: 'Malaysia' },
-
-  {
-    groupKey: 'countries_with_coral',
-    label: 'New Zealand',
-  },
-  {
-    groupKey: 'countries_with_coral',
-    label: 'Saint Kitts',
-  },
-  { groupKey: 'coral_reef_regions', label: 'Great Barrier Reef' },
-  { groupKey: 'coral_reef_regions', label: 'Caribbean Sea' },
-  { groupKey: 'coral_reef_regions', label: 'Red Sea' },
-  { groupKey: 'coral_reef_regions', label: 'Indo-Pacific' },
-  { groupKey: 'coral_reef_regions', label: 'Coral Triangle' },
-  { groupKey: 'coral_reef_regions', label: 'Mesoamerican Reef' },
-  {
-    groupKey: 'coral_reef_regions',
-    label: 'Hawaiian Archipelago',
-  },
-  { groupKey: 'coral_reef_regions', label: 'Ningaloo Reef' },
-]
-/** End of mock data */
+import {
+  defaultOption,
+  groupOrders,
+  RegionOption,
+  regionOptions,
+} from '../../types/RegionDataTypes'
 
 interface RegionSelectProps {
   selectedRegion: RegionOption
@@ -54,8 +17,8 @@ interface RegionSelectProps {
 
 export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
   const { t } = useTranslation()
-  const noCountriesMatchText = t('no_countries_match')
-  const noRegionsMatchText = t('no_regions_match')
+  const noCountriesMatchText = t('regions.no_countries_match')
+  const noRegionsMatchText = t('regions.no_regions_match')
 
   const sortedOptions = useMemo(() => {
     return [...regionOptions].sort((a, b) => {
@@ -74,10 +37,12 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
     return [
       {
         groupKey: 'countries_with_coral',
+        regionType: 'country',
         label: noCountriesMatchText,
       },
       {
         groupKey: 'coral_reef_regions',
+        regionType: 'region',
         label: noRegionsMatchText,
       },
     ]

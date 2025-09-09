@@ -19,4 +19,20 @@ export const Primary: Story = {
   },
 }
 
+//TODO: Update
+export const NoData: Story = {
+  args: {
+    lulcGraphData: mockGraphData,
+    selectedRegion: defaultOption,
+  },
+}
+
+//TODO: Update
+export const Loading: Story = {
+  args: {
+    lulcGraphData: mockGraphData,
+    selectedRegion: defaultOption,
+  },
+}
+
 export default meta
