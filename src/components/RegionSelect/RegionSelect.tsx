@@ -1,27 +1,16 @@
-import { useState, useMemo, useCallback } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
-
 import styles from './RegionSelect.module.scss'
+import { GroupKey, RegionOption, defaultOption } from '../../types/RegionDataTypes'
 
 /** TODO: Replace with actual country data */
-type GroupKey = 'all_data' | 'countries_with_coral' | 'coral_reef_regions'
 
-interface RegionOption {
-  groupKey: GroupKey
-  label: string
-}
-
-const groupOrders: GroupKey[] = ['all_data', 'countries_with_coral', 'coral_reef_regions']
-
-const defaultOption: RegionOption = {
-  groupKey: 'all_data',
-  label: 'Global',
-}
+const groupOrders: GroupKey[] = ['global', 'countries_with_coral', 'coral_reef_regions']
 
 const regionOptions: RegionOption[] = [
-  { groupKey: 'all_data', label: 'Global' },
+  { groupKey: 'global', label: 'Global' },
   {
     groupKey: 'countries_with_coral',
     label: 'Antigua and Barbuda',
@@ -35,6 +24,7 @@ const regionOptions: RegionOption[] = [
   { groupKey: 'countries_with_coral', label: 'Grenada' },
   { groupKey: 'countries_with_coral', label: 'Jamaica' },
   { groupKey: 'countries_with_coral', label: 'Malaysia' },
+
   {
     groupKey: 'countries_with_coral',
     label: 'New Zealand',
@@ -57,9 +47,13 @@ const regionOptions: RegionOption[] = [
 ]
 /** End of mock data */
 
-export default function RegionSelect() {
+interface RegionSelectProps {
+  selectedRegion: RegionOption
+  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+}
+
+export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
   const { t } = useTranslation()
-  const [selectedValue, setSelectedValue] = useState<RegionOption | null>(defaultOption)
   const noCountriesMatchText = t('no_countries_match')
   const noRegionsMatchText = t('no_regions_match')
 
@@ -90,7 +84,7 @@ export default function RegionSelect() {
   }, [noCountriesMatchText, noRegionsMatchText])
 
   const handleChange = (_: unknown, newValue: RegionOption | null) => {
-    setSelectedValue(newValue || defaultOption)
+    setSelectedRegion(newValue || defaultOption)
   }
 
   return (
@@ -104,7 +98,7 @@ export default function RegionSelect() {
           option.label === noCountriesMatchText || option.label === noRegionsMatchText
         }
         aria-label={t('select_region')}
-        value={selectedValue}
+        value={selectedRegion}
         onChange={handleChange}
         isOptionEqualToValue={(option, value) =>
           option.label === value.label && option.groupKey === value.groupKey

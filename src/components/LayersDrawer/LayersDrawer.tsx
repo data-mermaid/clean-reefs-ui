@@ -8,23 +8,35 @@ import styles from './LayersDrawer.module.scss'
 import { LayerInfo } from '../../data/mapData'
 
 interface LayersDrawerProps {
-  layersOn: LayerInfo[]
-  setLayersOn: Dispatch<SetStateAction<LayerInfo[]>>
+  layersAvailable: LayerInfo[]
+  layersOn: []
+  setLayersOn: Dispatch<SetStateAction<[]>>
 }
 
-export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProps) {
+export default function LayersDrawer({
+  layersAvailable,
+  layersOn,
+  setLayersOn,
+}: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
   const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedLayers = layersOn.map((layer) => {
-      return layer.layerId === event.target.id
-        ? { ...layer, isLayerOn: !layer.isLayerOn } // Create new object with updated property
-        : layer // Keep other layers unchanged
-    })
-    setLayersOn(updatedLayers)
+    const updatedLayers = layersOn
+    const layerId: string = event.target.id
+    if (layerId) {
+      // @ts-expect-error eslint doesn't like event.target.id
+      const layerIndex = layersOn.indexOf(layerId)
+      if (layerIndex > -1) {
+        updatedLayers.splice(layerIndex, 1)
+      } else {
+        // @ts-expect-error eslint doesn't like event.target.id
+        updatedLayers.push(layerId)
+      }
+      setLayersOn(updatedLayers)
+    }
   }
 
   return (
@@ -47,7 +59,7 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
         <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
 
         {/*List of collapsible layer toggles go inside here*/}
-        {layersOn.map((layer) => {
+        {layersAvailable.map((layer) => {
           return (
             <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
               <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>

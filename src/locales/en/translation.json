@@ -31,6 +31,15 @@
     "regional_boundaries": "Regional boundaries",
     "watershed_boundaries": "Watershed boundaries"
   },
+  "regions": {
+    "no_countries_match": "No countries match your search",
+    "no_regions_match": "No regions match your search",
+    "global": "Global",
+    "watershed": "Watershed",
+    "countries_with_coral": "Countries with coral reefs",
+    "coral_reef_regions": "Coral reef regions",
+    "select_region": "Select region"
+  },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -40,12 +49,9 @@
   "boundaries": "Boundaries",
   "contact": "Contact",
   "coral_reef": "Coral reef",
-  "coral_reef_regions": "Coral reef regions",
   "coral_algae": "Coral/Algae",
-  "countries_with_coral": "Countries with coral reefs",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
-  "global": "Global",
   "global_trends": "Global trends",
   "google_satellite": "Google satellite",
   "high_concentration": "High concentration",
@@ -71,11 +77,7 @@
   "sediment_exposure": "Sediment exposure",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
-  "watershed": "Watershed",
   "year": "Year",
   "toggle_navigation_menu": "Toggle navigation menu",
-  "select_region": "Select region",
-  "select_year": "Select year",
-  "no_countries_match": "No countries match your search",
-  "no_regions_match": "No regions match your search"
+  "select_year": "Select year"
 }

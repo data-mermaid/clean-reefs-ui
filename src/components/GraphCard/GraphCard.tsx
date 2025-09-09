@@ -35,7 +35,7 @@ export default function GraphCard({
         }}
       >
         <div className={styles[`labels-container--${open ? 'open' : 'closed'}`]}>
-          <Typography className={styles['region-label']}>{t(region)}</Typography>
+          <Typography className={styles['region-label']}>{t(`regions.${region}`)}</Typography>
           <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
         </div>
         {open && (

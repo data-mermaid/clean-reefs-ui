@@ -9,19 +9,28 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import GraphCard from '../GraphCard/GraphCard'
 import { ChartedData } from '../../utils/updateGraph'
 import { MockGraphData } from '../GraphCard/GraphCard.stories'
+import { RegionOption } from '../../types/RegionDataTypes'
 
 interface TrendsDrawerProps {
   // layersOn: LayerInfo[] //todo: show graphs available based on layers on
+  selectedRegion: RegionOption
   lulcGraphData: ChartedData[] | null
 }
 
-export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
+export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
   const toggleDrawer = () => {
     setOpen(!open)
   }
+  //
+  // let drawerTitle
+  // if (selectedRegion.regionType === 'global') {
+  //   drawerTitle = 'global_trends'
+  // } else {
+  //   drawerTitle = selectedRegion.label
+  // }
 
   return (
     <StyledSwipeableDrawer
@@ -46,6 +55,7 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
           open={open}
           {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
           graphName={'graphs.land_use_historical'}
+          region={selectedRegion.label}
           graphData={lulcGraphData}
         />
         <GraphCard

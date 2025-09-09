@@ -14,11 +14,12 @@ import useResponsive from '../../hooks/useResponsive'
 import { ChartedData, mapGraphAttributes, updateGraph } from '../../utils/updateGraph'
 
 interface BaseMapProps {
-  layersOn: LayerInfo[]
+  layersAvailable: LayerInfo[]
+  // layersOn: []
   setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
 }
 
-export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
+export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapProps) {
   // const {t} = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -113,7 +114,7 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
             }}
           />
         )}
-        {layersOn.map((layer, index) => {
+        {layersAvailable.map((layer, index) => {
           return layer.dataType === 'pmtiles' ? (
             <>
               {isMapLoaded && layer.isLayerOn && (
@@ -130,9 +131,9 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
                     paint={{
-                      'fill-color': 'red',
-                      'fill-opacity': 0.25, //vector layers need fill to make individual polygons selectable
-                      'fill-outline-color': '#000',
+                      'fill-color': 'blue',
+                      'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
+                      'fill-outline-color': 'blue',
                     }}
                   />
                 </Source>
