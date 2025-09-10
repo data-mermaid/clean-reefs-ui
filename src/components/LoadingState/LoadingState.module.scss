@@ -1,0 +1,15 @@
+@use '../../styles/theme';
+
+.LoadingState--root {
+  display: block;
+  position: relative;
+  padding: theme.$defaultSpacing;
+}
+
+.CircularProgress--root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  height: theme.$headerHeight;
+}
