@@ -4,6 +4,8 @@ UI package for the Clean Reefs application - a map-based utility for exploring g
 
 ## Getting started
 
+Create a `.env` file based off of `.env.example`. [Sign up for Maptiler](https://cloud.maptiler.com/auth/widget?next=https://cloud.maptiler.com/maps/) to create an API key to use in order to render the base map.
+
 - `yarn install`
 - `yarn start`
 - Builds to `http://localhost:5173`

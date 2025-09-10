@@ -1,1 +1,2 @@
 yarn prettier . --write
+yarn lint

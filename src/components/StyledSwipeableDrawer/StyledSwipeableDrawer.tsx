@@ -46,7 +46,11 @@ export default function StyledSwipeableDrawer({
       allowSwipeInChildren
     >
       {!open && isMobileWidth && (
-        <div className={styles['drawer-puller']} data-testid={`${testId}-drawer-puller`} />
+        <button
+          className={styles['drawer-puller']}
+          onClick={onOpen}
+          data-testid={`${testId}-drawer-puller`}
+        />
       )}
       {children}
     </SwipeableDrawer>

@@ -71,14 +71,12 @@ export const BottomClosed: Story = {
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
   },
-  play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByTestId('bottom-drawer-puller'))
-  },
 }
 export const BottomOpen: Story = {
   args: {
     anchor: 'bottom',
     open: true,
+    testId: 'bottom',
     onOpen: () => {},
     onClose: () => {},
     children: (

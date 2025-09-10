@@ -7,27 +7,13 @@
   align-items: center;
   justify-content: space-between;
   visibility: visible;
-}
-
-//Temporary component styling
-.graph-card {
-  background-color: white;
-  padding: theme.$defaultSpacing;
+  margin-bottom: theme.$defaultSpacing;
 }
 
 .graphs-container--open {
-  overflow-y: scroll;
-  //Temporary component styling
-  .graph-card {
-    margin-bottom: theme.$defaultSpacing;
-    width: 100%;
-    display: block;
-    height: auto;
-  }
-  .graph-card:last-of-type {
-    margin-bottom: 0;
-  }
-  //End temporary component styling
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .graphs-container--closed {
@@ -37,25 +23,5 @@
   overflow-x: auto;
   display: flex;
   flex-wrap: nowrap;
-
-  //Temporary component styling
-  .graph-card {
-    display: block;
-    flex: 0 0 auto;
-    height: 55px;
-    width: 300px;
-    margin-right: theme.$defaultSpacing;
-
-    &:last-of-type {
-      margin-right: 0;
-    }
-  }
-  //End temporary component styling
-}
-
-//Temporary component styling
-.graph-plots {
-  margin: 0 auto;
-  display: block;
-  width: 300px;
+  gap: 10px;
 }
