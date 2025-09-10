@@ -37,9 +37,6 @@ export const plotlyTheme = {
   },
   config: {
     staticPlot: false,
-    toImageButtonOptions: {
-      filename: 'lulc_graph_temp', //todo: update to match each graph (MVP+)
-    },
     modeBarButtonsToRemove: [
       'zoom2d',
       'pan2d',

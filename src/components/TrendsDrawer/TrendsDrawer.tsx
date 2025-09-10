@@ -19,22 +19,21 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
-  const toggleDrawer = () => {
-    setOpen(!open)
-  }
+  const openDrawer = () => setOpen(true)
+  const closeDrawer = () => setOpen(false)
 
   return (
     <StyledSwipeableDrawer
       anchor={isMobileWidth ? 'bottom' : 'right'}
       open={open}
-      onOpen={toggleDrawer}
-      onClose={toggleDrawer}
+      onOpen={openDrawer}
+      onClose={closeDrawer}
       swipeAreaWidth={100}
     >
       <div className={styles['drawer-header']}>
         {open && <h2 style={{ marginTop: '4px' }}>{t('global_trends')}</h2>}
         {open && isMobileWidth && (
-          <IconButton aria-label={t('buttons.close')} onClick={toggleDrawer}>
+          <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
           </IconButton>
         )}
@@ -44,19 +43,19 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
         {/*TODO: map out possible graphs from data list*/}
         <GraphCard
           open={open}
-          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.land_use_historical'}
           graphData={lulcGraphData}
         />
         <GraphCard
           open={open}
-          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.ecosystem_extent_exposed'}
           graphData={MockGraphData}
         />
         <GraphCard
           open={open}
-          {...(isMobileWidth && !open ? { onClick: toggleDrawer } : {})}
+          {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
           graphData={MockGraphData}
         />

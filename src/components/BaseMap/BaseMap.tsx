@@ -114,9 +114,8 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
           />
         )}
         {layersOn.map((layer, index) => {
-          return layer.dataType === 'pmtiles' ? (
-            <>
-              {isMapLoaded && layer.isLayerOn && (
+          return layer.dataType === 'pmtiles'
+            ? isMapLoaded && layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}`}
@@ -136,11 +135,8 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
                     }}
                   />
                 </Source>
-              )}
-            </>
-          ) : (
-            <>
-              {isMapLoaded && layer.isLayerOn && (
+              )
+            : isMapLoaded && layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -157,9 +153,7 @@ export default function BaseMap({ layersOn, setLulcGraphData }: BaseMapProps) {
                     source={layer.sourceId}
                   />
                 </Source>
-              )}
-            </>
-          )
+              )
         })}
       </MapGL>
     </div>

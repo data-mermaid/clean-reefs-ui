@@ -16,6 +16,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@fontsource/titillium-web": "^5.2.6",
     "@geomatico/maplibre-cog-protocol": "^0.5.0",
     "@maptiler/sdk": "^3.5.0",
     "@mui/icons-material": "^7.2.0",

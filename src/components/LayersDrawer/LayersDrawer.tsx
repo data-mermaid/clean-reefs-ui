@@ -18,10 +18,10 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const updatedLayers = layersOn.map((layer) => {
       return layer.layerId === event.target.id
-        ? { ...layer, isLayerOn: !layer.isLayerOn } // Create new object with updated property
+        ? { ...layer, isLayerOn: checked } // Create new object with updated property
         : layer // Keep other layers unchanged
     })
     setLayersOn(updatedLayers)
