@@ -12,7 +12,7 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
 
 interface TrendsDrawerProps {
-  // layerIdsOn: LayerInfo[] //todo: show graphs available based on layers on
+  // layerIdsOn: [] //todo: show graphs available based on layers on
   selectedRegion: RegionOption
   lulcGraphData: ChartedData[] | null
 }

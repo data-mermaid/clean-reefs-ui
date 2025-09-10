@@ -14,11 +14,11 @@ import LoadingState from '../LoadingState/LoadingState'
 
 interface BaseMapProps {
   layersAvailable: LayerInfo[]
-  layerIdsOn: []
+  // layerIdsOn: []
   setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
 }
 
-export default function BaseMap({ layersAvailable, layerIdsOn, setLulcGraphData }: BaseMapProps) {
+export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapProps) {
   // const {t} = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)

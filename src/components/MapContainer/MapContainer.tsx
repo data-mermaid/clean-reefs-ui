@@ -46,7 +46,7 @@ export default function MapContainer() {
       )}
       <BaseMap
         layersAvailable={layers}
-        layerIdsOn={layerIdsOn}
+        // layerIdsOn={layerIdsOn}
         setLulcGraphData={setLulcGraphData}
       />
       {/*  layerIdsOn={layerIdsOn}*/}
