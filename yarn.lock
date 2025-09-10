@@ -1515,6 +1515,11 @@
     "@eslint/core" "^0.15.1"
     levn "^0.4.1"
 
+"@fontsource/titillium-web@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.yarnpkg.com/@fontsource/titillium-web/-/titillium-web-5.2.6.tgz#1928133ae82cffe175a0dc513e2460a8edaaff1c"
+  integrity sha512-mPGBkSB7Bj49RVzEN8v2/MKPNAZfQ0B9y8QHJcjXOWkGKDGCHtHHMPwRD07p+XT2/E/accb9Mhi6DqS+a6LyKg==
+
 "@geomatico/maplibre-cog-protocol@^0.5.0":
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@geomatico/maplibre-cog-protocol/-/maplibre-cog-protocol-0.5.0.tgz#18da030ae9e810c5695492b3bde3c51bd8f622e7"
@@ -7147,10 +7152,10 @@ picomatch@^2.0.4, picomatch@^2.3.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
-picomatch@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.2.tgz#77c742931e8f3b8820946c76cd0c1f13730d1dab"
-  integrity sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==
+picomatch@^4.0.2, picomatch@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.3.tgz#796c76136d1eead715db1e7bad785dedd695a042"
+  integrity sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==
 
 pirates@^4.0.7:
   version "4.0.7"
@@ -8900,14 +8905,14 @@ vite-node@3.2.4:
     pathe "^2.0.3"
     vite "^5.0.0 || ^6.0.0 || ^7.0.0-0"
 
-"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.0.3:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-7.0.3.tgz#3bf15e1a6d054960406a70fa1052043938b39c5a"
-  integrity sha512-y2L5oJZF7bj4c0jgGYgBNSdIu+5HF+m68rn2cQXFbGoShdhV1phX9rbnxy9YXj82aS8MMsCLAAFkRxZeWdldrQ==
+"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.0.7:
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-7.0.7.tgz#d883a0297d24139237676f4227ac2b1e72f9677b"
+  integrity sha512-hc6LujN/EkJHmxeiDJMs0qBontZ1cdBvvoCbWhVjzUFTU329VRyOC46gHNSA8NcOC5yzCeXpwI40tieI3DEZqg==
   dependencies:
     esbuild "^0.25.0"
     fdir "^6.4.6"
-    picomatch "^4.0.2"
+    picomatch "^4.0.3"
     postcss "^8.5.6"
     rollup "^4.40.0"
     tinyglobby "^0.2.14"

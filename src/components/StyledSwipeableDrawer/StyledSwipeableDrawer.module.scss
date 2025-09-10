@@ -11,7 +11,7 @@
     visibility: visible !important; //override MUI application
     padding: theme.$defaultSpacing;
     background-color: theme.$grey;
-    width: 350px;
+    width: theme.$drawerWidth;
     height: calc(100vh - theme.$headerHeight);
   }
 

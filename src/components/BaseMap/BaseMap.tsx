@@ -14,11 +14,11 @@ import LoadingState from '../LoadingState/LoadingState'
 
 interface BaseMapProps {
   layersAvailable: LayerInfo[]
-  // layersOn: []
+  layerIdsOn: []
   setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
 }
 
-export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapProps) {
+export default function BaseMap({ layersAvailable, layerIdsOn, setLulcGraphData }: BaseMapProps) {
   // const {t} = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -104,9 +104,8 @@ export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapPr
           />
         )}
         {layersAvailable.map((layer, index) => {
-          return layer.dataType === 'pmtiles' ? (
-            <>
-              {isMapLoaded && layer.isLayerOn && (
+          return layer.dataType === 'pmtiles'
+            ? isMapLoaded && layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}`}
@@ -126,11 +125,8 @@ export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapPr
                     }}
                   />
                 </Source>
-              )}
-            </>
-          ) : (
-            <>
-              {isMapLoaded && layer.isLayerOn && (
+              )
+            : isMapLoaded && layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -147,9 +143,7 @@ export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapPr
                     source={layer.sourceId}
                   />
                 </Source>
-              )}
-            </>
-          )
+              )
         })}
       </MapGL>
     </div>

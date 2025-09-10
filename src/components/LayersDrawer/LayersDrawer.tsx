@@ -9,14 +9,14 @@ import { LayerInfo } from '../../data/mapData'
 
 interface LayersDrawerProps {
   layersAvailable: LayerInfo[]
-  layersOn: []
-  setLayersOn: Dispatch<SetStateAction<[]>>
+  layerIdsOn: []
+  setLayerIdsOn: Dispatch<SetStateAction<[]>>
 }
 
 export default function LayersDrawer({
   layersAvailable,
-  layersOn,
-  setLayersOn,
+  layerIdsOn,
+  setLayerIdsOn,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -24,19 +24,25 @@ export default function LayersDrawer({
     setOpen(newOpen)
   }
   const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedLayers = layersOn
+    const updatedLayers = layerIdsOn
     const layerId: string = event.target.id
     if (layerId) {
       // @ts-expect-error eslint doesn't like event.target.id
-      const layerIndex = layersOn.indexOf(layerId)
+      const layerIndex = layerIdsOn.indexOf(layerId)
       if (layerIndex > -1) {
         updatedLayers.splice(layerIndex, 1)
       } else {
         // @ts-expect-error eslint doesn't like event.target.id
         updatedLayers.push(layerId)
       }
-      setLayersOn(updatedLayers)
+      setLayerIdsOn(updatedLayers)
     }
+    // const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    //   const updatedLayers = layersAvailable.map((layer) => {
+    //     return layer.layerId === event.target.id
+    //       ? { ...layer, isLayerOn: checked } // Create new object with updated property
+    //       : layer // Keep other layers unchanged
+    //   })
   }
 
   return (

@@ -86,10 +86,8 @@ export const mapGraphAttributes = (sortedProperties: GraphData) => {
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    // @ts-expect-error TS doesn't like the namespace added
-    const categoryName = i18next.t(`land_types.${category}`, { ns: 'translation' })
-    // @ts-expect-error TS doesn't like the namespace added
-    const xAxisTitle = i18next.t(`year`, { ns: 'translation' })
+    const categoryName: string = i18next.t(`land_types.${category}`)
+    const xAxisTitle = i18next.t(`year`)
 
     chartData.push({
       x: sortedYears,
