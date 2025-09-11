@@ -6,14 +6,14 @@ import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
-import { layers } from '../../data/mapData'
+import { LayerInfo, layers } from '../../data/mapData'
 import { ChartedData } from '../../utils/updateGraph'
 import { defaultOption, RegionOption } from '../../types/RegionDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
   const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null) //default:global todo: remove null
-  const [layerIdsOn, setLayerIdsOn] = useState<[]>([])
+  const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultOption)
 
@@ -21,22 +21,14 @@ export default function MapContainer() {
     <div className={styles['MapContainer-root']}>
       {isMobileWidth ? (
         <div className={styles['layer-controls--mobile']}>
-          <LayersDrawer
-            layersAvailable={layers}
-            layerIdsOn={layerIdsOn}
-            setLayerIdsOn={setLayerIdsOn}
-          />
+          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
           <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
-          <LayersDrawer
-            layersAvailable={layers}
-            layerIdsOn={layerIdsOn}
-            setLayerIdsOn={setLayerIdsOn}
-          />
+          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
           <div>
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
@@ -45,11 +37,11 @@ export default function MapContainer() {
         </div>
       )}
       <BaseMap
-        layersAvailable={layers}
-        // layerIdsOn={layerIdsOn}
+        mapLayers={mapLayers}
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
         setLulcGraphData={setLulcGraphData}
       />
-      {/*  layerIdsOn={layerIdsOn}*/}
     </div>
   )
 }

@@ -1,14 +1,10 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import { Dispatch, SetStateAction, useCallback } from 'react'
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
-import {
-  defaultOption,
-  groupOrders,
-  RegionOption,
-  regionOptions,
-} from '../../types/RegionDataTypes'
+import { defaultOption, RegionOption, regionOptions } from '../../types/RegionDataTypes'
+import _ from 'lodash'
 
 interface RegionSelectProps {
   selectedRegion: RegionOption
@@ -19,18 +15,6 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
   const { t } = useTranslation()
   const noCountriesMatchText = t('regions.no_countries_match')
   const noRegionsMatchText = t('regions.no_regions_match')
-
-  const sortedOptions = useMemo(() => {
-    return [...regionOptions].sort((a, b) => {
-      if (a.groupKey !== b.groupKey) {
-        const aIndex = groupOrders.indexOf(a.groupKey)
-        const bIndex = groupOrders.indexOf(b.groupKey)
-        return aIndex - bIndex
-      }
-      return a.label.localeCompare(b.label)
-    })
-  }, [])
-
   const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
 
   const createEmptyFilterOptions = useCallback((): RegionOption[] => {
@@ -56,7 +40,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
     <div className={styles['RegionSelect-root']}>
       <Autocomplete<RegionOption>
         size="small"
-        options={sortedOptions}
+        options={regionOptions}
         groupBy={(option) => t(option.groupKey)}
         getOptionLabel={(option) => option.label}
         getOptionDisabled={(option) =>
@@ -91,7 +75,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
           const { key, ...otherProps } = props
           return (
             <li
-              key={key}
+              key={_.kebabCase(key)}
               {...otherProps}
               style={{
                 opacity:
@@ -105,8 +89,8 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
           )
         }}
         renderGroup={(params) => (
-          <li key={params.key}>
-            <div className={styles['group-header']}>{params.group}</div>
+          <li key={_.kebabCase(params.key)}>
+            <div className={styles['group-header']}>{t(params.group)}</div>
             <ul className={styles['group-list']}>{params.children}</ul>
           </li>
         )}

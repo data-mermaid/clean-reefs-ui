@@ -12,7 +12,6 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
 
 interface TrendsDrawerProps {
-  // layerIdsOn: [] //todo: show graphs available based on layers on
   selectedRegion: RegionOption
   lulcGraphData: ChartedData[] | null
 }
@@ -27,7 +26,7 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
   let drawerTitle
   if (selectedRegion.regionType === 'global') {
     drawerTitle = 'global_trends'
-    // } else if (layerIdsOn.includes('watershed') {
+    // } else if (mapLayers.includes('watershed') {
     //   drawerTitle = selectedRegion.label
   } else {
     drawerTitle = selectedRegion.label

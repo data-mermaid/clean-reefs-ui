@@ -52,16 +52,6 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     title: 'map_layers.watershed_boundaries',
   },
-  // {
-  //Uncertainty on what this data set is for..
-  //   sourceId: 'global_lulc_src',
-  //   sourceName: 'Central_Indo_Pacific_LULC_SDR',
-  //   layerId: 'global_lulc',
-  //   link: GLOBAL_LULC_PMTILES_URL,
-  //   dataType: 'pmtiles',
-  //   isLayerOn: false,
-  //   title: '',
-  // },
 ]
 
 //todo: update this data with config for all graphs

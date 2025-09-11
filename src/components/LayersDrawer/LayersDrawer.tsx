@@ -8,41 +8,24 @@ import styles from './LayersDrawer.module.scss'
 import { LayerInfo } from '../../data/mapData'
 
 interface LayersDrawerProps {
-  layersAvailable: LayerInfo[]
-  layerIdsOn: []
-  setLayerIdsOn: Dispatch<SetStateAction<[]>>
+  mapLayers: LayerInfo[]
+  setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
 }
 
-export default function LayersDrawer({
-  layersAvailable,
-  layerIdsOn,
-  setLayerIdsOn,
-}: LayersDrawerProps) {
+export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedLayers = layerIdsOn
-    const layerId: string = event.target.id
-    if (layerId) {
-      // @ts-expect-error eslint doesn't like event.target.id
-      const layerIndex = layerIdsOn.indexOf(layerId)
-      if (layerIndex > -1) {
-        updatedLayers.splice(layerIndex, 1)
-      } else {
-        // @ts-expect-error eslint doesn't like event.target.id
-        updatedLayers.push(layerId)
-      }
-      setLayerIdsOn(updatedLayers)
-    }
-    // const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    //   const updatedLayers = layersAvailable.map((layer) => {
-    //     return layer.layerId === event.target.id
-    //       ? { ...layer, isLayerOn: checked } // Create new object with updated property
-    //       : layer // Keep other layers unchanged
-    //   })
+
+  const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    const updatedLayers = mapLayers.map((layer) => {
+      return layer.layerId === event.target.id
+        ? { ...layer, isLayerOn: checked } // Create new object with updated property
+        : layer // Keep other layers unchanged
+    })
+    setMapLayers(updatedLayers)
   }
 
   return (
@@ -65,7 +48,7 @@ export default function LayersDrawer({
         <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
 
         {/*List of collapsible layer toggles go inside here*/}
-        {layersAvailable.map((layer) => {
+        {mapLayers.map((layer) => {
           return (
             <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
               <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>

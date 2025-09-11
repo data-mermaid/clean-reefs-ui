@@ -11,43 +11,94 @@ import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import { ChartedData, mapGraphAttributes, updateGraph } from '../../utils/updateGraph'
 import LoadingState from '../LoadingState/LoadingState'
+import { RegionOption } from '../../types/RegionDataTypes'
 
 interface BaseMapProps {
-  layersAvailable: LayerInfo[]
-  // layerIdsOn: []
+  mapLayers: LayerInfo[]
+  selectedRegion: RegionOption
+  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
   setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
 }
 
-export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapProps) {
-  // const {t} = useTranslation()
+export default function BaseMap({
+  mapLayers,
+  selectedRegion,
+  setSelectedRegion,
+  setLulcGraphData,
+}: BaseMapProps) {
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLon = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
+  const [activeLayers, setActiveLayers] = useState<string[]>([])
   // const [viewportBounds, setViewportBounds] = useState<number[]>([])
 
-  //TODO: kick this off when source layer is available
+  const getActiveLayers = useCallback(() => {
+    const activeLayersIds: string[] = []
+    mapLayers.forEach((layer) => {
+      if (layer.isLayerOn) {
+        activeLayersIds.push(layer.layerId)
+      }
+    })
+    setActiveLayers(activeLayersIds)
+  }, [mapLayers])
+
+  const checkRegionSelected = useCallback(
+    (feature) => {
+      let regionType, selectedLabel, selectedGroupKey
+      if (feature.layer.id === 'countries') {
+        regionType = 'country'
+        selectedGroupKey = 'countries_with_coral'
+        selectedLabel = feature.properties.SOVEREIGN1
+      } else if (feature.layer.id === 'watershed') {
+        regionType = 'watershed'
+        selectedGroupKey = 'global'
+        selectedLabel = 'watershed'
+      } else if (feature.layer.id === 'regions') {
+        regionType = 'region'
+        selectedGroupKey = 'coral_reef_regions'
+        selectedLabel = feature.properties.name
+      } else {
+        regionType = 'global'
+        selectedGroupKey = 'global'
+        selectedLabel = 'global'
+      }
+
+      if (selectedRegion.label !== selectedLabel) {
+        setSelectedRegion({
+          groupKey: selectedGroupKey,
+          regionType: regionType,
+          label: selectedLabel,
+        } as RegionOption)
+      }
+    },
+    [selectedRegion, setSelectedRegion],
+  )
+
+  //TODO: kick this off on initial page load
+  //TODO: test whether or not the layer has loaded before trying to process user action
   const loadGraphData = useCallback(
     (point) => {
-      if (mapRef.current) {
+      getActiveLayers()
+      if (mapRef.current && activeLayers.length > 0) {
         const map = mapRef.current?.getMap()
 
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
-          layers: ['watershed'], //TODO: replace w/list of layer ids that are on
+          layers: activeLayers,
         })
-        //TODO: test whether or not the layer has loaded before trying to load the data
 
         if (features.length > 0) {
           const properties = features[0].properties
+          checkRegionSelected(features[0])
           const sortedData = updateGraph(properties)
           setLulcGraphData(mapGraphAttributes(sortedData))
         }
       }
     },
-    [setLulcGraphData],
+    [activeLayers, getActiveLayers, checkRegionSelected, setLulcGraphData],
   )
 
   useEffect(() => {
@@ -103,7 +154,7 @@ export default function BaseMap({ layersAvailable, setLulcGraphData }: BaseMapPr
             }}
           />
         )}
-        {layersAvailable.map((layer, index) => {
+        {mapLayers.map((layer, index) => {
           return layer.dataType === 'pmtiles'
             ? isMapLoaded && layer.isLayerOn && (
                 <Source
