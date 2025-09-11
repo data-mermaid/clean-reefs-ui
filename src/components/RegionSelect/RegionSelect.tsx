@@ -20,12 +20,10 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
   const createEmptyFilterOptions = useCallback((): RegionOption[] => {
     return [
       {
-        groupKey: 'countries_with_coral',
         regionType: 'country',
         label: noCountriesMatchText,
       },
       {
-        groupKey: 'coral_reef_regions',
         regionType: 'region',
         label: noRegionsMatchText,
       },
@@ -41,7 +39,15 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
       <Autocomplete<RegionOption>
         size="small"
         options={regionOptions}
-        groupBy={(option) => t(option.groupKey)}
+        groupBy={(option) => {
+          if (option.regionType === 'country') {
+            return t('regions.countries_with_coral')
+          } else if (option.regionType === 'region') {
+            return t('regions.coral_reef_regions')
+          } else {
+            return t('regions.global')
+          }
+        }}
         getOptionLabel={(option) => option.label}
         getOptionDisabled={(option) =>
           option.label === noCountriesMatchText || option.label === noRegionsMatchText
@@ -50,7 +56,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
         value={selectedRegion}
         onChange={handleChange}
         isOptionEqualToValue={(option, value) =>
-          option.label === value.label && option.groupKey === value.groupKey
+          option.label === value.label && option.regionType === value.regionType
         }
         noOptionsText=""
         filterOptions={(options, state) => {

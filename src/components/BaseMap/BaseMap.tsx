@@ -47,28 +47,23 @@ export default function BaseMap({
 
   const checkRegionSelected = useCallback(
     (feature) => {
-      let regionType, selectedLabel, selectedGroupKey
+      let regionType, selectedLabel
       if (feature.layer.id === 'countries') {
         regionType = 'country'
-        selectedGroupKey = 'countries_with_coral'
         selectedLabel = feature.properties.SOVEREIGN1
       } else if (feature.layer.id === 'watershed') {
         regionType = 'watershed'
-        selectedGroupKey = 'global'
         selectedLabel = 'watershed'
       } else if (feature.layer.id === 'regions') {
         regionType = 'region'
-        selectedGroupKey = 'coral_reef_regions'
         selectedLabel = feature.properties.name
       } else {
         regionType = 'global'
-        selectedGroupKey = 'global'
         selectedLabel = 'global'
       }
 
       if (selectedRegion.label !== selectedLabel) {
         setSelectedRegion({
-          groupKey: selectedGroupKey,
           regionType: regionType,
           label: selectedLabel,
         } as RegionOption)
