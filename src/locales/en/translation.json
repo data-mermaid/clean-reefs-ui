@@ -13,6 +13,7 @@
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
     "land_use_historical": "Land use through time",
+    "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure through time",
     "sediment_load_historical": "Sediment load through time"
   },

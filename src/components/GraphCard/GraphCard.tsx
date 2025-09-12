@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import { ChartedData } from '../../utils/updateGraph'
-import React, { MouseEventHandler, useEffect, useState } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 import LoadingState from '../LoadingState/LoadingState'
 
 interface GraphCardProps {
@@ -27,11 +27,11 @@ export default function GraphCard({
   graphName,
 }: GraphCardProps) {
   const { t } = useTranslation()
-  const [loading, setLoading] = useState(true)
+  const [loading] = useState(false) //, setLoading
 
-  useEffect(() => {
-    setLoading(!graphData)
-  }, [graphData])
+  // useEffect(() => {
+  //   // setLoading(!graphData) //TODO: This isn't updating, hook into correct load state for Plotly
+  // }, [graphData])
 
   return (
     <Card
@@ -44,22 +44,28 @@ export default function GraphCard({
         <Typography className={styles['region-label']}>{t(`regions.${region}`)}</Typography>
         <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
       </div>
-      {loading
-        ? open && <LoadingState height={200} />
-        : open &&
-          graphData && (
-            <Plot
-              data={graphData}
-              className={styles['graph-plots']}
-              config={plotlyTheme.config}
-              layout={{
-                ...plotlyTheme.layout,
-                yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
-                xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
-              }}
-              style={{ width: '100%', height: '100%' }}
-            />
-          )}
+      {loading ? (
+        open && <LoadingState height={200} />
+      ) : open && graphData !== null ? (
+        <Plot
+          data={graphData}
+          className={styles['graph-plots']}
+          config={plotlyTheme.config}
+          layout={{
+            ...plotlyTheme.layout,
+            yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
+            xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
+          }}
+          style={{ width: '100%', height: '100%' }}
+        />
+      ) : (
+        open && (
+          // Temporary component --> To be completed in C103
+          <div style={{ padding: '100px 10px 0', height: '200px' }}>
+            {t('graphs.no_data_available')}
+          </div>
+        )
+      )}
     </Card>
   )
 }

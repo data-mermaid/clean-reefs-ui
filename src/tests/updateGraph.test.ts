@@ -1,4 +1,4 @@
-import { mapGraphAttributes, updateGraph } from '../utils/updateGraph'
+import { mapGraphAttributes, updateLulcGraph } from '../utils/updateGraph'
 import mockOutputGraphData from './mockOutputGraphData.json'
 
 const groupedProperties = {
@@ -11,7 +11,7 @@ const groupedProperties = {
   surface_water: { '2000': 1 },
 }
 describe('graph data utilities', () => {
-  describe('updateGraph', () => {
+  describe('updateLulcGraph', () => {
     it('groups data by type and year and filters out unused properties', () => {
       const input = {
         Bare_Gr_pct_2000: 5,
@@ -26,7 +26,7 @@ describe('graph data utilities', () => {
         watershed_id: 123,
       }
 
-      const result = updateGraph(input)
+      const result = updateLulcGraph(input)
 
       expect(result).toEqual(groupedProperties)
     })

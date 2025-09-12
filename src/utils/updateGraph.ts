@@ -19,7 +19,7 @@ export interface ChartedData {
 const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
-export const updateGraph = (pointProperties) => {
+export const updateLulcGraph = (pointProperties) => {
   //group data by type
   const mappedGraphData = {
     bare_ground: {},
