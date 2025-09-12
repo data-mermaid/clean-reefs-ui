@@ -26,7 +26,7 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.regional_boundaries',
   },
   {
-    sourceId: 'lulc_src',
+    sourceId: 'lulc_2000_visual',
     sourceName: '',
     layerId: 'lulc',
     link: LULC_2000_TILES_URL,
@@ -36,7 +36,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'countries_src',
-    sourceName: 'EEZ_land_union_v4_202410',
+    sourceName: 'countries',
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     dataType: 'pmtiles',
