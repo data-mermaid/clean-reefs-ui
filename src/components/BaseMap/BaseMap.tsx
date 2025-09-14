@@ -1,5 +1,14 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as maptilersdk from '@maptiler/sdk'
+import { LngLat } from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -9,9 +18,10 @@ import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
-import { ChartedData, mapGraphAttributes, updateGraph } from '../../utils/updateGraph'
+
+import { ChartedData, mapGraphAttributes, updateLulcGraph } from '../../utils/updateGraph'
 import LoadingState from '../LoadingState/LoadingState'
-import { RegionOption } from '../../types/RegionDataTypes'
+import { RegionOption, regionOptions } from '../../types/RegionDataTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -28,13 +38,22 @@ export default function BaseMap({
 }: BaseMapProps) {
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLon = 178.4 //Initial location - Fiji
+  const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
   const [activeLayers, setActiveLayers] = useState<string[]>([])
-  // const [viewportBounds, setViewportBounds] = useState<number[]>([])
+  const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
 
+  //TODO: restrict to Central Indo-Pacific region
+  //https://maplibre.org/maplibre-gl-js/docs/examples/restrict-map-panning-to-an-area/
+  // const sw = new LngLat(154.9913, -30.9959)
+  // const ne = new LngLat(179, -4.8069)
+  //MaplibreGL doesn't like these coordinates for some reason..
+  // const tempViewportBounds = new LngLatBounds(sw, ne)
+  // const [viewportBounds, setViewportBounds] = useState<[number, number]>(currentLngLat)
+
+  //todo: setActiveLayers on new map data load
   const getActiveLayers = useCallback(() => {
     const activeLayersIds: string[] = []
     mapLayers.forEach((layer) => {
@@ -45,34 +64,55 @@ export default function BaseMap({
     setActiveLayers(activeLayersIds)
   }, [mapLayers])
 
+  //TODO: Set zoomLevel as user event vals
   const checkRegionSelected = useCallback(
     (feature) => {
-      let regionType, selectedLabel
+      let mappedRegion: RegionOption
+      const centerCoordinates = new LngLat(...currentLngLat)
       if (feature.layer.id === 'countries') {
-        regionType = 'country'
-        selectedLabel = feature.properties.SOVEREIGN1
+        mappedRegion = {
+          regionType: 'country',
+          label: feature.properties.TERRITORY1,
+          centerCoord: centerCoordinates,
+          zoomLevel: 10,
+        }
       } else if (feature.layer.id === 'watershed') {
-        regionType = 'watershed'
-        selectedLabel = 'watershed'
+        mappedRegion = {
+          regionType: 'watershed',
+          label: 'Watershed',
+          centerCoord: centerCoordinates,
+          zoomLevel: 10,
+        }
       } else if (feature.layer.id === 'regions') {
-        regionType = 'region'
-        selectedLabel = feature.properties.name
+        mappedRegion = {
+          regionType: 'region',
+          label: feature.properties.name,
+          centerCoord: centerCoordinates,
+          zoomLevel: 4,
+        }
       } else {
-        regionType = 'global'
-        selectedLabel = 'global'
+        mappedRegion = regionOptions[0]
       }
 
-      if (selectedRegion.label !== selectedLabel) {
-        setSelectedRegion({
-          regionType: regionType,
-          label: selectedLabel,
-        } as RegionOption)
+      if (selectedRegion.label !== mappedRegion.label) {
+        setSelectedRegion(mappedRegion)
       }
     },
-    [selectedRegion, setSelectedRegion],
+    [currentLngLat, selectedRegion, setSelectedRegion],
   )
 
-  //TODO: kick this off on initial page load
+  useMemo(() => {
+    const map = mapRef.current?.getMap()
+
+    const jumpOptions = {
+      center: selectedRegion.centerCoord,
+      zoom: selectedRegion.zoomLevel,
+      bearing: 0,
+    }
+    map?.jumpTo(jumpOptions)
+  }, [selectedRegion])
+
+  //TODO: kick this after map has loaded //map.isSourceLoaded
   //TODO: test whether or not the layer has loaded before trying to process user action
   const loadGraphData = useCallback(
     (point) => {
@@ -80,16 +120,25 @@ export default function BaseMap({
       if (mapRef.current && activeLayers.length > 0) {
         const map = mapRef.current?.getMap()
 
+        // const sourcesLoaded = []
+        // activeLayers.forEach((layer) => {
+        //   sourcesLoaded.push(map.isSourceLoaded(layer))
+        // })
+
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
           layers: activeLayers,
         })
 
-        if (features.length > 0) {
+        //TODO: remove tempSkipLayers when data is available
+        const tempSkipLayers = ['countries', 'regions', 'global']
+        if (!tempSkipLayers.includes(features[0].layer.id) && features.length > 0) {
           const properties = features[0].properties
           checkRegionSelected(features[0])
-          const sortedData = updateGraph(properties)
+          const sortedData = updateLulcGraph(properties)
           setLulcGraphData(mapGraphAttributes(sortedData))
+        } else {
+          setLulcGraphData(null)
         }
       }
     },
@@ -101,12 +150,11 @@ export default function BaseMap({
     maplibregl.addProtocol('pmtiles', protocol.tile)
     maplibregl.addProtocol('cog', cogProtocol)
 
-    // setViewportBounds([defaultLon, defaultLat, defaultMapZoom])
     return () => {
       maplibregl.removeProtocol('pmtiles')
       maplibregl.removeProtocol('cog')
     }
-  }, [defaultLon, defaultLat])
+  }, [])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
@@ -119,7 +167,12 @@ export default function BaseMap({
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
+  const handleMapLoaded = () => {
+    setIsMapLoaded(true)
+    loadGraphData(currentLngLat)
+  }
   const handleMapClick = (event) => {
+    setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
     loadGraphData(event.point)
   }
 
@@ -131,14 +184,17 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
-          longitude: defaultLon,
+          longitude: defaultLng,
           latitude: defaultLat,
           zoom: defaultMapZoom,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
-        onLoad={() => setIsMapLoaded(true)}
+        onLoad={() => handleMapLoaded()}
+        // onData={() => {}}
+        // onStyleData={() => {}}
         attributionControl={false}
         onClick={handleMapClick}
+        // maxBounds={tempViewportBounds} //temp: limited to Central Indo-Pacific region
       >
         {isDesktopWidth && (
           <NavigationControl
@@ -150,6 +206,7 @@ export default function BaseMap({
           />
         )}
         {mapLayers.map((layer, index) => {
+          //data is either PMtiles or COGs
           return layer.dataType === 'pmtiles'
             ? isMapLoaded && layer.isLayerOn && (
                 <Source
@@ -165,7 +222,7 @@ export default function BaseMap({
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
                     paint={{
-                      'fill-color': 'blue',
+                      'fill-color': 'white',
                       'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
                       'fill-outline-color': 'blue',
                     }}
@@ -177,7 +234,8 @@ export default function BaseMap({
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
                   type="raster"
-                  tiles={[`${layer.link}`]}
+                  url={`cog://${layer.link}`}
+                  // ${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(',')}` : ''}
                   tileSize={256}
                   maxzoom={16}
                   minzoom={6}

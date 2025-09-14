@@ -1,34 +1,38 @@
-import { Dispatch, SetStateAction, useCallback } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { defaultOption, RegionOption, regionOptions } from '../../types/RegionDataTypes'
 import _ from 'lodash'
+import i18next from 'i18next'
+import { LngLat } from '@maptiler/sdk'
 
 interface RegionSelectProps {
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
 }
 
+const noResultOptions: RegionOption[] = [
+  {
+    regionType: 'country',
+    label: i18next.t('regions.no_countries_match'),
+    centerCoord: new LngLat(0, 0),
+    zoomLevel: 10,
+  },
+  {
+    regionType: 'region',
+    label: i18next.t('regions.no_regions_match'),
+    centerCoord: new LngLat(0, 0),
+    zoomLevel: 10,
+  },
+]
+
 export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
   const { t } = useTranslation()
   const noCountriesMatchText = t('regions.no_countries_match')
   const noRegionsMatchText = t('regions.no_regions_match')
   const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
-
-  const createEmptyFilterOptions = useCallback((): RegionOption[] => {
-    return [
-      {
-        regionType: 'country',
-        label: noCountriesMatchText,
-      },
-      {
-        regionType: 'region',
-        label: noRegionsMatchText,
-      },
-    ]
-  }, [noCountriesMatchText, noRegionsMatchText])
 
   const handleChange = (_: unknown, newValue: RegionOption | null) => {
     setSelectedRegion(newValue || defaultOption)
@@ -61,7 +65,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
         noOptionsText=""
         filterOptions={(options, state) => {
           const filtered = muiFilterOptions(options, state)
-          return filtered.length ? filtered : createEmptyFilterOptions()
+          return filtered.length ? filtered : noResultOptions
         }}
         classes={{
           root: styles['MuiAutocomplete-root'],
