@@ -44,6 +44,7 @@ export default function BaseMap({
   const mapRef = useRef<MapRef | null>(null)
   const [activeLayers, setActiveLayers] = useState<string[]>([])
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
+  const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
 
   //TODO: restrict to Central Indo-Pacific region
   //https://maplibre.org/maplibre-gl-js/docs/examples/restrict-map-panning-to-an-area/
@@ -64,7 +65,6 @@ export default function BaseMap({
     setActiveLayers(activeLayersIds)
   }, [mapLayers])
 
-  //TODO: Set zoomLevel as user event vals
   const checkRegionSelected = useCallback(
     (feature) => {
       let mappedRegion: RegionOption
@@ -74,7 +74,7 @@ export default function BaseMap({
           regionType: 'country',
           label: feature.properties.TERRITORY1,
           centerCoord: centerCoordinates,
-          zoomLevel: 10,
+          zoomLevel: currentZoom,
         }
       } else if (feature.layer.id === 'watershed') {
         mappedRegion = {
@@ -98,7 +98,7 @@ export default function BaseMap({
         setSelectedRegion(mappedRegion)
       }
     },
-    [currentLngLat, selectedRegion, setSelectedRegion],
+    [currentLngLat, currentZoom, selectedRegion, setSelectedRegion],
   )
 
   useMemo(() => {
@@ -172,6 +172,12 @@ export default function BaseMap({
     loadGraphData(currentLngLat)
   }
   const handleMapClick = (event) => {
+    const map = mapRef.current?.getMap()
+
+    const zoom = map?.getZoom()
+    if (zoom && zoom !== currentZoom) {
+      setCurrentZoom(zoom)
+    }
     setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
     loadGraphData(event.point)
   }
@@ -190,8 +196,8 @@ export default function BaseMap({
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoaded()}
-        // onData={() => {}}
-        // onStyleData={() => {}}
+        onData={() => {}}
+        onStyleData={() => {}}
         attributionControl={false}
         onClick={handleMapClick}
         // maxBounds={tempViewportBounds} //temp: limited to Central Indo-Pacific region
