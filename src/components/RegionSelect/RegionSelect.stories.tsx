@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
 import { defaultOption } from '../../types/RegionDataTypes'
-import { expect, userEvent } from 'storybook/test'
+import { expect, screen, userEvent } from 'storybook/test'
 
 const meta: Meta<typeof RegionSelect> = {
   component: RegionSelect,
@@ -56,12 +56,8 @@ export const NoResults: Story = {
     await userEvent.click(clearButton)
     await userEvent.type(input, 'solomon islad')
 
-    //TODO: Fix this text
-    //The popup/text appears outside of the canvas
-
-    // await expect(
-    //   within(document.body).findByText('No regions match your search'),
-    // ).toBeInTheDocument()
+    const noResultsText = screen.getByText('No regions match your search')
+    await expect(noResultsText).toBeInTheDocument()
   },
 }
 

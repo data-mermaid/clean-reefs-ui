@@ -27,11 +27,7 @@ export default function GraphCard({
   graphName,
 }: GraphCardProps) {
   const { t } = useTranslation()
-  const [loading] = useState(false) //, setLoading
-
-  // useEffect(() => {
-  //   // setLoading(!graphData) //TODO: This isn't updating, hook into correct load state for Plotly
-  // }, [graphData])
+  const [loading] = useState(false)
 
   return (
     <Card

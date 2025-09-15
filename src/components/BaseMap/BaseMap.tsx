@@ -46,15 +46,6 @@ export default function BaseMap({
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
 
-  //TODO: restrict to Central Indo-Pacific region
-  //https://maplibre.org/maplibre-gl-js/docs/examples/restrict-map-panning-to-an-area/
-  // const sw = new LngLat(154.9913, -30.9959)
-  // const ne = new LngLat(179, -4.8069)
-  //MaplibreGL doesn't like these coordinates for some reason..
-  // const tempViewportBounds = new LngLatBounds(sw, ne)
-  // const [viewportBounds, setViewportBounds] = useState<[number, number]>(currentLngLat)
-
-  //todo: setActiveLayers on new map data load
   const getActiveLayers = useCallback(() => {
     const activeLayersIds: string[] = []
     mapLayers.forEach((layer) => {
@@ -112,25 +103,18 @@ export default function BaseMap({
     map?.jumpTo(jumpOptions)
   }, [selectedRegion])
 
-  //TODO: kick this after map has loaded //map.isSourceLoaded
-  //TODO: test whether or not the layer has loaded before trying to process user action
   const loadGraphData = useCallback(
     (point) => {
       getActiveLayers()
       if (mapRef.current && activeLayers.length > 0) {
         const map = mapRef.current?.getMap()
 
-        // const sourcesLoaded = []
-        // activeLayers.forEach((layer) => {
-        //   sourcesLoaded.push(map.isSourceLoaded(layer))
-        // })
-
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
           layers: activeLayers,
         })
 
-        //TODO: remove tempSkipLayers when data is available
+        //TEMP: remove tempSkipLayers when data is updated with values
         const tempSkipLayers = ['countries', 'regions', 'global']
         if (!tempSkipLayers.includes(features[0].layer.id) && features.length > 0) {
           const properties = features[0].properties
@@ -167,13 +151,12 @@ export default function BaseMap({
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
-  const handleMapLoaded = () => {
+  const handleMapLoad = () => {
     setIsMapLoaded(true)
     loadGraphData(currentLngLat)
   }
   const handleMapClick = (event) => {
     const map = mapRef.current?.getMap()
-
     const zoom = map?.getZoom()
     if (zoom && zoom !== currentZoom) {
       setCurrentZoom(zoom)
@@ -195,12 +178,9 @@ export default function BaseMap({
           zoom: defaultMapZoom,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
-        onLoad={() => handleMapLoaded()}
-        onData={() => {}}
-        onStyleData={() => {}}
+        onLoad={() => handleMapLoad()}
         attributionControl={false}
         onClick={handleMapClick}
-        // maxBounds={tempViewportBounds} //temp: limited to Central Indo-Pacific region
       >
         {isDesktopWidth && (
           <NavigationControl
@@ -212,7 +192,6 @@ export default function BaseMap({
           />
         )}
         {mapLayers.map((layer, index) => {
-          //data is either PMtiles or COGs
           return layer.dataType === 'pmtiles'
             ? isMapLoaded && layer.isLayerOn && (
                 <Source

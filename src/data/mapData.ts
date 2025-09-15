@@ -49,7 +49,7 @@ export const layers: LayerInfo[] = [
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false,
     title: 'map_layers.watershed_boundaries',
   },
 ]

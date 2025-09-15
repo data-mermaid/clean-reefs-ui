@@ -26,8 +26,6 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
   let drawerTitle
   if (selectedRegion.regionType === 'global') {
     drawerTitle = 'global_trends'
-    // } else if (mapLayers.includes('watershed') {
-    //   drawerTitle = selectedRegion.label
   } else {
     drawerTitle = selectedRegion.label
   }
