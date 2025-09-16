@@ -7,9 +7,9 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
-import { ChartedData } from '../../utils/graphUtils'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()

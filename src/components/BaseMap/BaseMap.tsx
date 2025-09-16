@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-import { LngLat } from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -19,10 +18,11 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { ChartedData, mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
+import { mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { regionOptions } from '../../data/regionData'
+import { checkRegionSelected, getActiveLayers } from '../../utils/mapUtils'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -47,53 +47,6 @@ export default function BaseMap({
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
 
-  const getActiveLayers = useCallback(() => {
-    const activeLayersIds: string[] = []
-    mapLayers.forEach((layer) => {
-      if (layer.isLayerOn) {
-        activeLayersIds.push(layer.layerId)
-      }
-    })
-    setActiveLayers(activeLayersIds)
-  }, [mapLayers])
-
-  //map clicked --> check layer selected and update regions if necessary
-  const checkRegionSelected = useCallback(
-    (feature) => {
-      let mappedRegion: RegionOption
-      const centerCoordinates = new LngLat(...currentLngLat)
-      if (feature.layer.id === 'countries') {
-        mappedRegion = {
-          regionType: 'country',
-          label: feature.properties.TERRITORY1,
-          centerCoord: centerCoordinates,
-          zoomLevel: currentZoom,
-        }
-      } else if (feature.layer.id === 'watershed') {
-        mappedRegion = {
-          regionType: 'watershed',
-          label: 'Watershed',
-          centerCoord: centerCoordinates,
-          zoomLevel: 10,
-        }
-      } else if (feature.layer.id === 'regions') {
-        mappedRegion = {
-          regionType: 'region',
-          label: feature.properties.name,
-          centerCoord: centerCoordinates,
-          zoomLevel: 4,
-        }
-      } else {
-        mappedRegion = regionOptions[0]
-      }
-
-      if (selectedRegion.label !== mappedRegion.label) {
-        setSelectedRegion(mappedRegion)
-      }
-    },
-    [currentLngLat, currentZoom, selectedRegion, setSelectedRegion],
-  )
-
   useMemo(() => {
     const map = mapRef.current?.getMap()
 
@@ -107,7 +60,6 @@ export default function BaseMap({
 
   const loadGraphData = useCallback(
     (point) => {
-      getActiveLayers()
       if (mapRef.current && activeLayers.length > 0) {
         const map = mapRef.current?.getMap()
 
@@ -117,18 +69,29 @@ export default function BaseMap({
         })
 
         //TEMP: remove tempSkipLayers when geometries are updated correctly and global data available
-        const tempSkipLayers = ['regions', 'global']
+        const tempSkipLayers = ['global']
         if (!tempSkipLayers.includes(features[0].layer.id) && features.length > 0) {
           const properties = features[0].properties
-          checkRegionSelected(features[0])
-          const sortedData = updateLulcGraph(properties)
-          setLulcGraphData(mapGraphAttributes(sortedData))
+
+          const mappedRegion = checkRegionSelected(features[0], currentLngLat, currentZoom)
+          if (selectedRegion.label !== mappedRegion.label) {
+            setSelectedRegion(mappedRegion)
+            const sortedData = updateLulcGraph(properties)
+            setLulcGraphData(mapGraphAttributes(sortedData))
+          }
         } else {
           setLulcGraphData(null)
         }
       }
     },
-    [activeLayers, getActiveLayers, checkRegionSelected, setLulcGraphData],
+    [
+      activeLayers,
+      currentLngLat,
+      currentZoom,
+      selectedRegion.label,
+      setLulcGraphData,
+      setSelectedRegion,
+    ],
   )
 
   useEffect(() => {
@@ -158,12 +121,12 @@ export default function BaseMap({
     loadGraphData(currentLngLat)
   }
   const handleMapClick = (event) => {
-    const map = mapRef.current?.getMap()
-    const zoom = map?.getZoom()
+    const zoom = mapRef.current?.getMap().getZoom()
     if (zoom && zoom !== currentZoom) {
       setCurrentZoom(zoom)
     }
     setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
+    setActiveLayers(getActiveLayers(mapLayers))
     loadGraphData(event.point)
   }
 

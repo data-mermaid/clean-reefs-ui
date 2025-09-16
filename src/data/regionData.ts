@@ -1,4 +1,4 @@
-import { LngLat } from '@maptiler/sdk'
+import { LngLat } from 'maplibre-gl'
 import { RegionOption } from '../types/RegionDataTypes'
 
 export const defaultRegionOption: RegionOption = {

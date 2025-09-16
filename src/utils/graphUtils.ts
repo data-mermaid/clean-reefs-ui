@@ -1,19 +1,6 @@
 import { graphLayoutConfig } from '../data/mapData'
 import i18next from 'i18next'
-
-export interface GraphData {
-  [name: string]: Record<string, number>
-}
-
-export interface ChartedData {
-  x: string[]
-  y: number[]
-  type: 'bar'
-  name: string
-  marker?: object
-  hovertemplate?: string
-  width: number
-}
+import { ChartedData, GraphData } from '../types/GraphDataTypes'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
@@ -98,7 +85,7 @@ export const mapGraphAttributes = (sortedProperties: GraphData) => {
         color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
       },
       hovertemplate: `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`,
-      width: 3, //todo: update width according to graph type,
+      width: 3,
     })
   })
   return chartData

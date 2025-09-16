@@ -7,9 +7,9 @@ import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import GraphCard from '../GraphCard/GraphCard'
-import { ChartedData } from '../../utils/graphUtils'
 import { RegionOption } from '../../types/RegionDataTypes'
 import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
