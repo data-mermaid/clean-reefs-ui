@@ -46,3 +46,13 @@
   font-weight: theme.$bold;
   line-height: 1.2;
 }
+
+.no-data-label {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$light;
+  font-style: italic;
+  line-height: 1.2;
+  color: theme.$textSecondary;
+  margin-top: theme.$defaultSpacing;
+  padding-top: theme.$defaultSpacing;
+}

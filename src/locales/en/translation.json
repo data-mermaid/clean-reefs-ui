@@ -77,5 +77,6 @@
   "select_region": "Select region",
   "select_year": "Select year",
   "no_countries_match": "No countries match your search",
-  "no_regions_match": "No regions match your search"
+  "no_regions_match": "No regions match your search",
+  "no_graph_data": "No data available for this graph"
 }
