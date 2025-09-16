@@ -1,6 +1,6 @@
+import * as React from 'react'
 import { IconButton } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import * as React from 'react'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
@@ -8,7 +8,7 @@ import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import GraphCard from '../GraphCard/GraphCard'
 import { ChartedData } from '../../utils/updateGraph'
-import { MockGraphData } from '../GraphCard/GraphCard.stories'
+import { mockGraphData } from '../../data/mapData'
 
 interface TrendsDrawerProps {
   // layersOn: LayerInfo[] //todo: show graphs available based on layers on
@@ -51,13 +51,13 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.ecosystem_extent_exposed'}
-          graphData={MockGraphData}
+          graphData={mockGraphData}
         />
         <GraphCard
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
-          graphData={MockGraphData}
+          graphData={mockGraphData}
         />
       </div>
     </StyledSwipeableDrawer>
