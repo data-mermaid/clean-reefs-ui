@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import TrendsDrawer from './TrendsDrawer'
 import { ChartedData } from '../../utils/updateGraph'
-import { defaultOption } from '../../types/RegionDataTypes'
+import { defaultRegionOption } from '../../data/regionData'
 
 const meta = {
   component: TrendsDrawer,
@@ -15,7 +15,7 @@ const mockGraphData: ChartedData[] | null = null
 export const Primary: Story = {
   args: {
     lulcGraphData: mockGraphData,
-    selectedRegion: defaultOption,
+    selectedRegion: defaultRegionOption,
   },
 }
 

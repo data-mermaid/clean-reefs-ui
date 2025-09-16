@@ -1,6 +1,6 @@
 import {
   COUNTRIES_PMTILES_URL,
-  LULC_2000_TILES_URL,
+  LULC_2000_URL,
   REGIONS_PMTILES_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
@@ -29,7 +29,7 @@ export const layers: LayerInfo[] = [
     sourceId: 'lulc_2000_visual',
     sourceName: '',
     layerId: 'lulc',
-    link: LULC_2000_TILES_URL,
+    link: LULC_2000_URL,
     dataType: 'tiles',
     isLayerOn: false,
     title: 'map_layers.land_use_cover',

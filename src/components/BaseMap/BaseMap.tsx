@@ -21,7 +21,8 @@ import useResponsive from '../../hooks/useResponsive'
 
 import { ChartedData, mapGraphAttributes, updateLulcGraph } from '../../utils/updateGraph'
 import LoadingState from '../LoadingState/LoadingState'
-import { RegionOption, regionOptions } from '../../types/RegionDataTypes'
+import { RegionOption } from '../../types/RegionDataTypes'
+import { regionOptions } from '../../data/regionData'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]

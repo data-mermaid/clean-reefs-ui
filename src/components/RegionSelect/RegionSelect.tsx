@@ -3,10 +3,11 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
-import { defaultOption, RegionOption, regionOptions } from '../../types/RegionDataTypes'
+import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
 import i18next from 'i18next'
 import { LngLat } from '@maptiler/sdk'
+import { defaultRegionOption, regionOptions } from '../../data/regionData'
 
 interface RegionSelectProps {
   selectedRegion: RegionOption
@@ -35,7 +36,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
   const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
 
   const handleChange = (_: unknown, newValue: RegionOption | null) => {
-    setSelectedRegion(newValue || defaultOption)
+    setSelectedRegion(newValue || defaultRegionOption)
   }
 
   return (

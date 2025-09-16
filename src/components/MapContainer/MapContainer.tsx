@@ -8,14 +8,15 @@ import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { ChartedData } from '../../utils/updateGraph'
-import { defaultOption, RegionOption } from '../../types/RegionDataTypes'
+import { RegionOption } from '../../types/RegionDataTypes'
+import { defaultRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
   const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null) //default:global todo: remove null
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000)
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultOption)
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
 
   return (
     <div className={styles['MapContainer-root']}>

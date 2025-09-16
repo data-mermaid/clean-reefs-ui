@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
-import { defaultOption } from '../../types/RegionDataTypes'
 import { expect, screen, userEvent } from 'storybook/test'
+import { defaultRegionOption } from '../../data/regionData'
 
 const meta: Meta<typeof RegionSelect> = {
   component: RegionSelect,
@@ -14,7 +14,7 @@ type Story = StoryObj<typeof RegionSelect>
 
 export const Primary: Story = {
   args: {
-    selectedRegion: defaultOption,
+    selectedRegion: defaultRegionOption,
     setSelectedRegion: () => {},
   },
   parameters: {
@@ -33,7 +33,7 @@ export const Primary: Story = {
 
 export const Mobile: Story = {
   args: {
-    selectedRegion: defaultOption,
+    selectedRegion: defaultRegionOption,
     setSelectedRegion: () => {},
   },
   parameters: {
@@ -44,7 +44,7 @@ export const Mobile: Story = {
 
 export const NoResults: Story = {
   args: {
-    selectedRegion: defaultOption,
+    selectedRegion: defaultRegionOption,
     setSelectedRegion: () => {},
   },
   play: async ({ canvas }) => {
