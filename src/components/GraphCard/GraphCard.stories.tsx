@@ -3,7 +3,7 @@ import { expect } from 'storybook/test'
 import i18next from 'i18next'
 
 import GraphCard from './GraphCard'
-import { ChartedData } from '../../utils/updateGraph'
+import { ChartedData } from '../../utils/graphUtils'
 import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
 
 const meta = {

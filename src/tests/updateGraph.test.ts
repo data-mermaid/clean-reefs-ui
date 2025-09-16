@@ -1,4 +1,4 @@
-import { mapGraphAttributes, updateLulcGraph } from '../utils/updateGraph'
+import { mapGraphAttributes, updateLulcGraph } from '../utils/graphUtils'
 import mockOutputGraphData from './mockOutputGraphData.json'
 
 const groupedProperties = {

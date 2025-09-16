@@ -7,13 +7,13 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
-import { ChartedData } from '../../utils/updateGraph'
+import { ChartedData } from '../../utils/graphUtils'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null) //default:global todo: remove null
+  const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)

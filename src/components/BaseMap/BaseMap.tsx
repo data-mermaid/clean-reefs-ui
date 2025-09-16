@@ -19,7 +19,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { ChartedData, mapGraphAttributes, updateLulcGraph } from '../../utils/updateGraph'
+import { ChartedData, mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { regionOptions } from '../../data/regionData'
@@ -57,6 +57,7 @@ export default function BaseMap({
     setActiveLayers(activeLayersIds)
   }, [mapLayers])
 
+  //map clicked --> check layer selected and update regions if necessary
   const checkRegionSelected = useCallback(
     (feature) => {
       let mappedRegion: RegionOption
@@ -115,8 +116,8 @@ export default function BaseMap({
           layers: activeLayers,
         })
 
-        //TEMP: remove tempSkipLayers when data is updated with values
-        const tempSkipLayers = ['countries', 'regions', 'global']
+        //TEMP: remove tempSkipLayers when geometries are updated correctly and global data available
+        const tempSkipLayers = ['regions', 'global']
         if (!tempSkipLayers.includes(features[0].layer.id) && features.length > 0) {
           const properties = features[0].properties
           checkRegionSelected(features[0])
@@ -208,9 +209,9 @@ export default function BaseMap({
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
                     paint={{
-                      'fill-color': 'white',
+                      'fill-color': 'red',
                       'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
-                      'fill-outline-color': 'blue',
+                      'fill-outline-color': 'black',
                     }}
                   />
                 </Source>

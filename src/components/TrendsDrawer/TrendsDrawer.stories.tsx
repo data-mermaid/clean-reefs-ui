@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import TrendsDrawer from './TrendsDrawer'
-import { ChartedData } from '../../utils/updateGraph'
+import { ChartedData } from '../../utils/graphUtils'
 import { defaultRegionOption } from '../../data/regionData'
 
 const meta = {

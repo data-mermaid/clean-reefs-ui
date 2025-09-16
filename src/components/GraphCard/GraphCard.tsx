@@ -3,7 +3,7 @@ import styles from './GraphCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
-import { ChartedData } from '../../utils/updateGraph'
+import { ChartedData } from '../../utils/graphUtils'
 import React, { MouseEventHandler, useState } from 'react'
 import LoadingState from '../LoadingState/LoadingState'
 
