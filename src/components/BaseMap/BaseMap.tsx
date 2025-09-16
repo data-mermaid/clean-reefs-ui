@@ -220,7 +220,6 @@ export default function BaseMap({
                   key={`${layer.sourceId}-${index}`}
                   type="raster"
                   url={`cog://${layer.link}`}
-                  // ${viewportBounds.length > 0 ? `?bbox=${viewportBounds.join(',')}` : ''}
                   tileSize={256}
                   maxzoom={16}
                   minzoom={6}

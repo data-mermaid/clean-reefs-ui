@@ -1,6 +1,7 @@
 export default {
   restoreMocks: true,
   transformIgnorePatterns: [
+    '<rootDir>/node_modules/(?!(@iconify-icons|@reach|@fontsource|uuid)/.*)', // ignore transforming node_modules except for the libraries inside the inner brackets
     '<rootDir>/node_modules/(?!(@iconify-icons|@reach|@fontsource)/.*)', // ignore transforming node_modules except for the libraries inside the inner brackets
   ],
   // testEnvironment: 'jest-environment-jsdom',
