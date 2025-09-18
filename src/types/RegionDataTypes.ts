@@ -1,4 +1,4 @@
-import { LngLat } from '@maptiler/sdk'
+import { LngLat } from 'maplibre-gl'
 
 export interface RegionOption {
   regionType: RegionType

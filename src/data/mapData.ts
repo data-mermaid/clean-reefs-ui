@@ -31,7 +31,7 @@ export const layers: LayerInfo[] = [
     layerId: 'lulc',
     link: LULC_2000_URL,
     dataType: 'tiles',
-    isLayerOn: false,
+    isLayerOn: true,
     title: 'map_layers.land_use_cover',
   },
   {
@@ -52,6 +52,15 @@ export const layers: LayerInfo[] = [
     isLayerOn: false,
     title: 'map_layers.watershed_boundaries',
   },
+  // {
+  //   sourceId: 'aca_benthic_visual',
+  //   sourceName: '',
+  //   layerId: 'aca-benthic',
+  //   link: ACA_BENTHIC_URL,
+  //   dataType: 'tiles',
+  //   isLayerOn: false,
+  //   title: 'Benthic',
+  // },
 ]
 
 //todo: update this data with config for all graphs

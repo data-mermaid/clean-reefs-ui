@@ -6,7 +6,7 @@ import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
 import i18next from 'i18next'
-import { LngLat } from '@maptiler/sdk'
+import { LngLat } from 'maplibre-gl'
 import { defaultRegionOption, regionOptions } from '../../data/regionData'
 
 interface RegionSelectProps {
@@ -57,7 +57,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
         getOptionDisabled={(option) =>
           option.label === noCountriesMatchText || option.label === noRegionsMatchText
         }
-        aria-label={t('select_region')}
+        aria-label={t('regions.select_region')}
         value={selectedRegion}
         onChange={handleChange}
         isOptionEqualToValue={(option, value) =>

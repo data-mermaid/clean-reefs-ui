@@ -41,6 +41,7 @@ export default function BaseMap({
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
+  const defaultPoint = [622, 401] //Fiji
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
   const [activeLayers, setActiveLayers] = useState<string[]>([])
@@ -60,6 +61,9 @@ export default function BaseMap({
 
   const loadGraphData = useCallback(
     (point) => {
+      if (!mapRef.current) {
+        return
+      }
       if (mapRef.current && activeLayers.length > 0) {
         const map = mapRef.current?.getMap()
 
@@ -70,14 +74,19 @@ export default function BaseMap({
 
         //TEMP: remove tempSkipLayers when geometries are updated correctly and global data available
         const tempSkipLayers = ['global']
-        if (!tempSkipLayers.includes(features[0].layer.id) && features.length > 0) {
-          const properties = features[0].properties
+        if (features.length > 0) {
+          const firstFeature = features[0]
+          if (!tempSkipLayers.includes(firstFeature.layer.id)) {
+            const properties = firstFeature.properties
+            const mappedRegion = checkRegionSelected(firstFeature, currentLngLat, currentZoom)
 
-          const mappedRegion = checkRegionSelected(features[0], currentLngLat, currentZoom)
-          if (selectedRegion.label !== mappedRegion.label) {
-            setSelectedRegion(mappedRegion)
-            const sortedData = updateLulcGraph(properties)
-            setLulcGraphData(mapGraphAttributes(sortedData))
+            if (selectedRegion.label !== mappedRegion.label) {
+              setSelectedRegion(mappedRegion)
+              const sortedData = updateLulcGraph(properties)
+              setLulcGraphData(mapGraphAttributes(sortedData))
+            } else {
+              setLulcGraphData(null)
+            }
           }
         } else {
           setLulcGraphData(null)
@@ -118,7 +127,7 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
-    loadGraphData(currentLngLat)
+    loadGraphData(defaultPoint)
   }
   const handleMapClick = (event) => {
     const zoom = mapRef.current?.getMap().getZoom()
@@ -143,7 +152,7 @@ export default function BaseMap({
           zoom: defaultMapZoom,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
-        onLoad={() => handleMapLoad()}
+        onLoad={() => handleMapLoad}
         attributionControl={false}
         onClick={handleMapClick}
       >

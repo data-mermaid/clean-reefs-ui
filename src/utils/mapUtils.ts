@@ -27,7 +27,7 @@ export function checkRegionSelected(
   } else if (feature.layer.id === 'watershed') {
     {
       regionLayerSelected.regionType = 'watershed'
-      regionLayerSelected.label = i18next.t('watershed')
+      regionLayerSelected.label = i18next.t('regions.watershed')
     }
   } else if (feature.layer.id === 'regions') {
     regionLayerSelected.regionType = 'region'
