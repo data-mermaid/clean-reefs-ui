@@ -64,6 +64,8 @@ export default function BaseMap({
         return
       }
       const map = mapRef.current?.getMap()
+
+      //todo: when global data is available, make a default for global with optional loadGraphData arguments
       if (activeLayers.length > 0) {
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
