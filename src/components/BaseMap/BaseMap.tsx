@@ -1,12 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -21,7 +13,7 @@ import useResponsive from '../../hooks/useResponsive'
 import { mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { mapRegionSelected, getActiveLayers } from '../../utils/mapUtils'
+import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
 import { ChartedData } from '../../types/GraphDataTypes'
 
 interface BaseMapProps {
@@ -47,7 +39,18 @@ export default function BaseMap({
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
 
-  useMemo(() => {
+  useEffect(() => {
+    const protocol = new pmtiles.Protocol()
+    maplibregl.addProtocol('pmtiles', protocol.tile)
+    maplibregl.addProtocol('cog', cogProtocol)
+
+    return () => {
+      maplibregl.removeProtocol('pmtiles')
+      maplibregl.removeProtocol('cog')
+    }
+  }, [])
+
+  useEffect(() => {
     const map = mapRef.current?.getMap()
 
     const jumpOptions = {
@@ -94,17 +97,6 @@ export default function BaseMap({
     },
     [currentLngLat, selectedRegion.label, setLulcGraphData, setSelectedRegion],
   )
-
-  useEffect(() => {
-    const protocol = new pmtiles.Protocol()
-    maplibregl.addProtocol('pmtiles', protocol.tile)
-    maplibregl.addProtocol('cog', cogProtocol)
-
-    return () => {
-      maplibregl.removeProtocol('pmtiles')
-      maplibregl.removeProtocol('cog')
-    }
-  }, [])
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
