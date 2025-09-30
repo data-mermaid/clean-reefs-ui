@@ -44,7 +44,6 @@ export default function BaseMap({
   const defaultPoint = [622, 401] //Fiji
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
-  const [activeLayers, setActiveLayers] = useState<string[]>([])
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
 
@@ -60,32 +59,30 @@ export default function BaseMap({
   }, [selectedRegion])
 
   const loadGraphData = useCallback(
-    (point) => {
+    (point, activeLayers, zoomLevel: number) => {
       if (!mapRef.current) {
         return
       }
-      if (mapRef.current && activeLayers.length > 0) {
-        const map = mapRef.current?.getMap()
-
+      const map = mapRef.current?.getMap()
+      if (activeLayers.length > 0) {
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
           layers: activeLayers,
         })
 
-        //TEMP: remove tempSkipLayers when geometries are updated correctly and global data available
-        const tempSkipLayers = ['global']
         if (features.length > 0) {
+          const tempSkipLayers = ['global']
           const firstFeature = features[0]
+
+          //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
             const properties = firstFeature.properties
-            const mappedRegion = checkRegionSelected(firstFeature, currentLngLat, currentZoom)
+            const mappedRegion = checkRegionSelected(firstFeature, currentLngLat, zoomLevel)
 
             if (selectedRegion.label !== mappedRegion.label) {
               setSelectedRegion(mappedRegion)
               const sortedData = updateLulcGraph(properties)
               setLulcGraphData(mapGraphAttributes(sortedData))
-            } else {
-              setLulcGraphData(null)
             }
           }
         } else {
@@ -93,14 +90,7 @@ export default function BaseMap({
         }
       }
     },
-    [
-      activeLayers,
-      currentLngLat,
-      currentZoom,
-      selectedRegion.label,
-      setLulcGraphData,
-      setSelectedRegion,
-    ],
+    [currentLngLat, selectedRegion.label, setLulcGraphData, setSelectedRegion],
   )
 
   useEffect(() => {
@@ -127,21 +117,26 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
-    loadGraphData(defaultPoint)
+    const activeLayers = getActiveLayers(mapLayers)
+    loadGraphData(defaultPoint, activeLayers, defaultMapZoom)
   }
+
   const handleMapClick = (event) => {
+    if (!mapRef.current) {
+      return
+    }
     const zoom = mapRef.current?.getMap().getZoom()
     if (zoom && zoom !== currentZoom) {
       setCurrentZoom(zoom)
     }
     setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
-    setActiveLayers(getActiveLayers(mapLayers))
-    loadGraphData(event.point)
+    const activeLayers = getActiveLayers(mapLayers)
+    loadGraphData(event.point, activeLayers, zoom)
   }
 
   return (
     <div className={styles['map-wrap']}>
-      {!isMapLoaded && <LoadingState />}
+      {!isMapLoaded && <LoadingState isOverlay={true} />}
       <MapGL
         id="satellite-map"
         ref={mapRef}
@@ -152,7 +147,7 @@ export default function BaseMap({
           zoom: defaultMapZoom,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
-        onLoad={() => handleMapLoad}
+        onLoad={() => handleMapLoad()}
         attributionControl={false}
         onClick={handleMapClick}
       >

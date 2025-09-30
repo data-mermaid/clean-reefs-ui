@@ -6,8 +6,10 @@ const meta = {
 } satisfies Meta<typeof LoadingState>
 
 type Story = StoryObj<typeof meta>
-export const Primary: Story = {
-  args: {},
+export const Overlay: Story = {
+  args: {
+    isOverlay: true,
+  },
 }
 
 export default meta

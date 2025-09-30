@@ -6,6 +6,12 @@
   padding: theme.$defaultSpacing;
 }
 
+.LoadingState--overlay {
+  position: absolute;
+  top: calc((100vh - theme.$loadingStateDefaultHeight) / 2);
+  left: calc((100vw - theme.$loadingStateDefaultHeight) / 2);
+}
+
 .CircularProgress--root {
   display: flex;
   justify-content: center;

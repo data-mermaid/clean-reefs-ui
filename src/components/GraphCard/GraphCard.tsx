@@ -41,7 +41,7 @@ export default function GraphCard({
         <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
       </div>
       {loading ? (
-        open && <LoadingState height={200} />
+        open && <LoadingState isOverlay={false} />
       ) : open && graphData !== null ? (
         <Plot
           data={graphData}

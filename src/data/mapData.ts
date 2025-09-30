@@ -52,7 +52,7 @@ export const layers: LayerInfo[] = [
     isLayerOn: false,
     title: 'map_layers.watershed_boundaries',
   },
-  // {
+  // { //todo: request optimized data layer
   //   sourceId: 'aca_benthic_visual',
   //   sourceName: '',
   //   layerId: 'aca-benthic',

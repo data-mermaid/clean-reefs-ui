@@ -3,7 +3,7 @@ import { LngLat } from 'maplibre-gl'
 export interface RegionOption {
   regionType: RegionType
   label: string
-  centerCoord: LngLat //[number, number]
+  centerCoord: LngLat
   zoomLevel: number
 }
 type RegionType = 'global' | 'watershed' | 'country' | 'region'

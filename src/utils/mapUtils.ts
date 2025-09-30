@@ -10,14 +10,14 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
 
 export function checkRegionSelected(
   feature: MapGeoJSONFeature,
-  currentLngLat: [number, number],
-  currentZoom: number,
+  lngLat: [number, number],
+  zoomLevel: number,
 ): RegionOption {
   const regionLayerSelected: RegionOption = {
     regionType: regionOptions[0].regionType,
     label: regionOptions[0].label,
-    centerCoord: new LngLat(...currentLngLat),
-    zoomLevel: currentZoom,
+    centerCoord: new LngLat(...lngLat),
+    zoomLevel: zoomLevel,
   }
   if (feature.layer.id === 'countries') {
     {
