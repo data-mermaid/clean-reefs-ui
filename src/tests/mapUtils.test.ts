@@ -1,5 +1,5 @@
 import { LayerInfo } from '../data/mapData'
-import { checkRegionSelected, getActiveLayers } from '../utils/mapUtils'
+import { mapRegionSelected, getActiveLayers } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { MapGeoJSONFeature, LngLat } from 'maplibre-gl'
 
@@ -61,9 +61,9 @@ describe('map utilities', () => {
     })
   })
 
-  describe('checkRegionSelected', () => {
+  describe('mapRegionSelected', () => {
     it("returns the updated region info with user's pre-existing coordinates and zoom", () => {
-      const result = checkRegionSelected(mockGeoFeatures, [10, 10], 4)
+      const result = mapRegionSelected(mockGeoFeatures, [10, 10], 4)
       expect(result).toEqual(mockSelectedRegion)
     })
   })

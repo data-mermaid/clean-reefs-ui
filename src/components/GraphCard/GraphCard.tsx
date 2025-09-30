@@ -42,7 +42,7 @@ export default function GraphCard({
       </div>
       {loading ? (
         open && <LoadingState isOverlay={false} />
-      ) : open && graphData !== null ? (
+      ) : open && graphData ? (
         <Plot
           data={graphData}
           className={styles['graph-plots']}

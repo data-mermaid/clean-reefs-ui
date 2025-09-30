@@ -8,7 +8,7 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export function checkRegionSelected(
+export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   lngLat: [number, number],
   zoomLevel: number,

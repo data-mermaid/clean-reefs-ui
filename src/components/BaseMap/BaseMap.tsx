@@ -21,7 +21,7 @@ import useResponsive from '../../hooks/useResponsive'
 import { mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { checkRegionSelected, getActiveLayers } from '../../utils/mapUtils'
+import { mapRegionSelected, getActiveLayers } from '../../utils/mapUtils'
 import { ChartedData } from '../../types/GraphDataTypes'
 
 interface BaseMapProps {
@@ -77,7 +77,7 @@ export default function BaseMap({
           //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
             const properties = firstFeature.properties
-            const mappedRegion = checkRegionSelected(firstFeature, currentLngLat, zoomLevel)
+            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
 
             if (selectedRegion.label !== mappedRegion.label) {
               setSelectedRegion(mappedRegion)
