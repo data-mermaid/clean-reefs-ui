@@ -33,14 +33,6 @@ export const YearSelect = ({
     }
   }, [disabled])
 
-  const handleYearSelect = useCallback(
-    (year: number) => {
-      onChange?.(year)
-      setIsOpen(false)
-    },
-    [onChange],
-  )
-
   const handleCloseDropdown = useCallback(() => {
     setIsOpen(false)
   }, [])
@@ -91,7 +83,7 @@ export const YearSelect = ({
             return (
               <ListItem key={year} disablePadding>
                 <Button
-                  onClick={() => handleYearSelect(year)}
+                  onClick={() => onChange?.(year)}
                   className={clsx(
                     styles['dropdown__option'],
                     isSelected && styles['dropdown__option--selected'],

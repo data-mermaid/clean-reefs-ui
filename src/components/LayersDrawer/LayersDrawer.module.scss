@@ -15,7 +15,13 @@
 }
 
 .layer-card {
+  display: flex;
+  align-items: center;
   margin: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;
   background-color: theme.$greyWhite;
+}
+
+.layer-card_title {
+  flex-grow: 1;
 }
