@@ -34,7 +34,7 @@ describe('graph data utilities', () => {
 
   describe('mapGraphAttributes', () => {
     it('maps values by year within category to associated graph attributes', () => {
-      const result = mapGraphAttributes(groupedProperties)
+      const result = mapGraphAttributes(groupedProperties, 'land_use_historical')
 
       expect(result).toEqual(mockOutputGraphData)
     })

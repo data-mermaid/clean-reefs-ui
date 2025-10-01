@@ -1,9 +1,9 @@
+import React, { MouseEventHandler, useState } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './GraphCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
-import React, { MouseEventHandler, useState } from 'react'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartedData } from '../../types/GraphDataTypes'
 
@@ -51,6 +51,7 @@ export default function GraphCard({
             ...plotlyTheme.layout,
             yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
             xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
+            showlegend: graphData.length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
         />

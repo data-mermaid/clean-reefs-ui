@@ -1,6 +1,6 @@
+import * as React from 'react'
 import { IconButton } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import * as React from 'react'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
@@ -8,12 +8,12 @@ import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import GraphCard from '../GraphCard/GraphCard'
 import { RegionOption } from '../../types/RegionDataTypes'
-import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
-import { ChartedData } from '../../types/GraphDataTypes'
+import { GraphData } from '../../types/GraphDataTypes'
+import { mapGraphAttributes } from '../../utils/graphUtils'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
-  lulcGraphData: ChartedData[] | null
+  lulcGraphData: GraphData | null
 }
 
 export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDrawerProps) {
@@ -23,11 +23,15 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
   const openDrawer = () => setOpen(true)
   const closeDrawer = () => setOpen(false)
 
-  let drawerTitle
+  const { sediment = null, ...landUseData } = lulcGraphData ?? {}
+  const landUseGraphData = mapGraphAttributes(landUseData, 'land_use_historical')
+  const sedimentGraphData = sediment
+    ? mapGraphAttributes({ sediment }, 'sediment_exposure_historical')
+    : mapGraphAttributes({}, 'sediment_exposure_historical')
+
+  let drawerTitle = selectedRegion.label
   if (selectedRegion.regionType === 'global') {
     drawerTitle = 'global_trends'
-  } else {
-    drawerTitle = selectedRegion.label
   }
 
   return (
@@ -54,14 +58,14 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.land_use_historical'}
           region={selectedRegion.regionType}
-          graphData={lulcGraphData}
+          graphData={landUseGraphData}
         />
         <GraphCard
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
           region={selectedRegion.regionType}
-          graphData={mockOutputGraphData as ChartedData[]}
+          graphData={sedimentGraphData}
         />
       </div>
     </StyledSwipeableDrawer>

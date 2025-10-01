@@ -1,9 +1,8 @@
 import { graphLayoutConfig } from '../data/mapData'
 import i18next from 'i18next'
-import { ChartedData, GraphData } from '../types/GraphDataTypes'
+import { ChartedData, GraphData, GraphType } from '../types/GraphDataTypes'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
-const sedRegex = new RegExp(/sed_export_\d{4}/, 'gm')
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
 export const updateLulcGraph = (pointProperties) => {
@@ -16,6 +15,7 @@ export const updateLulcGraph = (pointProperties) => {
     mixed_forest: {},
     shrubland_grassland: {},
     surface_water: {},
+    sediment: {},
   }
   for (const point in pointProperties) {
     const val = pointProperties[point]
@@ -23,7 +23,6 @@ export const updateLulcGraph = (pointProperties) => {
       ['TERRITORY1', 'UN_TER1', 'total_area_ha', 'area_ha', 'name', 'watershed_id'].includes(
         point,
       ) ||
-      point.match(sedRegex) ||
       point.match(areaRegex)
     ) {
       continue
@@ -60,13 +59,19 @@ export const updateLulcGraph = (pointProperties) => {
         case 'Water_pct_':
           mappedGraphData.surface_water[year] = val
           break
+        case 'sed_export_':
+          mappedGraphData.sediment[year] = val
       }
     }
   }
   return mappedGraphData
 }
 
-export const mapGraphAttributes = (sortedProperties: GraphData) => {
+export const mapGraphAttributes = (sortedProperties: GraphData, graphType: GraphType) => {
+  if (!sortedProperties) {
+    return []
+  }
+
   const chartData: ChartedData[] = []
 
   // Sort values by year within category
@@ -82,7 +87,7 @@ export const mapGraphAttributes = (sortedProperties: GraphData) => {
       name: categoryName,
       type: 'bar',
       marker: {
-        color: graphLayoutConfig['graphs.land_use_historical'].legendColors[category],
+        color: graphLayoutConfig[`graphs.${graphType}`].legendColors[category],
       },
       hovertemplate: `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`,
       width: 3,

@@ -24,7 +24,8 @@
     "high_canopy_forest": "High canopy forest",
     "mixed_forest": "Mixed forest",
     "shrubland_grassland": "Shrubland / grassland",
-    "surface_water": "Surface water"
+    "surface_water": "Surface water",
+    "sediment": "Sediment"
   },
   "map_layers": {
     "country_boundaries": "Country boundaries",

@@ -10,17 +10,17 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
+import { updateLulcGraph } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { ChartedData } from '../../types/GraphDataTypes'
+import { GraphData } from '../../types/GraphDataTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
+  setLulcGraphData: Dispatch<SetStateAction<GraphData | null>>
 }
 
 export default function BaseMap({
@@ -87,11 +87,11 @@ export default function BaseMap({
             if (selectedRegion.label !== mappedRegion.label) {
               setSelectedRegion(mappedRegion)
               const sortedData = updateLulcGraph(properties)
-              setLulcGraphData(mapGraphAttributes(sortedData))
+              setLulcGraphData(sortedData)
             }
+          } else {
+            setLulcGraphData(null)
           }
-        } else {
-          setLulcGraphData(null)
         }
       }
     },
