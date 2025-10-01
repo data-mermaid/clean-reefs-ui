@@ -7,20 +7,28 @@ import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import GraphCard from '../GraphCard/GraphCard'
-import { ChartedData } from '../../utils/updateGraph'
-import { MockGraphData } from '../GraphCard/GraphCard.stories'
+import { RegionOption } from '../../types/RegionDataTypes'
+import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 interface TrendsDrawerProps {
-  // layersOn: LayerInfo[] //todo: show graphs available based on layers on
+  selectedRegion: RegionOption
   lulcGraphData: ChartedData[] | null
 }
 
-export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
+export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
   const openDrawer = () => setOpen(true)
   const closeDrawer = () => setOpen(false)
+
+  let drawerTitle
+  if (selectedRegion.regionType === 'global') {
+    drawerTitle = 'global_trends'
+  } else {
+    drawerTitle = selectedRegion.label
+  }
 
   return (
     <StyledSwipeableDrawer
@@ -31,7 +39,7 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
       swipeAreaWidth={100}
     >
       <div className={styles['drawer-header']}>
-        {open && <h2 style={{ marginTop: '4px' }}>{t('global_trends')}</h2>}
+        {open && <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>}
         {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
@@ -45,19 +53,15 @@ export default function TrendsDrawer({ lulcGraphData }: TrendsDrawerProps) {
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.land_use_historical'}
+          region={selectedRegion.regionType}
           graphData={lulcGraphData}
         />
         <GraphCard
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
-          graphName={'graphs.ecosystem_extent_exposed'}
-          graphData={MockGraphData}
-        />
-        <GraphCard
-          open={open}
-          {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
-          graphData={MockGraphData}
+          region={selectedRegion.regionType}
+          graphData={mockOutputGraphData as ChartedData[]}
         />
       </div>
     </StyledSwipeableDrawer>

@@ -1,6 +1,6 @@
 import {
   COUNTRIES_PMTILES_URL,
-  LULC_2000_TILES_URL,
+  LULC_2000_URL,
   REGIONS_PMTILES_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
@@ -26,17 +26,17 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.regional_boundaries',
   },
   {
-    sourceId: 'lulc_src',
+    sourceId: 'lulc_2000_visual',
     sourceName: '',
     layerId: 'lulc',
-    link: LULC_2000_TILES_URL,
+    link: LULC_2000_URL,
     dataType: 'tiles',
-    isLayerOn: false,
+    isLayerOn: true,
     title: 'map_layers.land_use_cover',
   },
   {
     sourceId: 'countries_src',
-    sourceName: 'EEZ_land_union_v4_202410',
+    sourceName: 'countries',
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     dataType: 'pmtiles',
@@ -49,18 +49,17 @@ export const layers: LayerInfo[] = [
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false,
     title: 'map_layers.watershed_boundaries',
   },
-  // {
-  //Uncertainty on what this data set is for..
-  //   sourceId: 'global_lulc_src',
-  //   sourceName: 'Central_Indo_Pacific_LULC_SDR',
-  //   layerId: 'global_lulc',
-  //   link: GLOBAL_LULC_PMTILES_URL,
-  //   dataType: 'pmtiles',
+  // { //todo: request optimized data layer
+  //   sourceId: 'aca_benthic_visual',
+  //   sourceName: '',
+  //   layerId: 'aca-benthic',
+  //   link: ACA_BENTHIC_URL,
+  //   dataType: 'tiles',
   //   isLayerOn: false,
-  //   title: '',
+  //   title: 'Benthic',
   // },
 ]
 

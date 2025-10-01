@@ -3,8 +3,9 @@ import styles from './GraphCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
-import { ChartedData } from '../../utils/updateGraph'
-import { MouseEventHandler } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
+import LoadingState from '../LoadingState/LoadingState'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 interface GraphCardProps {
   open: boolean
@@ -26,32 +27,41 @@ export default function GraphCard({
   graphName,
 }: GraphCardProps) {
   const { t } = useTranslation()
+  const [loading] = useState(false)
+
   return (
-    graphData && (
-      <Card
-        {...(onClick ? { onClick: onClick } : {})}
-        classes={{
-          root: styles[`graph-card--${open ? 'open' : 'closed'}`],
-        }}
-      >
-        <div className={styles[`labels-container--${open ? 'open' : 'closed'}`]}>
-          <Typography className={styles['region-label']}>{t(region)}</Typography>
-          <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
-        </div>
-        {open && (
-          <Plot
-            data={graphData}
-            className={styles['graph-plots']}
-            config={plotlyTheme.config}
-            layout={{
-              ...plotlyTheme.layout,
-              yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
-              xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
-            }}
-            style={{ width: '100%', height: '100%' }}
-          />
-        )}
-      </Card>
-    )
+    <Card
+      {...(onClick ? { onClick: onClick } : {})}
+      classes={{
+        root: styles[`graph-card--${open ? 'open' : 'closed'}`],
+      }}
+    >
+      <div className={styles[`labels-container--${open ? 'open' : 'closed'}`]}>
+        <Typography className={styles['region-label']}>{t(`regions.${region}`)}</Typography>
+        <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
+      </div>
+      {loading ? (
+        open && <LoadingState isOverlay={false} />
+      ) : open && graphData ? (
+        <Plot
+          data={graphData}
+          className={styles['graph-plots']}
+          config={plotlyTheme.config}
+          layout={{
+            ...plotlyTheme.layout,
+            yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
+            xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
+          }}
+          style={{ width: '100%', height: '100%' }}
+        />
+      ) : (
+        open && (
+          // Temporary component --> To be completed in C103
+          <div style={{ padding: '100px 10px 0', height: '200px' }}>
+            {t('graphs.no_data_available')}
+          </div>
+        )
+      )}
+    </Card>
   )
 }

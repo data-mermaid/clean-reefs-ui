@@ -7,36 +7,42 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
-import { ChartedData } from '../../utils/updateGraph'
+import { RegionOption } from '../../types/RegionDataTypes'
+import { defaultRegionOption } from '../../data/regionData'
+import { ChartedData } from '../../types/GraphDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null) //default:global todo: remove null
-  const [layersOn, setLayersOn] = useState<LayerInfo[]>(layers) //TODO: filter through the ones that are actively on. This fn should remove any non-'on' items
+  const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null)
+  const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000)
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
 
   return (
     <div className={styles['MapContainer-root']}>
       {isMobileWidth ? (
         <div className={styles['layer-controls--mobile']}>
-          <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
-          <RegionSelect />
+          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
+          <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          <TrendsDrawer lulcGraphData={lulcGraphData} />
-          {/*  TODO: Add  layersOn={layersOn} */}
+          <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
-          <LayersDrawer layersOn={layersOn} setLayersOn={setLayersOn} />
+          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
           <div>
-            <RegionSelect />
+            <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          <TrendsDrawer lulcGraphData={lulcGraphData} />
-          {/*  TODO: Add  layersOn={layersOn} */}
+          <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
         </div>
       )}
-      <BaseMap layersOn={layersOn} setLulcGraphData={setLulcGraphData} />
+      <BaseMap
+        mapLayers={mapLayers}
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
+        setLulcGraphData={setLulcGraphData}
+      />
     </div>
   )
 }

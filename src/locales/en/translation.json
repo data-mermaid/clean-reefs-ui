@@ -13,6 +13,7 @@
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
     "land_use_historical": "Land use through time",
+    "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure through time",
     "sediment_load_historical": "Sediment load through time"
   },
@@ -31,6 +32,17 @@
     "regional_boundaries": "Regional boundaries",
     "watershed_boundaries": "Watershed boundaries"
   },
+  "regions": {
+    "coral_reef_regions": "Coral reef regions",
+    "countries_with_coral": "Countries with coral reefs",
+    "country": "Country",
+    "global": "Global",
+    "no_countries_match": "No countries match your search",
+    "no_regions_match": "No regions match your search",
+    "region": "Region",
+    "select_region": "Select region",
+    "watershed": "Watershed"
+  },
   "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -40,12 +52,9 @@
   "boundaries": "Boundaries",
   "contact": "Contact",
   "coral_reef": "Coral reef",
-  "coral_reef_regions": "Coral reef regions",
   "coral_algae": "Coral/Algae",
-  "countries_with_coral": "Countries with coral reefs",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
-  "global": "Global",
   "global_trends": "Global trends",
   "google_satellite": "Google satellite",
   "high_concentration": "High concentration",
@@ -54,6 +63,7 @@
   "land_use": "Land use",
   "large_area": "Large area",
   "light": "Light",
+  "loading": "Loading",
   "low_concentration": "Low concentration",
   "low_sediment": "Low sediment",
   "microalgal_mats": "Microalgal mats",
@@ -71,11 +81,7 @@
   "sediment_exposure": "Sediment exposure",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
-  "watershed": "Watershed",
   "year": "Year",
   "toggle_navigation_menu": "Toggle navigation menu",
-  "select_region": "Select region",
-  "select_year": "Select year",
-  "no_countries_match": "No countries match your search",
-  "no_regions_match": "No regions match your search"
+  "select_year": "Select year"
 }

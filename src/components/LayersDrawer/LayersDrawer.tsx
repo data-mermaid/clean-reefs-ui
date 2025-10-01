@@ -8,23 +8,24 @@ import styles from './LayersDrawer.module.scss'
 import { LayerInfo } from '../../data/mapData'
 
 interface LayersDrawerProps {
-  layersOn: LayerInfo[]
-  setLayersOn: Dispatch<SetStateAction<LayerInfo[]>>
+  mapLayers: LayerInfo[]
+  setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
 }
 
-export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProps) {
+export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
+
   const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const updatedLayers = layersOn.map((layer) => {
+    const updatedLayers = mapLayers.map((layer) => {
       return layer.layerId === event.target.id
         ? { ...layer, isLayerOn: checked } // Create new object with updated property
         : layer // Keep other layers unchanged
     })
-    setLayersOn(updatedLayers)
+    setMapLayers(updatedLayers)
   }
 
   return (
@@ -47,7 +48,7 @@ export default function LayersDrawer({ layersOn, setLayersOn }: LayersDrawerProp
         <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
 
         {/*List of collapsible layer toggles go inside here*/}
-        {layersOn.map((layer) => {
+        {mapLayers.map((layer) => {
           return (
             <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
               <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>

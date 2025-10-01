@@ -3,8 +3,9 @@
     "marker": {
       "color": "#FEFECC"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.bare_ground: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.bare_ground",
     "width": 3,
     "x": ["2000", "2005"],
     "y": [5, 7]
@@ -13,8 +14,9 @@
     "marker": {
       "color": "#64DCDC"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.built_up: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.built_up",
     "width": 3,
     "x": ["2000"],
     "y": [2]
@@ -23,8 +25,9 @@
     "marker": {
       "color": "#FF7D00"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.cropland: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.cropland",
     "width": 3,
     "x": ["2005"],
     "y": [7]
@@ -33,8 +36,9 @@
     "marker": {
       "color": "#065106"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.high_canopy_forest: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.high_canopy_forest",
     "width": 3,
     "x": ["2010"],
     "y": [3]
@@ -43,8 +47,9 @@
     "marker": {
       "color": "#609C30"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.mixed_forest: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.mixed_forest",
     "width": 3,
     "x": ["2015"],
     "y": [4]
@@ -53,8 +58,9 @@
     "marker": {
       "color": "#B0B006"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.shrubland_grassland: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.shrubland_grassland",
     "width": 3,
     "x": ["2020"],
     "y": [6]
@@ -63,8 +69,9 @@
     "marker": {
       "color": "#0E39D6"
     },
-    "hovertemplate": "undefined: %{x}<br />undefined: %{y}%<extra></extra>",
+    "hovertemplate": "year: %{x}<br />land_types.surface_water: %{y}%<extra></extra>",
     "type": "bar",
+    "name": "land_types.surface_water",
     "width": 3,
     "x": ["2000"],
     "y": [1]
