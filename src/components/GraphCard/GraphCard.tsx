@@ -1,9 +1,9 @@
+import React, { MouseEventHandler, useState } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './GraphCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
-import React, { MouseEventHandler, useState } from 'react'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartedData } from '../../types/GraphDataTypes'
 
@@ -29,39 +29,70 @@ export default function GraphCard({
   const { t } = useTranslation()
   const [loading] = useState(false)
 
-  return (
-    <Card
-      {...(onClick ? { onClick: onClick } : {})}
-      classes={{
-        root: styles[`graph-card--${open ? 'open' : 'closed'}`],
-      }}
-    >
-      <div className={styles[`labels-container--${open ? 'open' : 'closed'}`]}>
-        <Typography className={styles['region-label']}>{t(`regions.${region}`)}</Typography>
-        <Typography className={styles['graph-label']}>{t(graphName)}</Typography>
-      </div>
-      {loading ? (
-        open && <LoadingState isOverlay={false} />
-      ) : open && graphData ? (
+  const getCardHeaderClassName = () => {
+    const baseClass = styles['graph-card__header']
+
+    if (graphData === null) {
+      return `${baseClass} ${styles['graph-card__header--no-data']}`
+    }
+
+    return `${baseClass} ${styles[`graph-card__header--${open ? 'open' : 'closed'}`]}`
+  }
+
+  const renderGraphContent = () => {
+    if (!open) {
+      return null
+    }
+
+    if (loading) {
+      return <LoadingState isOverlay={false} />
+    }
+
+    if (graphData !== null) {
+      return (
         <Plot
           data={graphData}
-          className={styles['graph-plots']}
+          className={styles['graph-card__plot']}
           config={plotlyTheme.config}
           layout={{
             ...plotlyTheme.layout,
-            yaxis: { title: { text: t(yAxisTitle), ...plotlyTheme.layout.yaxis.title } },
-            xaxis: { title: { text: t(xAxisTitle), ...plotlyTheme.layout.xaxis.title } },
+            yaxis: {
+              ...plotlyTheme.layout.yaxis,
+              title: {
+                ...(plotlyTheme.layout.yaxis.title || {}),
+                text: t(yAxisTitle),
+              },
+            },
+            xaxis: {
+              ...plotlyTheme.layout.xaxis,
+              title: {
+                ...(plotlyTheme.layout.xaxis.title || {}),
+                text: t(xAxisTitle),
+              },
+            },
           }}
           style={{ width: '100%', height: '100%' }}
         />
-      ) : (
-        open && (
-          // Temporary component --> To be completed in C103
-          <div style={{ padding: '100px 10px 0', height: '200px' }}>
-            {t('graphs.no_data_available')}
-          </div>
-        )
-      )}
+      )
+    }
+
+    // No data available case
+    return (
+      <Typography className={styles['graph-card__no-data-label']}>
+        {t('graphs.no_data_available')}
+      </Typography>
+    )
+  }
+
+  return (
+    <Card {...(onClick ? { onClick: onClick } : {})} className={styles['graph-card']}>
+      <div className={getCardHeaderClassName()}>
+        <Typography className={styles['graph-card__region-label']}>
+          {t(`regions.${region}`)}
+        </Typography>
+        <Typography className={styles['graph-card__graph-label']}>{t(graphName)}</Typography>
+      </div>
+      {renderGraphContent()}
     </Card>
   )
 }
