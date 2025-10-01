@@ -9,7 +9,7 @@ import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
-import {  GraphData } from '../../types/GraphDataTypes'
+import { GraphData } from '../../types/GraphDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
