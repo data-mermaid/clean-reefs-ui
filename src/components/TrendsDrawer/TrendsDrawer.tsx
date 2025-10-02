@@ -64,6 +64,7 @@ export default function TrendsDrawer({ selectedRegion, lulcGraphData }: TrendsDr
           open={open}
           {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
           graphName={'graphs.sediment_exposure_historical'}
+          yAxisTitle={'chart_information.sediment_exposure'}
           region={selectedRegion.regionType}
           graphData={sedimentGraphData}
         />

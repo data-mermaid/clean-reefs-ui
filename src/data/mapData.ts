@@ -84,7 +84,7 @@ export const graphLayoutConfig = {
   'graphs.sediment_exposure_historical': {
     width: 2,
     legendColors: {
-      sediment: 'rgba(0, 63, 92, 0.5)',
+      sediment: '#003F5C80',
     },
   },
   //...for all graphs

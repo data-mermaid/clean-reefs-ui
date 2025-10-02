@@ -80,16 +80,23 @@ export const mapGraphAttributes = (sortedProperties: GraphData, graphType: Graph
 
     const categoryName: string = i18next.t(`land_types.${category}`)
     const xAxisTitle = i18next.t(`year`)
+    const hoverTemplate =
+      graphType === 'sediment_exposure_historical'
+        ? `${xAxisTitle}: %{x}<br />${categoryName}: %{y:.2f}M<extra></extra>`
+        : `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`
 
     chartData.push({
       x: sortedYears,
-      y: sortedYears.map((year) => yearData[year]),
+      y:
+        graphType === 'sediment_exposure_historical'
+          ? sortedYears.map((year) => yearData[year] / 1000000)
+          : sortedYears.map((year) => yearData[year]),
       name: categoryName,
       type: 'bar',
       marker: {
         color: graphLayoutConfig[`graphs.${graphType}`].legendColors[category],
       },
-      hovertemplate: `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`,
+      hovertemplate: hoverTemplate,
       width: 3,
     })
   })
