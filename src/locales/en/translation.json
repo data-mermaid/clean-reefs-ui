@@ -4,7 +4,8 @@
     "close": "Close",
     "go": "Go",
     "open_menu": "Open menu",
-    "share_view": "Share view"
+    "share_view": "Share view",
+    "reload_page": "Reload page"
   },
   "chart_information": {
     "land_cover_pct": "Land Cover (%)"
@@ -83,5 +84,6 @@
   "type_to_filter": "Type to filter",
   "year": "Year",
   "toggle_navigation_menu": "Toggle navigation menu",
-  "select_year": "Select year"
+  "select_year": "Select year",
+  "map_layers_did_not_load": "Some map layers didn't load"
 }
