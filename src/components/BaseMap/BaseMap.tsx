@@ -169,6 +169,7 @@ export default function BaseMap({
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
+                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
                     paint={{
                       'fill-color': 'red',
                       'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
@@ -192,6 +193,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
+                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
                   />
                 </Source>
               )
