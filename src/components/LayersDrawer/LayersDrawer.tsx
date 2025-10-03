@@ -56,6 +56,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerPr
             </Card>
           )
         })}
+        <h2 style={{ padding: '8px' }}>{t('boundaries')}</h2>
       </StyledSwipeableDrawer>
     </div>
   )

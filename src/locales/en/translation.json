@@ -27,10 +27,7 @@
     "surface_water": "Surface water"
   },
   "map_layers": {
-    "country_boundaries": "Country boundaries",
-    "land_use_cover": "Land use / Land cover",
-    "regional_boundaries": "Regional boundaries",
-    "watershed_boundaries": "Watershed boundaries"
+    "land_use_cover": "Land use / Land cover"
   },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
@@ -48,8 +45,18 @@
   "all_data": "All data",
   "area_exposed_ha": "Area exposed (ha)",
   "base_map": "Base map",
-  "benthic_layers": "Benthic layers",
-  "boundaries": "Boundaries",
+  "scale_low": "Low",
+  "scale_high": "High",
+  "benthic_map_layers": {
+    "reef_extent": "Reef extent",
+    "benthic_layers": "Benthic layers"
+  },
+  "boundary_map_layers": {
+    "boundaries": "Boundaries",
+    "watershed_boundaries": "Watershed boundaries",
+    "country_boundaries": "Country boundaries",
+    "regional_boundaries": "Regional boundaries"
+  },
   "contact": "Contact",
   "coral_reef": "Coral reef",
   "coral_algae": "Coral/Algae",
@@ -71,7 +78,6 @@
   "pixel_value": "Pixel value",
   "pollution_export": "Pollution export",
   "reef_extent_exposure": "Reef ecosystem extent exposure",
-  "reef_extent": "Reef extent",
   "rock": "Rock",
   "rubble": "Rubble",
   "sand": "Sand",
