@@ -10,9 +10,12 @@ import { LayerInfo } from '../../data/mapData'
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
+  selectedYear: number
 }
 
-export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerProps) {
+const layersWithYear = ['lulc']
+
+export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -51,7 +54,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerPr
         {mapLayers.map((layer) => {
           return (
             <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-              <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>
+              <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+              {layersWithYear.includes(layer.layerId) && <Typography>{selectedYear}</Typography>}
               <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
             </Card>
           )
