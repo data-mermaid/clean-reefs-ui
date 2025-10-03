@@ -12,7 +12,7 @@ import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-ma
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl from 'maplibre-gl'
+import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { Snackbar } from '@mui/material'
@@ -25,7 +25,7 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
 import { ChartedData } from '../../types/GraphDataTypes'
 import { useTranslation } from 'react-i18next'
-import { MapErrorEvent, SourceDataEvent } from '../../types/MapLayerErrorTypes'
+import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -126,47 +126,57 @@ export default function BaseMap({
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    const handleError = (e: MapErrorEvent) => {
+      setLayerErrors((prev) => ({
+        ...prev,
+        [e.type]: e.error?.message || 'Failed to load layer',
+      }))
+    }
+
+    const handleSourceData = (e: SourceDataEvent) => {
+      const shouldClearError =
+        e.isSourceLoaded &&
+        !!e.sourceId &&
+        e.dataType === 'source' &&
+        e.sourceDataType === 'metadata' &&
+        !e.error &&
+        !e.tile
+
+      if (shouldClearError) {
+        setLayerErrors((prev) => {
+          const newErrors = { ...prev }
+          if (e.sourceId && newErrors[e.sourceId]) {
+            delete newErrors[e.sourceId]
+          }
+          return newErrors
+        })
+      }
+    }
+
+    map.on('error', handleError)
+    map.on('sourcedata', handleSourceData)
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      map.off('error', handleError)
+      map.off('sourcedata', handleSourceData)
+    }
+  }, [isMapLoaded])
+
   const handleMapLoad = () => {
     setIsMapLoaded(true)
     const activeLayers = getActiveLayers(mapLayers)
     loadGraphData(defaultPoint, activeLayers, defaultMapZoom)
-
-    const map = mapRef.current?.getMap()
-
-    if (map) {
-      // Listen for general map errors
-      map.on('error', (e: MapErrorEvent) => {
-        const sourceId = e.sourceId || 'unknown-source'
-
-        setLayerErrors((prev) => ({
-          ...prev,
-          [sourceId]: e.error?.message || 'Failed to load layer',
-        }))
-      })
-
-      // Clear errors for sources that load successfully
-      map.on('sourcedata', (e: SourceDataEvent) => {
-        const shouldClearError =
-          e.isSourceLoaded &&
-          !!e.sourceId &&
-          e.dataType === 'source' &&
-          e.sourceDataType === 'metadata' &&
-          !e.error &&
-          !e.tile
-
-        if (shouldClearError) {
-          setLayerErrors((prev) => {
-            const newErrors = { ...prev }
-
-            if (e.sourceId && newErrors[e.sourceId]) {
-              delete newErrors[e.sourceId]
-            }
-
-            return newErrors
-          })
-        }
-      })
-    }
   }
 
   const handleMapClick = (event) => {

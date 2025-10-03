@@ -1,10 +1,4 @@
-export interface MapErrorEvent {
-  error?: {
-    message?: string
-    statusText?: string
-  }
-  sourceId?: string
-}
+import { Tile } from 'maplibre-gl'
 
 export interface SourceDataEvent {
   isSourceLoaded: boolean
@@ -12,5 +6,5 @@ export interface SourceDataEvent {
   dataType?: string
   sourceDataType?: string
   error?: Error
-  tile?: unknown
+  tile?: Tile
 }
