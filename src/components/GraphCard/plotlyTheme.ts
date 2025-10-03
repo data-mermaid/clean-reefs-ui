@@ -8,7 +8,7 @@ export const plotlyTheme = {
       l: 60,
       t: 80,
       r: 20,
-      b: 10,
+      b: 60,
     },
     dragmode: false,
     xaxis: {
