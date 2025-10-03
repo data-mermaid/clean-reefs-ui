@@ -17,10 +17,10 @@ interface GraphCardProps {
   graphData: ChartedData[] | null
 }
 
-const getCardHeaderClassNames = (isOpen, graphData: ChartedData[] | null) => {
+const getCardHeaderClassNames = (isOpen: boolean, graphData: ChartedData[] | null) => {
   const baseClass = styles['graph-card__header']
 
-  if (!graphData) {
+  if (!graphData || graphData.length === 0) {
     return `${baseClass} ${styles['graph-card__header--no-data']}`
   }
 
