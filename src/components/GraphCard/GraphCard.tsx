@@ -17,6 +17,16 @@ interface GraphCardProps {
   graphData: ChartedData[] | null
 }
 
+const getCardHeaderClassNames = (isOpen, graphData: ChartedData[] | null) => {
+  const baseClass = styles['graph-card__header']
+
+  if (!graphData) {
+    return `${baseClass} ${styles['graph-card__header--no-data']}`
+  }
+
+  return `${baseClass} ${styles[`graph-card__header--${isOpen ? 'open' : 'closed'}`]}`
+}
+
 export default function GraphCard({
   open = true,
   onClick,
@@ -29,21 +39,7 @@ export default function GraphCard({
   const { t } = useTranslation()
   const [loading] = useState(false)
 
-  const getCardHeaderClassName = () => {
-    const baseClass = styles['graph-card__header']
-
-    if (graphData === null) {
-      return `${baseClass} ${styles['graph-card__header--no-data']}`
-    }
-
-    return `${baseClass} ${styles[`graph-card__header--${open ? 'open' : 'closed'}`]}`
-  }
-
   const renderGraphContent = () => {
-    if (!open) {
-      return null
-    }
-
     if (loading) {
       return <LoadingState isOverlay={false} />
     }
@@ -59,14 +55,14 @@ export default function GraphCard({
             yaxis: {
               ...plotlyTheme.layout.yaxis,
               title: {
-                ...(plotlyTheme.layout.yaxis.title || {}),
+                ...plotlyTheme.layout.yaxis.title,
                 text: t(yAxisTitle),
               },
             },
             xaxis: {
               ...plotlyTheme.layout.xaxis,
               title: {
-                ...(plotlyTheme.layout.xaxis.title || {}),
+                ...plotlyTheme.layout.xaxis.title,
                 text: t(xAxisTitle),
               },
             },
@@ -75,8 +71,6 @@ export default function GraphCard({
         />
       )
     }
-
-    // No data available case
     return (
       <Typography className={styles['graph-card__no-data-label']}>
         {t('graphs.no_data_available')}
@@ -86,13 +80,13 @@ export default function GraphCard({
 
   return (
     <Card {...(onClick ? { onClick: onClick } : {})} className={styles['graph-card']}>
-      <div className={getCardHeaderClassName()}>
+      <div className={getCardHeaderClassNames(open, graphData)}>
         <Typography className={styles['graph-card__region-label']}>
           {t(`regions.${region}`)}
         </Typography>
         <Typography className={styles['graph-card__graph-label']}>{t(graphName)}</Typography>
       </div>
-      {renderGraphContent()}
+      {open && renderGraphContent()}
     </Card>
   )
 }
