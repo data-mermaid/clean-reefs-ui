@@ -29,6 +29,7 @@
   "map_layer_groups": {
     "base_map": "Base map",
     "benthic_layers": "Benthic layers",
+    "boundaries": "Boundaries",
     "land_pollution_layers": "Pollution layers",
     "land_use_cover": "Land use / Land cover",
     "ocean_pollution_layers": "Ocean pollution layers"
@@ -59,7 +60,6 @@
     "seagrass": "Seagrass"
   },
   "boundary_map_layers": {
-    "boundaries": "Boundaries",
     "watershed_boundaries": "Watershed boundaries",
     "country_boundaries": "Country boundaries",
     "regional_boundaries": "Regional boundaries"

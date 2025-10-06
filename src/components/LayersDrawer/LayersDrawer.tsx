@@ -5,11 +5,25 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { LayerInfo } from '../../data/mapData'
+import { LayerInfo, layers, parentLayerTitles } from '../../data/mapData'
+import i18next from 'i18next'
 
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
+}
+const getGroupTitle = (groupTitle: string) => {
+  return <h2 style={{ padding: '8px' }}>{i18next.t(groupTitle)}</h2>
+}
+const getLayersByParentGroup = (parentGroup, toggleLayer) => {
+  const groupedLayers = layers.filter((l) => l.parentLayerType === parentGroup)
+
+  return groupedLayers.map((layer) => (
+    <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
+      <Typography sx={{ display: 'inline-block' }}>{i18next.t(layer.title)}</Typography>
+      <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
+    </Card>
+  ))
 }
 
 export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerProps) {
@@ -26,6 +40,15 @@ export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerPr
         : layer // Keep other layers unchanged
     })
     setMapLayers(updatedLayers)
+  }
+
+  const getLayers = () => {
+    return Object.entries(parentLayerTitles).map(([key, value]) => (
+      <div key={key}>
+        {getGroupTitle(value)}
+        {getLayersByParentGroup(key, toggleLayer)}
+      </div>
+    ))
   }
 
   return (
@@ -45,18 +68,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerPr
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
       >
-        <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
-
-        {/*List of collapsible layer toggles go inside here*/}
-        {mapLayers.map((layer) => {
-          return (
-            <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-              <Typography sx={{ display: 'inline-block' }}>{t(layer.title)}</Typography>
-              <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
-            </Card>
-          )
-        })}
-        <h2 style={{ padding: '8px' }}>{t('boundaries')}</h2>
+        {getLayers()}
       </StyledSwipeableDrawer>
     </div>
   )
