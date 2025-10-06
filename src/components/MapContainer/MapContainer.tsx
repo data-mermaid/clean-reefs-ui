@@ -15,21 +15,29 @@ export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
   const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedYear, setSelectedYear] = useState(2000)
+  const [selectedYear, setSelectedYear] = useState(2020)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
 
   return (
     <div className={styles['MapContainer-root']}>
       {isMobileWidth ? (
         <div className={styles['layer-controls--mobile']}>
-          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
+          <LayersDrawer
+            mapLayers={mapLayers}
+            setMapLayers={setMapLayers}
+            selectedYear={selectedYear}
+          />
           <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
-          <LayersDrawer mapLayers={mapLayers} setMapLayers={setMapLayers} />
+          <LayersDrawer
+            mapLayers={mapLayers}
+            setMapLayers={setMapLayers}
+            selectedYear={selectedYear}
+          />
           <div>
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />

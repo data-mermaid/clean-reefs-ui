@@ -1,19 +1,16 @@
 @use '../../styles/theme';
 
-.graph-card--open {
+.graph-card {
   position: relative;
   width: 100%;
-  max-width: theme.$graphCardMaxWidth;
-  margin: 0 auto theme.$defaultSpacing;
 }
 
-.graph-card--closed {
-  position: relative;
+.graph-card__header {
+  padding: 10px;
   width: 100%;
-  margin-bottom: 0;
 }
 
-.labels-container--open {
+.graph-card__header--open {
   position: absolute;
   top: 0;
   z-index: 1;
@@ -21,29 +18,40 @@
   padding: theme.$defaultSpacing;
 }
 
-.labels-container--closed {
-  padding: 10px;
-  width: 100%;
+.graph-card__header--closed {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
 }
 
-.graph-plots {
+.graph-card__header--no-data {
+  padding: 10px;
+}
+
+.graph-card__plot {
   display: block;
   margin: 0 auto;
 }
 
-.region-label {
+.graph-card__region-label {
   margin-bottom: 0;
   font-size: theme.$textSizeXSmall;
   font-weight: theme.$light;
   color: theme.$textSecondary;
 }
 
-.graph-label {
+.graph-card__graph-label {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$bold;
   line-height: 1.2;
+}
+
+.graph-card__no-data-label {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$light;
+  font-style: italic;
+  line-height: 1.2;
+  color: theme.$textSecondary;
+  padding: theme.$defaultSpacing;
 }

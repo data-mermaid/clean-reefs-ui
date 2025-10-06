@@ -1,12 +1,21 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl from 'maplibre-gl'
+import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
+import { Snackbar } from '@mui/material'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
@@ -15,6 +24,8 @@ import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
 import { ChartedData } from '../../types/GraphDataTypes'
+import { useTranslation } from 'react-i18next'
+import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -29,6 +40,7 @@ export default function BaseMap({
   setSelectedRegion,
   setLulcGraphData,
 }: BaseMapProps) {
+  const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
@@ -38,6 +50,11 @@ export default function BaseMap({
   const mapRef = useRef<MapRef | null>(null)
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
+  const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+
+  const mapLayersLoadingError = useMemo(() => {
+    return Object.keys(layerErrors).length > 0
+  }, [layerErrors])
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -108,6 +125,53 @@ export default function BaseMap({
   }
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
+
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    const handleError = (e: MapErrorEvent) => {
+      setLayerErrors((prev) => ({
+        ...prev,
+        [e.type]: e.error?.message || 'Failed to load layer',
+      }))
+    }
+
+    const handleSourceData = (e: SourceDataEvent) => {
+      const shouldClearError =
+        e.isSourceLoaded &&
+        !!e.sourceId &&
+        e.dataType === 'source' &&
+        e.sourceDataType === 'metadata' &&
+        !e.error &&
+        !e.tile
+
+      if (shouldClearError) {
+        setLayerErrors((prev) => {
+          const newErrors = { ...prev }
+          if (e.sourceId && newErrors[e.sourceId]) {
+            delete newErrors[e.sourceId]
+          }
+          return newErrors
+        })
+      }
+    }
+
+    map.on('error', handleError)
+    map.on('sourcedata', handleSourceData)
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      map.off('error', handleError)
+      map.off('sourcedata', handleSourceData)
+    }
+  }, [isMapLoaded])
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
@@ -199,6 +263,29 @@ export default function BaseMap({
               )
         })}
       </MapGL>
+
+      <Snackbar
+        open={mapLayersLoadingError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        message={t('map_layers_did_not_load')}
+        action={
+          <button
+            type="button"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontWeight: 'normal',
+              paddingRight: '10px',
+            }}
+            onClick={() => window.location.reload()}
+          >
+            {t('buttons.reload_page')}
+          </button>
+        }
+      />
     </div>
   )
 }

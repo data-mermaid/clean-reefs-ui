@@ -11,22 +11,26 @@ import i18next from 'i18next'
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
+  selectedYear: number
 }
 const getGroupTitle = (groupTitle: string) => {
   return <h2 style={{ padding: '8px' }}>{i18next.t(groupTitle)}</h2>
 }
-const getLayersByParentGroup = (parentGroup, toggleLayer) => {
+const getLayersByParentGroup = (parentGroup, toggleLayer, selectedYear) => {
   const groupedLayers = layers.filter((l) => l.parentLayerType === parentGroup)
 
   return groupedLayers.map((layer) => (
     <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-      <Typography sx={{ display: 'inline-block' }}>{i18next.t(layer.title)}</Typography>
+      <Typography className={styles['layer-card_title']}>{i18next.t(layer.title)}</Typography>
+      {layersWithYear.includes(layer.layerId) && <Typography>{selectedYear}</Typography>}
       <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
     </Card>
   ))
 }
 
-export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerProps) {
+const layersWithYear = ['lulc']
+
+export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -46,7 +50,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers }: LayersDrawerPr
     return Object.entries(parentLayerTitles).map(([key, value]) => (
       <div key={key}>
         {getGroupTitle(value)}
-        {getLayersByParentGroup(key, toggleLayer)}
+        {getLayersByParentGroup(key, toggleLayer, selectedYear)}
       </div>
     ))
   }
