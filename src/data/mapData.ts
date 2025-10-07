@@ -21,15 +21,17 @@ export interface LayerInfo {
     | 'oceanPollution'
   isLayerOn: boolean
   title: string
+  scaleVariation?: string
+  year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
 
 export const parentLayerTitles = {
-  base: 'map_layer_groups.base_map',
-  benthic: 'map_layer_groups.benthic_layers',
-  boundaries: 'map_layer_groups.boundaries',
-  landcover: 'map_layer_groups.land_use_cover',
   landPollution: 'map_layer_groups.land_pollution_layers',
   oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  landcover: 'map_layer_groups.land_use_cover',
+  boundaries: 'map_layer_groups.boundaries',
+  benthic: 'map_layer_groups.benthic_layers',
+  base: 'map_layer_groups.base_map',
 }
 
 export const layers: LayerInfo[] = [
@@ -66,22 +68,24 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'lulc_2000_visual',
     sourceName: '',
-    layerId: 'lulc',
+    layerId: 'lulc_2000',
     link: LULC_2000_URL,
     dataType: 'tiles',
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layer_groups.land_use_cover',
+    year: 2000,
   },
   {
     sourceId: 'lulc_2005_visual',
     sourceName: '',
-    layerId: 'lulc',
+    layerId: 'lulc_2005',
     link: LULC_2005_URL,
     dataType: 'tiles',
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layer_groups.land_use_cover',
+    year: 2005,
   },
   // {
   //   sourceId: 'lulc_2010_visual',
@@ -92,6 +96,7 @@ export const layers: LayerInfo[] = [
   //   parentLayerType: 'landcover',
   //   isLayerOn: false,
   //   title: 'map_layer_groups.land_use_cover',
+  //   year: 2010
   // },
   // {
   //   sourceId: 'lulc_2015_visual',
@@ -102,6 +107,7 @@ export const layers: LayerInfo[] = [
   //   parentLayerType: 'landcover',
   //   isLayerOn: false,
   //   title: 'map_layer_groups.land_use_cover',
+  //   year: 2015
   // },
   // {
   //   sourceId: 'lulc_2020_visual',
@@ -112,6 +118,7 @@ export const layers: LayerInfo[] = [
   //   parentLayerType: 'landcover',
   //   isLayerOn: false,
   //   title: 'map_layer_groups.land_use_cover',
+  //   year: 2020
   // },
   // { //todo: request optimized data layer
   //   sourceId: 'aca_benthic_visual',

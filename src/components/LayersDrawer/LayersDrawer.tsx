@@ -5,30 +5,13 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { LayerInfo, layers, parentLayerTitles } from '../../data/mapData'
-import i18next from 'i18next'
+import { LayerInfo, parentLayerTitles } from '../../data/mapData'
 
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
-const getGroupTitle = (groupTitle: string) => {
-  return <h2 style={{ padding: '8px' }}>{i18next.t(groupTitle)}</h2>
-}
-const getLayersByParentGroup = (parentGroup, toggleLayer, selectedYear) => {
-  const groupedLayers = layers.filter((l) => l.parentLayerType === parentGroup)
-
-  return groupedLayers.map((layer) => (
-    <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-      <Typography className={styles['layer-card_title']}>{i18next.t(layer.title)}</Typography>
-      {layersWithYear.includes(layer.layerId) && <Typography>{selectedYear}</Typography>}
-      <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
-    </Card>
-  ))
-}
-
-const layersWithYear = ['lulc']
 
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
@@ -45,14 +28,30 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     })
     setMapLayers(updatedLayers)
   }
+  const getLayersByParentGroup = (parentGroup, toggleLayer) => {
+    const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
 
-  const getLayers = () => {
-    return Object.entries(parentLayerTitles).map(([key, value]) => (
-      <div key={key}>
-        {getGroupTitle(value)}
-        {getLayersByParentGroup(key, toggleLayer, selectedYear)}
-      </div>
-    ))
+    let mappedLayers
+    if (groupedLayers.length > 0) {
+      mappedLayers = groupedLayers.map((layer) => {
+        if (layer.year && layer.year !== selectedYear) {
+          return null
+        }
+        return (
+          <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
+            <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+            {layer.year && <Typography>{selectedYear}</Typography>}
+            <Switch
+              className={styles['MuiSwitch-root']}
+              id={layer.layerId}
+              checked={layer.isLayerOn}
+              onChange={toggleLayer}
+            />
+          </Card>
+        )
+      })
+    }
+    return mappedLayers
   }
 
   return (
@@ -72,7 +71,12 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
       >
-        {getLayers()}
+        {Object.entries(parentLayerTitles).map(([key, value]) => (
+          <div key={key}>
+            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+            {getLayersByParentGroup(key, toggleLayer)}
+          </div>
+        ))}
       </StyledSwipeableDrawer>
     </div>
   )

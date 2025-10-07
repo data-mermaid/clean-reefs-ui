@@ -15,7 +15,7 @@ export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
   const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedYear, setSelectedYear] = useState(2020)
+  const [selectedYear, setSelectedYear] = useState(2000) //Amelia req: default to 2020 (when layer available)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
 
   return (
