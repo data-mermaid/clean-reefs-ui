@@ -1,38 +1,49 @@
 @use '../../styles/theme';
 
 .GradientScale-root {
+  background-color: theme.$grey;
+  border-radius: theme.$borderRadius;
+  padding: theme.$defaultSpacing;
+  max-width: 300px;
+
+  h3 {
+    line-height: 1;
+    margin: 0;
+    padding: 0 0 3px;
+  }
+}
+
+.GradientScale-legend {
   display: flex;
   justify-content: space-between;
-  width: 205px;
-  height: 20px;
+
+  p {
+    font-weight: theme.$bold;
+    font-size: theme.$textSizeSmall;
+  }
+}
+
+.GradientScale-scale {
+  height: theme.$svgSizeSmall;
   border-radius: theme.$borderRadius;
-  padding: 2px 5px;
-  border: 1px solid black;
+}
 
-  > p {
-    color: white;
-    font-weight: 800;
-    font-size: 14px;
-    -webkit-text-stroke-width: 0.5px;
-    -webkit-text-stroke-color: black;
-  }
+.sediment-concentration {
+  background: #00366d;
+  background: linear-gradient(90deg, rgba(0, 54, 109, 1) 0%, rgba(255, 232, 88, 1) 100%);
+}
 
-  .sediment-export {
-    background: #48974d;
-    background: linear-gradient(
-      90deg,
-      rgba(72, 151, 77, 1) 0%,
-      rgba(241, 241, 241, 1) 50%,
-      rgba(161, 99, 38, 1) 100%
-    );
-    border: none;
-  }
-  .sediment-concentration {
-    background: #00366d;
-    background: linear-gradient(90deg, rgba(0, 54, 109, 1) 0%, rgba(255, 232, 88, 1) 100%);
-  }
-  .reef-ecosystem-exposure {
-    background: #feeded;
-    background: linear-gradient(90deg, rgba(254, 237, 237, 1) 0%, rgba(242, 79, 79, 1) 100%);
-  }
+.reef-ecosystem-exposure {
+  background: #feeded;
+  background: linear-gradient(90deg, rgba(254, 237, 237, 1) 0%, rgba(242, 79, 79, 1) 100%);
+}
+
+.sediment-export {
+  background: #48974d;
+  background: linear-gradient(
+    90deg,
+    rgba(72, 151, 77, 1) 0%,
+    rgba(241, 241, 241, 1) 50%,
+    rgba(161, 99, 38, 1) 100%
+  );
 }

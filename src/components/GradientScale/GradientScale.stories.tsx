@@ -7,15 +7,24 @@ const meta = {
 
 type Story = StoryObj<typeof meta>
 
-export const NoGradient: Story = {
-  args: {},
-}
-
 export const SedimentExport: Story = {
-  args: {},
+  args: {
+    variation: 'sediment-export',
+    title: 'sediment',
+  },
 }
 export const SedimentConcentration: Story = {
-  args: {},
+  args: {
+    variation: 'sediment-concentration',
+    title: 'concentration',
+  },
+}
+
+export const ReefEcosystemExposure: Story = {
+  args: {
+    variation: 'reef-ecosystem-exposure',
+    title: 'exposure',
+  },
 }
 
 export default meta
