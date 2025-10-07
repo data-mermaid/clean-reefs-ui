@@ -6,6 +6,10 @@ import { StyledEngineProvider } from '@mui/material'
 import '../i18n'
 import MapContainer from './components/MapContainer/MapContainer'
 import NavigationHeader from './components/NavigationHeader/NavigationHeader'
+import '@fontsource/titillium-web/300.css'
+import '@fontsource/titillium-web/400.css'
+import '@fontsource/titillium-web/600.css'
+import '@fontsource/titillium-web/900.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
