@@ -8,6 +8,7 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
+//todo: mapRegionSelected --> updateRegionSelected
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   lngLat: [number, number],

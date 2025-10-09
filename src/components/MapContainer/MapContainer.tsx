@@ -9,11 +9,11 @@ import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
-import { ChartedData } from '../../types/GraphDataTypes'
+import { GraphChartConfig } from '../../types/GraphDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [lulcGraphData, setLulcGraphData] = useState<ChartedData[] | null>(null)
+  const [graphData, setGraphData] = useState<GraphChartConfig[] | null>(null)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000) //Amelia req: default to 2020 (when layer available)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
@@ -29,7 +29,7 @@ export default function MapContainer() {
           />
           <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
+          <TrendsDrawer selectedRegion={selectedRegion} graphData={graphData} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
@@ -42,14 +42,14 @@ export default function MapContainer() {
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          <TrendsDrawer selectedRegion={selectedRegion} lulcGraphData={lulcGraphData} />
+          <TrendsDrawer selectedRegion={selectedRegion} graphData={graphData} />
         </div>
       )}
       <BaseMap
         mapLayers={mapLayers}
         selectedRegion={selectedRegion}
         setSelectedRegion={setSelectedRegion}
-        setLulcGraphData={setLulcGraphData}
+        setGraphData={setGraphData}
       />
     </div>
   )

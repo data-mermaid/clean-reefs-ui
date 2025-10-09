@@ -43,7 +43,7 @@ export const layers: LayerInfo[] = [
     dataType: 'pmtiles',
     parentLayerType: 'boundaries',
     isLayerOn: false,
-    title: 'boundary_map_layers.regional_boundaries',
+    title: 'map_layers.regional_boundaries',
   },
   {
     sourceId: 'countries_src',

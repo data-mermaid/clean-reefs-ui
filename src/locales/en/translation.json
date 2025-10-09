@@ -8,7 +8,9 @@
     "reload_page": "Reload page"
   },
   "chart_information": {
-    "land_cover_pct": "Land Cover (%)"
+    "area_exposed_ha": "Area exposed (ha)",
+    "land_cover_pct": "Land cover (%)",
+    "sediment_exposure": "Sediment exposure (Metric tons)"
   },
   "graphs": {
     "contributing_watersheds": "Contributing watersheds",
@@ -25,7 +27,8 @@
     "high_canopy_forest": "High canopy forest",
     "mixed_forest": "Mixed forest",
     "shrubland_grassland": "Shrubland / grassland",
-    "surface_water": "Surface water"
+    "surface_water": "Surface water",
+    "sediment": "Sediment"
   },
   "map_layer_groups": {
     "base_map": "Base map",
@@ -33,7 +36,10 @@
     "boundaries": "Boundaries",
     "land_pollution_layers": "Pollution layers",
     "land_use_cover": "Land use / Land cover",
-    "ocean_pollution_layers": "Ocean pollution layers"
+    "ocean_pollution_layers": "Ocean pollution layers",
+    "country_boundaries": "Country boundaries",
+    "regional_boundaries": "Regional boundaries",
+    "watershed_boundaries": "Watershed boundaries"
   },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
@@ -48,6 +54,9 @@
   },
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
+  "base_map": "Base map",
+  "benthic_layers": "Benthic layers",
+  "boundaries": "Boundaries",
   "area_exposed_ha": "Area exposed (ha)",
   "scale_low": "Low",
   "scale_high": "High",
@@ -89,7 +98,6 @@
 
   "science_and_methods": "Science and methods",
   "sediment": "Sediment",
-  "sediment_exposure": "Sediment exposure",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
   "year": "Year",

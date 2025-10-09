@@ -15,30 +15,30 @@ import styles from './BaseMap.module.scss'
 import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { Snackbar } from '@mui/material'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { mapGraphAttributes, updateLulcGraph } from '../../utils/graphUtils'
+import { updateGraphData } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { ChartedData } from '../../types/GraphDataTypes'
-import { useTranslation } from 'react-i18next'
+import { GraphChartConfig } from '../../types/GraphDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
+import { Snackbar } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setLulcGraphData: Dispatch<SetStateAction<ChartedData[] | null>>
+  setGraphData: Dispatch<SetStateAction<GraphChartConfig[] | null>>
 }
 
 export default function BaseMap({
   mapLayers,
   selectedRegion,
   setSelectedRegion,
-  setLulcGraphData,
+  setGraphData,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
@@ -86,6 +86,7 @@ export default function BaseMap({
       const map = mapRef.current?.getMap()
 
       //todo: when global data is available, make a default for global with optional loadGraphData arguments
+      //doesn't account for if the layer hasn't loaded yet
       if (activeLayers.length > 0) {
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
@@ -94,25 +95,25 @@ export default function BaseMap({
 
         if (features.length > 0) {
           const tempSkipLayers = ['global']
+          //only grab the topmost data layer to pull point from
           const firstFeature = features[0]
 
           //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-            const properties = firstFeature.properties
             const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
+            setSelectedRegion(mappedRegion)
 
-            if (selectedRegion.label !== mappedRegion.label) {
-              setSelectedRegion(mappedRegion)
-              const sortedData = updateLulcGraph(properties)
-              setLulcGraphData(mapGraphAttributes(sortedData))
-            }
+            //trigger graph data update
+            updateGraphData(firstFeature, setGraphData)
+          } else {
+            setGraphData(null)
           }
         } else {
-          setLulcGraphData(null)
+          setGraphData(null)
         }
       }
     },
-    [currentLngLat, selectedRegion.label, setLulcGraphData, setSelectedRegion],
+    [currentLngLat, setGraphData, setSelectedRegion],
   )
 
   if (
