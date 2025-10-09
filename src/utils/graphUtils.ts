@@ -1,14 +1,12 @@
-// import { graphChartConfig } from '../data/mapData'
 import i18next from 'i18next'
-import { PlotlyData, GraphChartConfig, GraphData, GraphType } from '../types/GraphDataTypes'
+import { GraphChartConfig, GraphData, GraphType, PlotlyData } from '../types/GraphDataTypes'
 import { graphChartConfig } from '../data/graphData'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
-//These attributes all pull from boundary layers, so we can map them simultaneously
+//The boundary PM tiles layers include data for land_use_historical and sediment_exposure_historical
 export const getBoundaryFileGraphData = (pointProperties) => {
-  //group data by type
   const graphData = {
     land_use_historical: {
       bare_ground: {},
@@ -83,10 +81,10 @@ export const mapGraphAttributes = (sortedProperties: GraphData, graphType: Graph
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    const categoryPrefixed = graphConfig.categoryPrefix
+    const prefixedCategory = graphConfig.categoryPrefix
       ? `${graphConfig.categoryPrefix}.${category}`
       : `${category}`
-    const categoryName: string = i18next.t(categoryPrefixed)
+    const categoryName: string = i18next.t(prefixedCategory)
     const hoverTemplate =
       graphType === 'sediment_exposure_historical'
         ? `${xAxisTitle}: %{x}<br />${categoryName}: %{y:.2f}T<extra></extra>`
@@ -124,7 +122,7 @@ export const updateGraphData = (feature, setGraphData) => {
     //more sources to go here
   }
 
-  //2. map data
+  //2. map data to chart config data
   const mappedData = Object.entries(graphData).map((dataSet) =>
     mapGraphAttributes(dataSet[1] as GraphData, dataSet[0] as GraphType),
   )

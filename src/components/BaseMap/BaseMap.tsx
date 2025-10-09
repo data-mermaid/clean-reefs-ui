@@ -49,7 +49,7 @@ export default function BaseMap({
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
-  // const mapLayersLoadingError =
+  // mapLayersLoadingError
   useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
@@ -98,18 +98,11 @@ export default function BaseMap({
 
           //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-            // const properties = firstFeature.properties
-
-            // trigger region update
             const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
-            // if (selectedRegion.label !== mappedRegion.label) {
             setSelectedRegion(mappedRegion)
 
             //trigger graph data update
             updateGraphData(firstFeature, setGraphData)
-            // const sortedData = updateGraphData(properties, setGraphData)
-            // setGraphData(sortedData)
-            // }
           } else {
             setGraphData(null)
           }
