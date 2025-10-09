@@ -5,22 +5,18 @@ import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
-import { ChartedData } from '../../types/GraphDataTypes'
+import { GraphChartConfig } from '../../types/GraphDataTypes'
 
 interface GraphCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   region?: string
-  yAxisTitle?: string
-  xAxisTitle?: string
-  graphName: string
-  graphData: ChartedData[] | null
+  graphData: GraphChartConfig | null
 }
 
-const getCardHeaderClassNames = (isOpen: boolean, graphData: ChartedData[] | null) => {
+const getCardHeaderClassNames = (isOpen: boolean, graphData: GraphChartConfig | null) => {
   const baseClass = styles['graph-card__header']
-
-  if (!graphData || graphData.length === 0) {
+  if (!graphData) {
     return `${baseClass} ${styles['graph-card__header--no-data']}`
   }
 
@@ -31,10 +27,7 @@ export default function GraphCard({
   open = true,
   onClick,
   region = 'global',
-  yAxisTitle = 'chart_information.land_cover_pct',
-  xAxisTitle = 'year',
   graphData,
-  graphName,
 }: GraphCardProps) {
   const { t } = useTranslation()
   const [loading] = useState(false)
@@ -47,7 +40,7 @@ export default function GraphCard({
     if (graphData !== null) {
       return (
         <Plot
-          data={graphData}
+          data={graphData.graphData}
           className={styles['graph-card__plot']}
           config={plotlyTheme.config}
           layout={{
@@ -56,17 +49,17 @@ export default function GraphCard({
               ...plotlyTheme.layout.yaxis,
               title: {
                 ...plotlyTheme.layout.yaxis.title,
-                text: t(yAxisTitle),
+                text: t(graphData.yAxisTitle),
               },
             },
             xaxis: {
               ...plotlyTheme.layout.xaxis,
               title: {
                 ...plotlyTheme.layout.xaxis.title,
-                text: t(xAxisTitle),
+                text: t(graphData.xAxisTitle),
               },
             },
-            showlegend: graphData.length > 1,
+            showlegend: Object.keys(graphData.graphData).length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
         />
@@ -85,7 +78,9 @@ export default function GraphCard({
         <Typography className={styles['graph-card__region-label']}>
           {t(`regions.${region}`)}
         </Typography>
-        <Typography className={styles['graph-card__graph-label']}>{t(graphName)}</Typography>
+        <Typography className={styles['graph-card__graph-label']}>
+          {t(graphData?.graphType)}
+        </Typography>
       </div>
       {open && renderGraphContent()}
     </Card>

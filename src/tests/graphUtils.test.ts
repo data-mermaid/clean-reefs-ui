@@ -1,4 +1,4 @@
-import { mapGraphAttributes, updateLulcGraph } from '../utils/graphUtils'
+import { getBoundaryFileGraphData, mapGraphAttributes } from '../utils/graphUtils'
 import mockOutputGraphData from './mockOutputGraphData.json'
 
 const groupedProperties = {
@@ -11,8 +11,8 @@ const groupedProperties = {
   surface_water: { '2000': 1 },
 }
 describe('graph data utilities', () => {
-  describe('updateLulcGraph', () => {
-    it('groups data by type and year and filters out unused properties', () => {
+  describe('getBoundaryFileGraphData', () => {
+    it('pulls data from the boundary layers, groups data by type and year and filters out unused properties', () => {
       const input = {
         Bare_Gr_pct_2000: 5,
         Bare_Gr_pct_2005: 7,
@@ -26,7 +26,7 @@ describe('graph data utilities', () => {
         watershed_id: 123,
       }
 
-      const result = updateLulcGraph(input)
+      const result = getBoundaryFileGraphData(input)
 
       expect(result).toEqual(groupedProperties)
     })

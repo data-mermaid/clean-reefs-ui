@@ -8,8 +8,8 @@
     "reload_page": "Reload page"
   },
   "chart_information": {
-    "land_cover_pct": "Land Cover (%)",
-    "sediment_exposure": "Sediment Exposure"
+    "land_cover_pct": "Land cover (%)",
+    "sediment_exposure": "Sediment exposure (Metric tons)"
   },
   "graphs": {
     "contributing_watersheds": "Contributing watersheds",
@@ -31,7 +31,7 @@
   },
   "map_layers": {
     "country_boundaries": "Country boundaries",
-    "land_use_cover": "Land use / Land cover",
+    "land_use_cover": "Land use / land cover",
     "regional_boundaries": "Regional boundaries",
     "watershed_boundaries": "Watershed boundaries"
   },

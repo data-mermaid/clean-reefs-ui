@@ -15,32 +15,29 @@ import styles from './BaseMap.module.scss'
 import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { Snackbar } from '@mui/material'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { updateLulcGraph } from '../../utils/graphUtils'
+import { updateGraphData } from '../../utils/graphUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { GraphData } from '../../types/GraphDataTypes'
-import { useTranslation } from 'react-i18next'
+import { GraphChartConfig } from '../../types/GraphDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setLulcGraphData: Dispatch<SetStateAction<GraphData | null>>
+  setGraphData: Dispatch<SetStateAction<GraphChartConfig[] | null>>
 }
 
 export default function BaseMap({
   mapLayers,
   selectedRegion,
   setSelectedRegion,
-  setLulcGraphData,
+  setGraphData,
 }: BaseMapProps) {
-  const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
@@ -52,7 +49,8 @@ export default function BaseMap({
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
-  const mapLayersLoadingError = useMemo(() => {
+  // const mapLayersLoadingError =
+  useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
 
@@ -86,6 +84,7 @@ export default function BaseMap({
       const map = mapRef.current?.getMap()
 
       //todo: when global data is available, make a default for global with optional loadGraphData arguments
+      //doesn't account for if the layer hasn't loaded yet
       if (activeLayers.length > 0) {
         //query the layers corresponding with graphs and with layers that are on
         const features = map.queryRenderedFeatures(point, {
@@ -94,25 +93,30 @@ export default function BaseMap({
 
         if (features.length > 0) {
           const tempSkipLayers = ['global']
+          //only grab the topmost data layer to pull point from
           const firstFeature = features[0]
 
           //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-            const properties = firstFeature.properties
-            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
+            // const properties = firstFeature.properties
 
-            if (selectedRegion.label !== mappedRegion.label) {
-              setSelectedRegion(mappedRegion)
-              const sortedData = updateLulcGraph(properties)
-              setLulcGraphData(sortedData)
-            }
+            // trigger region update
+            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
+            // if (selectedRegion.label !== mappedRegion.label) {
+            setSelectedRegion(mappedRegion)
+
+            //trigger graph data update
+            updateGraphData(firstFeature, setGraphData)
+            // const sortedData = updateGraphData(properties, setGraphData)
+            // setGraphData(sortedData)
+            // }
           } else {
-            setLulcGraphData(null)
+            setGraphData(null)
           }
         }
       }
     },
-    [currentLngLat, selectedRegion.label, setLulcGraphData, setSelectedRegion],
+    [currentLngLat, setGraphData, setSelectedRegion],
   )
 
   if (
@@ -263,29 +267,6 @@ export default function BaseMap({
               )
         })}
       </MapGL>
-
-      <Snackbar
-        open={mapLayersLoadingError}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        message={t('map_layers_did_not_load')}
-        action={
-          <button
-            type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontWeight: 'normal',
-              paddingRight: '10px',
-            }}
-            onClick={() => window.location.reload()}
-          >
-            {t('buttons.reload_page')}
-          </button>
-        }
-      />
     </div>
   )
 }

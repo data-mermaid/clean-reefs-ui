@@ -3,8 +3,7 @@ import { expect } from 'storybook/test'
 import i18next from 'i18next'
 
 import GraphCard from './GraphCard'
-import mockOutputGraphData from '../../tests/mockOutputGraphData.json'
-import { ChartedData } from '../../types/GraphDataTypes'
+import { mockGraphChartConfig } from '../../tests/mockGraphData'
 
 const meta = {
   component: GraphCard,
@@ -15,15 +14,13 @@ type Story = StoryObj<typeof meta>
 export const Primary: Story = {
   args: {
     open: true,
-    graphName: 'Primary graph card',
-    graphData: mockOutputGraphData as ChartedData[],
+    graphData: mockGraphChartConfig,
   },
 }
 
 export const Loading: Story = {
   args: {
     open: true,
-    graphName: 'Loading',
     graphData: null,
   },
 }
@@ -31,7 +28,6 @@ export const Loading: Story = {
 export const NoData: Story = {
   args: {
     open: true,
-    graphName: 'Loading',
     graphData: null,
   },
   play: async ({ canvas }) => {
@@ -43,7 +39,6 @@ export const NoData: Story = {
 export const Closed: Story = {
   args: {
     open: false,
-    graphName: 'Closed graph card',
     graphData: null,
   },
   play: async ({ canvas }) => {
