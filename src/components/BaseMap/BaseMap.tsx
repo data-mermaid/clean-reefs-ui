@@ -24,6 +24,8 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
 import { GraphChartConfig } from '../../types/GraphDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
+import { Snackbar } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -38,6 +40,7 @@ export default function BaseMap({
   setSelectedRegion,
   setGraphData,
 }: BaseMapProps) {
+  const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
@@ -49,8 +52,7 @@ export default function BaseMap({
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
-  // mapLayersLoadingError
-  useMemo(() => {
+  const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
 
@@ -103,6 +105,8 @@ export default function BaseMap({
 
             //trigger graph data update
             updateGraphData(firstFeature, setGraphData)
+          } else {
+            setGraphData(null)
           }
         } else {
           setGraphData(null)
@@ -260,6 +264,29 @@ export default function BaseMap({
               )
         })}
       </MapGL>
+
+      <Snackbar
+        open={mapLayersLoadingError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        message={t('map_layers_did_not_load')}
+        action={
+          <button
+            type="button"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontWeight: 'normal',
+              paddingRight: '10px',
+            }}
+            onClick={() => window.location.reload()}
+          >
+            {t('buttons.reload_page')}
+          </button>
+        }
+      />
     </div>
   )
 }

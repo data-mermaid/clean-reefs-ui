@@ -1,6 +1,8 @@
 import i18next from 'i18next'
 import { GraphChartConfig, GraphData, GraphType, PlotlyData } from '../types/GraphDataTypes'
 import { graphChartConfig } from '../data/graphData'
+import { MapGeoJSONFeature } from 'maplibre-gl'
+import { Dispatch, SetStateAction } from 'react'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -68,11 +70,10 @@ export const getBoundaryFileGraphData = (pointProperties) => {
   return graphData
 }
 
-export const mapGraphAttributes = (sortedProperties: GraphData, graphType: GraphType) => {
-  if (!sortedProperties) {
-    return []
-  }
-
+export const mapGraphAttributes = (
+  sortedProperties: GraphData,
+  graphType: GraphType,
+): GraphChartConfig => {
   const graphConfig = graphChartConfig[`graphs.${graphType}`]
   const xAxisTitle = i18next.t(graphConfig.xAxisTitle)
   const graphData: PlotlyData[] = []
@@ -105,16 +106,18 @@ export const mapGraphAttributes = (sortedProperties: GraphData, graphType: Graph
       width: 3,
     })
   })
-  const chartConfig: GraphChartConfig = {
+  return {
     xAxisTitle: xAxisTitle,
     yAxisTitle: i18next.t(graphConfig.yAxisTitle),
     graphData: graphData,
     graphType: graphConfig.name as GraphType,
-  }
-  return chartConfig
+  } as GraphChartConfig
 }
 
-export const updateGraphData = (feature, setGraphData) => {
+export const updateGraphData = (
+  feature: MapGeoJSONFeature,
+  setGraphData: Dispatch<SetStateAction<GraphChartConfig[] | null>>,
+) => {
   let graphData
   //1. get data from appropriate source
   if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
@@ -123,7 +126,7 @@ export const updateGraphData = (feature, setGraphData) => {
   }
 
   //2. map data to chart config data
-  const mappedData = Object.entries(graphData).map((dataSet) =>
+  const mappedData: GraphChartConfig[] = Object.entries(graphData).map((dataSet) =>
     mapGraphAttributes(dataSet[1] as GraphData, dataSet[0] as GraphType),
   )
 

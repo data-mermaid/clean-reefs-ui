@@ -58,7 +58,7 @@ export default function GraphCard({
                 text: t(graphData.xAxisTitle),
               },
             },
-            showlegend: Object.keys(graphData.graphData).length > 1,
+            showlegend: graphData.graphData.length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
         />

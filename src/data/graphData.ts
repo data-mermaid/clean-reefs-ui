@@ -18,6 +18,8 @@ export const graphChartConfig = {
   'graphs.ecosystem_extent_exposed': {
     width: 2,
     legendColors: {},
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.area_exposed_ha',
     name: 'graphs.ecosystem_extent_exposed',
     categoryPrefix: '',
   },
