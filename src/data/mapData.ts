@@ -22,7 +22,7 @@ export const layers: LayerInfo[] = [
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     title: 'map_layers.regional_boundaries',
   },
   {
@@ -31,7 +31,7 @@ export const layers: LayerInfo[] = [
     layerId: 'lulc',
     link: LULC_2000_URL,
     dataType: 'tiles',
-    isLayerOn: true,
+    isLayerOn: false,
     title: 'map_layers.land_use_cover',
   },
   {
@@ -62,24 +62,3 @@ export const layers: LayerInfo[] = [
   //   title: 'Benthic',
   // },
 ]
-
-//todo: update this data with config for all graphs
-export const graphLayoutConfig = {
-  'graphs.land_use_historical': {
-    width: 2,
-    legendColors: {
-      bare_ground: '#FEFECC',
-      shrubland_grassland: '#B0B006',
-      mixed_forest: '#609C30',
-      high_canopy_forest: '#065106',
-      surface_water: '#0E39D6',
-      cropland: '#FF7D00',
-      built_up: '#64DCDC',
-    },
-  },
-  'graphs.ecosystem_extent_exposed': {
-    width: 2,
-    legendColors: {},
-  },
-  //...for all graphs
-}

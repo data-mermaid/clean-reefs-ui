@@ -18,8 +18,8 @@
     "type": "bar",
     "name": "land_types.built_up",
     "width": 3,
-    "x": ["2000"],
-    "y": [2]
+    "x": ["2000", "2005"],
+    "y": [2, 4]
   },
   {
     "marker": {
