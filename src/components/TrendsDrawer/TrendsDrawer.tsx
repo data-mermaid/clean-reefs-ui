@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { IconButton } from '@mui/material'
+import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
@@ -45,17 +45,23 @@ export default function TrendsDrawer({ selectedRegion, graphData }: TrendsDrawer
       </div>
 
       <div className={styles[`graphs-container--${open ? 'open' : 'closed'}`]}>
-        {graphData?.map((graph) => {
-          return (
-            <GraphCard
-              key={graph.graphType}
-              open={open}
-              {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
-              region={selectedRegion.regionType}
-              graphData={graph}
-            />
-          )
-        })}
+        {graphData ? (
+          graphData?.map((graph) => {
+            return (
+              <GraphCard
+                key={graph.graphType}
+                open={open}
+                {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
+                region={selectedRegion.regionType}
+                graphData={graph}
+              />
+            )
+          })
+        ) : (
+          <Typography className={styles['graph-card__no-data-label']}>
+            {t('graphs.no_data_available')}
+          </Typography>
+        )}
       </div>
     </StyledSwipeableDrawer>
   )

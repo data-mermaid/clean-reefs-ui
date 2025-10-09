@@ -36,7 +36,6 @@ export default function GraphCard({
     if (loading) {
       return <LoadingState isOverlay={false} />
     }
-
     if (graphData !== null) {
       return (
         <Plot

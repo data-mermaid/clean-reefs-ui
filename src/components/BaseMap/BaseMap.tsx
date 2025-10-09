@@ -103,9 +103,9 @@ export default function BaseMap({
 
             //trigger graph data update
             updateGraphData(firstFeature, setGraphData)
-          } else {
-            setGraphData(null)
           }
+        } else {
+          setGraphData(null)
         }
       }
     },
