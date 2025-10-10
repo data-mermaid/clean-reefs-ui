@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import GradientScale from './GradientScale'
+import GradientLegend from './GradientLegend'
 
 const meta = {
-  component: GradientScale,
-} satisfies Meta<typeof GradientScale>
+  component: GradientLegend,
+} satisfies Meta<typeof GradientLegend>
 
 type Story = StoryObj<typeof meta>
 

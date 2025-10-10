@@ -110,7 +110,7 @@ export const mapGraphAttributes = (
     xAxisTitle: xAxisTitle,
     yAxisTitle: i18next.t(graphConfig.yAxisTitle),
     graphData: graphData,
-    graphType: graphConfig.name as GraphType,
+    graphType: graphType,
   } as GraphChartConfig
 }
 

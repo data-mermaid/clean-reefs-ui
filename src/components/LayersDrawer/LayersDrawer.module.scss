@@ -15,8 +15,6 @@
 }
 
 .layer-card {
-  display: flex;
-  align-items: center;
   margin: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;
   background-color: theme.$greyWhite;
@@ -25,6 +23,12 @@
 .layer-card_title {
   flex-grow: 1;
 }
+.layer-toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
+//take out or add toggle bg color here
 .MuiSwitch-root {
 }

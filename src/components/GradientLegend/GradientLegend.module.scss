@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-.GradientScale-root {
+.GradientLegend-root {
   background-color: theme.$grey;
   border-radius: theme.$borderRadius;
   padding: theme.$defaultSpacing;
@@ -13,7 +13,7 @@
   }
 }
 
-.GradientScale-legend {
+.GradientLegend-legend {
   display: flex;
   justify-content: space-between;
 
@@ -23,7 +23,7 @@
   }
 }
 
-.GradientScale-scale {
+.GradientLegend-scale {
   height: theme.$svgSizeSmall;
   border-radius: theme.$borderRadius;
 }

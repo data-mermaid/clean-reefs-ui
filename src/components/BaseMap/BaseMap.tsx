@@ -230,15 +230,13 @@ export default function BaseMap({
                 >
                   <Layer
                     id={layer.layerId}
-                    type="fill"
+                    type="line"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
                     source-layer={layer.sourceName}
                     beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
                     paint={{
-                      'fill-color': 'red',
-                      'fill-opacity': 0.25, //needs fill to be able to select individual watersheds
-                      'fill-outline-color': 'black',
+                      'line-color': 'black',
                     }}
                   />
                 </Source>

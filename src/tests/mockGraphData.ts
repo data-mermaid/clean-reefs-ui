@@ -3,7 +3,7 @@ import mockOutputGraphData from './mockOutputGraphData.json'
 
 export const mockGraphChartConfig: GraphChartConfig = {
   graphData: mockOutputGraphData as PlotlyData[],
-  graphType: 'sediment_exposure_historical',
+  graphType: 'land_use_historical',
   xAxisTitle: 'year',
-  yAxisTitle: 'chart_information.sediment_exposure',
+  yAxisTitle: 'chart_information.land_cover_pct',
 }

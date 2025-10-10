@@ -1,7 +1,11 @@
 import {
+  ACA_BENTHIC_URL,
   COUNTRIES_PMTILES_URL,
   LULC_2000_URL,
   LULC_2005_URL,
+  LULC_2010_URL,
+  LULC_2015_URL,
+  LULC_2020_URL,
   REGIONS_PMTILES_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
@@ -22,6 +26,7 @@ export interface LayerInfo {
   isLayerOn: boolean
   title: string
   scaleVariation?: string
+  legendType?: 'gradient' | 'lulc'
   year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
 
@@ -42,8 +47,8 @@ export const layers: LayerInfo[] = [
     link: REGIONS_PMTILES_URL,
     dataType: 'pmtiles',
     parentLayerType: 'boundaries',
-    isLayerOn: false,
-    title: 'map_layers.regional_boundaries',
+    isLayerOn: true,
+    title: 'boundary_map_layers.regional_boundaries',
   },
   {
     sourceId: 'countries_src',
@@ -52,7 +57,7 @@ export const layers: LayerInfo[] = [
     link: COUNTRIES_PMTILES_URL,
     dataType: 'pmtiles',
     parentLayerType: 'boundaries',
-    isLayerOn: false,
+    isLayerOn: true,
     title: 'boundary_map_layers.country_boundaries',
   },
   {
@@ -62,7 +67,7 @@ export const layers: LayerInfo[] = [
     link: WATERSHED_PMTILES_URL,
     dataType: 'pmtiles',
     parentLayerType: 'boundaries',
-    isLayerOn: false,
+    isLayerOn: true,
     title: 'boundary_map_layers.watershed_boundaries',
   },
   {
@@ -74,6 +79,7 @@ export const layers: LayerInfo[] = [
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layer_groups.land_use_cover',
+    legendType: 'lulc',
     year: 2000,
   },
   {
@@ -85,72 +91,53 @@ export const layers: LayerInfo[] = [
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layer_groups.land_use_cover',
+    legendType: 'lulc',
     year: 2005,
   },
-  // {
-  //   sourceId: 'lulc_2010_visual',
-  //   sourceName: '',
-  //   layerId: 'lulc',
-  //   link: LULC_2010_URL,
-  //   dataType: 'tiles',
-  //   parentLayerType: 'landcover',
-  //   isLayerOn: false,
-  //   title: 'map_layer_groups.land_use_cover',
-  //   year: 2010
-  // },
-  // {
-  //   sourceId: 'lulc_2015_visual',
-  //   sourceName: '',
-  //   layerId: 'lulc',
-  //   link: LULC_2015_URL,
-  //   dataType: 'tiles',
-  //   parentLayerType: 'landcover',
-  //   isLayerOn: false,
-  //   title: 'map_layer_groups.land_use_cover',
-  //   year: 2015
-  // },
-  // {
-  //   sourceId: 'lulc_2020_visual',
-  //   sourceName: '',
-  //   layerId: 'lulc',
-  //   link: LULC_2020_URL,
-  //   dataType: 'tiles',
-  //   parentLayerType: 'landcover',
-  //   isLayerOn: false,
-  //   title: 'map_layer_groups.land_use_cover',
-  //   year: 2020
-  // },
-  // { //todo: request optimized data layer
-  //   sourceId: 'aca_benthic_visual',
-  //   sourceName: '',
-  //   layerId: 'aca-benthic',
-  //   link: ACA_BENTHIC_URL,
-  //   dataType: 'tiles',
-  //   parentLayerType: 'benthic',
-  //   isLayerOn: false,
-  //   title: 'Benthic',
-  // },
+  {
+    sourceId: 'lulc_2010_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2010_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2010,
+  },
+  {
+    sourceId: 'lulc_2015_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2015_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2015,
+  },
+  {
+    sourceId: 'lulc_2020_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2020_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2020,
+  },
+  {
+    sourceId: 'aca_benthic_visual',
+    sourceName: '',
+    layerId: 'aca-benthic',
+    link: ACA_BENTHIC_URL,
+    dataType: 'tiles',
+    parentLayerType: 'benthic',
+    isLayerOn: false,
+    title: 'Benthic',
+  },
 ]
-
-//todo: update this data with config for all graphs
-export const graphLayoutConfig = {
-  'graphs.land_use_historical': {
-    width: 2,
-    legendColors: {
-      bare_ground: '#FEFECC',
-      shrubland_grassland: '#B0B006',
-      mixed_forest: '#609C30',
-      high_canopy_forest: '#065106',
-      surface_water: '#0E39D6',
-      cropland: '#FF7D00',
-      built_up: '#64DCDC',
-    },
-  },
-  'graphs.ecosystem_extent_exposed': {
-    width: 2,
-    legendColors: {},
-  },
-  'graphs.contributing_watersheds': {},
-  'graphs.sediment_exposure_historical': {},
-  'graphs.sediment_load_historical': {},
-}

@@ -6,6 +6,7 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
 import { LayerInfo, parentLayerTitles } from '../../data/mapData'
+import Legend from '../Legend/Legend'
 
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
@@ -39,14 +40,19 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         }
         return (
           <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-            <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-            {layer.year && <Typography>{selectedYear}</Typography>}
-            <Switch
-              className={styles['MuiSwitch-root']}
-              id={layer.layerId}
-              checked={layer.isLayerOn}
-              onChange={toggleLayer}
-            />
+            <div className={styles['layer-toggle-header']}>
+              <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+              {layer.year && <Typography>{selectedYear}</Typography>}
+              <Switch
+                className={styles['MuiSwitch-root']}
+                id={layer.layerId}
+                checked={layer.isLayerOn}
+                onChange={toggleLayer}
+              />
+            </div>
+            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
+            {/*Add back in when data layers available*/}
+            {/*{layer.legendType === 'gradient' && layer.isLayerOn && <GradientLegend variant={} title={}/>}*/}
           </Card>
         )
       })

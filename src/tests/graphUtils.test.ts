@@ -1,9 +1,24 @@
 import { getBoundaryFileGraphData, mapGraphAttributes } from '../utils/graphUtils'
-import mockOutputGraphData from './mockOutputGraphData.json'
+import { mockGraphChartConfig } from './mockGraphData'
 
 const groupedProperties = {
+  land_use_historical: {
+    bare_ground: { '2000': 5, '2005': 7 },
+    built_up: { '2000': 2 },
+    cropland: { '2005': 7 },
+    high_canopy_forest: { '2010': 3 },
+    mixed_forest: { '2015': 4 },
+    shrubland_grassland: { '2020': 6 },
+    surface_water: { '2000': 1 },
+  },
+  sediment_exposure_historical: {
+    sediment: {},
+  },
+}
+
+const singularGraphDataGroup = {
   bare_ground: { '2000': 5, '2005': 7 },
-  built_up: { '2000': 2 },
+  built_up: { '2000': 2, '2005': 4 },
   cropland: { '2005': 7 },
   high_canopy_forest: { '2010': 3 },
   mixed_forest: { '2015': 4 },
@@ -34,9 +49,9 @@ describe('graph data utilities', () => {
 
   describe('mapGraphAttributes', () => {
     it('maps values by year within category to associated graph attributes', () => {
-      const result = mapGraphAttributes(groupedProperties, 'land_use_historical')
+      const result = mapGraphAttributes(singularGraphDataGroup, 'land_use_historical')
 
-      expect(result).toEqual(mockOutputGraphData)
+      expect(result).toEqual(mockGraphChartConfig)
     })
   })
 })

@@ -33,5 +33,6 @@ export const graphChartConfig = {
     name: 'graphs.sediment_exposure_historical',
     categoryPrefix: '',
   },
-  //...for all graphs
+  'graphs.sediment_load_historical': {},
+  'graphs.contributing_watersheds': {},
 }

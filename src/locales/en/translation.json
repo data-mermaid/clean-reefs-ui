@@ -37,9 +37,9 @@
     "land_pollution_layers": "Pollution layers",
     "land_use_cover": "Land use / Land cover",
     "ocean_pollution_layers": "Ocean pollution layers",
-    "country_boundaries": "Country boundaries",
+    "watershed_boundaries": "Watershed boundaries",
     "regional_boundaries": "Regional boundaries",
-    "watershed_boundaries": "Watershed boundaries"
+    "country_boundaries": "Country boundaries"
   },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
