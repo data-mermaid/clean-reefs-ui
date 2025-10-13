@@ -83,7 +83,7 @@ export const BottomOpen: Story = {
           <h2>Regional trends</h2>
         </div>
 
-        <div className={styles['graphs-container']}>
+        <div className={styles['charts-container']}>
           <Card>Placeholder card</Card>
           <Card>Placeholder card</Card>
           <Card>Placeholder card</Card>

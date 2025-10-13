@@ -9,11 +9,11 @@ import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
-import { GraphChartConfig } from '../../types/GraphDataTypes'
+import { ChartConfig } from '../../types/ChartDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [graphData, setGraphData] = useState<GraphChartConfig[] | null>(null)
+  const [chartConfigData, setChartConfigData] = useState<ChartConfig[] | null>(null)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2000) //Amelia req: default to 2020 (when layer available)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
@@ -29,7 +29,7 @@ export default function MapContainer() {
           />
           <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          <TrendsDrawer selectedRegion={selectedRegion} graphData={graphData} />
+          <TrendsDrawer selectedRegion={selectedRegion} chartConfigData={chartConfigData} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
@@ -42,14 +42,14 @@ export default function MapContainer() {
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          <TrendsDrawer selectedRegion={selectedRegion} graphData={graphData} />
+          <TrendsDrawer selectedRegion={selectedRegion} chartConfigData={chartConfigData} />
         </div>
       )}
       <BaseMap
         mapLayers={mapLayers}
         selectedRegion={selectedRegion}
         setSelectedRegion={setSelectedRegion}
-        setGraphData={setGraphData}
+        setChartConfigData={setChartConfigData}
       />
     </div>
   )

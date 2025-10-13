@@ -1,5 +1,5 @@
-export const graphChartConfig = {
-  'graphs.land_use_historical': {
+export const chartSeriesConfig = {
+  'charts.land_use_historical': {
     width: 2,
     legendColors: {
       bare_ground: '#FEFECC',
@@ -12,27 +12,27 @@ export const graphChartConfig = {
     },
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.land_cover_pct',
-    name: 'graphs.land_use_historical',
+    name: 'charts.land_use_historical',
     categoryPrefix: 'land_types',
   },
-  'graphs.ecosystem_extent_exposed': {
+  'charts.ecosystem_extent_exposed': {
     width: 2,
     legendColors: {},
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.area_exposed_ha',
-    name: 'graphs.ecosystem_extent_exposed',
+    name: 'charts.ecosystem_extent_exposed',
     categoryPrefix: '',
   },
-  'graphs.sediment_exposure_historical': {
+  'charts.sediment_exposure_historical': {
     width: 2,
     legendColors: {
       sediment: '#003F5C',
     },
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.sediment_exposure',
-    name: 'graphs.sediment_exposure_historical',
+    name: 'charts.sediment_exposure_historical',
     categoryPrefix: '',
   },
-  'graphs.sediment_load_historical': {},
-  'graphs.contributing_watersheds': {},
+  'charts.sediment_load_historical': {},
+  'charts.contributing_watersheds': {},
 }

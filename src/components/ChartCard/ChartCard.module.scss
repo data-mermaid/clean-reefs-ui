@@ -1,16 +1,16 @@
 @use '../../styles/theme';
 
-.graph-card {
+.chart-card {
   position: relative;
   width: 100%;
 }
 
-.graph-card__header {
+.chart-card__header {
   padding: 10px;
   width: 100%;
 }
 
-.graph-card__header--open {
+.chart-card__header--open {
   position: absolute;
   top: 0;
   z-index: 1;
@@ -18,36 +18,36 @@
   padding: theme.$defaultSpacing;
 }
 
-.graph-card__header--closed {
+.chart-card__header--closed {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
 }
 
-.graph-card__header--no-data {
+.chart-card__header--no-data {
   padding: 10px;
 }
 
-.graph-card__plot {
+.chart-card__plot {
   display: block;
   margin: 0 auto;
 }
 
-.graph-card__region-label {
+.chart-card__region-label {
   margin-bottom: 0;
   font-size: theme.$textSizeXSmall;
   font-weight: theme.$light;
   color: theme.$textSecondary;
 }
 
-.graph-card__graph-label {
+.chart-card__chart-label {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$bold;
   line-height: 1.2;
 }
 
-.graph-card__no-data-label {
+.chart-card__no-data-label {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$light;
   font-style: italic;

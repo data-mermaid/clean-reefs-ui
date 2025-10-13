@@ -1,8 +1,8 @@
-export interface GraphData {
+export interface ChartData {
   [name: string]: Record<string, number>
 }
 
-export type GraphType =
+export type ChartSeriesName =
   | 'land_use_historical'
   | 'sediment_exposure_historical'
   | 'ecosystem_extent_exposed'
@@ -18,9 +18,9 @@ export interface PlotlyData {
   width: number
 }
 
-export interface GraphChartConfig {
+export interface ChartConfig {
   xAxisTitle: string
   yAxisTitle: string
-  graphType: GraphType
-  graphData: PlotlyData[]
+  chartSeriesName: ChartSeriesName
+  plotlyConfigData: PlotlyData[]
 }

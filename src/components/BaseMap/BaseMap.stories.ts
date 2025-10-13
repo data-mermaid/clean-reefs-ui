@@ -21,7 +21,7 @@ export const Primary: Story = {
     mapLayers: layers,
     selectedRegion: mockRegionOption,
     setSelectedRegion: () => {},
-    setGraphData: () => {},
+    setChartConfigData: () => {},
   },
   // todo: testing for loading state -- load state component should unmount
   // play: async ({ canvas }) => {
@@ -38,7 +38,7 @@ export const Loading: Story = {
     mapLayers: layers,
     selectedRegion: mockRegionOption,
     setSelectedRegion: () => {},
-    setGraphData: () => {},
+    setChartConfigData: () => {},
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

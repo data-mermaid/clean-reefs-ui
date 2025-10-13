@@ -1,5 +1,5 @@
-import { getBoundaryFileGraphData, mapGraphAttributes } from '../utils/graphUtils'
-import { mockGraphChartConfig } from './mockGraphData'
+import { getBoundaryFileChartData, mapChartConfigToData } from '../utils/chartUtils'
+import { mockChartConfig } from './mockChartConfig'
 
 const groupedProperties = {
   land_use_historical: {
@@ -16,7 +16,7 @@ const groupedProperties = {
   },
 }
 
-const singularGraphDataGroup = {
+const singularChartDataGroup = {
   bare_ground: { '2000': 5, '2005': 7 },
   built_up: { '2000': 2, '2005': 4 },
   cropland: { '2005': 7 },
@@ -25,8 +25,8 @@ const singularGraphDataGroup = {
   shrubland_grassland: { '2020': 6 },
   surface_water: { '2000': 1 },
 }
-describe('graph data utilities', () => {
-  describe('getBoundaryFileGraphData', () => {
+describe('chart data utilities', () => {
+  describe('getBoundaryFileChartData', () => {
     it('pulls data from the boundary layers, groups data by type and year and filters out unused properties', () => {
       const input = {
         Bare_Gr_pct_2000: 5,
@@ -41,17 +41,17 @@ describe('graph data utilities', () => {
         watershed_id: 123,
       }
 
-      const result = getBoundaryFileGraphData(input)
+      const result = getBoundaryFileChartData(input)
 
       expect(result).toEqual(groupedProperties)
     })
   })
 
-  describe('mapGraphAttributes', () => {
-    it('maps values by year within category to associated graph attributes', () => {
-      const result = mapGraphAttributes(singularGraphDataGroup, 'land_use_historical')
+  describe('mapChartConfigToData', () => {
+    it('maps values by year within category to associated chart attributes', () => {
+      const result = mapChartConfigToData(singularChartDataGroup, 'land_use_historical')
 
-      expect(result).toEqual(mockGraphChartConfig)
+      expect(result).toEqual(mockChartConfig)
     })
   })
 })

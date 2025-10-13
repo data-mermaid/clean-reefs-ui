@@ -6,16 +6,16 @@ import CloseIcon from '@mui/icons-material/Close'
 import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
-import GraphCard from '../GraphCard/GraphCard'
+import ChartCard from '../ChartCard/ChartCard'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { GraphChartConfig } from '../../types/GraphDataTypes'
+import { ChartConfig } from '../../types/ChartDataTypes'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
-  graphData: GraphChartConfig[] | null
+  chartConfigData: ChartConfig[] | null
 }
 
-export default function TrendsDrawer({ selectedRegion, graphData }: TrendsDrawerProps) {
+export default function TrendsDrawer({ selectedRegion, chartConfigData }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
@@ -44,22 +44,22 @@ export default function TrendsDrawer({ selectedRegion, graphData }: TrendsDrawer
         )}
       </div>
 
-      <div className={styles[`graphs-container--${open ? 'open' : 'closed'}`]}>
-        {graphData ? (
-          graphData?.map((graph) => {
+      <div className={styles[`charts-container--${open ? 'open' : 'closed'}`]}>
+        {chartConfigData ? (
+          chartConfigData?.map((chart) => {
             return (
-              <GraphCard
-                key={graph.graphType}
+              <ChartCard
+                key={chart.chartSeriesName}
                 open={open}
                 {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                 region={selectedRegion.regionType}
-                graphData={graph}
+                chartConfigData={chart}
               />
             )
           })
         ) : (
           <Typography className={styles['graph-card__no-data-label']}>
-            {t('graphs.no_data_available')}
+            {t('charts.no_data_available')}
           </Typography>
         )}
       </div>

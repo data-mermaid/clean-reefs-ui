@@ -18,11 +18,11 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 
-import { updateGraphData } from '../../utils/graphUtils'
+import { updateChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { GraphChartConfig } from '../../types/GraphDataTypes'
+import { ChartConfig } from '../../types/ChartDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -31,14 +31,14 @@ interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setGraphData: Dispatch<SetStateAction<GraphChartConfig[] | null>>
+  setChartConfigData: Dispatch<SetStateAction<ChartConfig[] | null>>
 }
 
 export default function BaseMap({
   mapLayers,
   selectedRegion,
   setSelectedRegion,
-  setGraphData,
+  setChartConfigData,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
@@ -78,17 +78,17 @@ export default function BaseMap({
     map?.jumpTo(jumpOptions)
   }, [selectedRegion])
 
-  const loadGraphData = useCallback(
+  const loadChartData = useCallback(
     (point, activeLayers, zoomLevel: number) => {
       if (!mapRef.current) {
         return
       }
       const map = mapRef.current?.getMap()
 
-      //todo: when global data is available, make a default for global with optional loadGraphData arguments
+      //todo: when global data is available, make a default for global with optional loadChartData arguments
       //doesn't account for if the layer hasn't loaded yet
       if (activeLayers.length > 0) {
-        //query the layers corresponding with graphs and with layers that are on
+        //query the layers corresponding with charts and with layers that are on
         const features = map.queryRenderedFeatures(point, {
           layers: activeLayers,
         })
@@ -103,17 +103,17 @@ export default function BaseMap({
             const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
             setSelectedRegion(mappedRegion)
 
-            //trigger graph data update
-            updateGraphData(firstFeature, setGraphData)
+            //trigger chart data update
+            updateChartData(firstFeature, setChartConfigData)
           } else {
-            setGraphData(null)
+            setChartConfigData(null)
           }
         } else {
-          setGraphData(null)
+          setChartConfigData(null)
         }
       }
     },
-    [currentLngLat, setGraphData, setSelectedRegion],
+    [currentLngLat, setChartConfigData, setSelectedRegion],
   )
 
   if (
@@ -177,7 +177,7 @@ export default function BaseMap({
   const handleMapLoad = () => {
     setIsMapLoaded(true)
     const activeLayers = getActiveLayers(mapLayers)
-    loadGraphData(defaultPoint, activeLayers, defaultMapZoom)
+    loadChartData(defaultPoint, activeLayers, defaultMapZoom)
   }
 
   const handleMapClick = (event) => {
@@ -190,7 +190,7 @@ export default function BaseMap({
     }
     setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
     const activeLayers = getActiveLayers(mapLayers)
-    loadGraphData(event.point, activeLayers, zoom)
+    loadChartData(event.point, activeLayers, zoom)
   }
 
   return (

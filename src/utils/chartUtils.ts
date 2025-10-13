@@ -1,6 +1,6 @@
 import i18next from 'i18next'
-import { GraphChartConfig, GraphData, GraphType, PlotlyData } from '../types/GraphDataTypes'
-import { graphChartConfig } from '../data/graphData'
+import { ChartConfig, ChartData, ChartSeriesName, PlotlyData } from '../types/ChartDataTypes'
+import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
 
@@ -8,8 +8,8 @@ import { Dispatch, SetStateAction } from 'react'
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
 //The boundary PM tiles layers include data for land_use_historical and sediment_exposure_historical
-export const getBoundaryFileGraphData = (pointProperties) => {
-  const graphData = {
+export const getBoundaryFileChartData = (pointProperties) => {
+  const chartSeriesData = {
     land_use_historical: {
       bare_ground: {},
       built_up: {},
@@ -41,66 +41,66 @@ export const getBoundaryFileGraphData = (pointProperties) => {
       const categoryString = point.split('2')
       switch (categoryString[0]) {
         case 'Bare_Gr_pct_':
-          graphData.land_use_historical.bare_ground[year] = val
+          chartSeriesData.land_use_historical.bare_ground[year] = val
           break
         case 'Built_pct_':
-          graphData.land_use_historical.built_up[year] = val
+          chartSeriesData.land_use_historical.built_up[year] = val
           break
         case 'Crop_pct_':
-          graphData.land_use_historical.cropland[year] = val
+          chartSeriesData.land_use_historical.cropland[year] = val
           break
         case 'HC_Forest_pct_':
-          graphData.land_use_historical.high_canopy_forest[year] = val
+          chartSeriesData.land_use_historical.high_canopy_forest[year] = val
           break
         case 'M_Forest_pct_':
-          graphData.land_use_historical.mixed_forest[year] = val
+          chartSeriesData.land_use_historical.mixed_forest[year] = val
           break
         case 'Shrub_Grass_pct_':
-          graphData.land_use_historical.shrubland_grassland[year] = val
+          chartSeriesData.land_use_historical.shrubland_grassland[year] = val
           break
         case 'Water_pct_':
-          graphData.land_use_historical.surface_water[year] = val
+          chartSeriesData.land_use_historical.surface_water[year] = val
           break
         case 'sed_export_':
-          graphData.sediment_exposure_historical.sediment[year] = val
+          chartSeriesData.sediment_exposure_historical.sediment[year] = val
           break
       }
     }
   }
-  return graphData
+  return chartSeriesData
 }
 
-export const mapGraphAttributes = (
-  sortedProperties: GraphData,
-  graphType: GraphType,
-): GraphChartConfig => {
-  const graphConfig = graphChartConfig[`graphs.${graphType}`]
-  const xAxisTitle = i18next.t(graphConfig.xAxisTitle)
-  const graphData: PlotlyData[] = []
+export const mapChartConfigToData = (
+  sortedProperties: ChartData,
+  chartSeriesName: ChartSeriesName,
+): ChartConfig => {
+  const chartConfig = chartSeriesConfig[`charts.${chartSeriesName}`]
+  const xAxisTitle = i18next.t(chartConfig.xAxisTitle)
+  const chartConfigData: PlotlyData[] = []
 
   // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    const prefixedCategory = graphConfig.categoryPrefix
-      ? `${graphConfig.categoryPrefix}.${category}`
+    const prefixedCategory = chartConfig.categoryPrefix
+      ? `${chartConfig.categoryPrefix}.${category}`
       : `${category}`
     const categoryName: string = i18next.t(prefixedCategory)
     const hoverTemplate =
-      graphType === 'sediment_exposure_historical'
+      chartSeriesName === 'sediment_exposure_historical'
         ? `${xAxisTitle}: %{x}<br />${categoryName}: %{y:.2f}T<extra></extra>`
         : `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`
 
-    graphData.push({
+    chartConfigData.push({
       x: sortedYears,
       y:
-        graphType === 'sediment_exposure_historical'
+        chartSeriesName === 'sediment_exposure_historical'
           ? sortedYears.map((year) => yearData[year] / 1000000)
           : sortedYears.map((year) => yearData[year]),
       type: 'bar',
       name: categoryName,
       marker: {
-        color: graphConfig.legendColors[category],
+        color: chartConfig.legendColors[category],
       },
       hovertemplate: hoverTemplate,
       width: 3,
@@ -108,28 +108,28 @@ export const mapGraphAttributes = (
   })
   return {
     xAxisTitle: xAxisTitle,
-    yAxisTitle: i18next.t(graphConfig.yAxisTitle),
-    graphData: graphData,
-    graphType: graphType,
-  } as GraphChartConfig
+    yAxisTitle: i18next.t(chartConfig.yAxisTitle),
+    plotlyConfigData: chartConfigData,
+    chartSeriesName: chartSeriesName,
+  } as ChartConfig
 }
 
-export const updateGraphData = (
+export const updateChartData = (
   feature: MapGeoJSONFeature,
-  setGraphData: Dispatch<SetStateAction<GraphChartConfig[] | null>>,
+  setChartData: Dispatch<SetStateAction<ChartConfig[] | null>>,
 ) => {
-  let graphData
+  let chartSeriesData
   //1. get data from appropriate source
   if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
-    graphData = getBoundaryFileGraphData(feature.properties)
+    chartSeriesData = getBoundaryFileChartData(feature.properties)
     //more sources to go here
   }
 
   //2. map data to chart config data
-  const mappedData: GraphChartConfig[] = Object.entries(graphData).map((dataSet) =>
-    mapGraphAttributes(dataSet[1] as GraphData, dataSet[0] as GraphType),
+  const mappedData: ChartConfig[] = Object.entries(chartSeriesData).map((dataSet) =>
+    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
   )
 
   //3. set data
-  setGraphData(mappedData)
+  setChartData(mappedData)
 }
