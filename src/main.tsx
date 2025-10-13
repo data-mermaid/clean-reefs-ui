@@ -11,13 +11,6 @@ import '@fontsource/titillium-web/400.css'
 import '@fontsource/titillium-web/600.css'
 import '@fontsource/titillium-web/900.css'
 
-// const theme = createTheme({
-//   palette: {
-//     primary: { main: '#003f5c', light: '#a3b8c8' },
-//     secondary: { main: '#dddce4', light: '#f5f5f5' },
-//   },
-// })
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <StyledEngineProvider injectFirst>
