@@ -11,13 +11,13 @@ interface GradientLegendProps {
 export default function GradientLegend({ variation, title }: GradientLegendProps) {
   const { t } = useTranslation()
   return (
-    <div className={styles['GradientLegend-root']}>
+    <div className={styles['GradientLegend']}>
       <h3>{t(title)}</h3>
-      <div className={styles['GradientLegend-legend']}>
+      <div className={styles['GradientLegend__legend']}>
         <Typography>{t('scale_low')}</Typography>
         <Typography>{t('scale_high')}</Typography>
       </div>
-      <div className={clsx(styles['GradientLegend-scale'], styles[variation])}></div>
+      <div className={clsx(styles['GradientLegend__scale'], styles[variation])}></div>
     </div>
   )
 }

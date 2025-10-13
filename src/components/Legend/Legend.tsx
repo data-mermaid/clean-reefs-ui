@@ -3,8 +3,6 @@ import styles from './Legend.module.scss'
 import { Typography } from '@mui/material'
 import { graphChartConfig } from '../../data/graphData'
 
-// interface LegendProps {}
-
 export default function Legend() {
   const { t } = useTranslation()
   const getItems = () => {
@@ -13,12 +11,12 @@ export default function Legend() {
     )
     return graphLegendColors.map(([key, value]) => {
       return (
-        <div className={styles['legend__row']} key={key}>
+        <div className={styles['Legend__row']} key={key}>
           <Typography>{t(`land_types.${key}`)}</Typography>
-          <div className={styles['legend-item']} style={{ backgroundColor: `${value}` }} />
+          <div className={styles['Legend__item']} style={{ backgroundColor: `${value}` }} />
         </div>
       )
     })
   }
-  return <div className={styles['Legend-root']}>{getItems()}</div>
+  return <div className={styles['Legend']}>{getItems()}</div>
 }

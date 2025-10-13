@@ -15,16 +15,13 @@ Create a `.env` file based off of `.env.example`. [Sign up for Maptiler](https:/
 DRY, re-usable components that can be unit tested. Basic components (Button, Input, Card or other components generally without children) to be visually tested using Storybook.
 Use MUI components and style guidelines.
 
-Use SCSS modules to override MUI styling. Class name syntax:
-`.Mui<MuiComponentNameHere>__<subComponent>--state`
-
+Use SCSS modules to override MUI styling. Most MUI components have a CSS class on the API to be used for overriding styles, which should be used as the target for the SCSS module.
 Examples:
-`.MuiDrawer-root`
-`.MuiButton-paper`
-`.TrendsDrawer--open`
-`.form__submit--disabled`
 
-Add classes to the MUI component files example:
+- `.MuiDrawer-root`
+- `.MuiButton-paper`
+
+Overriding MUI component classes, applied to the component example:
 
 ```
 classes={{
@@ -33,6 +30,13 @@ classes={{
         modal: styles["MuiDrawer-modal"]
       }}
 ```
+
+We utilize the [BEM naming syntax](https://getbem.com/naming/) for everything beyond the MUI overrides.
+BEM naming syntax: `.Mui<MuiComponentNameHere>__<subComponent>--state`
+Examples:
+
+- `.TrendsDrawer--open`
+- `.form__submit--disabled`
 
 MUI components consist of multiple components and usually render out several children `divs` with subcomponent class names.
 
@@ -48,6 +52,12 @@ Data constants go into 'constants.ts', which include:
 
 - Links
 - Data used across the app (years, etc)
+
+## Unit tests
+
+Write out tests for functions targetting main and edge cases. Use Jest and React Testing Library.
+
+- `yarn test`
 
 ## Visual tests
 

@@ -1,12 +1,12 @@
 @use '../../styles/theme';
-.Legend-root {
+.Legend {
   display: block;
   background-color: theme.$grey;
   border-radius: theme.$borderRadius;
   padding: theme.$defaultSpacing;
   max-width: 300px;
 }
-.legend-item {
+.Legend__item {
   display: block;
   background-color: theme.$grey;
   width: 15px;
@@ -14,7 +14,7 @@
   border: 1px solid black;
 }
 
-.legend__row {
+.Legend__row {
   display: flex;
   justify-content: space-between;
 }
