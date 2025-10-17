@@ -24,7 +24,8 @@
       padding: theme.$spacingMedium theme.$defaultSpacing 0;
     }
     &.closed-drawer {
-      height: theme.$closedBottomDrawerHeight;
+      height: auto;
+      max-height: theme.$closedBottomDrawerHeight;
       margin-top: theme.$defaultSpacing;
       padding: theme.$spacingMedium theme.$defaultSpacing theme.$defaultSpacing;
       visibility: visible !important; //override MUI component styles
