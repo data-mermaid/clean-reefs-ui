@@ -73,7 +73,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'lulc_2000_visual',
     sourceName: '',
-    layerId: 'lulc_2000',
+    layerId: 'lulc',
     link: LULC_2000_URL,
     dataType: 'tiles',
     parentLayerType: 'landcover',
@@ -85,7 +85,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'lulc_2005_visual',
     sourceName: '',
-    layerId: 'lulc_2005',
+    layerId: 'lulc',
     link: LULC_2005_URL,
     dataType: 'tiles',
     parentLayerType: 'landcover',

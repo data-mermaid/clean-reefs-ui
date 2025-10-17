@@ -13,7 +13,7 @@ export interface PlotlyData {
   type: 'bar'
   name: string
   marker?: object
-  categoryPrefix?: string
+  tracePrefix?: string
   hovertemplate?: string
   width: number
 }

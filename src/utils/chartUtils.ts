@@ -7,9 +7,24 @@ import { Dispatch, SetStateAction } from 'react'
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
+export interface LulcAndSedimentSeriesData {
+  land_use_historical: {
+    bare_ground: object
+    built_up: object
+    cropland: object
+    high_canopy_forest: object
+    mixed_forest: object
+    shrubland_grassland: object
+    surface_water: object
+  }
+  sediment_exposure_historical: {
+    sediment: object
+  }
+}
+
 //The boundary PM tiles layers include data for land_use_historical and sediment_exposure_historical
-export const getBoundaryFileChartData = (pointProperties) => {
-  const chartSeriesData = {
+export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeriesData => {
+  const chartSeriesData: LulcAndSedimentSeriesData = {
     land_use_historical: {
       bare_ground: {},
       built_up: {},
@@ -82,14 +97,14 @@ export const mapChartConfigToData = (
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    const prefixedCategory = chartConfig.categoryPrefix
-      ? `${chartConfig.categoryPrefix}.${category}`
+    const prefixedTrace = chartConfig.tracePrefix
+      ? `${chartConfig.tracePrefix}.${category}`
       : `${category}`
-    const categoryName: string = i18next.t(prefixedCategory)
+    const traceName: string = i18next.t(prefixedTrace)
     const hoverTemplate =
       chartSeriesName === 'sediment_exposure_historical'
-        ? `${xAxisTitle}: %{x}<br />${categoryName}: %{y:.2f}T<extra></extra>`
-        : `${xAxisTitle}: %{x}<br />${categoryName}: %{y}%<extra></extra>`
+        ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
+        : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
 
     chartConfigData.push({
       x: sortedYears,
@@ -98,7 +113,7 @@ export const mapChartConfigToData = (
           ? sortedYears.map((year) => yearData[year] / 1000000)
           : sortedYears.map((year) => yearData[year]),
       type: 'bar',
-      name: categoryName,
+      name: traceName,
       marker: {
         color: chartConfig.legendColors[category],
       },
@@ -123,6 +138,15 @@ export const updateChartData = (
   if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
     chartSeriesData = getBoundaryFileChartData(feature.properties)
     //more sources to go here
+  }
+  const hasData = Object.values(chartSeriesData).some((series) =>
+    Object.values(series as Record<string, object>).some(
+      (yearData) => Object.keys(yearData).length > 0,
+    ),
+  )
+  if (!hasData) {
+    setChartData(null)
+    return
   }
 
   //2. map data to chart config data

@@ -12,7 +12,11 @@ export default function GradientLegend({ variation, title }: GradientLegendProps
   const { t } = useTranslation()
   return (
     <div className={styles['GradientLegend']}>
-      <h3>{t(title)}</h3>
+      {title && (
+        <Typography variant="h6" component="h3">
+          {t(title)}
+        </Typography>
+      )}
       <div className={styles['GradientLegend__legend']}>
         <Typography>{t('scale_low')}</Typography>
         <Typography>{t('scale_high')}</Typography>

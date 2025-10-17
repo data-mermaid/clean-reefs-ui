@@ -13,7 +13,7 @@ export const chartSeriesConfig = {
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.land_cover_pct',
     name: 'charts.land_use_historical',
-    categoryPrefix: 'land_types',
+    tracePrefix: 'land_types',
   },
   'charts.ecosystem_extent_exposed': {
     width: 2,
@@ -21,7 +21,7 @@ export const chartSeriesConfig = {
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.area_exposed_ha',
     name: 'charts.ecosystem_extent_exposed',
-    categoryPrefix: '',
+    tracePrefix: '',
   },
   'charts.sediment_exposure_historical': {
     width: 2,
@@ -31,7 +31,7 @@ export const chartSeriesConfig = {
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.sediment_exposure',
     name: 'charts.sediment_exposure_historical',
-    categoryPrefix: '',
+    tracePrefix: '',
   },
   'charts.sediment_load_historical': {},
   'charts.contributing_watersheds': {},

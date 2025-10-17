@@ -58,7 +58,7 @@ export default function TrendsDrawer({ selectedRegion, chartConfigData }: Trends
             )
           })
         ) : (
-          <Typography className={styles['graph-card__no-data-label']}>
+          <Typography className={styles['chart-card__no-data-label']}>
             {t('charts.no_data_available')}
           </Typography>
         )}
