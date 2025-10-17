@@ -6,7 +6,16 @@ export const WATERSHED_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/watersheds/watersheds.pmtiles'
 export const GLOBAL_LULC_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/outputs/land/regional/Central_Indo_Pacific_LULC_SDR.pmtiles'
+
 export const LULC_2000_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2000_visual.tif'
+export const LULC_2005_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2005_visual.tif'
+export const LULC_2010_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2010_visual.tif'
+export const LULC_2015_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2015_visual.tif'
+export const LULC_2020_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2020_visual.tif'
 export const ACA_BENTHIC_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/aca_benthic/aca_benthic_visual.tif'

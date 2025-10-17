@@ -1,6 +1,11 @@
 import {
+  ACA_BENTHIC_URL,
   COUNTRIES_PMTILES_URL,
   LULC_2000_URL,
+  LULC_2005_URL,
+  LULC_2010_URL,
+  LULC_2015_URL,
+  LULC_2020_URL,
   REGIONS_PMTILES_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
@@ -11,8 +16,27 @@ export interface LayerInfo {
   layerId: string
   link: string
   dataType: 'pmtiles' | 'tiles' | undefined
+  parentLayerType:
+    | 'base'
+    | 'benthic'
+    | 'boundaries'
+    | 'landcover'
+    | 'landPollution'
+    | 'oceanPollution'
   isLayerOn: boolean
   title: string
+  scaleVariation?: string
+  legendType?: 'gradient' | 'lulc'
+  year?: 2000 | 2005 | 2010 | 2015 | 2020
+}
+
+export const parentLayerTitles = {
+  landPollution: 'map_layer_groups.land_pollution_layers',
+  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  landcover: 'map_layer_groups.land_use_cover',
+  boundaries: 'map_layer_groups.boundaries',
+  benthic: 'map_layer_groups.benthic_layers',
+  base: 'map_layer_groups.base_map',
 }
 
 export const layers: LayerInfo[] = [
@@ -22,17 +46,9 @@ export const layers: LayerInfo[] = [
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     dataType: 'pmtiles',
+    parentLayerType: 'boundaries',
     isLayerOn: true,
-    title: 'map_layers.regional_boundaries',
-  },
-  {
-    sourceId: 'lulc_2000_visual',
-    sourceName: '',
-    layerId: 'lulc',
-    link: LULC_2000_URL,
-    dataType: 'tiles',
-    isLayerOn: false,
-    title: 'map_layers.land_use_cover',
+    title: 'boundary_map_layers.regional_boundaries',
   },
   {
     sourceId: 'countries_src',
@@ -40,8 +56,9 @@ export const layers: LayerInfo[] = [
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     dataType: 'pmtiles',
-    isLayerOn: false,
-    title: 'map_layers.country_boundaries',
+    parentLayerType: 'boundaries',
+    isLayerOn: true,
+    title: 'boundary_map_layers.country_boundaries',
   },
   {
     sourceId: 'watershed_src',
@@ -49,16 +66,78 @@ export const layers: LayerInfo[] = [
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     dataType: 'pmtiles',
-    isLayerOn: false,
-    title: 'map_layers.watershed_boundaries',
+    parentLayerType: 'boundaries',
+    isLayerOn: true,
+    title: 'boundary_map_layers.watershed_boundaries',
   },
-  // { //todo: request optimized data layer
-  //   sourceId: 'aca_benthic_visual',
-  //   sourceName: '',
-  //   layerId: 'aca-benthic',
-  //   link: ACA_BENTHIC_URL,
-  //   dataType: 'tiles',
-  //   isLayerOn: false,
-  //   title: 'Benthic',
-  // },
+  {
+    sourceId: 'lulc_2000_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2000_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    title: 'map_layer_groups.land_use_cover',
+    legendType: 'lulc',
+    year: 2000,
+  },
+  {
+    sourceId: 'lulc_2005_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2005_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    title: 'map_layer_groups.land_use_cover',
+    legendType: 'lulc',
+    year: 2005,
+  },
+  {
+    sourceId: 'lulc_2010_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2010_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2010,
+  },
+  {
+    sourceId: 'lulc_2015_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2015_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2015,
+  },
+  {
+    sourceId: 'lulc_2020_visual',
+    sourceName: '',
+    layerId: 'lulc',
+    link: LULC_2020_URL,
+    dataType: 'tiles',
+    parentLayerType: 'landcover',
+    isLayerOn: false,
+    legendType: 'lulc',
+    title: 'map_layer_groups.land_use_cover',
+    year: 2020,
+  },
+  {
+    sourceId: 'aca_benthic_visual',
+    sourceName: '',
+    layerId: 'aca-benthic',
+    link: ACA_BENTHIC_URL,
+    dataType: 'tiles',
+    parentLayerType: 'benthic',
+    isLayerOn: false,
+    title: 'Benthic',
+  },
 ]

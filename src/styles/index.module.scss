@@ -1,4 +1,5 @@
 @use 'theme';
+@use '@fontsource/titillium-web';
 
 :root {
   background-color: theme.$white;
@@ -42,7 +43,7 @@
 
   h2 {
     font-size: theme.$defaultTextSize;
-    font-weight: theme.$bold;
+    font-weight: theme.$semiBold;
   }
 
   h3 {

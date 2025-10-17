@@ -10,13 +10,13 @@
   margin-bottom: theme.$defaultSpacing;
 }
 
-.graphs-container--open {
+.charts-container--open {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.graphs-container--closed {
+.charts-container--closed {
   margin-top: theme.$defaultSpacing;
   min-width: 100%;
   width: max-content;

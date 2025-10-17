@@ -5,15 +5,14 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { LayerInfo } from '../../data/mapData'
+import { LayerInfo, parentLayerTitles } from '../../data/mapData'
+import Legend from '../Legend/Legend'
 
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
-
-const layersWithYear = ['lulc']
 
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
@@ -29,6 +28,36 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         : layer // Keep other layers unchanged
     })
     setMapLayers(updatedLayers)
+  }
+  const getLayersByParentGroup = (parentGroup, toggleLayer) => {
+    const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
+
+    let mappedLayers
+    if (groupedLayers.length > 0) {
+      mappedLayers = groupedLayers.map((layer) => {
+        if (layer.year && layer.year !== selectedYear) {
+          return null
+        }
+        return (
+          <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
+            <div className={styles['layer-toggle-header']}>
+              <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+              {layer.year && <Typography>{selectedYear}</Typography>}
+              <Switch
+                className={styles['MuiSwitch-root']}
+                id={layer.layerId}
+                checked={layer.isLayerOn}
+                onChange={toggleLayer}
+              />
+            </div>
+            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
+            {/*Add back in when data layers available*/}
+            {/*{layer.legendType === 'gradient' && layer.isLayerOn && <GradientLegend variant={} title={}/>}*/}
+          </Card>
+        )
+      })
+    }
+    return mappedLayers
   }
 
   return (
@@ -48,18 +77,12 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
       >
-        <h2 style={{ padding: '8px' }}>{t('pollution_layers')}</h2>
-
-        {/*List of collapsible layer toggles go inside here*/}
-        {mapLayers.map((layer) => {
-          return (
-            <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-              <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-              {layersWithYear.includes(layer.layerId) && <Typography>{selectedYear}</Typography>}
-              <Switch id={layer.layerId} checked={layer.isLayerOn} onChange={toggleLayer} />
-            </Card>
-          )
-        })}
+        {Object.entries(parentLayerTitles).map(([key, value]) => (
+          <div key={key}>
+            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+            {getLayersByParentGroup(key, toggleLayer)}
+          </div>
+        ))}
       </StyledSwipeableDrawer>
     </div>
   )

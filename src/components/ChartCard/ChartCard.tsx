@@ -1,34 +1,34 @@
 import React, { MouseEventHandler, useState } from 'react'
 import { Card, Typography } from '@mui/material'
-import styles from './GraphCard.module.scss'
+import styles from './ChartCard.module.scss'
 import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
-import { GraphChartConfig } from '../../types/GraphDataTypes'
+import { ChartConfig } from '../../types/ChartDataTypes'
 
-interface GraphCardProps {
+interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   region?: string
-  graphData: GraphChartConfig | null
+  chartConfigData: ChartConfig | null
 }
 
-const getCardHeaderClassNames = (isOpen: boolean, graphData: GraphChartConfig | null) => {
-  const baseClass = styles['graph-card__header']
-  if (!graphData) {
-    return `${baseClass} ${styles['graph-card__header--no-data']}`
+const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartConfig | null) => {
+  const baseClass = styles['chart-card__header']
+  if (!chartConfigData) {
+    return `${baseClass} ${styles['chart-card__header--no-data']}`
   }
 
-  return `${baseClass} ${styles[`graph-card__header--${isOpen ? 'open' : 'closed'}`]}`
+  return `${baseClass} ${styles[`chart-card__header--${isOpen ? 'open' : 'closed'}`]}`
 }
 
-export default function GraphCard({
+export default function ChartCard({
   open = true,
   onClick,
   region = 'global',
-  graphData,
-}: GraphCardProps) {
+  chartConfigData,
+}: ChartCardProps) {
   const { t } = useTranslation()
   const [loading] = useState(false)
 
@@ -36,11 +36,11 @@ export default function GraphCard({
     if (loading) {
       return <LoadingState isOverlay={false} />
     }
-    if (graphData !== null) {
+    if (chartConfigData !== null) {
       return (
         <Plot
-          data={graphData.graphData}
-          className={styles['graph-card__plot']}
+          data={chartConfigData.plotlyConfigData}
+          className={styles['chart-card__plot']}
           config={plotlyTheme.config}
           layout={{
             ...plotlyTheme.layout,
@@ -48,37 +48,37 @@ export default function GraphCard({
               ...plotlyTheme.layout.yaxis,
               title: {
                 ...plotlyTheme.layout.yaxis.title,
-                text: t(graphData.yAxisTitle),
+                text: t(chartConfigData.yAxisTitle),
               },
             },
             xaxis: {
               ...plotlyTheme.layout.xaxis,
               title: {
                 ...plotlyTheme.layout.xaxis.title,
-                text: t(graphData.xAxisTitle),
+                text: t(chartConfigData.xAxisTitle),
               },
             },
-            showlegend: graphData.graphData.length > 1,
+            showlegend: chartConfigData.plotlyConfigData.length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
         />
       )
     }
     return (
-      <Typography className={styles['graph-card__no-data-label']}>
-        {t('graphs.no_data_available')}
+      <Typography className={styles['chart-card__no-data-label']}>
+        {t('charts.no_data_available')}
       </Typography>
     )
   }
 
   return (
-    <Card {...(onClick ? { onClick: onClick } : {})} className={styles['graph-card']}>
-      <div className={getCardHeaderClassNames(open, graphData)}>
-        <Typography className={styles['graph-card__region-label']}>
+    <Card {...(onClick ? { onClick: onClick } : {})} className={styles['chart-card']}>
+      <div className={getCardHeaderClassNames(open, chartConfigData)}>
+        <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${region}`)}
         </Typography>
-        <Typography className={styles['graph-card__graph-label']}>
-          {t(graphData?.graphType)}
+        <Typography className={styles['chart-card__chart-label']}>
+          {t(chartConfigData?.chartSeriesName)}
         </Typography>
       </div>
       {open && renderGraphContent()}

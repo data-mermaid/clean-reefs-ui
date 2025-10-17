@@ -12,7 +12,7 @@
     "land_cover_pct": "Land cover (%)",
     "sediment_exposure": "Sediment exposure (Metric tons)"
   },
-  "graphs": {
+  "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
     "land_use_historical": "Land use through time",
@@ -30,11 +30,16 @@
     "surface_water": "Surface water",
     "sediment": "Sediment"
   },
-  "map_layers": {
-    "country_boundaries": "Country boundaries",
-    "land_use_cover": "Land use / land cover",
+  "map_layer_groups": {
+    "base_map": "Base map",
+    "benthic_layers": "Benthic layers",
+    "boundaries": "Boundaries",
+    "land_pollution_layers": "Pollution layers",
+    "land_use_cover": "Land use / Land cover",
+    "ocean_pollution_layers": "Ocean pollution layers",
+    "watershed_boundaries": "Watershed boundaries",
     "regional_boundaries": "Regional boundaries",
-    "watershed_boundaries": "Watershed boundaries"
+    "country_boundaries": "Country boundaries"
   },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
@@ -47,17 +52,34 @@
     "select_region": "Select region",
     "watershed": "Watershed"
   },
-  "pollution_layers": "Pollution layers",
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
   "base_map": "Base map",
   "benthic_layers": "Benthic layers",
   "boundaries": "Boundaries",
+  "area_exposed_ha": "Area exposed (ha)",
+  "scale_low": "Low",
+  "scale_high": "High",
+  "benthic_map_layers": {
+    "coral_algae": "Coral/Algae",
+    "microalgal_mats": "Microalgal mats",
+    "reef_extent": "Reef extent",
+    "rock": "Rock",
+    "rubble": "Rubble",
+    "sand": "Sand",
+    "seagrass": "Seagrass"
+  },
+  "boundary_map_layers": {
+    "watershed_boundaries": "Watershed boundaries",
+    "country_boundaries": "Country boundaries",
+    "regional_boundaries": "Regional boundaries"
+  },
   "contact": "Contact",
+  "concentration": "Concentration",
   "coral_reef": "Coral reef",
-  "coral_algae": "Coral/Algae",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
+  "exposure": "Exposure",
   "global_trends": "Global trends",
   "google_satellite": "Google satellite",
   "high_concentration": "High concentration",
@@ -69,17 +91,12 @@
   "loading": "Loading",
   "low_concentration": "Low concentration",
   "low_sediment": "Low sediment",
-  "microalgal_mats": "Microalgal mats",
   "ocean_pollution_dispersal": "Ocean pollution dispersal",
   "pixel_value": "Pixel value",
   "pollution_export": "Pollution export",
   "reef_extent_exposure": "Reef ecosystem extent exposure",
-  "reef_extent": "Reef extent",
-  "rock": "Rock",
-  "rubble": "Rubble",
-  "sand": "Sand",
+
   "science_and_methods": "Science and methods",
-  "seagrass": "Seagrass",
   "sediment": "Sediment",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
