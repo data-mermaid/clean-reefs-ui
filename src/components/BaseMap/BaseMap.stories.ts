@@ -3,6 +3,8 @@ import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LngLat } from 'maplibre-gl'
+import { expect } from 'storybook/test'
+import i18next from 'i18next'
 
 const meta = {
   component: BaseMap,
@@ -23,14 +25,12 @@ export const Primary: Story = {
     setSelectedRegion: () => {},
     setChartConfigData: () => {},
   },
-  // todo: testing for loading state -- load state component should unmount
-  // play: async ({ canvas }) => {
-  //   const loadingText = i18next.t('loading')
-  //   await expect(canvas.queryByText(loadingText)).toBeInTheDocument()
-  //
-  //   //todo: target canvas load
-  //   // await expect(canvas.queryByText(loadingText)).toBe(null)
-  // },
+  play: async ({ canvas }) => {
+    const loadingText = i18next.t('loading')
+
+    await expect(canvas.queryByText(loadingText)).toBe(null)
+    expect(canvas.queryAllByLabelText('5 km')).toBeDefined() //ScaleControl
+  },
 }
 
 export const Loading: Story = {

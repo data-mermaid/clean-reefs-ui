@@ -219,7 +219,7 @@ export default function BaseMap({
       >
         {isDesktopWidth && (
           <>
-            <ScaleControl style={{ marginTop: '20px' }} position="bottom-right" />
+            <ScaleControl position="bottom-right" />
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
         )}
