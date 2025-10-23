@@ -1,0 +1,29 @@
+[
+  {
+    "marker": {
+      "color": "FB9A99"
+    },
+    "hovertemplate": "year: %{x}<br />benthic_map_layers.reef_extent: %{y}%<extra></extra>",
+    "name": "benthic_map_layers.reef_extent",
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [5, 9, 10, 11, 11]
+  },
+  {
+    "marker": {
+      "color": "#003F5C"
+    },
+    "hovertemplate": "year: %{x}<br />benthic_map_layers.coral_algae: %{y}%<extra></extra>",
+    "name": "benthic_map_layers.coral_algae",
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [1, 3, 2, 3, 3]
+  },
+  {
+    "marker": {
+      "color": "#FFA600"
+    },
+    "hovertemplate": "year: %{x}<br />benthic_map_layers.seagrass: %{y}%<extra></extra>",
+    "name": "benthic_map_layers.seagrass",
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [2, 1, 3, 3, 4]
+  }
+]
