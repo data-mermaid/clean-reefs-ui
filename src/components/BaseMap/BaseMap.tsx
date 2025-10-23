@@ -8,7 +8,14 @@ import React, {
   useState,
 } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
-import { Layer, Map as MapGL, MapRef, NavigationControl, Source } from 'react-map-gl/maplibre'
+import {
+  Layer,
+  Map as MapGL,
+  MapRef,
+  NavigationControl,
+  Source,
+  ScaleControl,
+} from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
@@ -211,13 +218,10 @@ export default function BaseMap({
         onClick={handleMapClick}
       >
         {isDesktopWidth && (
-          <NavigationControl
-            position={'bottom-right'}
-            showCompass={false}
-            style={{
-              marginRight: '380px',
-            }}
-          />
+          <>
+            <ScaleControl position="bottom-right" />
+            <NavigationControl position="bottom-right" showCompass={false} />
+          </>
         )}
         {mapLayers.map((layer, index) => {
           return layer.dataType === 'pmtiles'

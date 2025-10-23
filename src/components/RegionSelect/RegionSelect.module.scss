@@ -40,7 +40,7 @@
     &[aria-selected='true'] {
       background-color: theme.$primary !important;
       color: theme.$white !important;
-      font-weight: theme.$bold;
+      font-weight: theme.$semiBold;
 
       &:hover {
         background-color: theme.$primary;
@@ -65,7 +65,7 @@
 .group-header {
   position: sticky;
   top: -8px;
-  font-weight: theme.$bold;
+  font-weight: theme.$semiBold;
   padding: theme.$spacingSmall theme.$spacingMedium;
   background-color: theme.$secondaryLight;
   border-bottom: 1px solid theme.$secondary;

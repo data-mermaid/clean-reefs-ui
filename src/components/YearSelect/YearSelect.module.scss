@@ -59,7 +59,7 @@
   .dropdown__option--selected {
     background: theme.$primary !important;
     color: theme.$white !important;
-    font-weight: theme.$bold;
+    font-weight: theme.$semiBold;
 
     &:hover {
       background: theme.$primary !important;

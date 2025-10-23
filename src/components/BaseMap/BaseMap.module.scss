@@ -10,3 +10,7 @@
   height: 100%;
   z-index: theme.$baseMap;
 }
+
+:global(.maplibregl-ctrl-bottom-right) {
+  right: theme.$drawerWidth;
+}
