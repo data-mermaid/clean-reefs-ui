@@ -3,9 +3,8 @@ import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LngLat } from 'maplibre-gl'
-import { expect } from 'storybook/test'
+import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
-import { waitFor } from '@storybook/test'
 
 const meta = {
   component: BaseMap,
