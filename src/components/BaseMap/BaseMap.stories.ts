@@ -5,6 +5,7 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import { LngLat } from 'maplibre-gl'
 import { expect } from 'storybook/test'
 import i18next from 'i18next'
+import { waitFor } from '@storybook/test'
 
 const meta = {
   component: BaseMap,
@@ -26,10 +27,16 @@ export const Primary: Story = {
     setChartConfigData: () => {},
   },
   play: async ({ canvas }) => {
+    // ensure story behaves as "desktop"
+    globalThis.innerWidth = 1200
+    globalThis.dispatchEvent(new Event('resize'))
+
     const loadingText = i18next.t('loading')
 
-    await expect(canvas.queryByText(loadingText)).toBe(null)
-    expect(canvas.queryAllByLabelText('5 km')).toBeDefined() //ScaleControl
+    await waitFor(() => expect(canvas.queryByText(loadingText)).toBeNull())
+    // ScaleControl renders plain text, not a form value; use findByText (async) or getByText
+    const scale = await canvas.findByText(/5\s?km/)
+    expect(scale).toBeInTheDocument()
   },
 }
 
