@@ -8,11 +8,11 @@ import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { ChartConfig } from '../../types/ChartDataTypes'
+import { ChartProperties } from '../../types/ChartDataTypes'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
-  chartConfigData: ChartConfig[] | null
+  chartConfigData: ChartProperties[] | null
 }
 
 export default function TrendsDrawer({ selectedRegion, chartConfigData }: TrendsDrawerProps) {
@@ -49,7 +49,7 @@ export default function TrendsDrawer({ selectedRegion, chartConfigData }: Trends
           chartConfigData?.map((chart) => {
             return (
               <ChartCard
-                key={chart.chartSeriesName}
+                key={chart.chartName}
                 open={open}
                 {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                 region={selectedRegion.regionType}

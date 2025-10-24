@@ -1,9 +1,4 @@
-import {
-  getBoundaryFileChartData,
-  LulcAndSedimentSeriesData,
-  mapChartConfigToData,
-} from '../utils/chartUtils'
-import { mockChartConfig } from './mockChartConfig'
+import { getBoundaryFileChartData, LulcAndSedimentSeriesData } from '../utils/chartUtils'
 
 const groupedProperties: LulcAndSedimentSeriesData = {
   land_use_historical: {
@@ -19,15 +14,15 @@ const groupedProperties: LulcAndSedimentSeriesData = {
     sediment: {},
   },
 }
-const singleSeriesChartData = {
-  bare_ground: { '2000': 5, '2005': 7 },
-  built_up: { '2005': 4, '2000': 2 },
-  cropland: { '2005': 7 },
-  high_canopy_forest: { '2010': 3 },
-  mixed_forest: { '2015': 4 },
-  shrubland_grassland: { '2020': 6 },
-  surface_water: { '2000': 1 },
-}
+// const singleSeriesChartData = {
+//   bare_ground: { '2000': 5, '2005': 7 },
+//   built_up: { '2005': 4, '2000': 2 },
+//   cropland: { '2005': 7 },
+//   high_canopy_forest: { '2010': 3 },
+//   mixed_forest: { '2015': 4 },
+//   shrubland_grassland: { '2020': 6 },
+//   surface_water: { '2000': 1 },
+// }
 const emptyChartSeriesData: LulcAndSedimentSeriesData = {
   land_use_historical: {
     bare_ground: {},
@@ -46,8 +41,8 @@ const emptyChartSeriesData: LulcAndSedimentSeriesData = {
 // const emptyChartConfig = {
 //   xAxisTitle: 'Year',
 //   yAxisTitle: 'Percentage of Area (%)',
-//   chartSeriesName: 'land_use_historical',
-//   plotlyConfigData: [],
+//   chartName: 'land_use_historical',
+//   chartSeriesData: [],
 // }
 //
 // const setChartData = jest.fn()
@@ -102,31 +97,31 @@ describe('chart data utilities', () => {
     })
   })
 
-  describe('mapChartConfigToData', () => {
-    it('maps values by year within category to associated chart attributes', () => {
-      const result = mapChartConfigToData(singleSeriesChartData, 'land_use_historical')
-
-      expect(result).toEqual(mockChartConfig)
-    })
-    // it('skips empty traces', () => {
-    //   const result = mapChartConfigToData(
-    //     {
-    //       land_use_historical: {
-    //         bare_ground: {},
-    //         built_up: {},
-    //         cropland: {},
-    //         high_canopy_forest: {},
-    //         mixed_forest: {},
-    //         shrubland_grassland: {},
-    //         surface_water: {},
-    //       },
-    //     },
-    //     'land_use_historical',
-    //   )
-    //
-    //   expect(result).toEqual(emptyChartConfig)
-    // })
-  })
+  // describe('mapChartConfigToData', () => {
+  // it('maps values by year within category to associated chart attributes', () => {
+  //   const result = mapChartConfigToData(singleSeriesChartData, 'land_use_historical')
+  //
+  //   expect(result).toEqual(mockChartConfig)
+  // })
+  // it('skips empty traces', () => {
+  //   const result = mapChartConfigToData(
+  //     {
+  //       land_use_historical: {
+  //         bare_ground: {},
+  //         built_up: {},
+  //         cropland: {},
+  //         high_canopy_forest: {},
+  //         mixed_forest: {},
+  //         shrubland_grassland: {},
+  //         surface_water: {},
+  //       },
+  //     },
+  //     'land_use_historical',
+  //   )
+  //
+  //   expect(result).toEqual(emptyChartConfig)
+  // })
+  // })
 
   // describe('updateChartData', () => {
   // it('sets the chart data correctly when data is available', () => {

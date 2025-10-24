@@ -9,13 +9,16 @@ import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
-import { ChartConfig } from '../../types/ChartDataTypes'
+import { ChartProperties } from '../../types/ChartDataTypes'
+import { tempGlobalChartData } from '../../data/tempGlobalChartData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [chartConfigData, setChartConfigData] = useState<ChartConfig[] | null>(null)
+  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
+    tempGlobalChartData,
+  )
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedYear, setSelectedYear] = useState(2000) //Amelia req: default to 2020 (when layer available)
+  const [selectedYear, setSelectedYear] = useState(2020)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
 
   return (
