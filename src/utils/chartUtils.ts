@@ -90,16 +90,16 @@ export const mapChartConfigToData = (
   sortedProperties: ChartData,
   chartName: ChartSeriesName,
 ): ChartProperties => {
-  const chartConfig = chartSeriesConfig[`charts.${chartName}`]
-  const xAxisTitle = i18next.t(chartConfig.xAxisTitle)
-  const chartConfigData: Partial<PlotData>[] = []
+  const chartProperties = chartSeriesConfig[`charts.${chartName}`]
+  const xAxisTitle = i18next.t(chartProperties.xAxisTitle)
+  const chartSeriesData: Partial<PlotData>[] = []
 
   // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    const prefixedTrace = chartConfig.tracePrefix
-      ? `${chartConfig.tracePrefix}.${category}`
+    const prefixedTrace = chartProperties.tracePrefix
+      ? `${chartProperties.tracePrefix}.${category}`
       : `${category}`
     const traceName: string = i18next.t(prefixedTrace)
     const hoverTemplate =
@@ -107,7 +107,7 @@ export const mapChartConfigToData = (
         ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
         : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
 
-    chartConfigData.push({
+    chartSeriesData.push({
       type: 'bar',
       x: sortedYears,
       y:
@@ -116,18 +116,18 @@ export const mapChartConfigToData = (
           : sortedYears.map((year) => yearData[year]),
       name: i18next.t(prefixedTrace),
       marker: {
-        color: chartConfig.legendColors[category],
+        color: chartProperties.legendColors[category],
       },
       hovertemplate: hoverTemplate,
-      width: chartConfig.width,
+      width: chartProperties.width,
     })
   })
   return {
     barmode: 'group',
     chartName: chartName,
-    chartSeriesData: chartConfigData,
+    chartSeriesData: chartSeriesData,
     xAxisTitle: xAxisTitle,
-    yAxisTitle: i18next.t(chartConfig.yAxisTitle),
+    yAxisTitle: i18next.t(chartProperties.yAxisTitle),
   } as ChartProperties
 }
 

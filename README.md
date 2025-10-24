@@ -54,6 +54,7 @@ Data constants go into 'constants.ts', which include:
 - Data used across the app (years, etc)
 
 ## Tests
+
 ### Unit tests
 
 Write out tests for functions targetting main and edge cases. Use Jest and React Testing Library.
@@ -68,7 +69,9 @@ Use Storybook stories. [Writing Storybook tests and types of tests](https://stor
 - Builds to `http://localhost:6006/`
 
 ## Terminology
+
 To enable consistent communications, the terminology used refers to the following:
+
 - Series: A group of related data points
 - Trace: A singular set of data points within a series
 
