@@ -3,6 +3,8 @@ import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LngLat } from 'maplibre-gl'
+import { expect, waitFor } from 'storybook/test'
+import i18next from 'i18next'
 
 const meta = {
   component: BaseMap,
@@ -23,14 +25,18 @@ export const Primary: Story = {
     setSelectedRegion: () => {},
     setChartConfigData: () => {},
   },
-  // todo: testing for loading state -- load state component should unmount
-  // play: async ({ canvas }) => {
-  //   const loadingText = i18next.t('loading')
-  //   await expect(canvas.queryByText(loadingText)).toBeInTheDocument()
-  //
-  //   //todo: target canvas load
-  //   // await expect(canvas.queryByText(loadingText)).toBe(null)
-  // },
+  play: async ({ canvas }) => {
+    // ensure story behaves as "desktop"
+    globalThis.innerWidth = 1200
+    globalThis.dispatchEvent(new Event('resize'))
+
+    const loadingText = i18next.t('loading')
+
+    await waitFor(() => expect(canvas.queryByText(loadingText)).toBeNull())
+    // ScaleControl renders plain text, not a form value; use findByText (async) or getByText
+    const scale = await canvas.findByText(/5\s?km/)
+    expect(scale).toBeInTheDocument()
+  },
 }
 
 export const Loading: Story = {
