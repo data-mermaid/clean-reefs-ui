@@ -1,8 +1,9 @@
 import i18next from 'i18next'
-import { ChartConfig, ChartData, ChartSeriesName, PlotlyData } from '../types/ChartDataTypes'
+import { ChartData, ChartProperties, ChartSeriesName } from '../types/ChartDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
+import { PlotData } from 'plotly.js'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -87,51 +88,52 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
 
 export const mapChartConfigToData = (
   sortedProperties: ChartData,
-  chartSeriesName: ChartSeriesName,
-): ChartConfig => {
-  const chartConfig = chartSeriesConfig[`charts.${chartSeriesName}`]
-  const xAxisTitle = i18next.t(chartConfig.xAxisTitle)
-  const chartConfigData: PlotlyData[] = []
+  chartName: ChartSeriesName,
+): ChartProperties => {
+  const chartProperties = chartSeriesConfig[`charts.${chartName}`]
+  const xAxisTitle = i18next.t(chartProperties.xAxisTitle)
+  const chartSeriesData: Partial<PlotData>[] = []
 
   // Sort values by year within category
   Object.entries(sortedProperties).forEach(([category, yearData]) => {
     const sortedYears = Object.keys(yearData).sort((a, b) => Number(a) - Number(b))
 
-    const prefixedTrace = chartConfig.tracePrefix
-      ? `${chartConfig.tracePrefix}.${category}`
+    const prefixedTrace = chartProperties.tracePrefix
+      ? `${chartProperties.tracePrefix}.${category}`
       : `${category}`
     const traceName: string = i18next.t(prefixedTrace)
     const hoverTemplate =
-      chartSeriesName === 'sediment_exposure_historical'
+      chartName === 'sediment_exposure_historical'
         ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
         : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
 
-    chartConfigData.push({
+    chartSeriesData.push({
+      type: 'bar',
       x: sortedYears,
       y:
-        chartSeriesName === 'sediment_exposure_historical'
+        chartName === 'sediment_exposure_historical'
           ? sortedYears.map((year) => yearData[year] / 1000000)
           : sortedYears.map((year) => yearData[year]),
-      type: 'bar',
-      name: traceName,
+      name: i18next.t(prefixedTrace),
       marker: {
-        color: chartConfig.legendColors[category],
+        color: chartProperties.legendColors[category],
       },
       hovertemplate: hoverTemplate,
-      width: 3,
+      width: chartProperties.width,
     })
   })
   return {
+    barmode: 'group',
+    chartName: chartName,
+    chartSeriesData: chartSeriesData,
     xAxisTitle: xAxisTitle,
-    yAxisTitle: i18next.t(chartConfig.yAxisTitle),
-    plotlyConfigData: chartConfigData,
-    chartSeriesName: chartSeriesName,
-  } as ChartConfig
+    yAxisTitle: i18next.t(chartProperties.yAxisTitle),
+  } as ChartProperties
 }
 
 export const updateChartData = (
   feature: MapGeoJSONFeature,
-  setChartData: Dispatch<SetStateAction<ChartConfig[] | null>>,
+  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
 ) => {
   let chartSeriesData
   //1. get data from appropriate source
@@ -150,7 +152,7 @@ export const updateChartData = (
   }
 
   //2. map data to chart config data
-  const mappedData: ChartConfig[] = Object.entries(chartSeriesData).map((dataSet) =>
+  const mappedData: ChartProperties[] = Object.entries(chartSeriesData).map((dataSet) =>
     mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
   )
 

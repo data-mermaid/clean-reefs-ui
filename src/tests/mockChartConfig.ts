@@ -1,9 +1,11 @@
-import { ChartConfig, PlotlyData } from '../types/ChartDataTypes'
+import { ChartProperties } from '../types/ChartDataTypes'
 import mockChartData from './mockChartData.json'
+import { PlotData } from 'plotly.js'
 
-export const mockChartConfig: ChartConfig = {
-  plotlyConfigData: mockChartData as PlotlyData[],
-  chartSeriesName: 'land_use_historical',
+export const mockChartConfig: ChartProperties = {
+  barmode: 'group',
+  chartName: 'land_use_historical',
+  chartSeriesData: mockChartData as Partial<PlotData>[],
   xAxisTitle: 'year',
   yAxisTitle: 'chart_information.land_cover_pct',
 }

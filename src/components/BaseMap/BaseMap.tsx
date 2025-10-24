@@ -29,7 +29,7 @@ import { updateChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { ChartConfig } from '../../types/ChartDataTypes'
+import { ChartProperties } from '../../types/ChartDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -38,7 +38,7 @@ interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setChartConfigData: Dispatch<SetStateAction<ChartConfig[] | null>>
+  setChartConfigData: Dispatch<SetStateAction<ChartProperties[] | null>>
 }
 
 export default function BaseMap({
@@ -115,8 +115,8 @@ export default function BaseMap({
           } else {
             setChartConfigData(null)
           }
-        } else {
-          setChartConfigData(null)
+          // } else {
+          //   setChartConfigData(null)
         }
       }
     },

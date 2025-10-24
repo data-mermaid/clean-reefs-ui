@@ -5,16 +5,16 @@ import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
-import { ChartConfig } from '../../types/ChartDataTypes'
+import { ChartProperties } from '../../types/ChartDataTypes'
 
 interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   region?: string
-  chartConfigData: ChartConfig | null
+  chartConfigData: ChartProperties | null
 }
 
-const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartConfig | null) => {
+const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperties | null) => {
   const baseClass = styles['chart-card__header']
   if (!chartConfigData) {
     return `${baseClass} ${styles['chart-card__header--no-data']}`
@@ -39,26 +39,27 @@ export default function ChartCard({
     if (chartConfigData !== null) {
       return (
         <Plot
-          data={chartConfigData.plotlyConfigData}
+          data={chartConfigData.chartSeriesData}
           className={styles['chart-card__plot']}
           config={plotlyTheme.config}
           layout={{
             ...plotlyTheme.layout,
+            barmode: chartConfigData.barmode,
             yaxis: {
-              ...plotlyTheme.layout.yaxis,
+              ...plotlyTheme.layout?.yaxis,
               title: {
-                ...plotlyTheme.layout.yaxis.title,
+                ...plotlyTheme.layout?.yaxis?.title,
                 text: t(chartConfigData.yAxisTitle),
               },
             },
             xaxis: {
-              ...plotlyTheme.layout.xaxis,
+              ...plotlyTheme.layout?.xaxis,
               title: {
-                ...plotlyTheme.layout.xaxis.title,
+                ...plotlyTheme.layout?.xaxis?.title,
                 text: t(chartConfigData.xAxisTitle),
               },
             },
-            showlegend: chartConfigData.plotlyConfigData.length > 1,
+            showlegend: chartConfigData.chartSeriesData.length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
         />
@@ -78,7 +79,7 @@ export default function ChartCard({
           {t(`regions.${region}`)}
         </Typography>
         <Typography className={styles['chart-card__chart-label']}>
-          {t(chartConfigData?.chartSeriesName)}
+          {t(`charts.${chartConfigData?.chartName}`)}
         </Typography>
       </div>
       {open && renderGraphContent()}
