@@ -1,0 +1,79 @@
+[
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#FEFECC"
+    },
+    "hovertemplate": "Year: %{x}<br />Bare ground: %{y}%<extra></extra>",
+    "name": "Bare ground",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [5, 10, 16, 20, 25]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#64DCDC"
+    },
+    "hovertemplate": "Year: %{x}<br />Built up: %{y}%<extra></extra>",
+    "name": "Built up",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [10, 13, 14, 17, 19]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#FF7D00"
+    },
+    "hovertemplate": "Year: %{x}<br />Cropland: %{y}%<extra></extra>",
+    "name": "Cropland",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [15, 13, 14, 10, 10]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#065106"
+    },
+    "hovertemplate": "Year: %{x}<br />High canopy forest: %{y}%<extra></extra>",
+    "name": "High canopy forest",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [20, 18, 14, 15, 8]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#609C30"
+    },
+    "hovertemplate": "Year: %{x}<br />Mixed forest: %{y}%<extra></extra>",
+    "name": "Mixed forest",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [20, 19, 14, 15, 15]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#B0B006"
+    },
+    "hovertemplate": "Year: %{x}<br />Shrubland/grassland: %{y}%<extra></extra>",
+    "name": "Shrubland/grassland",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [12, 11, 14, 8, 10]
+  },
+  {
+    "type": "bar",
+    "marker": {
+      "color": "#0E39D6"
+    },
+    "hovertemplate": "Year: %{x}<br />Surface water: %{y}%<extra></extra>",
+    "name": "Surface water",
+    "width": 2,
+    "x": ["2000", "2005", ",2010", "2015", "2020"],
+    "y": [18, 16, 14, 15, 13]
+  }
+]

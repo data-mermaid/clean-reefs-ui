@@ -40,6 +40,29 @@ export const chartSeriesConfig = {
     name: 'charts.sediment_exposure_historical',
     tracePrefix: '',
   },
-  'charts.sediment_load_historical': {},
-  'charts.contributing_watersheds': {},
+  //specific to Ocean Pollution, should only populate when watershed is selected
+  'charts.sediment_load_historical': {
+    width: 3,
+    legendColors: {
+      sediment: '#E7CC11',
+    },
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.sediment_exposure',
+    name: 'charts.sediment_exposure_historical',
+    tracePrefix: '',
+  },
+  'charts.contributing_watersheds': {
+    width: 3,
+    barmode: 'stack',
+    legendColors: {
+      w1: '#FFA600',
+      w2: '#D86D83',
+      w3: '#7A5195',
+      w4: '#003F5C',
+    },
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.pollution_contribution',
+    name: 'charts.contributing_watersheds',
+    tracePrefix: '',
+  },
 }

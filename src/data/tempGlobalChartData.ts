@@ -1,7 +1,9 @@
 import { ChartProperties } from '../types/ChartDataTypes'
+import tempSedimentLoadChartData from './tempSedimentLoadChartData.json'
+import tempContributingWatershedsChartData from './tempContributingWatershedsChartData.json'
 import tempEcosystemExtentExposedChartData from './tempEcosystemExtentExposedChartData.json'
 import tempSedimentExposureChartData from './tempSedimentExposureChartData.json'
-import mockChartData from '../tests/mockChartData.json'
+import tempLandUseChartData from './tempLandUseChartData.json'
 import { PlotData } from 'plotly.js'
 
 export const tempGlobalChartData: ChartProperties[] = [
@@ -9,7 +11,7 @@ export const tempGlobalChartData: ChartProperties[] = [
     barcornerradius: 10,
     barmode: 'stack',
     chartName: 'land_use_historical',
-    chartSeriesData: mockChartData as Partial<PlotData>[],
+    chartSeriesData: tempLandUseChartData as Partial<PlotData>[],
     tracePrefix: '',
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.land_cover_pct',
@@ -28,5 +30,20 @@ export const tempGlobalChartData: ChartProperties[] = [
     tracePrefix: 'benthic_map_layers',
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.area_exposed_ha',
+  },
+  {
+    barmode: 'group',
+    chartName: 'sediment_exposure_historical',
+    chartSeriesData: tempSedimentLoadChartData as Partial<PlotData>[],
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.area_exposed_ha',
+  },
+  {
+    barmode: 'stack',
+    chartName: 'contributing_watersheds',
+    chartSeriesData: tempContributingWatershedsChartData as Partial<PlotData>[],
+    tracePrefix: 'benthic_map_layers',
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.pollution_contribution',
   },
 ]
