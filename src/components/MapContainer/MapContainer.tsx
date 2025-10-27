@@ -10,12 +10,12 @@ import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
 import { ChartProperties } from '../../types/ChartDataTypes'
-import { tempGlobalChartData } from '../../data/tempGlobalChartData'
+import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
-    tempGlobalChartData,
+    tempGlobalChartSeriesData,
   )
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2020)

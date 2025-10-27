@@ -6,7 +6,7 @@ import tempSedimentExposureChartData from './tempSedimentExposureChartData.json'
 import tempLandUseChartData from './tempLandUseChartData.json'
 import { PlotData } from 'plotly.js'
 
-export const tempGlobalChartData: ChartProperties[] = [
+export const tempGlobalChartSeriesData: ChartProperties[] = [
   {
     barcornerradius: 10,
     barmode: 'stack',
@@ -21,7 +21,7 @@ export const tempGlobalChartData: ChartProperties[] = [
     chartName: 'sediment_exposure_historical',
     chartSeriesData: tempSedimentExposureChartData as Partial<PlotData>[],
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.area_exposed_ha',
+    yAxisTitle: 'chart_information.sediment_exposure',
   },
   {
     barmode: 'group',
@@ -33,10 +33,10 @@ export const tempGlobalChartData: ChartProperties[] = [
   },
   {
     barmode: 'group',
-    chartName: 'sediment_exposure_historical',
+    chartName: 'sediment_load_historical',
     chartSeriesData: tempSedimentLoadChartData as Partial<PlotData>[],
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.area_exposed_ha',
+    yAxisTitle: 'chart_information.sediment_exposure',
   },
   {
     barmode: 'stack',
