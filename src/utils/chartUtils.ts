@@ -123,7 +123,8 @@ export const mapChartConfigToData = (
     })
   })
   return {
-    barmode: 'group',
+    barcornerradius: chartProperties.barcornerradius,
+    barmode: chartProperties.barmode || 'group',
     chartName: chartName,
     chartSeriesData: chartSeriesData,
     xAxisTitle: xAxisTitle,

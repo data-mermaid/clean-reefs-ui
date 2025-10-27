@@ -9,16 +9,20 @@ export type ChartSeriesName =
   | 'sediment_exposure_historical'
   | 'ecosystem_extent_exposed'
 
-// export interface SeriesTraceProperties {
-//   type: 'bar' | 'line' | 'scatter'
-//   x: string[]
-//   y: number[]
-//   tracePrefix?: string
-//   traceName: string
-//   traceMarker?: object
-//   hovertemplate?: string
-//   width: number
-// }
+export interface ChartSeriesConfig {
+  [chartName: string]: {
+    barcornerradius?: number
+    barmode?: 'stack' | 'group'
+    legendColors: {
+      [category: string]: string
+    }
+    name?: string
+    tracePrefix?: string
+    xAxisTitle: string
+    yAxisTitle: string
+    width: number
+  }
+}
 
 export interface ChartProperties {
   barcornerradius?: number
