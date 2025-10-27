@@ -2,9 +2,8 @@ import { PlotParams } from 'react-plotly.js'
 
 export const plotlyTheme: Partial<PlotParams> = {
   layout: {
-    barmode: 'stack',
     bargap: 0.1,
-    height: 500,
+    height: 450,
     autosize: true,
     margin: {
       l: 60,
@@ -17,7 +16,10 @@ export const plotlyTheme: Partial<PlotParams> = {
       fixedrange: true,
       linecolor: 'black',
       linewidth: 1,
-      title: { standoff: 5 },
+      title: { standoff: 6 },
+      // nticks: 5,
+      // ticks: 'outside',
+      tickvals: ['2000', '2005', '2010', '2015', '2020'],
     },
     yaxis: {
       fixedrange: true,

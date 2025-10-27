@@ -15,8 +15,8 @@
     "marker": {
       "color": "#64DCDC"
     },
-    "hovertemplate": "Year: %{x}<br />Built_up: %{y}%<extra></extra>",
-    "name": "Built_up",
+    "hovertemplate": "Year: %{x}<br />Built up: %{y}%<extra></extra>",
+    "name": "Built up",
     "width": 2,
     "x": ["2000", "2005"],
     "y": [2, 4]

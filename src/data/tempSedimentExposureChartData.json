@@ -4,7 +4,7 @@
     "marker": {
       "color": "#003F5C"
     },
-    "hovertemplate": "year: %{x}<br />sediment: %{y}%<extra></extra>",
+    "hovertemplate": "Year: %{x}<br />Sediment: %{y}%<extra></extra>",
     "name": "sediment",
     "width": 3,
     "x": ["2000", "2005", ",2010", "2015", "2020"],
