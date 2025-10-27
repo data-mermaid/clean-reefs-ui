@@ -2,6 +2,8 @@
   {
     "type": "bar",
     "marker": {
+      "cornerradius": 5,
+
       "color": "#FB9A99"
     },
     "hovertemplate": "Year: %{x}<br />Reef extent: %{y}%<extra></extra>",
@@ -13,6 +15,8 @@
   {
     "type": "bar",
     "marker": {
+      "cornerradius": 5,
+
       "color": "#003F5C"
     },
     "hovertemplate": "Year: %{x}<br />Coral/algae: %{y}%<extra></extra>",
@@ -24,6 +28,7 @@
   {
     "type": "bar",
     "marker": {
+      "cornerradius": 5,
       "color": "#FFA600"
     },
     "hovertemplate": "Year: %{x}<br />Seagrass: %{y}%<extra></extra>",

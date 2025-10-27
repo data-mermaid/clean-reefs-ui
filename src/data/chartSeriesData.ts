@@ -1,17 +1,4 @@
-interface ChartSeriesConfig {
-  [chartName: string]: {
-    width?: number
-    legendColors: {
-      [category: string]: string
-    }
-    xAxisTitle?: string
-    yAxisTitle?: string
-    name?: string
-    tracePrefix?: string
-    barmode?: 'stack' | 'group'
-    barcornerradius?: number
-  }
-}
+import { ChartSeriesConfig } from '../types/ChartDataTypes'
 
 export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.land_use_historical': {

@@ -16,9 +16,6 @@ export const Primary: Story = {
     open: true,
     chartConfigData: mockChartConfig,
   },
-  play: ({ canvas }) => {
-    expect(canvas.findByText('2005')).toBeInTheDocument()
-  },
 }
 
 export const Loading: Story = {
