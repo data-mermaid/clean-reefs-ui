@@ -1,6 +1,8 @@
-export const chartSeriesConfig = {
+import { ChartSeriesConfig } from '../types/ChartDataTypes'
+
+export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.land_use_historical': {
-    width: 2,
+    barmode: 'stack',
     legendColors: {
       bare_ground: '#FEFECC',
       shrubland_grassland: '#B0B006',
@@ -10,29 +12,35 @@ export const chartSeriesConfig = {
       cropland: '#FF7D00',
       built_up: '#64DCDC',
     },
-    xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.land_cover_pct',
     name: 'charts.land_use_historical',
     tracePrefix: 'land_types',
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.land_cover_pct',
+    width: 2,
   },
   'charts.ecosystem_extent_exposed': {
-    width: 2,
-    legendColors: {},
+    barcornerradius: 15,
+    barmode: 'group',
+    legendColors: {
+      reef_extent: '#FB9A99',
+      coral_algae: '#003F5C',
+      seagrass: '#FFA600',
+    },
+    name: 'charts.ecosystem_extent_exposed',
+    tracePrefix: 'benthic_map_layers',
+    width: 1,
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.area_exposed_ha',
-    name: 'charts.ecosystem_extent_exposed',
-    tracePrefix: '',
   },
   'charts.sediment_exposure_historical': {
-    width: 2,
+    barmode: 'group',
     legendColors: {
       sediment: '#003F5C',
     },
-    xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.sediment_exposure',
     name: 'charts.sediment_exposure_historical',
     tracePrefix: '',
+    width: 2,
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.sediment_exposure',
   },
-  'charts.sediment_load_historical': {},
-  'charts.contributing_watersheds': {},
 }

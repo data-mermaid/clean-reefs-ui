@@ -1,78 +1,78 @@
 [
   {
+    "type": "bar",
     "marker": {
       "color": "#FEFECC"
     },
-    "hovertemplate": "year: %{x}<br />land_types.bare_ground: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.bare_ground",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Bare ground: %{y}%<extra></extra>",
+    "name": "Bare ground",
+    "width": 2,
     "x": ["2000", "2005"],
     "y": [5, 7]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#64DCDC"
     },
-    "hovertemplate": "year: %{x}<br />land_types.built_up: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.built_up",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Built up: %{y}%<extra></extra>",
+    "name": "Built up",
+    "width": 2,
     "x": ["2000", "2005"],
     "y": [2, 4]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#FF7D00"
     },
-    "hovertemplate": "year: %{x}<br />land_types.cropland: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.cropland",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Cropland: %{y}%<extra></extra>",
+    "name": "Cropland",
+    "width": 2,
     "x": ["2005"],
     "y": [7]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#065106"
     },
-    "hovertemplate": "year: %{x}<br />land_types.high_canopy_forest: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.high_canopy_forest",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />High canopy forest: %{y}%<extra></extra>",
+    "name": "High canopy forest",
+    "width": 2,
     "x": ["2010"],
     "y": [3]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#609C30"
     },
-    "hovertemplate": "year: %{x}<br />land_types.mixed_forest: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.mixed_forest",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Mixed forest: %{y}%<extra></extra>",
+    "name": "Mixed forest",
+    "width": 2,
     "x": ["2015"],
     "y": [4]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#B0B006"
     },
-    "hovertemplate": "year: %{x}<br />land_types.shrubland_grassland: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.shrubland_grassland",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Shrubland/grassland: %{y}%<extra></extra>",
+    "name": "Shrubland/grassland",
+    "width": 2,
     "x": ["2020"],
     "y": [6]
   },
   {
+    "type": "bar",
     "marker": {
       "color": "#0E39D6"
     },
-    "hovertemplate": "year: %{x}<br />land_types.surface_water: %{y}%<extra></extra>",
-    "type": "bar",
-    "name": "land_types.surface_water",
-    "width": 3,
+    "hovertemplate": "Year: %{x}<br />Surface water: %{y}%<extra></extra>",
+    "name": "Surface water",
+    "width": 2,
     "x": ["2000"],
     "y": [1]
   }

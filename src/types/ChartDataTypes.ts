@@ -1,3 +1,5 @@
+import { PlotData } from 'plotly.js'
+
 export interface ChartData {
   [name: string]: Record<string, number>
 }
@@ -7,20 +9,27 @@ export type ChartSeriesName =
   | 'sediment_exposure_historical'
   | 'ecosystem_extent_exposed'
 
-export interface PlotlyData {
-  x: string[]
-  y: number[]
-  type: 'bar'
-  name: string
-  marker?: object
-  tracePrefix?: string
-  hovertemplate?: string
-  width: number
+export interface ChartSeriesConfig {
+  [chartName: string]: {
+    barcornerradius?: number
+    barmode?: 'stack' | 'group'
+    legendColors: {
+      [category: string]: string
+    }
+    name?: string
+    tracePrefix?: string
+    xAxisTitle: string
+    yAxisTitle: string
+    width: number
+  }
 }
 
-export interface ChartConfig {
+export interface ChartProperties {
+  barcornerradius?: number
+  barmode: 'stack' | 'group'
+  chartName: string
+  chartSeriesData: Partial<PlotData>[]
+  tracePrefix?: string
   xAxisTitle: string
   yAxisTitle: string
-  chartSeriesName: ChartSeriesName
-  plotlyConfigData: PlotlyData[]
 }
