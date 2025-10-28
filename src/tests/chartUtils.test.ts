@@ -165,7 +165,6 @@ describe('chart data utilities', () => {
         width: 0.8,
         barmode: 'stack',
         tracePrefix: 'land_use',
-        barcornerradius: 5,
       },
       'charts.sediment_exposure_historical': {
         xAxisTitle: 'chart_information.year',
@@ -175,7 +174,6 @@ describe('chart data utilities', () => {
         },
         width: 0.6,
         barmode: 'group',
-        barcornerradius: 3,
       },
       'charts.test_no_barmode': {
         xAxisTitle: 'chart_information.year',
@@ -184,7 +182,6 @@ describe('chart data utilities', () => {
           test_category: '#000000',
         },
         width: 0.5,
-        barcornerradius: 0,
       },
     }
 

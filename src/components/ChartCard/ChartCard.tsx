@@ -80,7 +80,7 @@ export default function ChartCard({
         </Typography>
         {chartConfigData && (
           <Typography className={styles['chart-card__chart-label']}>
-            {t(`charts.${chartConfigData?.chartName}`)}
+            {t(`charts.${chartConfigData.chartName}`)}
           </Typography>
         )}
       </div>
