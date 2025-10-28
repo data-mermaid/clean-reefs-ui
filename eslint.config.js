@@ -72,6 +72,12 @@ export default tseslint.config(
         globals: globals.browser,
       },
     },
+    {
+      files: ['src/**/*.test.{js,ts,tsx}'],
+      rules: {
+        'max-nested-callbacks': 'off', // Disable the rule for test files
+      },
+    },
   ],
   storybook.configs['flat/recommended'],
 )

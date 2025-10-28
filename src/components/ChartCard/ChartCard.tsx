@@ -78,9 +78,11 @@ export default function ChartCard({
         <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${region}`)}
         </Typography>
-        <Typography className={styles['chart-card__chart-label']}>
-          {t(`charts.${chartConfigData?.chartName}`)}
-        </Typography>
+        {chartConfigData && (
+          <Typography className={styles['chart-card__chart-label']}>
+            {t(`charts.${chartConfigData?.chartName}`)}
+          </Typography>
+        )}
       </div>
       {open && renderGraphContent()}
     </Card>

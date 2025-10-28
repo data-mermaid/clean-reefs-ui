@@ -1,4 +1,8 @@
 import { getBoundaryFileChartData, LulcAndSedimentSeriesData } from '../utils/chartUtils'
+import { mapChartConfigToData } from '../utils/chartUtils'
+import { ChartData, ChartSeriesName } from '../types/ChartDataTypes'
+import { chartSeriesConfig } from '../data/chartSeriesData'
+import i18next from 'i18next'
 
 const groupedProperties: LulcAndSedimentSeriesData = {
   land_use_historical: {
@@ -69,6 +73,9 @@ const emptyChartSeriesData: LulcAndSedimentSeriesData = {
 //     '': {},
 //   },
 // } as unknown
+
+jest.mock('i18next')
+jest.mock('../data/chartSeriesData')
 
 describe('chart data utilities', () => {
   describe('getBoundaryFileChartData', () => {
@@ -145,4 +152,267 @@ describe('chart data utilities', () => {
   //   expect(setChartData).toHaveBeenCalledWith(null)
   // })
   // })
+
+  describe('mapChartConfigToData', () => {
+    const mockChartSeriesConfig = {
+      'charts.land_use_historical': {
+        xAxisTitle: 'chart_information.year',
+        yAxisTitle: 'chart_information.land_cover',
+        legendColors: {
+          bare_ground: '#D4A373',
+          cropland: '#FFD700',
+        },
+        width: 0.8,
+        barmode: 'stack',
+        tracePrefix: 'land_use',
+        barcornerradius: 5,
+      },
+      'charts.sediment_exposure_historical': {
+        xAxisTitle: 'chart_information.year',
+        yAxisTitle: 'chart_information.sediment_export',
+        legendColors: {
+          sediment: '#8B4513',
+        },
+        width: 0.6,
+        barmode: 'group',
+        barcornerradius: 3,
+      },
+      'charts.test_no_barmode': {
+        xAxisTitle: 'chart_information.year',
+        yAxisTitle: 'chart_information.test',
+        legendColors: {
+          test_category: '#000000',
+        },
+        width: 0.5,
+        barcornerradius: 0,
+      },
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+
+      Object.assign(chartSeriesConfig, mockChartSeriesConfig)
+
+      const mockTranslate = jest.fn((key: string) => {
+        const translations: Record<string, string> = {
+          'chart_information.year': 'Year',
+          'chart_information.land_cover': 'Land cover (%)',
+          'chart_information.sediment_export': 'Sediment export',
+          'chart_information.test': 'Test',
+          'land_use.bare_ground': 'Bare ground',
+          'land_use.cropland': 'Cropland',
+          bare_ground: 'Bare ground',
+          cropland: 'Cropland',
+          sediment: 'Sediment',
+          test_category: 'Test category',
+        }
+        return translations[key] || key
+      })
+
+      // @ts-expect-error something about mocking
+      i18next.t = mockTranslate
+    })
+
+    describe('basic functionality', () => {
+      it('should transform chart data correctly with sorted years', () => {
+        const mockData: ChartData = {
+          bare_ground: {
+            '2020': 15,
+            '2010': 10,
+            '2015': 12,
+          },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartName).toBe('land_use_historical')
+        expect(result.chartSeriesData).toHaveLength(1)
+        expect(result.chartSeriesData[0].x).toEqual(['2010', '2015', '2020'])
+        expect(result.chartSeriesData[0].y).toEqual([10, 12, 15])
+      })
+
+      it('should handle multiple categories', () => {
+        const mockData: ChartData = {
+          bare_ground: {
+            '2020': 15,
+            '2010': 10,
+          },
+          cropland: {
+            '2020': 25,
+            '2010': 20,
+          },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData).toHaveLength(2)
+        expect(result.chartSeriesData[0].name).toBe('Bare ground')
+        expect(result.chartSeriesData[1].name).toBe('Cropland')
+      })
+    })
+
+    describe('barmode handling', () => {
+      it('should use chartProperties.barmode when available', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.barmode).toBe('stack')
+      })
+
+      it('should fall back to "group" when barmode is not specified', () => {
+        const mockData: ChartData = {
+          test_category: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'test_no_barmode' as ChartSeriesName)
+
+        expect(result.barmode).toBe('group')
+      })
+    })
+
+    describe('sediment_exposure_historical special handling', () => {
+      // eslint-disable-next-line max-nested-callbacks
+      it('should divide values by 1000000 for sediment data', () => {
+        const mockData: ChartData = {
+          sediment: {
+            '2020': 5000000,
+            '2015': 3000000,
+          },
+        }
+
+        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+
+        expect(result.chartSeriesData[0].y).toEqual([3, 5])
+      })
+
+      it('should use tonnage format in hover template for sediment', () => {
+        const mockData: ChartData = {
+          sediment: { '2020': 1000000 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+
+        expect(result.chartSeriesData[0].hovertemplate).toContain('%{y:.2f}T')
+        expect(result.chartSeriesData[0].hovertemplate).not.toContain('%{y}%')
+      })
+
+      it('should use percentage format in hover template for non-sediment charts', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData[0].hovertemplate).toContain('%{y}%')
+        expect(result.chartSeriesData[0].hovertemplate).not.toContain('%{y:.2f}T')
+      })
+    })
+
+    describe('tracePrefix handling', () => {
+      it('should prefix trace names when tracePrefix is defined', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(i18next.t).toHaveBeenCalledWith('land_use.bare_ground')
+        expect(result.chartSeriesData[0].name).toBe('Bare ground')
+      })
+
+      it('should use category name directly when tracePrefix is not defined', () => {
+        const mockData: ChartData = {
+          sediment: { '2020': 1000000 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+
+        expect(i18next.t).toHaveBeenCalledWith('sediment')
+        expect(result.chartSeriesData[0].name).toBe('Sediment')
+      })
+    })
+
+    describe('chart properties configuration', () => {
+      it('should apply correct marker colors from legendColors', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+          cropland: { '2020': 25 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData[0].marker?.color).toBe('#D4A373')
+        expect(result.chartSeriesData[1].marker?.color).toBe('#FFD700')
+      })
+
+      it('should apply correct width from chartProperties', () => {
+        const mockData: ChartData = {
+          sediment: { '2020': 1000000 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+
+        expect(result.chartSeriesData[0].width).toBe(0.6)
+      })
+    })
+
+    describe('translation handling', () => {
+      it('should translate axis titles', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.xAxisTitle).toBe('Year')
+        expect(result.yAxisTitle).toBe('Land cover (%)')
+        expect(result.chartSeriesData[0].hovertemplate).toContain('Year: %{x}')
+        expect(result.chartSeriesData[0].hovertemplate).toContain('Bare ground: %{y}%')
+      })
+    })
+
+    describe('edge cases', () => {
+      it('should handle empty year data gracefully', () => {
+        const mockData: ChartData = {
+          bare_ground: {},
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData).toHaveLength(1)
+        expect(result.chartSeriesData[0].x).toEqual([])
+        expect(result.chartSeriesData[0].y).toEqual([])
+      })
+
+      it('should handle single year data', () => {
+        const mockData: ChartData = {
+          bare_ground: { '2020': 15 },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData[0].x).toEqual(['2020'])
+        expect(result.chartSeriesData[0].y).toEqual([15])
+      })
+
+      it('should correctly sort years with different digit counts', () => {
+        const mockData: ChartData = {
+          bare_ground: {
+            '2020': 15,
+            '2005': 8,
+            '2015': 12,
+            '2000': 5,
+          },
+        }
+
+        const result = mapChartConfigToData(mockData, 'land_use_historical')
+
+        expect(result.chartSeriesData[0].x).toEqual(['2000', '2005', '2015', '2020'])
+        expect(result.chartSeriesData[0].y).toEqual([5, 8, 12, 15])
+      })
+    })
+  })
 })
