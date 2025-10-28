@@ -19,7 +19,6 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     width: 2,
   },
   'charts.ecosystem_extent_exposed': {
-    barcornerradius: 15,
     barmode: 'group',
     legendColors: {
       reef_extent: '#FB9A99',

@@ -8,7 +8,6 @@ import { PlotData } from 'plotly.js'
 
 export const tempGlobalChartSeriesData: ChartProperties[] = [
   {
-    barcornerradius: 10,
     barmode: 'stack',
     chartName: 'land_use_historical',
     chartSeriesData: tempLandUseChartData as Partial<PlotData>[],
