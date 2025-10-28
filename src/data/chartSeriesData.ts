@@ -19,7 +19,6 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     width: 2,
   },
   'charts.ecosystem_extent_exposed': {
-    barcornerradius: 15,
     barmode: 'group',
     legendColors: {
       reef_extent: '#FB9A99',
@@ -32,15 +31,40 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.area_exposed_ha',
   },
-  'charts.sediment_exposure_historical': {
+  'charts.sediment_load_historical': {
     barmode: 'group',
     legendColors: {
       sediment: '#003F5C',
     },
-    name: 'charts.sediment_exposure_historical',
+    name: 'charts.sediment_load_historical',
     tracePrefix: '',
     width: 2,
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.sediment_exposure',
+  },
+  //specific to Ocean Pollution, should only populate when watershed is selected
+  'charts.sediment_exposure_historical': {
+    legendColors: {
+      sediment: '#E7CC11',
+    },
+    name: 'charts.sediment_exposure_historical',
+    tracePrefix: '',
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.sediment_exposure',
+    width: 3,
+  },
+  'charts.contributing_watersheds': {
+    barmode: 'stack',
+    legendColors: {
+      w1: '#FFA600',
+      w2: '#D86D83',
+      w3: '#7A5195',
+      w4: '#003F5C',
+    },
+    name: 'charts.contributing_watersheds',
+    tracePrefix: '',
+    xAxisTitle: 'year',
+    yAxisTitle: 'chart_information.pollution_contribution',
+    width: 3,
   },
 }

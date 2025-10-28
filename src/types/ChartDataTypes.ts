@@ -11,7 +11,6 @@ export type ChartSeriesName =
 
 export interface ChartSeriesConfig {
   [chartName: string]: {
-    barcornerradius?: number
     barmode?: 'stack' | 'group'
     legendColors: {
       [category: string]: string
@@ -25,7 +24,6 @@ export interface ChartSeriesConfig {
 }
 
 export interface ChartProperties {
-  barcornerradius?: number
   barmode: 'stack' | 'group'
   chartName: string
   chartSeriesData: Partial<PlotData>[]

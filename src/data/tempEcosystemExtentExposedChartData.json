@@ -6,7 +6,7 @@
 
       "color": "#FB9A99"
     },
-    "hovertemplate": "Year: %{x}<br />Reef extent: %{y}%<extra></extra>",
+    "hovertemplate": "Year: %{x}<br />Reef extent: %{y}<extra></extra>",
     "name": "Reef extent",
     "width": 1,
     "x": ["2000", "2005", "2010", "2015", "2020"],
@@ -19,7 +19,7 @@
 
       "color": "#003F5C"
     },
-    "hovertemplate": "Year: %{x}<br />Coral/algae: %{y}%<extra></extra>",
+    "hovertemplate": "Year: %{x}<br />Coral/algae: %{y}<extra></extra>",
     "name": "Coral/algae",
     "width": 1,
     "x": ["2000", "2005", "2010", "2015", "2020"],
@@ -31,7 +31,7 @@
       "cornerradius": 5,
       "color": "#FFA600"
     },
-    "hovertemplate": "Year: %{x}<br />Seagrass: %{y}%<extra></extra>",
+    "hovertemplate": "Year: %{x}<br />Seagrass: %{y}<extra></extra>",
     "name": "Seagrass",
     "width": 1,
     "x": ["2000", "2005", "2010", "2015", "2020"],

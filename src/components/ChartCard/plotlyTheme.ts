@@ -17,8 +17,6 @@ export const plotlyTheme: Partial<PlotParams> = {
       linecolor: 'black',
       linewidth: 1,
       title: { standoff: 6 },
-      // nticks: 5,
-      // ticks: 'outside',
       tickvals: ['2000', '2005', '2010', '2015', '2020'],
     },
     yaxis: {
