@@ -10,6 +10,7 @@
   "chart_information": {
     "area_exposed_ha": "Area exposed (ha)",
     "land_cover_pct": "Land cover (%)",
+    "pollution_contribution": "Pollution contribution (%)",
     "sediment_exposure": "Sediment exposure (Metric tons)"
   },
   "charts": {
