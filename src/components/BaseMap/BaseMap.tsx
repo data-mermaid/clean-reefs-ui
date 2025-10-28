@@ -92,7 +92,6 @@ export default function BaseMap({
       }
       const map = mapRef.current?.getMap()
 
-      //todo: when global data is available, make a default for global with optional loadChartData arguments
       //doesn't account for if the layer hasn't loaded yet
       if (activeLayers.length > 0) {
         //query the layers corresponding with charts and with layers that are on
@@ -115,8 +114,6 @@ export default function BaseMap({
           } else {
             setChartConfigData(null)
           }
-          // } else {
-          //   setChartConfigData(null)
         }
       }
     },
@@ -200,6 +197,40 @@ export default function BaseMap({
     loadChartData(event.point, activeLayers, zoom)
   }
 
+  const waterShedLayer = (layer, index) => {
+    return (
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+        paint={{
+          'fill-color': 'rgba(0,0,0,0)',
+          'fill-outline-color': layer.outlineColor,
+        }}
+      />
+    )
+  }
+
+  const pmtilesLayer = (layer, index) => {
+    return (
+      <Layer
+        id={layer.layerId}
+        type="line"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+        paint={{
+          'line-color': layer.outlineColor,
+          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+        }}
+      />
+    )
+  }
+
   return (
     <div className={styles['map-wrap']}>
       {!isMapLoaded && <LoadingState isOverlay={true} />}
@@ -232,17 +263,9 @@ export default function BaseMap({
                   type="vector"
                   url={`pmtiles://${layer.link}`}
                 >
-                  <Layer
-                    id={layer.layerId}
-                    type="line"
-                    key={`${layer.layerId}-${index}`}
-                    source={layer.sourceId}
-                    source-layer={layer.sourceName}
-                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-                    paint={{
-                      'line-color': 'black',
-                    }}
-                  />
+                  {layer.layerId === 'watershed'
+                    ? waterShedLayer(layer, index)
+                    : pmtilesLayer(layer, index)}
                 </Source>
               )
             : isMapLoaded && layer.isLayerOn && (
