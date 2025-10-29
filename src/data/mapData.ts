@@ -7,6 +7,7 @@ import {
   LULC_2015_URL,
   LULC_2020_URL,
   REGIONS_PMTILES_URL,
+  SED_EXPORT_2000_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
 
@@ -33,7 +34,7 @@ export interface LayerInfo {
 }
 
 export const parentLayerTitles = {
-  // landPollution: 'map_layer_groups.land_pollution_layers',
+  landPollution: 'map_layer_groups.land_pollution_layers',
   // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
@@ -75,6 +76,18 @@ export const layers: LayerInfo[] = [
     sourceId: 'countries_src',
     sourceName: 'countries',
     title: 'boundary_map_layers.country_boundaries',
+  },
+  {
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendType: 'gradient',
+    link: SED_EXPORT_2000_URL,
+    parentLayerType: 'landPollution',
+    sourceId: 'sed_export_load_2000_visual',
+    sourceName: '',
+    title: 'map_layers.sediment_export',
+    year: 2000,
   },
   {
     dataType: 'tiles',

@@ -42,6 +42,9 @@
     "regional_boundaries": "Regional boundaries",
     "country_boundaries": "Country boundaries"
   },
+  "map_layers": {
+    "sediment_export": "Sediment export"
+  },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
     "countries_with_coral": "Countries with coral reefs",
