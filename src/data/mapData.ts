@@ -33,12 +33,12 @@ export interface LayerInfo {
 }
 
 export const parentLayerTitles = {
-  landPollution: 'map_layer_groups.land_pollution_layers',
-  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  // landPollution: 'map_layer_groups.land_pollution_layers',
+  // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
-  base: 'map_layer_groups.base_map',
+  // base: 'map_layer_groups.base_map',
 }
 
 export const layers: LayerInfo[] = [
@@ -58,8 +58,8 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
-    outlineColor: '#F63D18',
-    outlineStyle: true,
+    outlineColor: '#CECE00',
+    outlineStyle: false,
     parentLayerType: 'boundaries',
     sourceId: 'regions_src',
     sourceName: 'regions',
@@ -70,7 +70,7 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
-    outlineColor: '#E046FA',
+    outlineColor: '#FF0000',
     parentLayerType: 'boundaries',
     sourceId: 'countries_src',
     sourceName: 'countries',

@@ -43,12 +43,19 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
             <div className={styles['layer-toggle-header']}>
               <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
               {layer.year && <Typography>{selectedYear}</Typography>}
-              <Switch
-                className={styles['MuiSwitch-root']}
-                id={layer.layerId}
-                checked={layer.isLayerOn}
-                onChange={toggleLayer}
-              />
+              {layer.outlineColor ? (
+                <div
+                  className={styles['map-layer-key']}
+                  style={{ border: `3px solid ${layer.outlineColor}` }}
+                />
+              ) : (
+                <Switch
+                  className={styles['MuiSwitch-root']}
+                  id={layer.layerId}
+                  checked={layer.isLayerOn}
+                  onChange={toggleLayer}
+                />
+              )}
             </div>
             {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
             {/*Add back in when data layers available*/}
