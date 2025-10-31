@@ -1,3 +1,4 @@
+/******MAP LAYERS******/
 export const REGIONS_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/regions/regions.pmtiles'
 export const COUNTRIES_PMTILES_URL =
@@ -23,3 +24,7 @@ export const SED_EXPORT_2000_URL =
 
 export const ACA_BENTHIC_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/aca_benthic/aca_benthic_visual.tif'
+
+/******COLORS******/
+export const polygonOutlineHoverColor = '#00FF01'
+export const polygonOutlineSelectColor = '#0000FF'

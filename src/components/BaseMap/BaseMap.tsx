@@ -33,6 +33,7 @@ import { ChartProperties } from '../../types/ChartDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -58,6 +59,8 @@ export default function BaseMap({
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+  let hoveredStateId = null
+  let selectededStateId = null
 
   const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
@@ -182,6 +185,70 @@ export default function BaseMap({
     setIsMapLoaded(true)
     const activeLayers = getActiveLayers(mapLayers)
     loadChartData(defaultPoint, activeLayers, defaultMapZoom)
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    map.on('mousemove', 'watershed', (e) => {
+      if (e.features && e.features.length > 0) {
+        if (e.features[0].id && e.features[0].id === hoveredStateId) {
+          return
+        }
+        if (hoveredStateId) {
+          map.setFeatureState(
+            {
+              source: 'watershed_src',
+              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+              id: hoveredStateId,
+            },
+            { hover: false },
+          )
+          hoveredStateId = null
+          return
+        }
+        if (e.features[0].id) {
+          hoveredStateId = e.features[0].id
+          map.setFeatureState(
+            {
+              source: 'watershed_src',
+              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+              id: hoveredStateId,
+            },
+            { hover: true },
+          )
+        }
+      }
+    })
+    map.on('click', 'watershed', (e) => {
+      console.log('clicked')
+      if (e.features && e.features.length > 0) {
+        // debugger
+        if (e.features[0].id) {
+          if (selectededStateId) {
+            map.setFeatureState(
+              {
+                source: 'watershed_src',
+                sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+                id: selectededStateId,
+              },
+              { select: false },
+            )
+            // selectededStateId = null
+          }
+          selectededStateId = e.features[0].id
+          map.setFeatureState(
+            {
+              source: 'watershed_src',
+              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+              id: selectededStateId,
+            },
+            { select: true },
+          )
+        }
+      }
+    })
   }
 
   const handleMapClick = (event) => {
@@ -192,42 +259,119 @@ export default function BaseMap({
     if (zoom && zoom !== currentZoom) {
       setCurrentZoom(zoom)
     }
-    setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
-    const activeLayers = getActiveLayers(mapLayers)
-    loadChartData(event.point, activeLayers, zoom)
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    // console.log(`clicked ${event.features[0].id}`)
+    // debugger
+    // if (event.features && event.features.length > 0) {
+    //   if (event.features[0].id) {
+    //     if (selectededStateId) {
+    //       console.log(`previously selected: ${selectededStateId} new item:${event.features[0].id}`)
+    //       map.setFeatureState(
+    //         {
+    //           source: 'watershed_src',
+    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    //           id: selectededStateId,
+    //         },
+    //         { select: false },
+    //       )
+    //       selectededStateId = null
+    //       return
+    //     }
+    //     selectededStateId = event.features[0].id
+    //     map.setFeatureState(
+    //       {
+    //         source: 'watershed_src',
+    //         sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    //         id: selectededStateId,
+    //       },
+    //       { select: true },
+    //     )
+    //   }
+    // }
+
+    //todo: on watershed click, zoom to boundary extents
+
+    //todo: condition for if lat long are different, then change
+    // setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
+
+    //todo: check for different layers active, then change
+    // const activeLayers = getActiveLayers(mapLayers)
+    // loadChartData(event.point, activeLayers, zoom)
   }
 
-  const waterShedLayer = (layer, index) => {
+  function WatershedLayers({ layer, index }) {
     return (
-      <Layer
-        id={layer.layerId}
-        type="fill"
-        key={`${layer.layerId}-${index}`}
-        source={layer.sourceId}
-        source-layer={layer.sourceName}
-        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-        paint={{
-          'fill-color': 'rgba(0,0,0,0)',
-          'fill-outline-color': layer.outlineColor,
-        }}
-      />
+      <Source
+        id={layer.sourceId}
+        key={`${layer.sourceId}`}
+        type="vector"
+        promoteId="watershed_id"
+        url={`pmtiles://${layer.link}`}
+      >
+        <Layer
+          id={layer.layerId}
+          type="fill"
+          key={`${layer.layerId}-${index}`}
+          source={layer.sourceId}
+          source-layer={layer.sourceName}
+          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+          paint={{
+            'fill-color': 'rgba(0,0,0,0)',
+            'fill-outline-color': layer.outlineColor,
+          }}
+        />
+        <Layer
+          id={`${layer.layerId}-lines`}
+          type="line"
+          key={`${layer.layerId}-lines-${index}`}
+          source={layer.sourceId}
+          source-layer={layer.sourceName}
+          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+          layout={{
+            'line-sort-key': 5, //watershed outlines should overlay all other layers
+          }}
+          paint={{
+            'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 4, 1],
+            'line-color': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              polygonOutlineHoverColor,
+              ['boolean', ['feature-state', 'select'], false],
+              polygonOutlineSelectColor,
+              'rgba(0,0,0,0)',
+            ],
+          }}
+        />
+      </Source>
     )
   }
 
-  const pmtilesLayer = (layer, index) => {
+  function PmTileLayers({ layer, index }) {
     return (
-      <Layer
-        id={layer.layerId}
-        type="line"
-        key={`${layer.layerId}-${index}`}
-        source={layer.sourceId}
-        source-layer={layer.sourceName}
-        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-        paint={{
-          'line-color': layer.outlineColor,
-          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
-        }}
-      />
+      <Source
+        id={layer.sourceId}
+        key={`${layer.sourceId}`}
+        type="vector"
+        url={`pmtiles://${layer.link}`}
+      >
+        <Layer
+          id={layer.layerId}
+          type="line"
+          key={`${layer.layerId}-${index}`}
+          source={layer.sourceId}
+          source-layer={layer.sourceName}
+          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+          paint={{
+            'line-color': layer.outlineColor,
+            'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+          }}
+        />
+      </Source>
     )
   }
 
@@ -246,7 +390,7 @@ export default function BaseMap({
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
         attributionControl={false}
-        onClick={handleMapClick}
+        // onClick={handleMapClick}
       >
         {isDesktopWidth && (
           <>
@@ -255,38 +399,33 @@ export default function BaseMap({
           </>
         )}
         {mapLayers.map((layer, index) => {
-          return layer.dataType === 'pmtiles'
-            ? isMapLoaded && layer.isLayerOn && (
-                <Source
-                  id={layer.sourceId}
-                  key={`${layer.sourceId}`}
-                  type="vector"
-                  url={`pmtiles://${layer.link}`}
-                >
-                  {layer.layerId === 'watershed'
-                    ? waterShedLayer(layer, index)
-                    : pmtilesLayer(layer, index)}
-                </Source>
-              )
-            : isMapLoaded && layer.isLayerOn && (
-                <Source
-                  id={layer.sourceId}
-                  key={`${layer.sourceId}-${index}`}
+          return layer.dataType === 'pmtiles' ? (
+            isMapLoaded && layer.layerId === 'watershed' ? (
+              <WatershedLayers layer={layer} index={index} />
+            ) : (
+              <PmTileLayers layer={layer} index={index} />
+            )
+          ) : (
+            isMapLoaded && layer.isLayerOn && (
+              <Source
+                id={layer.sourceId}
+                key={`${layer.sourceId}-${index}`}
+                type="raster"
+                url={`cog://${layer.link}`}
+                tileSize={256}
+                maxzoom={16}
+                minzoom={6}
+              >
+                <Layer
+                  id={layer.layerId}
                   type="raster"
-                  url={`cog://${layer.link}`}
-                  tileSize={256}
-                  maxzoom={16}
-                  minzoom={6}
-                >
-                  <Layer
-                    id={layer.layerId}
-                    type="raster"
-                    key={`${layer.layerId}-${index}`}
-                    source={layer.sourceId}
-                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-                  />
-                </Source>
-              )
+                  key={`${layer.layerId}-${index}`}
+                  source={layer.sourceId}
+                  beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+                />
+              </Source>
+            )
+          )
         })}
       </MapGL>
 
