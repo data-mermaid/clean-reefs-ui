@@ -28,7 +28,7 @@ import useResponsive from '../../hooks/useResponsive'
 import { updateChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
+import { createPolygonHoverHandler, getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
 import { ChartProperties } from '../../types/ChartDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -59,12 +59,20 @@ export default function BaseMap({
   const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
-  let hoveredStateId = null
-  let selectededStateId = null
+  const polygonHoverRef = useRef<number | null>(null)
+  const polygonClickRef = useRef<number | null>(null)
 
   const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
+
+  const hoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [polygonHoverRef])
+  // const polygonClickHandler = useMemo(
+  //   () => createPolygonClickHandler(polygonHoverRef),
+  //   [polygonHoverRef],
+  // )
+  // ref to keep the bound callback so it can be removed if needed
+  const watershedBoundRef = useRef<((e) => void) | null>(null)
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -191,58 +199,71 @@ export default function BaseMap({
       return
     }
 
-    map.on('mousemove', 'watershed', (e) => {
-      if (e.features && e.features.length > 0) {
-        if (e.features[0].id && e.features[0].id === hoveredStateId) {
-          return
-        }
-        if (hoveredStateId) {
-          map.setFeatureState(
-            {
-              source: 'watershed_src',
-              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-              id: hoveredStateId,
-            },
-            { hover: false },
-          )
-          hoveredStateId = null
-          return
-        }
-        if (e.features[0].id) {
-          hoveredStateId = e.features[0].id
-          map.setFeatureState(
-            {
-              source: 'watershed_src',
-              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-              id: hoveredStateId,
-            },
-            { hover: true },
-          )
-        }
-      }
-    })
+    // remove previous bound listener if present to avoid duplicate firing
+    if (watershedBoundRef.current) {
+      map.off('mousemove', 'watershed', watershedBoundRef.current)
+      watershedBoundRef.current = null
+    }
+
+    // bind handler that injects the map instance
+    const bound = (e) => {
+      hoverHandler(map, e)
+    }
+    watershedBoundRef.current = bound
+    map.on('mousemove', 'watershed', bound)
+
+    // map.on('mousemove', 'watershed', (e) => {
+    //   if (e.features && e.features.length > 0) {
+    //     if (e.features[0].id && e.features[0].id === polygonHoverRef) {
+    //       return
+    //     }
+    //     if (polygonHoverRef) {
+    //       map.setFeatureState(
+    //         {
+    //           source: 'watershed_src',
+    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    //           id: polygonHoverRef,
+    //         },
+    //         { hover: false },
+    //       )
+    //       polygonHoverRef = null
+    //       return
+    //     }
+    //     if (e.features[0].id) {
+    //       polygonHoverRef = e.features[0].id
+    //       map.setFeatureState(
+    //         {
+    //           source: 'watershed_src',
+    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    //           id: polygonHoverRef,
+    //         },
+    //         { hover: true },
+    //       )
+    //     }
+    //   }
+    // })
     map.on('click', 'watershed', (e) => {
       console.log('clicked')
       if (e.features && e.features.length > 0) {
         // debugger
         if (e.features[0].id) {
-          if (selectededStateId) {
+          if (polygonClickRef) {
             map.setFeatureState(
               {
                 source: 'watershed_src',
                 sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-                id: selectededStateId,
+                id: polygonClickRef,
               },
               { select: false },
             )
-            // selectededStateId = null
+            // polygonClickRef = null
           }
-          selectededStateId = e.features[0].id
+          polygonClickRef = e.features[0].id
           map.setFeatureState(
             {
               source: 'watershed_src',
               sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-              id: selectededStateId,
+              id: polygonClickRef,
             },
             { select: true },
           )
@@ -269,25 +290,25 @@ export default function BaseMap({
     // debugger
     // if (event.features && event.features.length > 0) {
     //   if (event.features[0].id) {
-    //     if (selectededStateId) {
-    //       console.log(`previously selected: ${selectededStateId} new item:${event.features[0].id}`)
+    //     if (polygonClickRef) {
+    //       console.log(`previously selected: ${polygonClickRef} new item:${event.features[0].id}`)
     //       map.setFeatureState(
     //         {
     //           source: 'watershed_src',
     //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //           id: selectededStateId,
+    //           id: polygonClickRef,
     //         },
     //         { select: false },
     //       )
-    //       selectededStateId = null
+    //       polygonClickRef = null
     //       return
     //     }
-    //     selectededStateId = event.features[0].id
+    //     polygonClickRef = event.features[0].id
     //     map.setFeatureState(
     //       {
     //         source: 'watershed_src',
     //         sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //         id: selectededStateId,
+    //         id: polygonClickRef,
     //       },
     //       { select: true },
     //     )

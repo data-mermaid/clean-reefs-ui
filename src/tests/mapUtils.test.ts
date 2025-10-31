@@ -1,5 +1,5 @@
 import { LayerInfo } from '../data/mapData'
-import { mapRegionSelected, getActiveLayers } from '../utils/mapUtils'
+import { mapRegionSelected, getActiveLayers, createPolygonHoverHandler } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { MapGeoJSONFeature, LngLat } from 'maplibre-gl'
 
@@ -69,5 +69,57 @@ describe('map utilities', () => {
       const result = mapRegionSelected(mockGeoFeatures, [10, 10], 4)
       expect(result).toEqual(mockSelectedRegion)
     })
+  })
+})
+
+describe('createPolygonHoverHandler', () => {
+  const makeMap = () => ({ setFeatureState: jest.fn() })
+
+  const makeEvent = (id?: string | number) => ({
+    features: id === undefined ? [] : [{ id }],
+  })
+
+  let hoveredRef: React.RefObject<string | number | null>
+
+  beforeEach(() => {
+    hoveredRef = { current: null }
+  })
+
+  test('does nothing when no features', () => {
+    const map = makeMap()
+    const handler = createPolygonHoverHandler(hoveredRef)
+    handler(map, makeEvent())
+    expect(map.setFeatureState).not.toHaveBeenCalled()
+    expect(hoveredRef.current).toBeNull()
+  })
+
+  test('sets hover on first feature', () => {
+    const map = makeMap()
+    const handler = createPolygonHoverHandler(hoveredRef)
+    handler(map, makeEvent('197297'))
+    expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '197297' }), {
+      hover: true,
+    })
+    expect(hoveredRef.current).toBe('197297')
+  })
+
+  test('does nothing when hovering same feature', () => {
+    const map = makeMap()
+    hoveredRef.current = 'a'
+    const handler = createPolygonHoverHandler(hoveredRef)
+    handler(map, makeEvent('a'))
+    expect(map.setFeatureState).not.toHaveBeenCalled()
+    expect(hoveredRef.current).toBe('a')
+  })
+
+  test('clears previous hover and updates when a different polygon is hovered', () => {
+    const map = makeMap()
+    hoveredRef.current = '127'
+    const handler = createPolygonHoverHandler(hoveredRef)
+    handler(map, makeEvent('125'))
+    expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '127' }), {
+      hover: false,
+    })
+    expect(hoveredRef.current).toBeNull()
   })
 })
