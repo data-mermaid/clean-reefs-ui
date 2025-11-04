@@ -1,7 +1,13 @@
 import { LayerInfo } from '../data/mapData'
-import { mapRegionSelected, getActiveLayers, createPolygonHoverHandler } from '../utils/mapUtils'
+import {
+  mapRegionSelected,
+  getActiveLayers,
+  createPolygonHoverHandler,
+  createPolygonClickHandler,
+} from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { MapGeoJSONFeature, LngLat } from 'maplibre-gl'
+import { RefObject } from 'react'
 
 const mockUrl = 'https://things.com'
 const mockLayers: LayerInfo[] = [
@@ -79,13 +85,13 @@ describe('createPolygonHoverHandler', () => {
     features: id === undefined ? [] : [{ id }],
   })
 
-  let hoveredRef: React.RefObject<string | number | null>
+  let hoveredRef: RefObject<string | number | null>
 
   beforeEach(() => {
     hoveredRef = { current: null }
   })
 
-  test('does nothing when no features', () => {
+  test('does nothing when there are no features hovered', () => {
     const map = makeMap()
     const handler = createPolygonHoverHandler(hoveredRef)
     handler(map, makeEvent())
@@ -105,11 +111,11 @@ describe('createPolygonHoverHandler', () => {
 
   test('does nothing when hovering same feature', () => {
     const map = makeMap()
-    hoveredRef.current = 'a'
+    hoveredRef.current = '128'
     const handler = createPolygonHoverHandler(hoveredRef)
-    handler(map, makeEvent('a'))
+    handler(map, makeEvent('128'))
     expect(map.setFeatureState).not.toHaveBeenCalled()
-    expect(hoveredRef.current).toBe('a')
+    expect(hoveredRef.current).toBe('128')
   })
 
   test('clears previous hover and updates when a different polygon is hovered', () => {
@@ -121,5 +127,57 @@ describe('createPolygonHoverHandler', () => {
       hover: false,
     })
     expect(hoveredRef.current).toBeNull()
+  })
+})
+
+describe('createPolygonClickHandler', () => {
+  const makeMap = () => ({ setFeatureState: jest.fn() })
+
+  const makeEvent = (id?: string | number) => ({
+    features: id === undefined ? [] : [{ id }],
+  })
+
+  let clickedRef: RefObject<string | number | null>
+
+  beforeEach(() => {
+    clickedRef = { current: null }
+  })
+
+  test('does nothing when there are no features', () => {
+    const map = makeMap()
+    const handler = createPolygonClickHandler(clickedRef)
+    handler(map, makeEvent())
+    expect(map.setFeatureState).not.toHaveBeenCalled()
+    expect(clickedRef.current).toBeNull()
+  })
+
+  test('sets hover on first feature', () => {
+    const map = makeMap()
+    const handler = createPolygonClickHandler(clickedRef)
+    handler(map, makeEvent('197297'))
+    expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '197297' }), {
+      select: true,
+    })
+    expect(clickedRef.current).toBe('197297')
+  })
+
+  test('deselects the feature when the same feature is clicked', () => {
+    const map = makeMap()
+    clickedRef.current = '128'
+    const handler = createPolygonClickHandler(clickedRef)
+    handler(map, makeEvent('128'))
+    expect(map.setFeatureState).toHaveBeenCalledTimes(1)
+    expect(clickedRef.current).toBe(null)
+  })
+
+  test('clears previous click and updates when a different polygon is clicked', () => {
+    const map = makeMap()
+    clickedRef.current = '127'
+    const handler = createPolygonClickHandler(clickedRef)
+    handler(map, makeEvent('125'))
+    expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '127' }), {
+      select: false,
+    })
+    expect(clickedRef.current).toBe('125')
   })
 })

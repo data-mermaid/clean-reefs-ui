@@ -28,7 +28,12 @@ import useResponsive from '../../hooks/useResponsive'
 import { updateChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { createPolygonHoverHandler, getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
+import {
+  createPolygonClickHandler,
+  createPolygonHoverHandler,
+  getActiveLayers,
+  mapRegionSelected,
+} from '../../utils/mapUtils'
 import { ChartProperties } from '../../types/ChartDataTypes'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -56,23 +61,26 @@ export default function BaseMap({
   const defaultPoint = [622, 401] //Fiji
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
-  const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
-  const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
+  const currentLngLat = useMemo(() => [defaultLng, defaultLat], [defaultLng, defaultLat])
+  // const [, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
-  const polygonHoverRef = useRef<number | null>(null)
-  const polygonClickRef = useRef<number | null>(null)
+  const polygonHoverRef = useRef<string | number | null>(null)
+  const polygonClickRef = useRef<string | number | null>(null)
+  const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
+  const polygonClickBoundRef = useRef<((e) => void) | null>(null)
 
   const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
 
-  const hoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [polygonHoverRef])
-  // const polygonClickHandler = useMemo(
-  //   () => createPolygonClickHandler(polygonHoverRef),
-  //   [polygonHoverRef],
-  // )
-  // ref to keep the bound callback so it can be removed if needed
-  const watershedBoundRef = useRef<((e) => void) | null>(null)
+  const polygonHoverHandler = useMemo(
+    () => createPolygonHoverHandler(polygonHoverRef),
+    [polygonHoverRef],
+  )
+  const polygonClickHandler = useMemo(
+    () => createPolygonClickHandler(polygonClickRef),
+    [polygonClickRef],
+  )
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -97,12 +105,12 @@ export default function BaseMap({
   }, [selectedRegion])
 
   const loadChartData = useCallback(
-    (point, activeLayers, zoomLevel: number) => {
+    (point, activeLayers) => {
       if (!mapRef.current) {
         return
       }
       const map = mapRef.current?.getMap()
-
+      const zoom = mapRef.current?.getMap().getZoom()
       //doesn't account for if the layer hasn't loaded yet
       if (activeLayers.length > 0) {
         //query the layers corresponding with charts and with layers that are on
@@ -117,7 +125,7 @@ export default function BaseMap({
 
           //TEMP: remove tempSkipLayers when all region data is available
           if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
+            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoom)
             setSelectedRegion(mappedRegion)
 
             //trigger chart data update
@@ -192,137 +200,39 @@ export default function BaseMap({
   const handleMapLoad = () => {
     setIsMapLoaded(true)
     const activeLayers = getActiveLayers(mapLayers)
-    loadChartData(defaultPoint, activeLayers, defaultMapZoom)
+    loadChartData(defaultPoint, activeLayers)
 
     const map = mapRef.current?.getMap()
     if (!map) {
       return
     }
+
+    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed')
 
     // remove previous bound listener if present to avoid duplicate firing
-    if (watershedBoundRef.current) {
-      map.off('mousemove', 'watershed', watershedBoundRef.current)
-      watershedBoundRef.current = null
+    if (polygonHoverBoundRef.current) {
+      map.off('mousemove', 'watershed', polygonHoverBoundRef.current)
+      polygonHoverBoundRef.current = null
+    }
+    if (polygonClickBoundRef.current) {
+      map.off('click', 'watershed', polygonClickBoundRef.current)
+      polygonClickBoundRef.current = null
     }
 
-    // bind handler that injects the map instance
-    const bound = (e) => {
-      hoverHandler(map, e)
+    const hoverBound = (e) => {
+      polygonHoverHandler(map, e, watershedLayer)
     }
-    watershedBoundRef.current = bound
-    map.on('mousemove', 'watershed', bound)
-
-    // map.on('mousemove', 'watershed', (e) => {
-    //   if (e.features && e.features.length > 0) {
-    //     if (e.features[0].id && e.features[0].id === polygonHoverRef) {
-    //       return
-    //     }
-    //     if (polygonHoverRef) {
-    //       map.setFeatureState(
-    //         {
-    //           source: 'watershed_src',
-    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //           id: polygonHoverRef,
-    //         },
-    //         { hover: false },
-    //       )
-    //       polygonHoverRef = null
-    //       return
-    //     }
-    //     if (e.features[0].id) {
-    //       polygonHoverRef = e.features[0].id
-    //       map.setFeatureState(
-    //         {
-    //           source: 'watershed_src',
-    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //           id: polygonHoverRef,
-    //         },
-    //         { hover: true },
-    //       )
-    //     }
-    //   }
-    // })
-    map.on('click', 'watershed', (e) => {
-      console.log('clicked')
-      if (e.features && e.features.length > 0) {
-        // debugger
-        if (e.features[0].id) {
-          if (polygonClickRef) {
-            map.setFeatureState(
-              {
-                source: 'watershed_src',
-                sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-                id: polygonClickRef,
-              },
-              { select: false },
-            )
-            // polygonClickRef = null
-          }
-          polygonClickRef = e.features[0].id
-          map.setFeatureState(
-            {
-              source: 'watershed_src',
-              sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-              id: polygonClickRef,
-            },
-            { select: true },
-          )
-        }
-      }
-    })
-  }
-
-  const handleMapClick = (event) => {
-    if (!mapRef.current) {
-      return
-    }
-    const zoom = mapRef.current?.getMap().getZoom()
-    if (zoom && zoom !== currentZoom) {
-      setCurrentZoom(zoom)
+    const clickBound = (e) => {
+      polygonClickHandler(map, e, watershedLayer)
+      // TODO: find correct location for these w/o triggering an entire app re-render
+      // const activeLayers = getActiveLayers(mapLayers)
+      // loadChartData(e.point, activeLayers)
     }
 
-    const map = mapRef.current?.getMap()
-    if (!map) {
-      return
-    }
-
-    // console.log(`clicked ${event.features[0].id}`)
-    // debugger
-    // if (event.features && event.features.length > 0) {
-    //   if (event.features[0].id) {
-    //     if (polygonClickRef) {
-    //       console.log(`previously selected: ${polygonClickRef} new item:${event.features[0].id}`)
-    //       map.setFeatureState(
-    //         {
-    //           source: 'watershed_src',
-    //           sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //           id: polygonClickRef,
-    //         },
-    //         { select: false },
-    //       )
-    //       polygonClickRef = null
-    //       return
-    //     }
-    //     polygonClickRef = event.features[0].id
-    //     map.setFeatureState(
-    //       {
-    //         source: 'watershed_src',
-    //         sourceLayer: 'Fiji+Solomons_watershed_LULC_SDR_v2',
-    //         id: polygonClickRef,
-    //       },
-    //       { select: true },
-    //     )
-    //   }
-    // }
-
-    //todo: on watershed click, zoom to boundary extents
-
-    //todo: condition for if lat long are different, then change
-    // setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
-
-    //todo: check for different layers active, then change
-    // const activeLayers = getActiveLayers(mapLayers)
-    // loadChartData(event.point, activeLayers, zoom)
+    polygonHoverBoundRef.current = hoverBound
+    polygonClickBoundRef.current = clickBound
+    map.on('mousemove', 'watershed', hoverBound)
+    map.on('click', 'watershed', clickBound)
   }
 
   function WatershedLayers({ layer, index }) {
@@ -411,7 +321,6 @@ export default function BaseMap({
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
         attributionControl={false}
-        // onClick={handleMapClick}
       >
         {isDesktopWidth && (
           <>

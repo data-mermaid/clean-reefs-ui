@@ -9,11 +9,8 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export function createPolygonHoverHandler(hoveredRef: RefObject<number | null>) {
-  const SOURCE = 'watershed_src'
-  const SOURCE_LAYER = 'Fiji+Solomons_watershed_LULC_SDR_v2'
-
-  return (map, e: MapLayerMouseEvent) => {
+export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
+  return (map, e: MapLayerMouseEvent, mapDataLayer) => {
     if (!e?.features || e.features.length === 0) {
       return
     }
@@ -23,7 +20,6 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<number | null>) 
       return
     }
 
-    // no-op if hovering same feature
     if (featureId === hoveredRef.current) {
       return
     }
@@ -31,8 +27,8 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<number | null>) 
     if (hoveredRef.current) {
       map.setFeatureState(
         {
-          source: SOURCE,
-          sourceLayer: SOURCE_LAYER,
+          source: mapDataLayer.sourceId,
+          sourceLayer: mapDataLayer.sourceName,
           id: hoveredRef.current,
         },
         { hover: false },
@@ -44,8 +40,8 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<number | null>) 
     hoveredRef.current = featureId
     map.setFeatureState(
       {
-        source: SOURCE,
-        sourceLayer: SOURCE_LAYER,
+        source: mapDataLayer.sourceId,
+        sourceLayer: mapDataLayer.sourceName,
         id: hoveredRef.current,
       },
       { hover: true },
@@ -53,7 +49,44 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<number | null>) 
   }
 }
 
-export function createPolygonClickHandler() {}
+export function createPolygonClickHandler(polygonClickedRef: RefObject<string | number | null>) {
+  return (map, e: MapLayerMouseEvent, mapDataLayer) => {
+    if (!e?.features || e.features.length === 0) {
+      return
+    }
+
+    const featureId = e.features[0].id
+    if (!featureId) {
+      return
+    }
+
+    if (polygonClickedRef.current) {
+      map.setFeatureState(
+        {
+          source: mapDataLayer.sourceId,
+          sourceLayer: mapDataLayer.sourceName,
+          id: polygonClickedRef.current,
+        },
+        { select: false },
+      )
+      if (polygonClickedRef.current === featureId) {
+        polygonClickedRef.current = null
+        return
+      }
+    }
+
+    polygonClickedRef.current = featureId
+    map.setFeatureState(
+      {
+        source: mapDataLayer.sourceId,
+        sourceLayer: mapDataLayer.sourceName,
+        id: polygonClickedRef.current,
+      },
+      { select: true },
+    )
+  }
+}
+
 //todo: mapRegionSelected --> updateRegionSelected
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
