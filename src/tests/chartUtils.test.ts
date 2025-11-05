@@ -271,7 +271,6 @@ describe('chart data utilities', () => {
     })
 
     describe('sediment_exposure_historical special handling', () => {
-      // eslint-disable-next-line max-nested-callbacks
       it('should divide values by 1000000 for sediment data', () => {
         const mockData: ChartData = {
           sediment: {
