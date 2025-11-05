@@ -7,6 +7,7 @@ import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIc
 import styles from './LayersDrawer.module.scss'
 import { LayerInfo, parentLayerTitles } from '../../data/mapData'
 import Legend from '../Legend/Legend'
+import GradientLegend from '../GradientLegend/GradientLegend'
 
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
@@ -20,6 +21,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
+  // const [activeRasterLayer, setActiveRasterLayer] = useState<string | null>(null)
 
   const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const updatedLayers = mapLayers.map((layer) => {
@@ -51,8 +53,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
               />
             </div>
             {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-            {/*Add back in when data layers available*/}
-            {/*{layer.legendType === 'gradient' && layer.isLayerOn && <GradientLegend variant={} title={}/>}*/}
+            {layer.legendType === 'gradient' && layer.isLayerOn && (
+              <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
+            )}
           </Card>
         )
       })

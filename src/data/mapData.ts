@@ -30,7 +30,7 @@ export interface LayerInfo {
     | 'oceanPollution'
   isLayerOn: boolean
   title: string
-  scaleVariation?: string
+  legendTitle?: string
   legendType?: 'gradient' | 'lulc'
   year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
@@ -139,6 +139,7 @@ export const layers: LayerInfo[] = [
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
+    legendTitle: 'sediment',
     legendType: 'gradient',
     link: SED_EXPORT_2000_URL,
     parentLayerType: 'landPollution',
@@ -151,6 +152,7 @@ export const layers: LayerInfo[] = [
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
+    legendTitle: 'sediment',
     legendType: 'gradient',
     link: SED_EXPORT_2005_URL,
     parentLayerType: 'landPollution',
@@ -163,6 +165,7 @@ export const layers: LayerInfo[] = [
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
+    legendTitle: 'sediment',
     legendType: 'gradient',
     link: SED_EXPORT_2010_URL,
     parentLayerType: 'landPollution',
@@ -175,9 +178,9 @@ export const layers: LayerInfo[] = [
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
+    legendTitle: 'sediment',
     legendType: 'gradient',
     link: SED_EXPORT_2015_URL,
-
     parentLayerType: 'landPollution',
     sourceId: 'sed_export_load_2015_visual',
     sourceName: '',
@@ -188,6 +191,7 @@ export const layers: LayerInfo[] = [
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
+    legendTitle: 'sediment',
     legendType: 'gradient',
     link: SED_EXPORT_2020_URL,
     parentLayerType: 'landPollution',
