@@ -20,7 +20,7 @@ export interface LayerInfo {
   sourceName: string //layer name defaults to the file name
   layerId: string
   link: string
-  dataType: 'pmtiles' | 'tiles' | undefined
+  dataType: 'pmtiles' | 'tiles' | undefined //pmtiles:vector, tiles:raster
   parentLayerType:
     | 'base'
     | 'benthic'
@@ -136,6 +136,7 @@ export const layers: LayerInfo[] = [
     year: 2020,
   },
   {
+    sourceId: 'sed_export_load_2000_visual',
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
@@ -143,12 +144,12 @@ export const layers: LayerInfo[] = [
     legendType: 'gradient',
     link: SED_EXPORT_2000_URL,
     parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2000_visual',
     sourceName: '',
     title: 'sediment_export',
     year: 2000,
   },
   {
+    sourceId: 'sed_export_load_2005_visual',
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
@@ -156,12 +157,12 @@ export const layers: LayerInfo[] = [
     legendType: 'gradient',
     link: SED_EXPORT_2005_URL,
     parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2005_visual',
     sourceName: '',
     title: 'sediment_export',
     year: 2005,
   },
   {
+    sourceId: 'sed_export_load_2010_visual',
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
@@ -169,12 +170,12 @@ export const layers: LayerInfo[] = [
     legendType: 'gradient',
     link: SED_EXPORT_2010_URL,
     parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2010_visual',
     sourceName: '',
     title: 'sediment_export',
     year: 2010,
   },
   {
+    sourceId: 'sed_export_load_2015_visual',
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
@@ -182,12 +183,12 @@ export const layers: LayerInfo[] = [
     legendType: 'gradient',
     link: SED_EXPORT_2015_URL,
     parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2015_visual',
     sourceName: '',
     title: 'sediment_export',
     year: 2015,
   },
   {
+    sourceId: 'sed_export_load_2020_visual',
     dataType: 'tiles',
     isLayerOn: false,
     layerId: 'sed_export',
@@ -195,7 +196,6 @@ export const layers: LayerInfo[] = [
     legendType: 'gradient',
     link: SED_EXPORT_2020_URL,
     parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2020_visual',
     sourceName: '',
     title: 'sediment_export',
     year: 2020,
