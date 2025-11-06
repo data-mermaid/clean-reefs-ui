@@ -46,11 +46,14 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
         }
-        setActiveRasterLayerId(toggledLayer)
+        if (checked) {
+          setActiveRasterLayerId(toggledLayer)
+        }
       }
       setMapLayers(updatedLayers)
     },
-    [activeRasterLayerId, mapLayers, setMapLayers],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeRasterLayerId, setMapLayers],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
