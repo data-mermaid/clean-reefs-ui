@@ -1,5 +1,5 @@
 import { Card, Switch, Typography } from '@mui/material'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
@@ -7,11 +7,25 @@ import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIc
 import styles from './LayersDrawer.module.scss'
 import { LayerInfo, parentLayerTitles } from '../../data/mapData'
 import Legend from '../Legend/Legend'
+import GradientLegend from '../GradientLegend/GradientLegend'
 
+/**
+ * Business rule:
+ * Only one land raster can be active at a time.
+ */
 interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
+}
+const rasterLayers = ['sed_export', 'lulc']
+
+const mapToggleChange = (layers: LayerInfo[], layerId: string, checked: boolean) => {
+  return layers.map((layer) => {
+    return layer.layerId === layerId
+      ? { ...layer, isLayerOn: checked } // Create new object with updated property
+      : layer // Keep other layers unchanged
+  })
 }
 
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
@@ -20,15 +34,30 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
+  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
 
-  const toggleLayer = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const updatedLayers = mapLayers.map((layer) => {
-      return layer.layerId === event.target.id
-        ? { ...layer, isLayerOn: checked } // Create new object with updated property
-        : layer // Keep other layers unchanged
-    })
-    setMapLayers(updatedLayers)
-  }
+  const toggleLayer = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      const toggledLayer = event.target.id
+      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
+
+      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
+      if (isRasterLayer) {
+        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
+          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
+        }
+        if (checked) {
+          setActiveRasterLayerId(toggledLayer)
+        } else {
+          setActiveRasterLayerId(null)
+        }
+      }
+      setMapLayers(updatedLayers)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeRasterLayerId, setMapLayers],
+  )
+
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
     const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
 
@@ -51,8 +80,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
               />
             </div>
             {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-            {/*Add back in when data layers available*/}
-            {/*{layer.legendType === 'gradient' && layer.isLayerOn && <GradientLegend variant={} title={}/>}*/}
+            {layer.legendType === 'gradient' && layer.isLayerOn && (
+              <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
+            )}
           </Card>
         )
       })
