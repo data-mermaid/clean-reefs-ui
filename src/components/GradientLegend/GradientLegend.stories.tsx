@@ -9,7 +9,7 @@ type Story = StoryObj<typeof meta>
 
 export const SedimentExport: Story = {
   args: {
-    variation: 'sediment-export',
+    variation: 'sed_export',
     title: 'sediment',
   },
 }

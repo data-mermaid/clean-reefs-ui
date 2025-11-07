@@ -6,7 +6,7 @@ import {
   createPolygonClickHandler,
 } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
-import { MapGeoJSONFeature, LngLat } from 'maplibre-gl'
+import { MapLayerMouseEvent, MapGeoJSONFeature, LngLat, GeoJSONFeature } from 'maplibre-gl'
 import { RefObject } from 'react'
 
 const mockUrl = 'https://things.com'
@@ -84,6 +84,15 @@ describe('createPolygonHoverHandler', () => {
   const makeEvent = (id?: string | number) => ({
     features: id === undefined ? [] : [{ id }],
   })
+  // const makeEvent = (id?: string | number) => {
+  //     return {
+  //         id: id,
+  //         type: 'Feature',
+  //         layer: { source: '' },
+  //         source: '',
+  //         state: { none: 'none' },
+  //     } as unknown as MapLayerMouseEvent
+  // }
 
   let hoveredRef: RefObject<string | number | null>
 
@@ -94,7 +103,7 @@ describe('createPolygonHoverHandler', () => {
   test('does nothing when there are no features hovered', () => {
     const map = makeMap()
     const handler = createPolygonHoverHandler(hoveredRef)
-    handler(map, makeEvent())
+    handler(map, makeEvent(), mockLayers[0])
     expect(map.setFeatureState).not.toHaveBeenCalled()
     expect(hoveredRef.current).toBeNull()
   })
@@ -102,7 +111,7 @@ describe('createPolygonHoverHandler', () => {
   test('sets hover on first feature', () => {
     const map = makeMap()
     const handler = createPolygonHoverHandler(hoveredRef)
-    handler(map, makeEvent('197297'))
+    handler(map, makeEvent('197297'), mockLayers[0])
     expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '197297' }), {
       hover: true,
     })
@@ -113,7 +122,7 @@ describe('createPolygonHoverHandler', () => {
     const map = makeMap()
     hoveredRef.current = '128'
     const handler = createPolygonHoverHandler(hoveredRef)
-    handler(map, makeEvent('128'))
+    handler(map, makeEvent('128'), mockLayers[0])
     expect(map.setFeatureState).not.toHaveBeenCalled()
     expect(hoveredRef.current).toBe('128')
   })
@@ -122,7 +131,7 @@ describe('createPolygonHoverHandler', () => {
     const map = makeMap()
     hoveredRef.current = '127'
     const handler = createPolygonHoverHandler(hoveredRef)
-    handler(map, makeEvent('125'))
+    handler(map, makeEvent('125'), mockLayers[0])
     expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '127' }), {
       hover: false,
     })
@@ -146,7 +155,7 @@ describe('createPolygonClickHandler', () => {
   test('does nothing when there are no features', () => {
     const map = makeMap()
     const handler = createPolygonClickHandler(clickedRef)
-    handler(map, makeEvent())
+    handler(map, makeEvent(), mockLayers[0])
     expect(map.setFeatureState).not.toHaveBeenCalled()
     expect(clickedRef.current).toBeNull()
   })
@@ -154,7 +163,7 @@ describe('createPolygonClickHandler', () => {
   test('sets hover on first feature', () => {
     const map = makeMap()
     const handler = createPolygonClickHandler(clickedRef)
-    handler(map, makeEvent('197297'))
+    handler(map, makeEvent('197297'), mockLayers[0])
     expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '197297' }), {
       select: true,
     })
@@ -165,7 +174,7 @@ describe('createPolygonClickHandler', () => {
     const map = makeMap()
     clickedRef.current = '128'
     const handler = createPolygonClickHandler(clickedRef)
-    handler(map, makeEvent('128'))
+    handler(map, makeEvent('128'), mockLayers[0])
     expect(map.setFeatureState).toHaveBeenCalledTimes(1)
     expect(clickedRef.current).toBe(null)
   })
@@ -174,7 +183,7 @@ describe('createPolygonClickHandler', () => {
     const map = makeMap()
     clickedRef.current = '127'
     const handler = createPolygonClickHandler(clickedRef)
-    handler(map, makeEvent('125'))
+    handler(map, makeEvent('125'), mockLayers[0])
     expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '127' }), {
       select: false,
     })

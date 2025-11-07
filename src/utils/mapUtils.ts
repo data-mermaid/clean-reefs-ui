@@ -87,7 +87,6 @@ export function createPolygonClickHandler(polygonClickedRef: RefObject<string | 
   }
 }
 
-//todo: mapRegionSelected --> updateRegionSelected
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   lngLat: [number, number],

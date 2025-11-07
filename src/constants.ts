@@ -18,12 +18,19 @@ export const LULC_2015_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2015_visual.tif'
 export const LULC_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2020_visual.tif'
+export const ACA_BENTHIC_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/aca_benthic/aca_benthic_visual.tif'
 
 export const SED_EXPORT_2000_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2000_visual.tif'
-
-export const ACA_BENTHIC_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/aca_benthic/aca_benthic_visual.tif'
+export const SED_EXPORT_2005_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2005_visual.tif'
+export const SED_EXPORT_2010_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2010_visual.tif'
+export const SED_EXPORT_2015_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2015_visual.tif'
+export const SED_EXPORT_2020_URL =
+  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
 
 /******COLORS******/
 export const polygonOutlineHoverColor = '#00FF01'

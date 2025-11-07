@@ -8,15 +8,19 @@ import {
   LULC_2020_URL,
   REGIONS_PMTILES_URL,
   SED_EXPORT_2000_URL,
+  SED_EXPORT_2005_URL,
+  SED_EXPORT_2010_URL,
+  SED_EXPORT_2015_URL,
+  SED_EXPORT_2020_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
 
 export interface LayerInfo {
-  dataType: 'pmtiles' | 'tiles' | undefined
   isLayerOn: boolean
   layerId: string
   legendType?: 'gradient' | 'lulc'
   link: string
+  dataType: 'pmtiles' | 'tiles' | undefined //pmtiles:vector, tiles:raster
   outlineColor?: string //vector files only
   outlineStyle?: boolean //vector files only
   parentLayerType:
@@ -30,6 +34,7 @@ export interface LayerInfo {
   sourceId: string
   sourceName: string //layer name defaults to the file name
   title: string
+  legendTitle?: string
   year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
 
@@ -147,6 +152,71 @@ export const layers: LayerInfo[] = [
     sourceId: 'lulc_2020_visual',
     sourceName: '',
     title: 'map_layer_groups.land_use_cover',
+    year: 2020,
+  },
+  {
+    sourceId: 'sed_export_load_2000_visual',
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendTitle: 'sediment',
+    legendType: 'gradient',
+    link: SED_EXPORT_2000_URL,
+    parentLayerType: 'landPollution',
+    sourceName: '',
+    title: 'sediment_export',
+    year: 2000,
+  },
+  {
+    sourceId: 'sed_export_load_2005_visual',
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendTitle: 'sediment',
+    legendType: 'gradient',
+    link: SED_EXPORT_2005_URL,
+    parentLayerType: 'landPollution',
+    sourceName: '',
+    title: 'sediment_export',
+    year: 2005,
+  },
+  {
+    sourceId: 'sed_export_load_2010_visual',
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendTitle: 'sediment',
+    legendType: 'gradient',
+    link: SED_EXPORT_2010_URL,
+    parentLayerType: 'landPollution',
+    sourceName: '',
+    title: 'sediment_export',
+    year: 2010,
+  },
+  {
+    sourceId: 'sed_export_load_2015_visual',
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendTitle: 'sediment',
+    legendType: 'gradient',
+    link: SED_EXPORT_2015_URL,
+    parentLayerType: 'landPollution',
+    sourceName: '',
+    title: 'sediment_export',
+    year: 2015,
+  },
+  {
+    sourceId: 'sed_export_load_2020_visual',
+    dataType: 'tiles',
+    isLayerOn: false,
+    layerId: 'sed_export',
+    legendTitle: 'sediment',
+    legendType: 'gradient',
+    link: SED_EXPORT_2020_URL,
+    parentLayerType: 'landPollution',
+    sourceName: '',
+    title: 'sediment_export',
     year: 2020,
   },
   {
