@@ -48,6 +48,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         }
         if (checked) {
           setActiveRasterLayerId(toggledLayer)
+        } else {
+          setActiveRasterLayerId(null)
         }
       }
       setMapLayers(updatedLayers)
