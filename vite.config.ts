@@ -12,11 +12,6 @@ const dirname =
 export default defineConfig({
   base: '/',
   plugins: [react()],
-  esbuild: {
-    supported: {
-      'top-level-await': true,
-    },
-  },
   test: {
     projects: [
       {
