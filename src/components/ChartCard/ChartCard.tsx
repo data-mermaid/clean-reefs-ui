@@ -1,14 +1,13 @@
 import React, { lazy, MouseEventHandler, Suspense, useState } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './ChartCard.module.scss'
-// import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
 
 type PlotComponentType = (typeof import('react-plotly.js'))['default']
-const Plot = lazy(() => import('react-plotly.js') as Promise<{ default: PlotComponentType }>) // lazy load plotly wrapper
+const Plot = lazy(() => import('react-plotly.js') as Promise<{ default: PlotComponentType }>)
 
 interface ChartCardProps {
   open: boolean
