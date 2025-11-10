@@ -1,0 +1,9 @@
+language: "en"
+early_access: false
+reviews:
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    auto_incremental_review: false
+    base_branches: ["develop"]
