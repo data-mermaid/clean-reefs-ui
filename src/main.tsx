@@ -1,3 +1,4 @@
+import { scan } from 'react-scan'
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/reset.module.scss'
@@ -10,6 +11,10 @@ import '@fontsource/titillium-web/300.css'
 import '@fontsource/titillium-web/400.css'
 import '@fontsource/titillium-web/600.css'
 import '@fontsource/titillium-web/900.css'
+
+scan({
+  enabled: true,
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

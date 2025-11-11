@@ -87,30 +87,14 @@ export function createPolygonClickHandler(polygonClickedRef: RefObject<string | 
   }
 }
 
-export function mapRegionSelected(
-  feature: MapGeoJSONFeature,
-  lngLat: [number, number],
-  zoomLevel: number,
-): RegionOption {
-  const regionLayerSelected: RegionOption = {
-    regionType: regionOptions[0].regionType,
-    label: regionOptions[0].label,
-    centerCoord: new LngLat(...lngLat),
-    zoomLevel: zoomLevel,
+export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
+  //this is about to change with new TERRITORY attribute addition
+
+  const matchingRegion = regionOptions.find(
+    (region) => region.label === feature.properties.TERRITORY1,
+  )
+  if (matchingRegion && feature.layer.id === 'watershed') {
+    Object.defineProperty(matchingRegion, 'regionType', { value: 'watershed' })
   }
-  if (feature.layer.id === 'countries') {
-    {
-      regionLayerSelected.regionType = 'country'
-      regionLayerSelected.label = feature.properties.TERRITORY1
-    }
-  } else if (feature.layer.id === 'watershed') {
-    {
-      regionLayerSelected.regionType = 'watershed'
-      regionLayerSelected.label = i18next.t('regions.watershed')
-    }
-  } else if (feature.layer.id === 'regions') {
-    regionLayerSelected.regionType = 'region'
-    regionLayerSelected.label = feature.properties.name
-  }
-  return regionLayerSelected
+  return matchingRegion || regionOptions[0]
 }

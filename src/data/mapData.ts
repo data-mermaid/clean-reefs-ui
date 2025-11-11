@@ -56,7 +56,7 @@ export const layers: LayerInfo[] = [
     outlineColor: '#000',
     parentLayerType: 'boundaries',
     sourceId: 'watershed_src',
-    sourceName: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    sourceName: 'watersheds',
     title: 'boundary_map_layers.watershed_boundaries',
   },
   {

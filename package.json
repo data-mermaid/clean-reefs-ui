@@ -34,7 +34,8 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^15.6.0",
     "react-map-gl": "^8.0.4",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "react-scan": "^0.4.3"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
