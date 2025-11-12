@@ -4,7 +4,6 @@ import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
 import { PlotData } from 'plotly.js'
-import { mapRegionSelected } from './mapUtils'
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -21,43 +20,6 @@ export interface LulcAndSedimentSeriesData {
   }
   sediment_exposure_historical: {
     sediment: object
-  }
-}
-
-export const loadChartData = (point, activeLayers, givenMapRef?) => {
-  let map
-  if (!givenMapRef) {
-    if (!mapRef.current) {
-      return
-    }
-    map = mapRef.current?.getMap()
-  } else {
-    map = givenMapRef
-  }
-
-  //doesn't account for if the layer hasn't loaded yet
-  if (activeLayers.length > 0) {
-    //query the layers corresponding with charts and with layers that are on
-    const features = map.queryRenderedFeatures(point, {
-      layers: activeLayers,
-    })
-
-    if (features.length > 0) {
-      const tempSkipLayers = ['global']
-      //only grab the topmost data layer to pull point from
-      const firstFeature = features[0]
-
-      //TEMP: remove tempSkipLayers when all region data is available
-      if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-        const mappedRegion = mapRegionSelected(firstFeature)
-        // setSelectedRegion(mappedRegion)
-
-        //trigger chart data update
-        // updateChartData(firstFeature, setChartConfigData)
-        // } else {
-        // setChartConfigData(null)
-      }
-    }
   }
 }
 

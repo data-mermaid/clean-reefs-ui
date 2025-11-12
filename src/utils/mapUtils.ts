@@ -1,8 +1,7 @@
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../data/mapData'
 import { regionOptions } from '../data/regionData'
-import i18next from 'i18next'
-import { LngLat, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import { MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
@@ -49,7 +48,10 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
   }
 }
 
-export function createPolygonClickHandler(polygonClickedRef: RefObject<string | number | null>) {
+export function createPolygonClickHandler(
+  polygonClickedRef: RefObject<string | number | null>,
+  onSelect?: (feature: MapGeoJSONFeature | null) => void,
+) {
   return (map, e: MapLayerMouseEvent, mapDataLayer) => {
     if (!e?.features || e.features.length === 0) {
       return
@@ -71,6 +73,9 @@ export function createPolygonClickHandler(polygonClickedRef: RefObject<string | 
       )
       if (polygonClickedRef.current === featureId) {
         polygonClickedRef.current = null
+        if (onSelect) {
+          onSelect(null)
+        }
         return
       }
     }
@@ -84,12 +89,14 @@ export function createPolygonClickHandler(polygonClickedRef: RefObject<string | 
       },
       { select: true },
     )
+
+    if (onSelect) {
+      onSelect(e.features[0] as MapGeoJSONFeature)
+    }
   }
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
-  //this is about to change with new TERRITORY attribute addition
-
   const matchingRegion = regionOptions.find(
     (region) => region.label === feature.properties.TERRITORY1,
   )

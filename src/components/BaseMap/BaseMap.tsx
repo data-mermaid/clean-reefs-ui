@@ -1,20 +1,12 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
   Map as MapGL,
   MapRef,
   NavigationControl,
-  Source,
   ScaleControl,
+  Source,
 } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -24,35 +16,21 @@ import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
-
-import { updateChartData, loadChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import {
-  createPolygonClickHandler,
-  createPolygonHoverHandler,
-  getActiveLayers,
-  mapRegionSelected,
-} from '../../utils/mapUtils'
-import { ChartProperties } from '../../types/ChartDataTypes'
+import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
+import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setChartConfigData: Dispatch<SetStateAction<ChartProperties[] | null>>
 }
 
-export default function BaseMap({
-  mapLayers,
-  selectedRegion,
-  setSelectedRegion,
-  setChartConfigData,
-}: BaseMapProps) {
+export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -73,13 +51,15 @@ export default function BaseMap({
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
 
+  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
+
   const polygonHoverHandler = useMemo(
     () => createPolygonHoverHandler(polygonHoverRef),
     [polygonHoverRef],
   )
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef),
-    [polygonClickRef],
+    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
+    [polygonClickRef, setSelectedFeature],
   )
 
   useEffect(() => {
@@ -103,46 +83,6 @@ export default function BaseMap({
     }
     map?.jumpTo(jumpOptions)
   }, [selectedRegion])
-
-  // const loadChartData = useCallback(
-  //   (point, activeLayers, givenMap?) => {
-  //     let map
-  //     if (!givenMap) {
-  //       if (!mapRef.current) {
-  //         return
-  //       }
-  //       map = mapRef.current?.getMap()
-  //     } else {
-  //       map = givenMap
-  //     }
-  //
-  //     //doesn't account for if the layer hasn't loaded yet
-  //     if (activeLayers.length > 0) {
-  //       //query the layers corresponding with charts and with layers that are on
-  //       const features = map.queryRenderedFeatures(point, {
-  //         layers: activeLayers,
-  //       })
-  //
-  //       if (features.length > 0) {
-  //         const tempSkipLayers = ['global']
-  //         //only grab the topmost data layer to pull point from
-  //         const firstFeature = features[0]
-  //
-  //         //TEMP: remove tempSkipLayers when all region data is available
-  //         if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-  //           const mappedRegion = mapRegionSelected(firstFeature)
-  //           setSelectedRegion(mappedRegion)
-  //
-  //           //trigger chart data update
-  //           updateChartData(firstFeature, setChartConfigData)
-  //         } else {
-  //           setChartConfigData(null)
-  //         }
-  //       }
-  //     }
-  //   },
-  //   [setChartConfigData, setSelectedRegion],
-  // )
 
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
@@ -209,9 +149,6 @@ export default function BaseMap({
     if (!map) {
       return
     }
-    //unnecessary while loading mock data to start
-    // const activeLayers = getActiveLayers(mapLayers)
-    // loadChartData(defaultPoint, activeLayers, map)
 
     const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed')
 
@@ -230,9 +167,6 @@ export default function BaseMap({
     }
     const clickBound = (e) => {
       polygonClickHandler(map, e, watershedLayer)
-      // TODO: find correct location for these w/o triggering an entire app re-render
-      const activeLayers = getActiveLayers(mapLayers)
-      loadChartData(e.point, activeLayers, map)
     }
 
     polygonHoverBoundRef.current = hoverBound
@@ -278,7 +212,7 @@ export default function BaseMap({
           key={`${layer.layerId}-${index}`}
           source={layer.sourceId}
           source-layer={layer.sourceName}
-          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+          beforeId="label_airport"
           paint={{
             'fill-color': 'rgba(0,0,0,0)',
             'fill-outline-color': layer.outlineColor,
@@ -302,7 +236,7 @@ export default function BaseMap({
           key={`${layer.layerId}-${index}`}
           source={layer.sourceId}
           source-layer={layer.sourceName}
-          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+          beforeId="label_airport"
           paint={{
             'line-color': layer.outlineColor,
             'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
@@ -357,7 +291,7 @@ export default function BaseMap({
                   type="raster"
                   key={`${layer.layerId}-${index}`}
                   source={layer.sourceId}
-                  beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+                  beforeId="label_airport"
                 />
               </Source>
             )

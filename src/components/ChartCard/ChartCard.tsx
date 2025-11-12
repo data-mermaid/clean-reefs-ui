@@ -10,7 +10,7 @@ import { ChartProperties } from '../../types/ChartDataTypes'
 interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
-  region?: string
+  regionType?: string
   chartConfigData: ChartProperties | null
 }
 
@@ -26,13 +26,13 @@ const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperti
 export default function ChartCard({
   open = true,
   onClick,
-  region = 'global',
+  regionType = 'global',
   chartConfigData,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const [loading] = useState(false)
 
-  const renderGraphContent = () => {
+  const renderChartContent = () => {
     if (loading) {
       return <LoadingState isOverlay={false} />
     }
@@ -76,7 +76,7 @@ export default function ChartCard({
     <Card {...(onClick ? { onClick: onClick } : {})} className={styles['chart-card']}>
       <div className={getCardHeaderClassNames(open, chartConfigData)}>
         <Typography className={styles['chart-card__region-label']}>
-          {t(`regions.${region}`)}
+          {t(`regions.${regionType}`)}
         </Typography>
         {chartConfigData && (
           <Typography className={styles['chart-card__chart-label']}>
@@ -84,7 +84,7 @@ export default function ChartCard({
           </Typography>
         )}
       </div>
-      {open && renderGraphContent()}
+      {open && renderChartContent()}
     </Card>
   )
 }
