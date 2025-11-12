@@ -3,7 +3,7 @@ import type { Preview } from '@storybook/react'
 import { StyledEngineProvider } from '@mui/material'
 import { I18nextProvider } from 'react-i18next'
 import i18n from '../i18n'
-import '../src/styles/index.module.scss'
+import '../src/styles/index.scss'
 
 const preview: Preview = {
   parameters: {

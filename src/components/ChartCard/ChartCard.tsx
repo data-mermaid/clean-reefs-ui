@@ -1,11 +1,13 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, { lazy, MouseEventHandler, Suspense, useState } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './ChartCard.module.scss'
-import Plot from 'react-plotly.js'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
+
+type PlotComponentType = (typeof import('react-plotly.js'))['default']
+const Plot = lazy(() => import('react-plotly.js') as Promise<{ default: PlotComponentType }>)
 
 interface ChartCardProps {
   open: boolean
@@ -38,31 +40,33 @@ export default function ChartCard({
     }
     if (chartConfigData !== null) {
       return (
-        <Plot
-          data={chartConfigData.chartSeriesData}
-          className={styles['chart-card__plot']}
-          config={plotlyTheme.config}
-          layout={{
-            ...plotlyTheme.layout,
-            barmode: chartConfigData.barmode,
-            yaxis: {
-              ...plotlyTheme.layout?.yaxis,
-              title: {
-                ...plotlyTheme.layout?.yaxis?.title,
-                text: t(chartConfigData.yAxisTitle),
+        <Suspense fallback={<LoadingState isOverlay={false} />}>
+          <Plot
+            data={chartConfigData.chartSeriesData}
+            className={styles['chart-card__plot']}
+            config={plotlyTheme.config}
+            layout={{
+              ...plotlyTheme.layout,
+              barmode: chartConfigData.barmode,
+              yaxis: {
+                ...plotlyTheme.layout?.yaxis,
+                title: {
+                  ...plotlyTheme.layout?.yaxis?.title,
+                  text: t(chartConfigData.yAxisTitle),
+                },
               },
-            },
-            xaxis: {
-              ...plotlyTheme.layout?.xaxis,
-              title: {
-                ...plotlyTheme.layout?.xaxis?.title,
-                text: t(chartConfigData.xAxisTitle),
+              xaxis: {
+                ...plotlyTheme.layout?.xaxis,
+                title: {
+                  ...plotlyTheme.layout?.xaxis?.title,
+                  text: t(chartConfigData.xAxisTitle),
+                },
               },
-            },
-            showlegend: chartConfigData.chartSeriesData.length > 1,
-          }}
-          style={{ width: '100%', height: '100%' }}
-        />
+              showlegend: chartConfigData.chartSeriesData.length > 1,
+            }}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </Suspense>
       )
     }
     return (
