@@ -22,8 +22,6 @@ export const Primary: Story = {
   args: {
     mapLayers: layers,
     selectedRegion: mockRegionOption,
-    setSelectedRegion: () => {},
-    setChartConfigData: () => {},
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -43,8 +41,6 @@ export const Loading: Story = {
   args: {
     mapLayers: layers,
     selectedRegion: mockRegionOption,
-    setSelectedRegion: () => {},
-    setChartConfigData: () => {},
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

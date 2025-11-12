@@ -36,11 +36,8 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
-  const defaultPoint = [622, 401] //Fiji
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
-  // const currentLngLat = useMemo(() => [defaultLng, defaultLat], [defaultLng, defaultLat])
-  // const [, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
   const polygonClickRef = useRef<string | number | null>(null)
