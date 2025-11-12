@@ -101,7 +101,7 @@ export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
     (region) => region.label === feature.properties.TERRITORY1,
   )
   if (matchingRegion && feature.layer.id === 'watershed') {
-    Object.defineProperty(matchingRegion, 'regionType', { value: 'watershed' })
+    return { ...matchingRegion, regionType: 'watershed' }
   }
   return matchingRegion || regionOptions[0]
 }

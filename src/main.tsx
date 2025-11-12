@@ -12,9 +12,11 @@ import '@fontsource/titillium-web/400.css'
 import '@fontsource/titillium-web/600.css'
 import '@fontsource/titillium-web/900.css'
 
-scan({
-  enabled: true,
-})
+if (import.meta.env.DEV) {
+  scan({
+    enabled: true,
+  })
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

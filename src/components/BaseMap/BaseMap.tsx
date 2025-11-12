@@ -30,6 +30,77 @@ interface BaseMapProps {
   selectedRegion: RegionOption
 }
 
+function WatershedLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}`}
+      type="vector"
+      promoteId="watershed_id"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={`${layer.layerId}-lines`}
+        type="line"
+        key={`${layer.layerId}-lines-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+        layout={{
+          'line-sort-key': 5, //watershed outlines should overlay all other layers
+        }}
+        paint={{
+          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 4, 1],
+          'line-color': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            polygonOutlineHoverColor,
+            ['boolean', ['feature-state', 'select'], false],
+            polygonOutlineSelectColor,
+            'rgba(0,0,0,0)',
+          ],
+        }}
+      />
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport"
+        paint={{
+          'fill-color': 'rgba(0,0,0,0)',
+          'fill-outline-color': layer.outlineColor,
+        }}
+      />
+    </Source>
+  )
+}
+
+function PmTileLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}`}
+      type="vector"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={layer.layerId}
+        type="line"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport"
+        paint={{
+          'line-color': layer.outlineColor,
+          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+        }}
+      />
+    </Source>
+  )
+}
+
 export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
@@ -170,77 +241,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     polygonClickBoundRef.current = clickBound
     map.on('mousemove', 'watershed', hoverBound)
     map.on('click', 'watershed', clickBound)
-  }
-
-  function WatershedLayers({ layer, index }) {
-    return (
-      <Source
-        id={layer.sourceId}
-        key={`${layer.sourceId}`}
-        type="vector"
-        promoteId="watershed_id"
-        url={`pmtiles://${layer.link}`}
-      >
-        <Layer
-          id={`${layer.layerId}-lines`}
-          type="line"
-          key={`${layer.layerId}-lines-${index}`}
-          source={layer.sourceId}
-          source-layer={layer.sourceName}
-          beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-          layout={{
-            'line-sort-key': 5, //watershed outlines should overlay all other layers
-          }}
-          paint={{
-            'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 4, 1],
-            'line-color': [
-              'case',
-              ['boolean', ['feature-state', 'hover'], false],
-              polygonOutlineHoverColor,
-              ['boolean', ['feature-state', 'select'], false],
-              polygonOutlineSelectColor,
-              'rgba(0,0,0,0)',
-            ],
-          }}
-        />
-        <Layer
-          id={layer.layerId}
-          type="fill"
-          key={`${layer.layerId}-${index}`}
-          source={layer.sourceId}
-          source-layer={layer.sourceName}
-          beforeId="label_airport"
-          paint={{
-            'fill-color': 'rgba(0,0,0,0)',
-            'fill-outline-color': layer.outlineColor,
-          }}
-        />
-      </Source>
-    )
-  }
-
-  function PmTileLayers({ layer, index }) {
-    return (
-      <Source
-        id={layer.sourceId}
-        key={`${layer.sourceId}`}
-        type="vector"
-        url={`pmtiles://${layer.link}`}
-      >
-        <Layer
-          id={layer.layerId}
-          type="line"
-          key={`${layer.layerId}-${index}`}
-          source={layer.sourceId}
-          source-layer={layer.sourceName}
-          beforeId="label_airport"
-          paint={{
-            'line-color': layer.outlineColor,
-            'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
-          }}
-        />
-      </Source>
-    )
   }
 
   return (
