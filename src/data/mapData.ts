@@ -44,7 +44,7 @@ export const parentLayerTitles = {
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
-  // base: 'map_layer_groups.base_map',
+  // base: 'map_layer_groups.base_map', //not part of MVP
 }
 
 export const layers: LayerInfo[] = [
