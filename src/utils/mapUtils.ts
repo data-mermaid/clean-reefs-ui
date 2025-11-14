@@ -96,6 +96,18 @@ export function createPolygonClickHandler(
   }
 }
 
+// const createSedExportWatershedLayer = () => {
+//   // export_threshold_country_2010
+//   // export_threshold_region_2010
+//   //for each polygon
+//   //get the sed_export val
+//   const polygonColor = sedExportColorMapping[thresholdVal]
+//   //match the value to the corresponding hex color
+//   //set the fill-property of the watershed layer for that color
+//
+//   return {}
+// }
+
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
   const matchingRegion = regionOptions.find(
     (region) => region.label === feature.properties.TERRITORY1,

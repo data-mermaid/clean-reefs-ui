@@ -15,6 +15,16 @@ import {
   WATERSHED_PMTILES_URL,
 } from '../constants'
 
+export const sedExportColorMapping = {
+  '0': '#018571',
+  '1-10': '#4aae9f',
+  '10-20': '#91d3c8',
+  '20-50': '#d4eae6',
+  '50-75': '#efe6d3',
+  '75-90': '#e2c98e',
+  '90-100': '#c79853',
+}
+
 export interface LayerInfo {
   isLayerOn: boolean
   layerId: string

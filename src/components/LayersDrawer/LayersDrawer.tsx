@@ -5,7 +5,7 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
 import { LayerInfo, parentLayerTitles } from '../../data/mapData'
-import LayerToggleCard from '../LayerToggle/LayerToggleCard'
+import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 
 /**
  * Business rule:
