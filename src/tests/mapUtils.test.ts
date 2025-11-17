@@ -5,7 +5,7 @@ import {
   getActiveLayers,
   mapRegionSelected,
 } from '../utils/mapUtils'
-import { MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { regionOptions } from '../data/regionData'
 
@@ -56,7 +56,7 @@ const mockGeoFeatures = {
   },
 } as unknown as MapGeoJSONFeature //allows for partial mock
 
-const makeMap = () => ({ setFeatureState: jest.fn() })
+const makeMap = () => ({ setFeatureState: jest.fn() }) as unknown as Map
 
 const makeEvent = (id?: string | number) => {
   return {
@@ -145,12 +145,13 @@ describe('map utilities', () => {
       expect(clickedRef.current).toBeNull()
     })
 
-    test('sets hover on first feature', () => {
+    test('sets select on first feature', () => {
       const map = makeMap()
       const handler = createPolygonClickHandler(clickedRef)
       handler(map, makeEvent('197297'), mockLayers[0])
       expect(map.setFeatureState).toHaveBeenCalledWith(expect.objectContaining({ id: '197297' }), {
         select: true,
+        hover: false,
       })
       expect(clickedRef.current).toBe('197297')
     })

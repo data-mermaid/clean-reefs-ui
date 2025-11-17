@@ -29,6 +29,32 @@ interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
 }
+const handleSourceData = (e: SourceDataEvent, setLayerErrors) => {
+  const shouldClearError =
+    e.isSourceLoaded &&
+    !!e.sourceId &&
+    e.dataType === 'source' &&
+    e.sourceDataType === 'metadata' &&
+    !e.error &&
+    !e.tile
+
+  if (shouldClearError) {
+    setLayerErrors((prev) => {
+      const newErrors = { ...prev }
+      if (e.sourceId && newErrors[e.sourceId]) {
+        delete newErrors[e.sourceId]
+      }
+      return newErrors
+    })
+  }
+}
+
+const handleError = (e: MapErrorEvent, setLayerErrors) => {
+  setLayerErrors((prev) => ({
+    ...prev,
+    [e.type]: e.error?.message || 'Failed to load layer',
+  }))
+}
 
 function WatershedLayers({ layer, index }) {
   return (
@@ -40,17 +66,39 @@ function WatershedLayers({ layer, index }) {
       url={`pmtiles://${layer.link}`}
     >
       <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport"
+        layout={{
+          'fill-sort-key': 4, //watershed outlines should overlay all other layers
+        }}
+        paint={{
+          'fill-color': 'rgba(0,0,0,0)',
+          'fill-outline-color': layer.outlineColor,
+        }}
+      />
+      <Layer
         id={`${layer.layerId}-lines`}
         type="line"
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceName}
-        beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
+        beforeId="label_airport" // label_airport labels show on top
         layout={{
           'line-sort-key': 5, //watershed outlines should overlay all other layers
         }}
         paint={{
-          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 4, 1],
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            4,
+            ['boolean', ['feature-state', 'select'], false],
+            4,
+            1,
+          ],
           'line-color': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
@@ -59,18 +107,6 @@ function WatershedLayers({ layer, index }) {
             polygonOutlineSelectColor,
             'rgba(0,0,0,0)',
           ],
-        }}
-      />
-      <Layer
-        id={layer.layerId}
-        type="fill"
-        key={`${layer.layerId}-${index}`}
-        source={layer.sourceId}
-        source-layer={layer.sourceName}
-        beforeId="label_airport"
-        paint={{
-          'fill-color': 'rgba(0,0,0,0)',
-          'fill-outline-color': layer.outlineColor,
         }}
       />
     </Source>
@@ -121,14 +157,24 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
-  const polygonHoverHandler = useMemo(
-    () => createPolygonHoverHandler(polygonHoverRef),
-    [polygonHoverRef],
-  )
+  const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
     () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
-    [polygonClickRef, setSelectedFeature],
+    [setSelectedFeature],
   )
+
+
+
+  if (
+    !import.meta.env.VITE_MAPTILER_API_KEY ||
+    import.meta.env.VITE_MAPTILER_API_KEY.trim() === ''
+  ) {
+    throw new Error(
+      'Missing or empty API key: VITE_MAPTILER_API_KEY. Please set it in your environment variables.',
+    )
+  }
+  maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
+  const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -152,17 +198,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     map?.jumpTo(jumpOptions)
   }, [selectedRegion])
 
-  if (
-    !import.meta.env.VITE_MAPTILER_API_KEY ||
-    import.meta.env.VITE_MAPTILER_API_KEY.trim() === ''
-  ) {
-    throw new Error(
-      'Missing or empty API key: VITE_MAPTILER_API_KEY. Please set it in your environment variables.',
-    )
-  }
-  maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
-  const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
-
   useEffect(() => {
     if (!isMapLoaded) {
       return
@@ -173,40 +208,13 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       return
     }
 
-    const handleError = (e: MapErrorEvent) => {
-      setLayerErrors((prev) => ({
-        ...prev,
-        [e.type]: e.error?.message || 'Failed to load layer',
-      }))
-    }
-
-    const handleSourceData = (e: SourceDataEvent) => {
-      const shouldClearError =
-        e.isSourceLoaded &&
-        !!e.sourceId &&
-        e.dataType === 'source' &&
-        e.sourceDataType === 'metadata' &&
-        !e.error &&
-        !e.tile
-
-      if (shouldClearError) {
-        setLayerErrors((prev) => {
-          const newErrors = { ...prev }
-          if (e.sourceId && newErrors[e.sourceId]) {
-            delete newErrors[e.sourceId]
-          }
-          return newErrors
-        })
-      }
-    }
-
-    map.on('error', handleError)
-    map.on('sourcedata', handleSourceData)
+    map.on('error', (e) => handleError(e, setLayerErrors))
+    map.on('sourcedata', (e) => handleSourceData(e, setLayerErrors))
 
     // eslint-disable-next-line consistent-return
     return () => {
-      map.off('error', handleError)
-      map.off('sourcedata', handleSourceData)
+      map.off('error', (e) => handleError(e, setLayerErrors))
+      map.off('sourcedata', (e) => handleSourceData(e, setLayerErrors))
     }
   }, [isMapLoaded])
 
@@ -218,7 +226,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       return
     }
 
-    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed')
+    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[0]
 
     // remove previous bound listener if present to avoid duplicate firing
     if (polygonHoverBoundRef.current) {

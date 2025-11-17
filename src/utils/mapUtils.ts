@@ -1,7 +1,7 @@
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../data/mapData'
 import { regionOptions } from '../data/regionData'
-import { MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
@@ -9,7 +9,7 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
 }
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
-  return (map, e: MapLayerMouseEvent, mapDataLayer) => {
+  return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e?.features || e.features.length === 0) {
       return
     }
@@ -52,7 +52,7 @@ export function createPolygonClickHandler(
   polygonClickedRef: RefObject<string | number | null>,
   onSelect?: (feature: MapGeoJSONFeature | null) => void,
 ) {
-  return (map, e: MapLayerMouseEvent, mapDataLayer) => {
+  return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e?.features || e.features.length === 0) {
       return
     }
@@ -87,7 +87,7 @@ export function createPolygonClickHandler(
         sourceLayer: mapDataLayer.sourceName,
         id: polygonClickedRef.current,
       },
-      { select: true },
+      { select: true, hover: false },
     )
 
     if (onSelect) {
