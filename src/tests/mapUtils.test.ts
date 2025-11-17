@@ -56,7 +56,7 @@ const mockGeoFeatures = {
   },
 } as unknown as MapGeoJSONFeature //allows for partial mock
 
-const makeMap = () => ({ setFeatureState: jest.fn() }) as unknown as Map
+const makeMap = () => ({ setFeatureState: jest.fn(), getFeatureState: jest.fn() }) as unknown as Map
 
 const makeEvent = (id?: string | number) => {
   return {
@@ -89,6 +89,9 @@ describe('map utilities', () => {
 
     beforeEach(() => {
       hoveredRef = { current: null }
+      const map = makeMap()
+      const mockGetFeatureState = map.getFeatureState as jest.Mock
+      mockGetFeatureState.mockReturnValue({ select: true })
     })
 
     test('does nothing when there are no features hovered', () => {
@@ -99,7 +102,7 @@ describe('map utilities', () => {
       expect(hoveredRef.current).toBeNull()
     })
 
-    test('sets hover on first feature', () => {
+    test('sets hover on feature', () => {
       const map = makeMap()
       const handler = createPolygonHoverHandler(hoveredRef)
       handler(map, makeEvent('197297'), mockLayers[0])
@@ -116,6 +119,18 @@ describe('map utilities', () => {
       handler(map, makeEvent('128'), mockLayers[0])
       expect(map.setFeatureState).not.toHaveBeenCalled()
       expect(hoveredRef.current).toBe('128')
+    })
+
+    test('does nothing when hovering a selected feature', () => {
+      const map = makeMap()
+      const mockGetFeatureState = map.getFeatureState as jest.Mock
+      mockGetFeatureState.mockReturnValue({ select: true })
+
+      hoveredRef.current = '127'
+      const handler = createPolygonHoverHandler(hoveredRef)
+      handler(map, makeEvent('125'), mockLayers[0])
+      expect(map.setFeatureState).not.toHaveBeenCalled()
+      expect(hoveredRef.current).toBe('127')
     })
 
     test('clears previous hover and updates when a different polygon is hovered', () => {

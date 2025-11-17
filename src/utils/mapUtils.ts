@@ -10,16 +10,20 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0) {
+    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
       return
     }
 
     const featureId = e.features[0].id
-    if (!featureId) {
-      return
-    }
 
-    if (featureId === hoveredRef.current) {
+    // If the polygon is already selected, do not apply hover state
+    const selectedRef = map.getFeatureState({
+      source: mapDataLayer.sourceId,
+      sourceLayer: mapDataLayer.sourceName,
+      id: featureId,
+    })
+
+    if (featureId === hoveredRef.current || selectedRef?.select) {
       return
     }
 
@@ -53,14 +57,11 @@ export function createPolygonClickHandler(
   onSelect?: (feature: MapGeoJSONFeature | null) => void,
 ) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0) {
+    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
       return
     }
 
     const featureId = e.features[0].id
-    if (!featureId) {
-      return
-    }
 
     if (polygonClickedRef.current) {
       map.setFeatureState(

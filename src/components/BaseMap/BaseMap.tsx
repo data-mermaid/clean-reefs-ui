@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -29,7 +29,10 @@ interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
 }
-const handleSourceData = (e: SourceDataEvent, setLayerErrors) => {
+const handleSourceData = (
+  e: SourceDataEvent,
+  setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
+) => {
   const shouldClearError =
     e.isSourceLoaded &&
     !!e.sourceId &&
@@ -49,7 +52,10 @@ const handleSourceData = (e: SourceDataEvent, setLayerErrors) => {
   }
 }
 
-const handleError = (e: MapErrorEvent, setLayerErrors) => {
+const handleError = (
+  e: MapErrorEvent,
+  setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
+) => {
   setLayerErrors((prev) => ({
     ...prev,
     [e.type]: e.error?.message || 'Failed to load layer',
@@ -163,8 +169,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     [setSelectedFeature],
   )
 
-
-
   if (
     !import.meta.env.VITE_MAPTILER_API_KEY ||
     import.meta.env.VITE_MAPTILER_API_KEY.trim() === ''
@@ -228,7 +232,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
     const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[0]
 
-    // remove previous bound listener if present to avoid duplicate firing
+    // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
       map.off('mousemove', 'watershed', polygonHoverBoundRef.current)
       polygonHoverBoundRef.current = null
@@ -249,6 +253,12 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     polygonClickBoundRef.current = clickBound
     map.on('mousemove', 'watershed', hoverBound)
     map.on('click', 'watershed', clickBound)
+    map.on('mouseenter', 'watershed', () => {
+      map.getCanvas().style.cursor = 'pointer'
+    })
+    map.on('mouseleave', 'watershed', () => {
+      map.getCanvas().style.cursor = ''
+    })
   }
 
   return (
