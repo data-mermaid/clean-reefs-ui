@@ -37,7 +37,7 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
     } else {
       setChartConfigData(null)
     }
-  }, [selectedFeature, setChartConfigData])
+  }, [selectedFeature])
 
   let drawerTitle = selectedRegion.label
   if (selectedRegion.regionType === 'global') {
