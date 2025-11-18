@@ -23,7 +23,7 @@ export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
+    if (!e.features || e.features.length === 0 || !e.features[0].id) {
       return
     }
 
@@ -67,15 +67,19 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
 
 export function createPolygonClickHandler(
   polygonClickedRef: RefObject<string | number | null>,
-  onSelect?: (feature: MapGeoJSONFeature | null) => void,
-  onZoomToFeature?: (feature: MapGeoJSONFeature) => void,
+  onSelect?: (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => void,
 ) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
+    if (!e.features || e.features.length === 0) {
       return
     }
 
-    const featureId = e.features[0].id
+    const feature = e.features[0]
+    const featureId = feature.id
+
+    if (!featureId) {
+      return
+    }
 
     if (polygonClickedRef.current) {
       map.setFeatureState(
@@ -106,11 +110,8 @@ export function createPolygonClickHandler(
     )
 
     if (onSelect) {
-      onSelect(e.features[0] as MapGeoJSONFeature)
-    }
-
-    if (onZoomToFeature) {
-      onZoomToFeature(e.features[0] as MapGeoJSONFeature)
+      const bounds = calculateFeatureBounds(feature)
+      onSelect(feature, bounds)
     }
   }
 }
