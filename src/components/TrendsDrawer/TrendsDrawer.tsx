@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
@@ -9,18 +9,35 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import ChartCard from '../ChartCard/ChartCard'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties } from '../../types/ChartDataTypes'
+import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
+import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
+import { MapGeoJSONFeature } from 'maplibre-gl'
+import { updateChartData } from '../../utils/chartUtils'
+import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
-  chartConfigData: ChartProperties[] | null
 }
 
-export default function TrendsDrawer({ selectedRegion, chartConfigData }: TrendsDrawerProps) {
+export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
   const openDrawer = () => setOpen(true)
   const closeDrawer = () => setOpen(false)
+  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
+    tempGlobalChartSeriesData,
+  )
+
+  const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
+
+  useEffect(() => {
+    if (selectedFeature) {
+      updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
+    } else {
+      setChartConfigData(null)
+    }
+  }, [selectedFeature])
 
   let drawerTitle = selectedRegion.label
   if (selectedRegion.regionType === 'global') {
@@ -48,13 +65,18 @@ export default function TrendsDrawer({ selectedRegion, chartConfigData }: Trends
         {chartConfigData ? (
           chartConfigData?.map((chart) => {
             return (
-              <ChartCard
+              <SelectedFeatureContext.Provider
                 key={chart.chartName}
-                open={open}
-                {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
-                region={selectedRegion.regionType}
-                chartConfigData={chart}
-              />
+                value={selectedFeature as MapGeoJSONFeature}
+              >
+                <ChartCard
+                  key={chart.chartName}
+                  open={open}
+                  {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
+                  regionType={selectedRegion.regionType}
+                  chartConfigData={chart}
+                />
+              </SelectedFeatureContext.Provider>
             )
           })
         ) : (

@@ -1,20 +1,12 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
   Map as MapGL,
   MapRef,
   NavigationControl,
-  Source,
   ScaleControl,
+  Source,
 } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
@@ -24,44 +16,169 @@ import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
-
-import { updateChartData } from '../../utils/chartUtils'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { getActiveLayers, mapRegionSelected } from '../../utils/mapUtils'
-import { ChartProperties } from '../../types/ChartDataTypes'
+import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
+import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
-  setChartConfigData: Dispatch<SetStateAction<ChartProperties[] | null>>
+}
+const handleSourceData = (
+  e: SourceDataEvent,
+  setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
+) => {
+  const shouldClearError =
+    e.isSourceLoaded &&
+    !!e.sourceId &&
+    e.dataType === 'source' &&
+    e.sourceDataType === 'metadata' &&
+    !e.error &&
+    !e.tile
+
+  if (shouldClearError) {
+    setLayerErrors((prev) => {
+      const newErrors = { ...prev }
+      if (e.sourceId && newErrors[e.sourceId]) {
+        delete newErrors[e.sourceId]
+      }
+      return newErrors
+    })
+  }
 }
 
-export default function BaseMap({
-  mapLayers,
-  selectedRegion,
-  setSelectedRegion,
-  setChartConfigData,
-}: BaseMapProps) {
+const handleError = (
+  e: MapErrorEvent,
+  setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
+) => {
+  setLayerErrors((prev) => ({
+    ...prev,
+    [e.type]: e.error?.message || 'Failed to load layer',
+  }))
+}
+
+function WatershedLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}`}
+      type="vector"
+      promoteId="watershed_id"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport"
+        layout={{
+          'fill-sort-key': 4, //watershed outlines should overlay all other layers
+        }}
+        paint={{
+          'fill-color': 'rgba(0,0,0,0)',
+          'fill-outline-color': layer.outlineColor,
+        }}
+      />
+      <Layer
+        id={`${layer.layerId}-lines`}
+        type="line"
+        key={`${layer.layerId}-lines-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport" // label_airport labels show on top
+        layout={{
+          'line-sort-key': 5, //watershed outlines should overlay all other layers
+        }}
+        paint={{
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            4,
+            ['boolean', ['feature-state', 'select'], false],
+            4,
+            1,
+          ],
+          'line-color': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            polygonOutlineHoverColor,
+            ['boolean', ['feature-state', 'select'], false],
+            polygonOutlineSelectColor,
+            'rgba(0,0,0,0)',
+          ],
+        }}
+      />
+    </Source>
+  )
+}
+
+function PmTileLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}`}
+      type="vector"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={layer.layerId}
+        type="line"
+        key={`${layer.layerId}-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceName}
+        beforeId="label_airport"
+        paint={{
+          'line-color': layer.outlineColor,
+          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+        }}
+      />
+    </Source>
+  )
+}
+
+export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
-  const defaultPoint = [622, 401] //Fiji
   const defaultMapZoom = 10
   const mapRef = useRef<MapRef | null>(null)
-  const [currentLngLat, setCurrentLngLat] = useState<[number, number]>([defaultLng, defaultLat])
-  const [currentZoom, setCurrentZoom] = useState<number>(defaultMapZoom)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+  const polygonHoverRef = useRef<string | number | null>(null)
+  const polygonClickRef = useRef<string | number | null>(null)
+  const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
+  const polygonClickBoundRef = useRef<((e) => void) | null>(null)
 
   const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
+
+  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
+
+  const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
+  const polygonClickHandler = useMemo(
+    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
+    [setSelectedFeature],
+  )
+
+  if (
+    !import.meta.env.VITE_MAPTILER_API_KEY ||
+    import.meta.env.VITE_MAPTILER_API_KEY.trim() === ''
+  ) {
+    throw new Error(
+      'Missing or empty API key: VITE_MAPTILER_API_KEY. Please set it in your environment variables.',
+    )
+  }
+  maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
+  const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -85,55 +202,6 @@ export default function BaseMap({
     map?.jumpTo(jumpOptions)
   }, [selectedRegion])
 
-  const loadChartData = useCallback(
-    (point, activeLayers, zoomLevel: number) => {
-      if (!mapRef.current) {
-        return
-      }
-      const map = mapRef.current?.getMap()
-
-      //todo: when global data is available, make a default for global with optional loadChartData arguments
-      //doesn't account for if the layer hasn't loaded yet
-      if (activeLayers.length > 0) {
-        //query the layers corresponding with charts and with layers that are on
-        const features = map.queryRenderedFeatures(point, {
-          layers: activeLayers,
-        })
-
-        if (features.length > 0) {
-          const tempSkipLayers = ['global']
-          //only grab the topmost data layer to pull point from
-          const firstFeature = features[0]
-
-          //TEMP: remove tempSkipLayers when all region data is available
-          if (!tempSkipLayers.includes(firstFeature.layer.id)) {
-            const mappedRegion = mapRegionSelected(firstFeature, currentLngLat, zoomLevel)
-            setSelectedRegion(mappedRegion)
-
-            //trigger chart data update
-            updateChartData(firstFeature, setChartConfigData)
-          } else {
-            setChartConfigData(null)
-          }
-          // } else {
-          //   setChartConfigData(null)
-        }
-      }
-    },
-    [currentLngLat, setChartConfigData, setSelectedRegion],
-  )
-
-  if (
-    !import.meta.env.VITE_MAPTILER_API_KEY ||
-    import.meta.env.VITE_MAPTILER_API_KEY.trim() === ''
-  ) {
-    throw new Error(
-      'Missing or empty API key: VITE_MAPTILER_API_KEY. Please set it in your environment variables.',
-    )
-  }
-  maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
-  const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
-
   useEffect(() => {
     if (!isMapLoaded) {
       return
@@ -144,60 +212,53 @@ export default function BaseMap({
       return
     }
 
-    const handleError = (e: MapErrorEvent) => {
-      setLayerErrors((prev) => ({
-        ...prev,
-        [e.type]: e.error?.message || 'Failed to load layer',
-      }))
-    }
-
-    const handleSourceData = (e: SourceDataEvent) => {
-      const shouldClearError =
-        e.isSourceLoaded &&
-        !!e.sourceId &&
-        e.dataType === 'source' &&
-        e.sourceDataType === 'metadata' &&
-        !e.error &&
-        !e.tile
-
-      if (shouldClearError) {
-        setLayerErrors((prev) => {
-          const newErrors = { ...prev }
-          if (e.sourceId && newErrors[e.sourceId]) {
-            delete newErrors[e.sourceId]
-          }
-          return newErrors
-        })
-      }
-    }
-
-    map.on('error', handleError)
-    map.on('sourcedata', handleSourceData)
+    map.on('error', (e) => handleError(e, setLayerErrors))
+    map.on('sourcedata', (e) => handleSourceData(e, setLayerErrors))
 
     // eslint-disable-next-line consistent-return
     return () => {
-      map.off('error', handleError)
-      map.off('sourcedata', handleSourceData)
+      map.off('error', (e) => handleError(e, setLayerErrors))
+      map.off('sourcedata', (e) => handleSourceData(e, setLayerErrors))
     }
   }, [isMapLoaded])
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
-    const activeLayers = getActiveLayers(mapLayers)
-    loadChartData(defaultPoint, activeLayers, defaultMapZoom)
-  }
 
-  const handleMapClick = (event) => {
-    if (!mapRef.current) {
+    const map = mapRef.current?.getMap()
+    if (!map) {
       return
     }
-    const zoom = mapRef.current?.getMap().getZoom()
-    if (zoom && zoom !== currentZoom) {
-      setCurrentZoom(zoom)
+
+    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[0]
+
+    // prevent duplicate firing
+    if (polygonHoverBoundRef.current) {
+      map.off('mousemove', 'watershed', polygonHoverBoundRef.current)
+      polygonHoverBoundRef.current = null
     }
-    setCurrentLngLat([event.lngLat.lng, event.lngLat.lat])
-    const activeLayers = getActiveLayers(mapLayers)
-    loadChartData(event.point, activeLayers, zoom)
+    if (polygonClickBoundRef.current) {
+      map.off('click', 'watershed', polygonClickBoundRef.current)
+      polygonClickBoundRef.current = null
+    }
+
+    const hoverBound = (e) => {
+      polygonHoverHandler(map, e, watershedLayer)
+    }
+    const clickBound = (e) => {
+      polygonClickHandler(map, e, watershedLayer)
+    }
+
+    polygonHoverBoundRef.current = hoverBound
+    polygonClickBoundRef.current = clickBound
+    map.on('mousemove', 'watershed', hoverBound)
+    map.on('click', 'watershed', clickBound)
+    map.on('mouseenter', 'watershed', () => {
+      map.getCanvas().style.cursor = 'pointer'
+    })
+    map.on('mouseleave', 'watershed', () => {
+      map.getCanvas().style.cursor = ''
+    })
   }
 
   return (
@@ -215,7 +276,6 @@ export default function BaseMap({
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
         attributionControl={false}
-        onClick={handleMapClick}
       >
         {isDesktopWidth && (
           <>
@@ -224,46 +284,33 @@ export default function BaseMap({
           </>
         )}
         {mapLayers.map((layer, index) => {
-          return layer.dataType === 'pmtiles'
-            ? isMapLoaded && layer.isLayerOn && (
-                <Source
-                  id={layer.sourceId}
-                  key={`${layer.sourceId}`}
-                  type="vector"
-                  url={`pmtiles://${layer.link}`}
-                >
-                  <Layer
-                    id={layer.layerId}
-                    type="line"
-                    key={`${layer.layerId}-${index}`}
-                    source={layer.sourceId}
-                    source-layer={layer.sourceName}
-                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-                    paint={{
-                      'line-color': 'black',
-                    }}
-                  />
-                </Source>
-              )
-            : isMapLoaded && layer.isLayerOn && (
-                <Source
-                  id={layer.sourceId}
-                  key={`${layer.sourceId}-${index}`}
+          return layer.dataType === 'pmtiles' ? (
+            isMapLoaded && layer.layerId === 'watershed' ? (
+              <WatershedLayers layer={layer} index={index} />
+            ) : (
+              <PmTileLayers layer={layer} index={index} />
+            )
+          ) : (
+            isMapLoaded && layer.isLayerOn && (
+              <Source
+                id={layer.sourceId}
+                key={`${layer.sourceId}-${index}`}
+                type="raster"
+                url={`cog://${layer.link}`}
+                tileSize={256}
+                maxzoom={16}
+                minzoom={6}
+              >
+                <Layer
+                  id={layer.layerId}
                   type="raster"
-                  url={`cog://${layer.link}`}
-                  tileSize={256}
-                  maxzoom={16}
-                  minzoom={6}
-                >
-                  <Layer
-                    id={layer.layerId}
-                    type="raster"
-                    key={`${layer.layerId}-${index}`}
-                    source={layer.sourceId}
-                    beforeId="label_airport" // label_airport is one of the first label layers, this ensures custom layers appear below all labels
-                  />
-                </Source>
-              )
+                  key={`${layer.layerId}-${index}`}
+                  source={layer.sourceId}
+                  beforeId="label_airport"
+                />
+              </Source>
+            )
+          )
         })}
       </MapGL>
 

@@ -9,14 +9,10 @@ import useResponsive from '../../hooks/useResponsive'
 import { LayerInfo, layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
-import { ChartProperties } from '../../types/ChartDataTypes'
-import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
-  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
-    tempGlobalChartSeriesData,
-  )
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2020)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
@@ -32,7 +28,7 @@ export default function MapContainer() {
           />
           <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          <TrendsDrawer selectedRegion={selectedRegion} chartConfigData={chartConfigData} />
+          <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
       ) : (
         <div className={styles['layer-controls--desktop']}>
@@ -45,15 +41,10 @@ export default function MapContainer() {
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          <TrendsDrawer selectedRegion={selectedRegion} chartConfigData={chartConfigData} />
+          <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
       )}
-      <BaseMap
-        mapLayers={mapLayers}
-        selectedRegion={selectedRegion}
-        setSelectedRegion={setSelectedRegion}
-        setChartConfigData={setChartConfigData}
-      />
+      <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />
     </div>
   )
 }

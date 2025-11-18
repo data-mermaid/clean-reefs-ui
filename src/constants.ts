@@ -1,3 +1,4 @@
+/******MAP LAYERS******/
 export const REGIONS_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/regions/regions.pmtiles'
 export const COUNTRIES_PMTILES_URL =
@@ -30,3 +31,7 @@ export const SED_EXPORT_2015_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2015_visual.tif'
 export const SED_EXPORT_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
+
+/******COLORS******/
+export const polygonOutlineHoverColor = '#00FF01'
+export const polygonOutlineSelectColor = '#0000FF'
