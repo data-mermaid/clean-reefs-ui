@@ -78,9 +78,6 @@ function WatershedLayers({ layer, index }) {
         source={layer.sourceId}
         source-layer={layer.sourceName}
         beforeId="label_airport"
-        layout={{
-          'fill-sort-key': 4, //watershed outlines should overlay all other layers
-        }}
         paint={{
           'fill-color': 'rgba(0,0,0,0)',
           'fill-outline-color': layer.outlineColor,
@@ -230,7 +227,8 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       return
     }
 
-    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[0]
+    const watershedLayer =
+      mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
