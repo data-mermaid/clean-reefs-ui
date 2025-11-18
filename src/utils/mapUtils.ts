@@ -1,11 +1,24 @@
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../data/mapData'
 import { regionOptions } from '../data/regionData'
-import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import { Map, MapGeoJSONFeature, MapLayerMouseEvent, LngLatBounds } from 'maplibre-gl'
 import { RefObject } from 'react'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
+}
+
+export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds {
+  const geometry = feature.geometry
+  const bounds = new LngLatBounds()
+
+  if (geometry.type === 'Polygon') {
+    geometry.coordinates[0].forEach(([lng, lat]) => {
+      bounds.extend([lng, lat])
+    })
+  }
+
+  return bounds
 }
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
@@ -55,6 +68,7 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
 export function createPolygonClickHandler(
   polygonClickedRef: RefObject<string | number | null>,
   onSelect?: (feature: MapGeoJSONFeature | null) => void,
+  onZoomToFeature?: (feature: MapGeoJSONFeature) => void,
 ) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e?.features || e.features.length === 0 || !e.features[0].id) {
@@ -93,6 +107,10 @@ export function createPolygonClickHandler(
 
     if (onSelect) {
       onSelect(e.features[0] as MapGeoJSONFeature)
+    }
+
+    if (onZoomToFeature) {
+      onZoomToFeature(e.features[0] as MapGeoJSONFeature)
     }
   }
 }

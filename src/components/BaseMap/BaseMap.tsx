@@ -1,4 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -11,14 +19,18 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
+import maplibregl, { ErrorEvent as MapErrorEvent, MapGeoJSONFeature } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
+import {
+  createPolygonClickHandler,
+  createPolygonHoverHandler,
+  calculateFeatureBounds,
+} from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -163,10 +175,24 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
+  const handleZoomToFeature = useCallback((feature: MapGeoJSONFeature) => {
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    const bounds = calculateFeatureBounds(feature)
+    map.fitBounds(bounds, {
+      padding: { top: 300, bottom: 300, left: 300, right: 300 },
+      maxZoom: 10,
+      duration: 800,
+    })
+  }, [])
+
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
-    [setSelectedFeature],
+    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature, handleZoomToFeature),
+    [setSelectedFeature, handleZoomToFeature],
   )
 
   if (
