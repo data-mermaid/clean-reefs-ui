@@ -190,5 +190,22 @@ describe('map utilities', () => {
       })
       expect(clickedRef.current).toBe('125')
     })
+
+    test('calls onZoomToFeature when a feature is selected', () => {
+      const map = makeMap()
+      const onZoomToFeature = jest.fn()
+      const handler = createPolygonClickHandler(clickedRef, undefined, onZoomToFeature)
+      handler(map, makeEvent('197297'), mockLayers[0])
+      expect(onZoomToFeature).toHaveBeenCalledTimes(1)
+    })
+
+    test('does not call onZoomToFeature when the same feature is clicked again', () => {
+      const map = makeMap()
+      const onZoomToFeature = jest.fn()
+      clickedRef.current = '128'
+      const handler = createPolygonClickHandler(clickedRef, undefined, onZoomToFeature)
+      handler(map, makeEvent('128'), mockLayers[0])
+      expect(onZoomToFeature).not.toHaveBeenCalled()
+    })
   })
 })
