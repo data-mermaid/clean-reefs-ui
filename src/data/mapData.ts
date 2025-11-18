@@ -61,17 +61,6 @@ export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
     isLayerOn: true,
-    layerId: 'watershed',
-    link: WATERSHED_PMTILES_URL,
-    outlineColor: '#000',
-    parentLayerType: 'boundaries',
-    sourceId: 'watershed_src',
-    sourceName: 'watersheds',
-    title: 'boundary_map_layers.watershed_boundaries',
-  },
-  {
-    dataType: 'pmtiles',
-    isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -219,7 +208,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2020_visual',
     dataType: 'tiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -238,5 +227,17 @@ export const layers: LayerInfo[] = [
     sourceId: 'aca_benthic_visual',
     sourceName: '',
     title: 'Benthic',
+  },
+  {
+    //keep this layer last so it's always rendered on top
+    dataType: 'pmtiles',
+    isLayerOn: true,
+    layerId: 'watershed',
+    link: WATERSHED_PMTILES_URL,
+    outlineColor: '#000',
+    parentLayerType: 'boundaries',
+    sourceId: 'watershed_src',
+    sourceName: 'watersheds',
+    title: 'boundary_map_layers.watershed_boundaries',
   },
 ]
