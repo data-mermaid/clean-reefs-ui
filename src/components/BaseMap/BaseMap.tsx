@@ -265,6 +265,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     }
     if (polygonClickBoundRef.current) {
       map.off('click', 'watershed', polygonClickBoundRef.current)
+      map.off('touchend', 'watershed', polygonClickBoundRef.current)
       polygonClickBoundRef.current = null
     }
 
@@ -279,6 +280,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     polygonClickBoundRef.current = clickBound
     map.on('mousemove', 'watershed', hoverBound)
     map.on('click', 'watershed', clickBound)
+    map.on('touchend', 'watershed', clickBound)
     map.on('mouseenter', 'watershed', () => {
       map.getCanvas().style.cursor = 'pointer'
     })
