@@ -59,10 +59,26 @@ const mockGeoFeatures = {
 const makeMap = () => ({ setFeatureState: jest.fn(), getFeatureState: jest.fn() }) as unknown as Map
 
 const makeEvent = (id?: string | number) => {
+  const mockFeature = {
+    id,
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [178.0, -17.0],
+          [179.0, -17.0],
+          [179.0, -18.0],
+          [178.0, -18.0],
+          [178.0, -17.0],
+        ],
+      ],
+    },
+  } as MapGeoJSONFeature
+
   return {
     id: id,
     type: 'Feature',
-    features: [{ id }] as unknown as MapGeoJSONFeature[],
+    features: [mockFeature],
     layer: { source: '' },
     source: '',
     state: { none: 'none' },
@@ -191,21 +207,27 @@ describe('map utilities', () => {
       expect(clickedRef.current).toBe('125')
     })
 
-    test('calls onZoomToFeature when a feature is selected', () => {
+    test('calls onSelect with bounds for fitBounds when feature is selected', () => {
       const map = makeMap()
-      const onZoomToFeature = jest.fn()
-      const handler = createPolygonClickHandler(clickedRef, undefined, onZoomToFeature)
+      const onSelect = jest.fn()
+      const handler = createPolygonClickHandler(clickedRef, onSelect)
       handler(map, makeEvent('197297'), mockLayers[0])
-      expect(onZoomToFeature).toHaveBeenCalledTimes(1)
+      expect(onSelect).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '197297' }),
+        expect.objectContaining({
+          _ne: expect.any(Object),
+          _sw: expect.any(Object),
+        }),
+      )
     })
 
-    test('does not call onZoomToFeature when the same feature is clicked again', () => {
+    test('calls onSelect without bounds when feature is deselected', () => {
       const map = makeMap()
-      const onZoomToFeature = jest.fn()
+      const onSelect = jest.fn()
       clickedRef.current = '128'
-      const handler = createPolygonClickHandler(clickedRef, undefined, onZoomToFeature)
+      const handler = createPolygonClickHandler(clickedRef, onSelect)
       handler(map, makeEvent('128'), mockLayers[0])
-      expect(onZoomToFeature).not.toHaveBeenCalled()
+      expect(onSelect).toHaveBeenCalledWith(null)
     })
   })
 })

@@ -19,18 +19,18 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl, { ErrorEvent as MapErrorEvent, MapGeoJSONFeature } from 'maplibre-gl'
+import maplibregl, {
+  ErrorEvent as MapErrorEvent,
+  MapGeoJSONFeature,
+  LngLatBounds,
+} from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import {
-  createPolygonClickHandler,
-  createPolygonHoverHandler,
-  calculateFeatureBounds,
-} from '../../utils/mapUtils'
+import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -175,24 +175,28 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
-  const handleZoomToFeature = useCallback((feature: MapGeoJSONFeature) => {
-    const map = mapRef.current?.getMap()
-    if (!map) {
-      return
-    }
+  const handleFeatureSelect = useCallback(
+    (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => {
+      setSelectedFeature(feature)
 
-    const bounds = calculateFeatureBounds(feature)
-    map.fitBounds(bounds, {
-      padding: { top: 300, bottom: 300, left: 300, right: 300 },
-      maxZoom: 10,
-      duration: 800,
-    })
-  }, [])
+      if (feature && bounds) {
+        const map = mapRef.current?.getMap()
+        if (map) {
+          map.fitBounds(bounds, {
+            padding: isDesktopWidth ? { top: 300, bottom: 300, left: 300, right: 300 } : 30,
+            maxZoom: isDesktopWidth ? 10 : 9,
+            duration: 800,
+          })
+        }
+      }
+    },
+    [setSelectedFeature, isDesktopWidth],
+  )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature, handleZoomToFeature),
-    [setSelectedFeature, handleZoomToFeature],
+    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
+    [handleFeatureSelect],
   )
 
   if (
@@ -265,7 +269,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     }
     if (polygonClickBoundRef.current) {
       map.off('click', 'watershed', polygonClickBoundRef.current)
-      map.off('touchend', 'watershed', polygonClickBoundRef.current)
       polygonClickBoundRef.current = null
     }
 
@@ -280,7 +283,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     polygonClickBoundRef.current = clickBound
     map.on('mousemove', 'watershed', hoverBound)
     map.on('click', 'watershed', clickBound)
-    map.on('touchend', 'watershed', clickBound)
     map.on('mouseenter', 'watershed', () => {
       map.getCanvas().style.cursor = 'pointer'
     })
