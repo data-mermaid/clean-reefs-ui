@@ -34,7 +34,12 @@ import { createPolygonClickHandler, createPolygonHoverHandler } from '../../util
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
+import {
+  polygonOutlineHoverColor,
+  polygonOutlineSelectColor,
+  mapFitBoundsDesktopConfig,
+  mapFitBoundsMobileConfig,
+} from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 
 interface BaseMapProps {
@@ -181,10 +186,12 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
+
         if (map) {
+          const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
           map.fitBounds(bounds, {
-            padding: isDesktopWidth ? { top: 300, bottom: 300, left: 300, right: 300 } : 30,
-            maxZoom: isDesktopWidth ? 10 : 9,
+            padding: config.padding,
+            maxZoom: config.maxZoom,
             duration: 800,
           })
         }
