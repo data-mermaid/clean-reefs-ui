@@ -1,4 +1,3 @@
-import { Card, Switch, Typography } from '@mui/material'
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
@@ -6,9 +5,7 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
 import { atlasBenthicLayers, LayerInfo, parentLayerTitles } from '../../data/mapData'
-import Legend from '../Legend/Legend'
-import GradientLegend from '../GradientLegend/GradientLegend'
-import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
+import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 
 /**
  * Business rule:
@@ -39,17 +36,16 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
   const toggleLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      const toggledLayer = event.target.id
-      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
+    (layerId: string, checked: boolean) => {
+      const isRasterLayer = rasterLayers.indexOf(layerId) > -1
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
+      let updatedLayers = mapToggleChange(mapLayers, layerId, checked)
       if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
+        if (activeRasterLayerId && activeRasterLayerId !== layerId) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
         }
         if (checked) {
-          setActiveRasterLayerId(toggledLayer)
+          setActiveRasterLayerId(layerId)
         } else {
           setActiveRasterLayerId(null)
         }
@@ -71,45 +67,32 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     [mapSubLayers],
   )
 
+  //currently only applies to sed_export & sublayers
+  // const toggleSubLayer = (subLayerId: string, checked: boolean) => {}
+  // const toggleSubLayer = useCallback((subLayerId: string, checked: boolean) => {
+  // if (subLayerId === 'sed_export_watershed') {}
+  //todo: get map reference
+  // map.removeLayer(subLayerId)
+  // map.addLayer(sedExportWatershedLayer, { before: 'label_airport' })
+  // })
+
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
     const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
 
     let mappedLayers
     if (groupedLayers.length > 0) {
-      mappedLayers = groupedLayers.map((layer) => {
+      mappedLayers = groupedLayers.map((layer, index) => {
         if (layer.year && layer.year !== selectedYear) {
           return null
         }
         return (
-          <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-            {layer.legendType !== 'benthic' && (
-              <div className={styles['layer-toggle-header']}>
-                <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-                {layer.year && <Typography>{selectedYear}</Typography>}
-                {layer.outlineColor ? (
-                  <div
-                    className={styles['map-layer-key']}
-                    style={{ border: `3px solid ${layer.outlineColor}` }}
-                  />
-                ) : (
-                  <Switch
-                    className={styles['MuiSwitch-root']}
-                    id={layer.layerId}
-                    checked={layer.isLayerOn}
-                    onChange={toggleLayer}
-                  />
-                )}
-              </div>
-            )}
-
-            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-            {layer.legendType === 'benthic' && layer.isLayerOn && (
-              <LayerToggleLegend toggleSubLayer={toggleSubLayer} />
-            )}
-            {layer.legendType === 'gradient' && layer.isLayerOn && (
-              <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
-            )}
-          </Card>
+          <LayerToggleCard
+            layer={layer}
+            toggleLayer={toggleLayer}
+            toggleSubLayer={toggleSubLayer}
+            selectedYear={selectedYear}
+            key={`layertoggle-${layer.sourceId}-${index}`}
+          />
         )
       })
     }

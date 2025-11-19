@@ -13,23 +13,3 @@
     }
   }
 }
-
-.layer-card {
-  margin: theme.$defaultSpacing;
-  padding: theme.$defaultSpacing;
-  background-color: theme.$greyWhite;
-}
-
-.layer-card_title {
-  flex-grow: 1;
-}
-.layer-toggle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.map-layer-key {
-  width: 20px;
-  height: 15px;
-}

@@ -80,6 +80,22 @@ export const benthicFillColor = [
   atlasBenthicCategories['reef_extent'], // Default / other
 ]
 
+export const sedExportColorMapping = {
+  '0': '#018571',
+  '1-10': '#4aae9f',
+  '10-20': '#91d3c8',
+  '20-50': '#d4eae6',
+  '50-75': '#efe6d3',
+  '75-90': '#e2c98e',
+  '90-100': '#c79853',
+}
+
+export const sedExportWatershedLayer = {
+  id: 'sed_export_watershed',
+  type: 'vector',
+  source: 'watershed_src',
+  'source-layer': 'sed_export',
+}
 export interface LayerInfo {
   sourceId: string
   sourceName: string //layer name defaults to the file name
@@ -114,7 +130,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP true,
+    isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -126,7 +142,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP
+    isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',

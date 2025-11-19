@@ -42,10 +42,6 @@ import {
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 
-interface BaseMapProps {
-  mapLayers: LayerInfo[]
-  selectedRegion: RegionOption
-}
 const handleSourceData = (
   e: SourceDataEvent,
   setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
@@ -79,7 +75,7 @@ const handleError = (
   }))
 }
 
-function WatershedLayers({ layer, index }) {
+function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
   return (
     <Source
       id={layer.sourceId}
@@ -96,7 +92,7 @@ function WatershedLayers({ layer, index }) {
         source-layer={layer.sourceName}
         beforeId="label_airport"
         paint={{
-          'fill-color': 'rgba(0,0,0,0)',
+          'fill-color': 'rgba(0,0,0,0)', // default transparent
           'fill-outline-color': layer.outlineColor,
         }}
       />
@@ -133,6 +129,12 @@ function WatershedLayers({ layer, index }) {
   )
 }
 
+interface BaseMapProps {
+  mapLayers: LayerInfo[]
+  selectedRegion: RegionOption
+  selectedYear: number
+}
+
 function PmTileLayers({ layer, index }) {
   return (
     <Source
@@ -157,7 +159,7 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
+export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
