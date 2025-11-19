@@ -75,7 +75,7 @@ const handleError = (
   }))
 }
 
-function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
+function WatershedLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
@@ -132,7 +132,6 @@ function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  selectedYear: number
 }
 
 function PmTileLayers({ layer, index }) {
@@ -159,7 +158,7 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: BaseMapProps) {
+export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -374,8 +373,7 @@ export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: Bas
                     beforeId="label_airport"
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?
-                      'fill-color': benthicFillColor, //'rgba(235,165,205,50 )',
-                      // 'fill-outline-color': layer.outlineColor,
+                      'fill-color': benthicFillColor,
                     }}
                   />
                 </Source>

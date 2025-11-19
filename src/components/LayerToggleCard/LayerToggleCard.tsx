@@ -18,7 +18,7 @@ import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
-  toggleLayer: (layerId: string, on: boolean) => void
+  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
   selectedYear: number
 }

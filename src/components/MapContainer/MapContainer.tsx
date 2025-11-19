@@ -44,7 +44,7 @@ export default function MapContainer() {
           <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
       )}
-      <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} selectedYear={selectedYear} />
+      <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />
     </div>
   )
 }
