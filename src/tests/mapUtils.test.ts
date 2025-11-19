@@ -16,7 +16,7 @@ const mockLayers: LayerInfo[] = [
     sourceName: '',
     layerId: 'lulc',
     link: mockUrl,
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layers.land_use_cover',

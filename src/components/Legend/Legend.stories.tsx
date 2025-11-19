@@ -7,7 +7,11 @@ const meta = {
 
 type Story = StoryObj<typeof meta>
 
-export const Primary: Story = {
-  args: {},
+export const Lulc: Story = {
+  args: { variant: 'lulc' },
+}
+
+export const Benthic: Story = {
+  args: { variant: 'benthic' },
 }
 export default meta

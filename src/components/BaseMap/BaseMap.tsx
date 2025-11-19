@@ -26,7 +26,7 @@ import maplibregl, {
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { LayerInfo } from '../../data/mapData'
+import { benthicFillColor, LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
@@ -83,7 +83,7 @@ function WatershedLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
-      key={`${layer.sourceId}`}
+      key={`${layer.sourceId}-source`}
       type="vector"
       promoteId="watershed_id"
       url={`pmtiles://${layer.link}`}
@@ -91,13 +91,10 @@ function WatershedLayers({ layer, index }) {
       <Layer
         id={layer.layerId}
         type="fill"
-        key={`${layer.layerId}-${index}`}
+        key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceName}
         beforeId="label_airport"
-        layout={{
-          'fill-sort-key': 4, //watershed outlines should overlay all other layers
-        }}
         paint={{
           'fill-color': 'rgba(0,0,0,0)',
           'fill-outline-color': layer.outlineColor,
@@ -140,7 +137,7 @@ function PmTileLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
-      key={`${layer.sourceId}`}
+      key={`${layer.sourceId}-source`}
       type="vector"
       url={`pmtiles://${layer.link}`}
     >
@@ -266,8 +263,9 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     if (!map) {
       return
     }
-
-    const watershedLayer = mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[0]
+    // loadACALayers(mapRef.current)
+    const watershedLayer =
+      mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -321,33 +319,67 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
           </>
         )}
         {mapLayers.map((layer, index) => {
-          return layer.dataType === 'pmtiles' ? (
-            isMapLoaded && layer.layerId === 'watershed' ? (
-              <WatershedLayers layer={layer} index={index} />
-            ) : (
-              <PmTileLayers layer={layer} index={index} />
+          if (layer.dataType === 'pmtiles' && layer.layerId !== 'watershed') {
+            return (
+              isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          ) : (
-            isMapLoaded && layer.isLayerOn && (
-              <Source
-                id={layer.sourceId}
-                key={`${layer.sourceId}-${index}`}
-                type="raster"
-                url={`cog://${layer.link}`}
-                tileSize={256}
-                maxzoom={16}
-                minzoom={6}
-              >
-                <Layer
-                  id={layer.layerId}
+          } else if (layer.layerId === 'watershed') {
+            return (
+              isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
+            )
+          } else if (layer.dataType === 'rastertiles') {
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
                   type="raster"
-                  key={`${layer.layerId}-${index}`}
-                  source={layer.sourceId}
-                  beforeId="label_airport"
-                />
-              </Source>
+                  url={`cog://${layer.link}`}
+                  tileSize={256}
+                  maxzoom={16}
+                  minzoom={6}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="raster"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    beforeId="label_airport"
+                  />
+                </Source>
+              )
             )
-          )
+          } else {
+            //(layer.dataType === 'vectortiles')
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
+                  type="vector"
+                  tiles={[layer.link]}
+                  maxzoom={22}
+                  minzoom={0}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="fill"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    source-layer={layer.sourceName}
+                    beforeId="label_airport"
+                    paint={{
+                      // @ts-expect-error - doesn't like fill-color being a string?
+                      'fill-color': benthicFillColor, //'rgba(235,165,205,50 )',
+                      // 'fill-outline-color': layer.outlineColor,
+                    }}
+                  />
+                </Source>
+              )
+            )
+          }
         })}
       </MapGL>
 

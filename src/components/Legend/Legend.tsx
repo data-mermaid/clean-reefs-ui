@@ -6,13 +6,13 @@ import { chartSeriesConfig } from '../../data/chartSeriesData'
 export default function Legend() {
   const { t } = useTranslation()
   const getItems = () => {
-    const chartLegendColors = Object.entries(
-      chartSeriesConfig['charts.land_use_historical'].legendColors,
-    )
+    const legendKeyColors = chartSeriesConfig['charts.land_use_historical'].legendColors
+    const legendTextPrefix = 'land_types'
+    const chartLegendColors = Object.entries(legendKeyColors)
     return chartLegendColors.map(([key, value]) => {
       return (
         <div className={styles['Legend__row']} key={key}>
-          <Typography>{t(`land_types.${key}`)}</Typography>
+          <Typography>{t(`${legendTextPrefix}.${key}`)}</Typography>
           <div className={styles['Legend__item']} style={{ backgroundColor: `${value}` }} />
         </div>
       )
