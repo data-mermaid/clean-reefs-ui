@@ -1,3 +1,5 @@
+const coralAtlasAppId = import.meta.env.VITE_CORAL_ATLAS_APP_ID
+
 /******MAP LAYERS******/
 export const REGIONS_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/regions/regions.pmtiles'
@@ -20,6 +22,9 @@ export const LULC_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2020_visual.tif'
 export const ACA_BENTHIC_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/aca_benthic/aca_benthic_visual.tif'
+
+export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
+export const ATLAS_GEOMORPHIC_URL = `https://allencoralatlas.org/tiles/geomorphic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
 
 export const SED_EXPORT_2000_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2000_visual.tif'

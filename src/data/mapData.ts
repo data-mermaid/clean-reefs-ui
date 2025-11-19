@@ -1,5 +1,5 @@
 import {
-  ACA_BENTHIC_URL,
+  ATLAS_BENTHIC_URL,
   COUNTRIES_PMTILES_URL,
   LULC_2000_URL,
   LULC_2005_URL,
@@ -15,12 +15,40 @@ import {
   WATERSHED_PMTILES_URL,
 } from '../constants'
 
+export const atlasBenthicCategories = {
+  reef_extent: '#B2084C80',
+  coral_algae: '#CC6677',
+  seagrass: '#117733',
+  microalgal_mats: '#44AA99',
+  rock: '#88CCEE',
+  rubble: '#332288',
+  sand: '#DECC77',
+}
+
+export const benthicFillColor = [
+  'case',
+  ['==', ['get', 'class_name'], 'Coral/Algae'],
+  atlasBenthicCategories['coral_algae'],
+  ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+  atlasBenthicCategories['microalgal_mats'],
+  ['==', ['get', 'class_name'], 'Rock'],
+  atlasBenthicCategories['rock'],
+  ['==', ['get', 'class_name'], 'Rubble'],
+  atlasBenthicCategories['rubble'],
+  ['==', ['get', 'class_name'], 'Sand'],
+  atlasBenthicCategories['sand'],
+  ['==', ['get', 'class_name'], 'Seagrass'],
+  atlasBenthicCategories['seagrass'],
+  atlasBenthicCategories['reef_extent'], // Default / other
+]
+
 export interface LayerInfo {
-  isLayerOn: boolean
+  sourceId: string
+  sourceName: string //layer name defaults to the file name
   layerId: string
   legendType?: 'gradient' | 'lulc'
   link: string
-  dataType: 'pmtiles' | 'tiles' | undefined //pmtiles:vector, tiles:raster
+  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   outlineColor?: string //vector files only
   outlineStyle?: boolean //vector files only
   parentLayerType:
@@ -30,9 +58,7 @@ export interface LayerInfo {
     | 'landcover'
     | 'landPollution'
     | 'oceanPollution'
-  scaleVariation?: string
-  sourceId: string
-  sourceName: string //layer name defaults to the file name
+  isLayerOn: boolean
   title: string
   legendTitle?: string
   year?: 2000 | 2005 | 2010 | 2015 | 2020
@@ -40,7 +66,7 @@ export interface LayerInfo {
 
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
-  // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
@@ -50,7 +76,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //TEMP true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -62,7 +88,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //TEMP
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -72,7 +98,7 @@ export const layers: LayerInfo[] = [
     title: 'boundary_map_layers.country_boundaries',
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendType: 'gradient',
@@ -84,7 +110,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -96,7 +122,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -108,7 +134,7 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -120,7 +146,7 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -132,7 +158,7 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -145,7 +171,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2000_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -158,7 +184,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2005_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -171,7 +197,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2010_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -184,7 +210,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2015_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -197,8 +223,8 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2020_visual',
-    dataType: 'tiles',
-    isLayerOn: true,
+    dataType: 'rastertiles',
+    isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -209,13 +235,13 @@ export const layers: LayerInfo[] = [
     year: 2020,
   },
   {
-    dataType: 'tiles',
-    isLayerOn: false,
-    layerId: 'aca-benthic',
-    link: ACA_BENTHIC_URL,
+    sourceId: 'atlas-benthic',
+    dataType: 'vectortiles',
+    isLayerOn: true,
+    layerId: 'atlas-benthic',
+    link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',
-    sourceId: 'aca_benthic_visual',
-    sourceName: '',
+    sourceName: 'benthic',
     title: 'Benthic',
   },
   {
