@@ -8,6 +8,10 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
+// export const setSubLayerOpacity = (map, property, boolVal) => {
+//   map.setPaintProperty(property, 'fill-opacity', applyOpacityExpression(dataLayerFromLocalStorage))
+// }
+
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e?.features || e.features.length === 0 || !e.features[0].id) {

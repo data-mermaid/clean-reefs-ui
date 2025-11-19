@@ -25,6 +25,44 @@ export const atlasBenthicCategories = {
   sand: '#DECC77',
 }
 
+export const atlasBenthicLayers = [
+  {
+    layerId: 'reef_extent',
+    legendColor: '#B2084C80',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'coral_algae',
+    legendColor: '#CC6677',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'seagrass',
+    legendColor: '#117733',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'microalgal_mats',
+    legendColor: '#44AA99',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rock',
+    legendColor: '#88CCEE',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rubble',
+    legendColor: '#332288',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'sand',
+    legendColor: '#DECC77',
+    isLayerOn: true,
+  },
+]
+
 export const benthicFillColor = [
   'case',
   ['==', ['get', 'class_name'], 'Coral/Algae'],
