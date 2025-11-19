@@ -36,16 +36,17 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
   const toggleLayer = useCallback(
-    (layerId: string, checked: boolean) => {
-      const isRasterLayer = rasterLayers.indexOf(layerId) > -1
+    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      const toggledLayer = event.target.id
+      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
 
-      let updatedLayers = mapToggleChange(mapLayers, layerId, checked)
+      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
       if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== layerId) {
+        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
         }
         if (checked) {
-          setActiveRasterLayerId(layerId)
+          setActiveRasterLayerId(toggledLayer)
         } else {
           setActiveRasterLayerId(null)
         }

@@ -106,13 +106,13 @@ export default function LayerToggleCard({
       )}
 
       {getLayerToggleDetails(layer, toggleLayer)}
-      {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-      {layer.legendType === 'benthic' && layer.isLayerOn && (
-        <LayerToggleLegend toggleSubLayer={toggleLayer} />
-      )}
-      {layer.legendType === 'gradient' && layer.isLayerOn && (
-        <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
-      )}
+      {/*{layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}*/}
+      {/*{layer.legendType === 'benthic' && layer.isLayerOn && (*/}
+      {/*  <LayerToggleLegend toggleSubLayer={toggleLayer} />*/}
+      {/*)}*/}
+      {/*{layer.legendType === 'gradient' && layer.isLayerOn && (*/}
+      {/*  <GradientLegend variation={layer.layerId} title={layer.legendTitle} />*/}
+      {/*)}*/}
     </Card>
   )
 }
