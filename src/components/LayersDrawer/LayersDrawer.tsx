@@ -86,7 +86,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
                 />
               )}
             </div>
-            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
+            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend variant={'lulc'} />}
+            {layer.legendType === 'benthic' && layer.isLayerOn && <Legend variant={'benthic'} />}
             {layer.legendType === 'gradient' && layer.isLayerOn && (
               <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
             )}

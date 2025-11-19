@@ -46,7 +46,7 @@ export interface LayerInfo {
   sourceId: string
   sourceName: string //layer name defaults to the file name
   layerId: string
-  legendType?: 'gradient' | 'lulc'
+  legendType?: 'gradient' | 'lulc' | 'benthic'
   link: string
   dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   outlineColor?: string //vector files only
@@ -239,6 +239,7 @@ export const layers: LayerInfo[] = [
     dataType: 'vectortiles',
     isLayerOn: true,
     layerId: 'atlas-benthic',
+    legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',
     sourceName: 'benthic',
