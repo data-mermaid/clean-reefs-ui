@@ -97,16 +97,36 @@ export function createPolygonClickHandler(
   }
 }
 
-// const createSedExportWatershedLayer = () => {
-//   // export_threshold_country_2010
-//   // export_threshold_region_2010
-//   //for each polygon
-//   //get the sed_export val
-//   const polygonColor = sedExportColorMapping[thresholdVal]
-//   //match the value to the corresponding hex color
-//   //set the fill-property of the watershed layer for that color
+// export_threshold_country_2010
+// export_threshold_region_2010
+// export const createSedExportWatershedLayer = () => {
+//   //todo: get selectedRegion
+//   //if not country or region, default to country
 //
-//   return {}
+//   const regionLevel = ['country', 'region'].includes(selectedRegion.regionType)
+//     ? selectedRegion.regionType
+//     : 'country'
+
+//todo: get map instance /ref
+// map.setPaintProperty('watershed', 'fill-color', [
+//             'match',
+//             ['get', `export_threshold_${regionLevel}_${selectedYear}`],
+//             '0',
+//             sedExportColorMapping['0'],
+//             '1-10',
+//             sedExportColorMapping['1-10'],
+//             '10-20',
+//             sedExportColorMapping['10-20'],
+//             '20-50',
+//             sedExportColorMapping['20-50'],
+//             '50-75',
+//             sedExportColorMapping['50-75'],
+//             '75-90',
+//             sedExportColorMapping['75-90'],
+//             '90-100',
+//             sedExportColorMapping['90-100'],
+//             'rgba(0,0,0,0)', // default transparent
+//           ],)
 // }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {

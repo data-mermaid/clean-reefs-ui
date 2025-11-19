@@ -17,21 +17,26 @@ import { useState } from 'react'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
-  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
+  toggleLayer: (layerId: string, on: boolean) => void
+  toggleSubLayer: (layerId: string, on: boolean) => void
   selectedYear: number
 }
 
-const getLayerToggleDetails = (layer: LayerInfo) => {
+const getLayerToggleDetails = (
+  layer: LayerInfo,
+  toggleSubLayer: (layerId: string, on: boolean) => void,
+) => {
+  const layerId: string = layer.layerId
   let toggleCardDetails
-  switch (layer.layerId) {
+  switch (layerId) {
     case 'lulc':
       toggleCardDetails = layer.isLayerOn && <Legend />
       break
     case 'sed_export':
       toggleCardDetails = layer.isLayerOn && (
         <>
-          <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
-          <RadioSelect layerId={layer.layerId} />
+          <GradientLegend variation={layerId} title={layer.legendTitle} />
+          <RadioSelect layerId={layerId} toggleSubLayer={toggleSubLayer} />
         </>
       )
       break
@@ -41,13 +46,15 @@ const getLayerToggleDetails = (layer: LayerInfo) => {
   return toggleCardDetails
 }
 
-const RadioSelect = (layerId) => {
-  const [selectedValue, setSelectedValue] = useState(`${layerId}-pixel`)
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedValue(event.target.value)
-  }
-  const { t } = useTranslation()
+const RadioSelect = ({ layerId, toggleSubLayer }) => {
+  const [selectedValue, setSelectedValue] = useState(`${layerId}_pixel`)
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedValue(event.target.value) //can this value be used in setPaintProperty
+    toggleSubLayer(event.target.value, true)
+  }
+
+  const { t } = useTranslation()
   const radioControlProps = (item: string) =>
     ({
       checked: selectedValue === item,
@@ -59,9 +66,9 @@ const RadioSelect = (layerId) => {
   return (
     <FormControl>
       <RadioGroup>
-        <FormControlLabel {...radioControlProps(`${layerId}-pixel`)} label={t('pixel_value')} />
+        <FormControlLabel {...radioControlProps(`${layerId}_pixel`)} label={t('pixel_value')} />
         <FormControlLabel
-          {...radioControlProps(`${layerId}-watershed`)}
+          {...radioControlProps(`${layerId}_watershed`)}
           label={t('regions.watershed')}
         />
       </RadioGroup>
@@ -90,11 +97,11 @@ export default function LayerToggleCard({
             className={styles['MuiSwitch-root']}
             id={layer.layerId}
             checked={layer.isLayerOn}
-            onChange={toggleLayer}
+            onChange={(e, checked) => toggleLayer(e.target.id, checked)}
           />
         )}
       </div>
-      {getLayerToggleDetails(layer)}
+      {getLayerToggleDetails(layer, toggleLayer)}
     </Card>
   )
 }

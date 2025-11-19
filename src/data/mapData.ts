@@ -25,6 +25,12 @@ export const sedExportColorMapping = {
   '90-100': '#c79853',
 }
 
+export const sedExportWatershedLayer = {
+  id: 'sed_export_watershed',
+  type: 'vector',
+  source: 'watershed_src',
+  'source-layer': 'sed_export',
+}
 export interface LayerInfo {
   isLayerOn: boolean
   layerId: string
