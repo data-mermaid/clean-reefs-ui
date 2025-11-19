@@ -25,6 +25,11 @@ export const atlasBenthicCategories = {
   sand: '#DECC77',
 }
 
+export interface SubLayerInfo {
+  layerId: string
+  legendColor: string
+  isLayerOn: boolean
+}
 export const atlasBenthicLayers = [
   {
     layerId: 'reef_extent',
@@ -120,7 +125,7 @@ export interface LayerInfo {
 
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
-  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',

@@ -34,8 +34,8 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
   useEffect(() => {
     if (selectedFeature) {
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
-    } else {
-      setChartConfigData(null)
+      // } else {
+      //   setChartConfigData(null)
     }
   }, [selectedFeature])
 

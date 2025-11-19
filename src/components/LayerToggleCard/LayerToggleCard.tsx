@@ -19,14 +19,11 @@ import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (layerId: string, on: boolean) => void
-  toggleSubLayer: (layerId: string, on: boolean) => void
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
   selectedYear: number
 }
 
-const getLayerToggleDetails = (
-  layer: LayerInfo,
-  toggleSubLayer: (layerId: string, on: boolean) => void,
-) => {
+const getLayerToggleDetails = (layer: LayerInfo, toggleSubLayer) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
   switch (layerId) {
@@ -40,6 +37,9 @@ const getLayerToggleDetails = (
           <RadioSelect layerId={layerId} toggleSubLayer={toggleSubLayer} />
         </>
       )
+      break
+    case 'atlas-benthic':
+      toggleCardDetails = layer.isLayerOn && <LayerToggleLegend toggleSubLayer={toggleSubLayer} />
       break
     default:
       toggleCardDetails = null
@@ -79,6 +79,7 @@ const RadioSelect = ({ layerId, toggleSubLayer }) => {
 export default function LayerToggleCard({
   layer,
   toggleLayer,
+  toggleSubLayer,
   selectedYear,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
@@ -99,20 +100,13 @@ export default function LayerToggleCard({
               className={styles['MuiSwitch-root']}
               id={layer.layerId}
               checked={layer.isLayerOn}
-              onChange={toggleLayer}
+              onChange={(e, checked) => toggleLayer(e, checked)}
             />
           )}
         </div>
       )}
 
-      {getLayerToggleDetails(layer, toggleLayer)}
-      {/*{layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}*/}
-      {/*{layer.legendType === 'benthic' && layer.isLayerOn && (*/}
-      {/*  <LayerToggleLegend toggleSubLayer={toggleLayer} />*/}
-      {/*)}*/}
-      {/*{layer.legendType === 'gradient' && layer.isLayerOn && (*/}
-      {/*  <GradientLegend variation={layer.layerId} title={layer.legendTitle} />*/}
-      {/*)}*/}
+      {getLayerToggleDetails(layer, toggleSubLayer)}
     </Card>
   )
 }

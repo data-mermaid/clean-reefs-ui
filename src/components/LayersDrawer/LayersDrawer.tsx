@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicLayers, LayerInfo, parentLayerTitles } from '../../data/mapData'
+import { atlasBenthicLayers, LayerInfo, parentLayerTitles, SubLayerInfo } from '../../data/mapData'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 
 /**
@@ -18,7 +18,11 @@ interface LayersDrawerProps {
 }
 const rasterLayers = ['sed_export', 'lulc']
 
-const mapToggleChange = (layers: LayerInfo[], layerId: string, checked: boolean) => {
+const mapToggleChange = (
+  layers: LayerInfo[] | SubLayerInfo[],
+  layerId: string,
+  checked: boolean,
+) => {
   return layers.map((layer) => {
     return layer.layerId === layerId
       ? { ...layer, isLayerOn: checked } // Create new object with updated property
@@ -61,7 +65,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
       const updatedLayers = mapSubLayers
-      // mapToggleChange(mapSubLayers, toggledLayer, checked)
+      mapToggleChange(mapSubLayers, toggledLayer, checked)
       // setSubLayerOpacity(map, benthicCatProperty, true)
       setMapSubLayers(updatedLayers)
     },
