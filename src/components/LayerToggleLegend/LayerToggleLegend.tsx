@@ -1,16 +1,20 @@
 import { useTranslation } from 'react-i18next'
 import styles from './LayerToggleLegend.module.scss'
 import { Switch, Typography } from '@mui/material'
-import { atlasBenthicLayers } from '../../data/mapData'
+import { SubLayerInfo } from '../../types/MapDataTypes'
 
 interface LayerToggleLegendProps {
+  mapSubLayers: SubLayerInfo[]
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
 }
-export default function LayerToggleLegend({ toggleSubLayer }: LayerToggleLegendProps) {
+export default function LayerToggleLegend({
+  mapSubLayers,
+  toggleSubLayer,
+}: LayerToggleLegendProps) {
   const { t } = useTranslation()
   const legendTextPrefix = 'benthic_map_layers'
   const getItems = () => {
-    return atlasBenthicLayers.map(({ layerId, legendColor, isLayerOn }) => {
+    return mapSubLayers.map(({ layerId, legendColor, isLayerOn }) => {
       return (
         <div className={styles['LayerToggleLegend__row']} key={layerId}>
           <Typography>{t(`${legendTextPrefix}.${layerId}`)}</Typography>
@@ -21,7 +25,7 @@ export default function LayerToggleLegend({ toggleSubLayer }: LayerToggleLegendP
             />
             <Switch
               className={styles['MuiSwitch-root']}
-              id={`${layerId}-legend-toggle`}
+              id={layerId}
               checked={isLayerOn}
               onChange={toggleSubLayer}
             />

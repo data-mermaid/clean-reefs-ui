@@ -14,7 +14,7 @@ import styles from './BaseMap.module.scss'
 import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { benthicFillColor, LayerInfo } from '../../data/mapData'
+import { benthicFillColorExpression } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
@@ -24,6 +24,7 @@ import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
+import { LayerInfo } from '../../types/MapDataTypes'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -226,7 +227,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     if (!map) {
       return
     }
-    // loadACALayers(mapRef.current)
+
     const watershedLayer =
       mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 
@@ -314,7 +315,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
               )
             )
           } else {
-            //(layer.dataType === 'vectortiles')
+            //other should just be 'vectortiles'
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -335,8 +336,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
                     beforeId="label_airport"
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?
-                      'fill-color': benthicFillColor, //'rgba(235,165,205,50 )',
-                      // 'fill-outline-color': layer.outlineColor,
+                      'fill-color': benthicFillColorExpression,
                     }}
                   />
                 </Source>

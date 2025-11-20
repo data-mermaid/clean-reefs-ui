@@ -6,9 +6,10 @@ import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import useResponsive from '../../hooks/useResponsive'
-import { LayerInfo, layers } from '../../data/mapData'
+import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultRegionOption } from '../../data/regionData'
+import { LayerInfo } from '../../types/MapDataTypes'
 
 export default function MapContainer() {
   const { isMobileWidth } = useResponsive()
@@ -41,7 +42,7 @@ export default function MapContainer() {
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          <TrendsDrawer selectedRegion={selectedRegion} />
+          {/*<TrendsDrawer selectedRegion={selectedRegion} />*/}
         </div>
       )}
       <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />

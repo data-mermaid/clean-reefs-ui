@@ -5,10 +5,12 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicLayers, LayerInfo, parentLayerTitles } from '../../data/mapData'
+import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
 import Legend from '../Legend/Legend'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
+import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
+import { setSubLayerOpacity } from '../../utils/mapUtils'
 
 /**
  * Business rule:
@@ -21,7 +23,11 @@ interface LayersDrawerProps {
 }
 const rasterLayers = ['sed_export', 'lulc']
 
-const mapToggleChange = (layers: LayerInfo[], layerId: string, checked: boolean) => {
+const mapToggleChange = (
+  layers: LayerInfo[] | SubLayerInfo[],
+  layerId: string,
+  checked: boolean,
+) => {
   return layers.map((layer) => {
     return layer.layerId === layerId
       ? { ...layer, isLayerOn: checked } // Create new object with updated property
@@ -63,9 +69,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
-      const updatedLayers = mapSubLayers
-      // mapToggleChange(mapSubLayers, toggledLayer, checked)
-      // setSubLayerOpacity(map, benthicCatProperty, true)
+      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+      // setSubLayerOpacity(map, toggledLayer)
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers],
@@ -104,7 +109,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
             {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
             {layer.legendType === 'benthic' && layer.isLayerOn && (
-              <LayerToggleLegend toggleSubLayer={toggleSubLayer} />
+              <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
             )}
             {layer.legendType === 'gradient' && layer.isLayerOn && (
               <GradientLegend variation={layer.layerId} title={layer.legendTitle} />

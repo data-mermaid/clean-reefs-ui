@@ -1,16 +1,17 @@
 import { RegionOption } from '../types/RegionDataTypes'
-import { LayerInfo } from '../data/mapData'
 import { regionOptions } from '../data/regionData'
 import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
+import { LayerInfo } from '../types/MapDataTypes'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-// export const setSubLayerOpacity = (map, property, boolVal) => {
-//   map.setPaintProperty(property, 'fill-opacity', applyOpacityExpression(dataLayerFromLocalStorage))
-// }
+export const setSubLayerOpacity = (map, property) => {
+  const updatedPaintProperty = ''
+  map.setPaintProperty('atlas-benthic', 'fill-opacity', updatedPaintProperty)
+}
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {

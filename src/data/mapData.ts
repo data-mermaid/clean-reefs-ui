@@ -14,8 +14,9 @@ import {
   SED_EXPORT_2020_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
+import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 
-export const atlasBenthicCategories = {
+export const atlasBenthicColors = {
   reef_extent: '#B2084C80',
   coral_algae: '#CC6677',
   seagrass: '#117733',
@@ -25,86 +26,83 @@ export const atlasBenthicCategories = {
   sand: '#DECC77',
 }
 
-export const atlasBenthicLayers = [
+export const atlasBenthicLayers: SubLayerInfo[] = [
   {
     layerId: 'reef_extent',
-    legendColor: '#B2084C80',
-    isLayerOn: true,
+    legendColor: atlasBenthicColors['reef_extent'],
+    isLayerOn: false,
   },
   {
     layerId: 'coral_algae',
-    legendColor: '#CC6677',
+    legendColor: atlasBenthicColors['reef_extent'],
     isLayerOn: true,
   },
   {
     layerId: 'seagrass',
-    legendColor: '#117733',
+    legendColor: atlasBenthicColors['seagrass'],
     isLayerOn: true,
   },
   {
     layerId: 'microalgal_mats',
-    legendColor: '#44AA99',
+    legendColor: atlasBenthicColors['microalgal_mats'],
     isLayerOn: true,
   },
   {
     layerId: 'rock',
-    legendColor: '#88CCEE',
+    legendColor: atlasBenthicColors['rock'],
     isLayerOn: true,
   },
   {
     layerId: 'rubble',
-    legendColor: '#332288',
+    legendColor: atlasBenthicColors['rubble'],
     isLayerOn: true,
   },
   {
     layerId: 'sand',
-    legendColor: '#DECC77',
+    legendColor: atlasBenthicColors['sand'],
     isLayerOn: true,
   },
 ]
 
-export const benthicFillColor = [
+export const benthicFillColorExpression = [
   'case',
   ['==', ['get', 'class_name'], 'Coral/Algae'],
-  atlasBenthicCategories['coral_algae'],
+  atlasBenthicColors['coral_algae'],
   ['==', ['get', 'class_name'], 'Benthic Microalgae'],
-  atlasBenthicCategories['microalgal_mats'],
+  atlasBenthicColors['microalgal_mats'],
   ['==', ['get', 'class_name'], 'Rock'],
-  atlasBenthicCategories['rock'],
+  atlasBenthicColors['rock'],
   ['==', ['get', 'class_name'], 'Rubble'],
-  atlasBenthicCategories['rubble'],
+  atlasBenthicColors['rubble'],
   ['==', ['get', 'class_name'], 'Sand'],
-  atlasBenthicCategories['sand'],
+  atlasBenthicColors['sand'],
   ['==', ['get', 'class_name'], 'Seagrass'],
-  atlasBenthicCategories['seagrass'],
-  atlasBenthicCategories['reef_extent'], // Default / other
+  atlasBenthicColors['seagrass'],
+  atlasBenthicColors['reef_extent'], // Default / other
 ]
 
-export interface LayerInfo {
-  sourceId: string
-  sourceName: string //layer name defaults to the file name
-  layerId: string
-  legendType?: 'gradient' | 'lulc' | 'benthic'
-  link: string
-  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
-  outlineColor?: string //vector files only
-  outlineStyle?: boolean //vector files only
-  parentLayerType:
-    | 'base'
-    | 'benthic'
-    | 'boundaries'
-    | 'landcover'
-    | 'landPollution'
-    | 'oceanPollution'
-  isLayerOn: boolean
-  title: string
-  legendTitle?: string
-  year?: 2000 | 2005 | 2010 | 2015 | 2020
+export const sedExportColorMapping = {
+  '0': '#018571',
+  '1-10': '#4aae9f',
+  '10-20': '#91d3c8',
+  '20-50': '#d4eae6',
+  '50-75': '#efe6d3',
+  '75-90': '#e2c98e',
+  '90-100': '#c79853',
 }
 
+export const sedExportWatershedLayer = {
+  id: 'sed_export_watershed',
+  type: 'vector',
+  source: 'watershed_src',
+  'source-layer': 'sed_export',
+}
+
+//this is the order the parent layers will appear in the layer toggle drawer
+//currently, ocean pollution and base layers are not implemented
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
-  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
