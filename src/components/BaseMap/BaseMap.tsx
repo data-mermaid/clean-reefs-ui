@@ -18,13 +18,18 @@ import { benthicFillColorExpression } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
+import {
+  createPolygonClickHandler,
+  createPolygonHoverHandler,
+  setSubLayerOpacity,
+} from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
+import { useMapStore } from '../../stores/mapStore'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -179,6 +184,11 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
   useEffect(() => {
+    return () => {
+      useMapStore.getState().setMapApi(null)
+    }
+  }, [])
+  useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
     maplibregl.addProtocol('cog', cogProtocol)
@@ -227,6 +237,13 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     if (!map) {
       return
     }
+
+    const api = {
+      setSubLayerOpacity: (layerId: string, otherthing) => {
+        setSubLayerOpacity(map, layerId, otherthing)
+      },
+    }
+    useMapStore.getState().setMapApi(api)
 
     const watershedLayer =
       mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]

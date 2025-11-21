@@ -8,9 +8,21 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export const setSubLayerOpacity = (map, property) => {
-  const updatedPaintProperty = ''
-  map.setPaintProperty('atlas-benthic', 'fill-opacity', updatedPaintProperty)
+export const applyOpacityExpression = (array) => {
+  if (!Array.isArray(array) || array.length === 0) {
+    return 0
+  }
+  debugger
+
+  const pairs = array.map((item) => [['==', ['get', 'class_name'], item], 1]).flat()
+
+  return ['case', ...pairs, 0]
+}
+
+export const setSubLayerOpacity = (map, property, layers) => {
+  const updatedFillExpression = applyOpacityExpression(property)
+  debugger
+  map.setPaintProperty('atlas-benthic', 'fill-opacity', updatedFillExpression)
 }
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {

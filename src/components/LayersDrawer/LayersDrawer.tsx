@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
+import { atlasBenthicColors, atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
 import Legend from '../Legend/Legend'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
-import { setSubLayerOpacity } from '../../utils/mapUtils'
+import { useMapStore } from '../../stores/mapStore'
 
 /**
  * Business rule:
@@ -44,6 +44,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
+  const setSubLayerOpacity = useMapStore((store) => store.mapApi?.setSubLayerOpacity)
+
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
@@ -70,10 +72,16 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
       const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      // setSubLayerOpacity(map, toggledLayer)
       setMapSubLayers(updatedLayers)
+      if (setSubLayerOpacity) {
+        setSubLayerOpacity(
+          toggledLayer,
+          updatedLayers,
+          // checked ? atlasBenthicColors[toggledLayer] : 'rgba(0,0,0,0)',
+        )
+      }
     },
-    [mapSubLayers],
+    [mapSubLayers, setSubLayerOpacity],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
