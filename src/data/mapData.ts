@@ -90,7 +90,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //TEMP true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -102,7 +102,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //TEMP true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -238,7 +238,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2020_visual',
     dataType: 'rastertiles',
-    isLayerOn: false,
+    isLayerOn: false, //TEMP false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -251,7 +251,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
-    isLayerOn: true,
+    isLayerOn: false, //TEMP true,
     layerId: 'benthic',
     legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,

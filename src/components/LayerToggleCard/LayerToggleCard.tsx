@@ -15,10 +15,11 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
+import { useMapStore } from '../../stores/mapStore'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
-  toggleLayer: (layerId: string, on: boolean) => void
+  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
   mapSubLayers?: SubLayerInfo[]
   selectedYear: number
@@ -42,6 +43,8 @@ const getLayerToggleDetails = (
           <RadioSelect layerId={layerId} toggleSubLayer={toggleSubLayer} />
         </>
       )
+
+      //trigger map load data here
       break
     case 'benthic':
       toggleCardDetails = layer.isLayerOn && mapSubLayers && (
@@ -54,12 +57,18 @@ const getLayerToggleDetails = (
   return toggleCardDetails
 }
 
+//TODO: restrict based on selected region (add to mapstore?)
+//if not country or region, disable watershed option
+//isWatershedLevelDisabled
+
 const RadioSelect = ({ layerId, toggleSubLayer }) => {
   const [selectedValue, setSelectedValue] = useState(`${layerId}_pixel`)
+  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedValue(event.target.value) //can this value be used in setPaintProperty
-    toggleSubLayer(event.target.value, true)
+    // toggleSubLayer(event, true)
+    toggleSedExportSubLayerFills()
   }
 
   const { t } = useTranslation()
@@ -83,6 +92,7 @@ const RadioSelect = ({ layerId, toggleSubLayer }) => {
     </FormControl>
   )
 }
+
 export default function LayerToggleCard({
   layer,
   toggleLayer,
@@ -109,7 +119,7 @@ export default function LayerToggleCard({
                 className={styles['MuiSwitch-root']}
                 id={layer.layerId}
                 checked={layer.isLayerOn}
-                onChange={(e, checked) => toggleLayer(e.target.id, checked)}
+                onChange={(e, checked) => toggleLayer(e, checked)}
               />
             )}
           </>

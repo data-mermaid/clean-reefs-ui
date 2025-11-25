@@ -40,6 +40,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
+  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
+
+  const setSedExportWatershedLayer = useMapStore((state) => state.setSedExportWatershedLayer)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -53,6 +56,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         }
         if (checked) {
           setActiveRasterLayerId(toggledLayer)
+          if (toggledLayer === 'sed_export') {
+            setSedExportWatershedLayer()
+          }
         } else {
           setActiveRasterLayerId(null)
         }
@@ -66,8 +72,13 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      toggleSubLayerFillColor(toggledLayer)
+      let updatedLayers
+      if (toggledLayer === 'benthic') {
+        updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+        toggleSubLayerFillColor(toggledLayer)
+        // } else if (toggledLayer === 'sed_export') {
+        //   toggleSedExportSubLayerFills(toggledLayer)
+      }
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],
