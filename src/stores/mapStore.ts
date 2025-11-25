@@ -1,33 +1,17 @@
 import { create } from 'zustand'
 import { atlasBenthicColors } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
-import { getUpdatedBenthicColor } from '../components/LayersDrawer/LayersDrawer'
+import { getUpdatedBenthicColor } from '../utils/mapUtils'
 
-//map state
 type MapState = {
   mapReference: MapRef | null
   benthicMapSubLayerColors: Record<string, string>
 }
-//map actions
 type MapActions = {
   setMapRef: (map: MapRef) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
 }
-
-//should this be part of MapApi, or should it just be in MapStore?
-//Which one is binding the mapref?
-// type MapApi = {
-//   toggleSubLayerFillColor: (map: Map, toggledProperty: string) => void
-// } | null
-//
-// interface MapStore {
-//   mapApi: MapApi
-//   setMapApi: (api: MapApi) => void
-//   benthicMapSubLayerColors: Record<string, string>
-//   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
-//   toggleSubLayerFillColor: (map: Map, toggledProperty: string) => void
-// }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
   mapReference: null,
@@ -46,6 +30,5 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       [toggledProperty]: updatedColor,
     }
     set({ benthicMapSubLayerColors: updatedFillColors })
-    // state.setBenthicMapSubLayerColors(updatedFillColors)
   },
 }))

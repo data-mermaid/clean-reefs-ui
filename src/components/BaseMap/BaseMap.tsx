@@ -255,14 +255,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       return
     }
 
-    //is this binding the ref?????
-    // const mapApi = {
-    //   toggleSubLayerFillColor: (layerId: string) => {
-    //     useMapStore.getState().toggleSubLayerFillColor(map, layerId)
-    //   },
-    // }
-    // useMapStore.getState().setMapApi(mapApi)
-
     const watershedLayer =
       mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 

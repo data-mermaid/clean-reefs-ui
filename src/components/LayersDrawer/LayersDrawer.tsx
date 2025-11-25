@@ -5,12 +5,7 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import {
-  atlasBenthicColors,
-  atlasBenthicLayers,
-  parentLayerTitles,
-  transparent,
-} from '../../data/mapData'
+import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
 import Legend from '../Legend/Legend'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
@@ -34,23 +29,7 @@ const mapToggleChange = (
   checked: boolean,
 ) => {
   return layers.map((layer) => {
-    return layer.layerId === layerId
-      ? { ...layer, isLayerOn: checked } // Create new object with updated property
-      : layer // Keep other layers unchanged
-  })
-}
-
-export const getUpdatedBenthicColor = (layerId, currentColors) => {
-  if (currentColors[layerId] === transparent) {
-    return atlasBenthicColors[layerId]
-  } else {
-    return transparent
-  }
-}
-
-export const mapBenthicColorChange = (toggledProperty, currentColors, newColor) => {
-  return currentColors.map((property) => {
-    return property === toggledProperty ? { toggledProperty: newColor } : property
+    return layer.layerId === layerId ? { ...layer, isLayerOn: checked } : layer
   })
 }
 
@@ -91,7 +70,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
       const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      toggleSubLayerFillColor(toggledLayer) //but this should already have the mapref bound?
+      toggleSubLayerFillColor(toggledLayer)
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],

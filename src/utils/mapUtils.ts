@@ -3,9 +3,18 @@ import { regionOptions } from '../data/regionData'
 import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { LayerInfo } from '../types/MapDataTypes'
+import { atlasBenthicColors, transparent } from '../data/mapData'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
+}
+
+export const getUpdatedBenthicColor = (layerId, currentColors) => {
+  if (currentColors[layerId] === transparent) {
+    return atlasBenthicColors[layerId]
+  } else {
+    return transparent
+  }
 }
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
