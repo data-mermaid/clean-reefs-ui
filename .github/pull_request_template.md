@@ -6,8 +6,8 @@ Before merging, the developer of this pull request has checked the following:
 - [ ] Lint has run and any errors have been resolved
 - [ ] Prettier has run on any changed files
 - [ ] Storybook stories have run and any errors have been resolved
-- [ ] Unit tests have been added or updated, where possible, to prevent future regressions
 - [ ] Pre-existing unit tests have run and passed
+  - [ ] Unit tests have been added or updated, where possible, to prevent future regressions
 
 ## Post-Merge
 

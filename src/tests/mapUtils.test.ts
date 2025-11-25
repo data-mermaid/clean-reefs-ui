@@ -1,4 +1,3 @@
-import { LayerInfo } from '../data/mapData'
 import {
   createPolygonClickHandler,
   createPolygonHoverHandler,
@@ -8,6 +7,7 @@ import {
 import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { regionOptions } from '../data/regionData'
+import { LayerInfo } from '../types/MapDataTypes'
 
 const mockUrl = 'https://things.com'
 const mockLayers: LayerInfo[] = [
@@ -16,7 +16,7 @@ const mockLayers: LayerInfo[] = [
     sourceName: '',
     layerId: 'lulc',
     link: mockUrl,
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     parentLayerType: 'landcover',
     isLayerOn: false,
     title: 'map_layers.land_use_cover',

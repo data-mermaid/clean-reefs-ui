@@ -1,5 +1,5 @@
 import {
-  ACA_BENTHIC_URL,
+  ATLAS_BENTHIC_URL,
   COUNTRIES_PMTILES_URL,
   LULC_2000_URL,
   LULC_2005_URL,
@@ -14,30 +14,70 @@ import {
   SED_EXPORT_2020_URL,
   WATERSHED_PMTILES_URL,
 } from '../constants'
+import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 
-export interface LayerInfo {
-  isLayerOn: boolean
-  layerId: string
-  legendType?: 'gradient' | 'lulc'
-  link: string
-  dataType: 'pmtiles' | 'tiles' | undefined //pmtiles:vector, tiles:raster
-  outlineColor?: string //vector files only
-  outlineStyle?: boolean //vector files only
-  parentLayerType:
-    | 'base'
-    | 'benthic'
-    | 'boundaries'
-    | 'landcover'
-    | 'landPollution'
-    | 'oceanPollution'
-  scaleVariation?: string
-  sourceId: string
-  sourceName: string //layer name defaults to the file name
-  title: string
-  legendTitle?: string
-  year?: 2000 | 2005 | 2010 | 2015 | 2020
+export const transparent = 'rgba(0,0,0,0)'
+
+export const atlasBenthicColors = {
+  reef_extent: '#B2084C80',
+  coral_algae: '#CC6677',
+  seagrass: '#117733',
+  microalgal_mats: '#44AA99',
+  rock: '#88CCEE',
+  rubble: '#332288',
+  sand: '#DECC77',
 }
 
+export const atlasBenthicLayers: SubLayerInfo[] = [
+  {
+    layerId: 'reef_extent',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'coral_algae',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'seagrass',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'microalgal_mats',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rock',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rubble',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'sand',
+    isLayerOn: true,
+  },
+]
+
+export const sedExportColorMapping = {
+  '0': '#018571',
+  '1-10': '#4aae9f',
+  '10-20': '#91d3c8',
+  '20-50': '#d4eae6',
+  '50-75': '#efe6d3',
+  '75-90': '#e2c98e',
+  '90-100': '#c79853',
+}
+
+export const sedExportWatershedLayer = {
+  id: 'sed_export_watershed',
+  type: 'vector',
+  source: 'watershed_src',
+  'source-layer': 'sed_export',
+}
+
+//this is the order the parent layers will appear in the layer toggle drawer
+//currently, ocean pollution and base layers are not implemented
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
   // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
@@ -48,17 +88,6 @@ export const parentLayerTitles = {
 }
 
 export const layers: LayerInfo[] = [
-  {
-    dataType: 'pmtiles',
-    isLayerOn: true,
-    layerId: 'watershed',
-    link: WATERSHED_PMTILES_URL,
-    outlineColor: '#000',
-    parentLayerType: 'boundaries',
-    sourceId: 'watershed_src',
-    sourceName: 'watersheds',
-    title: 'boundary_map_layers.watershed_boundaries',
-  },
   {
     dataType: 'pmtiles',
     isLayerOn: true,
@@ -83,7 +112,7 @@ export const layers: LayerInfo[] = [
     title: 'boundary_map_layers.country_boundaries',
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendType: 'gradient',
@@ -95,7 +124,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -107,7 +136,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -119,7 +148,7 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -131,7 +160,7 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -143,7 +172,7 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -156,7 +185,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2000_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -169,7 +198,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2005_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -182,7 +211,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2010_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -195,7 +224,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2015_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -208,7 +237,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2020_visual',
-    dataType: 'tiles',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -220,13 +249,36 @@ export const layers: LayerInfo[] = [
     year: 2020,
   },
   {
-    dataType: 'tiles',
-    isLayerOn: false,
-    layerId: 'aca-benthic',
-    link: ACA_BENTHIC_URL,
+    sourceId: 'atlas-benthic',
+    dataType: 'vectortiles',
+    isLayerOn: true,
+    layerId: 'atlas-benthic',
+    legendType: 'benthic',
+    link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',
-    sourceId: 'aca_benthic_visual',
-    sourceName: '',
+    sourceName: 'benthic',
     title: 'Benthic',
+  },
+  // { //We may or may not be using ACA, or a home-brewed reef extent. TBD early 2026
+  //   sourceId: 'atlas-reefextent',
+  //   dataType: 'vectortiles',
+  //   isLayerOn: false,
+  //   layerId: 'atlas-reefextent',
+  //   link: ATLAS_REEF_EXTENT_URL,
+  //   parentLayerType: 'benthic',
+  //   sourceName: 'reefextent',
+  //   title: 'Reef extent',
+  // },
+  {
+    //keep this layer last so it's always rendered on top
+    dataType: 'pmtiles',
+    isLayerOn: true,
+    layerId: 'watershed',
+    link: WATERSHED_PMTILES_URL,
+    outlineColor: '#000',
+    parentLayerType: 'boundaries',
+    sourceId: 'watershed_src',
+    sourceName: 'watersheds',
+    title: 'boundary_map_layers.watershed_boundaries',
   },
 ]
