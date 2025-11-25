@@ -42,6 +42,7 @@ import {
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import { transparent } from '../../data/mapData'
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
@@ -273,7 +274,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       benthicFillColors['sand'],
       ['==', ['get', 'class_name'], 'Seagrass'],
       benthicFillColors['seagrass'],
-      benthicFillColors['reef_extent'], // Default / other
+      transparent, // Default / other
     ],
     [benthicFillColors],
   )

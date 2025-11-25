@@ -90,7 +90,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP true,
+    isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -102,7 +102,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP
+    isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -259,6 +259,16 @@ export const layers: LayerInfo[] = [
     sourceName: 'benthic',
     title: 'Benthic',
   },
+  // { //We may or may not be using ACA, or a home-brewed reef extent. TBD early 2026
+  //   sourceId: 'atlas-reefextent',
+  //   dataType: 'vectortiles',
+  //   isLayerOn: false,
+  //   layerId: 'atlas-reefextent',
+  //   link: ATLAS_REEF_EXTENT_URL,
+  //   parentLayerType: 'benthic',
+  //   sourceName: 'reefextent',
+  //   title: 'Reef extent',
+  // },
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',

@@ -28,7 +28,8 @@ export default function LayerToggleLegend({
             <Switch
               className={styles['MuiSwitch-root']}
               id={layerId}
-              checked={isLayerOn}
+              checked={isLayerOn && layerId !== 'reef_extent'} //reef_extent is temp disabled and off until data is resolved
+              disabled={layerId === 'reef_extent'}
               onChange={toggleSubLayer}
             />
           </div>
