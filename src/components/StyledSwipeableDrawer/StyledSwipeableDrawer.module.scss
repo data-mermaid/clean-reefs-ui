@@ -12,7 +12,7 @@
     padding: theme.$defaultSpacing;
     background-color: theme.$grey;
     width: theme.$drawerWidth;
-    height: calc(100vh - theme.$headerHeight);
+    height: calc(100% - theme.$headerHeight);
   }
 
   & .MuiDrawer-paperAnchorBottom {
@@ -40,6 +40,7 @@
     background-color: theme.$grey;
     display: block;
     width: theme.$drawerWidth;
+    height: calc(100% - theme.$headerHeight);
     padding: theme.$spacingSmall;
 
     @include theme.mobileUpBreakPoint {

@@ -1,4 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -11,10 +19,13 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
+import maplibregl, {
+  ErrorEvent as MapErrorEvent,
+  MapGeoJSONFeature,
+  LngLatBounds,
+} from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { LayerInfo } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
@@ -22,8 +33,16 @@ import { createPolygonClickHandler, createPolygonHoverHandler } from '../../util
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
+import {
+  polygonOutlineHoverColor,
+  polygonOutlineSelectColor,
+  mapFitBoundsDesktopConfig,
+  mapFitBoundsMobileConfig,
+} from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
+import { LayerInfo } from '../../types/MapDataTypes'
+import { useMapStore } from '../../stores/mapStore'
+import { transparent } from '../../data/mapData'
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -58,11 +77,11 @@ const handleError = (
   }))
 }
 
-function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
+function WatershedLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
-      key={`${layer.sourceId}`}
+      key={`${layer.sourceId}-source`}
       type="vector"
       promoteId="watershed_id"
       url={`pmtiles://${layer.link}`}
@@ -70,12 +89,12 @@ function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
       <Layer
         id={layer.layerId}
         type="fill"
-        key={`${layer.layerId}-${index}`}
+        key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceName}
         beforeId="label_airport"
         paint={{
-          'fill-color': 'rgba(0,0,0,0)', // default transparent
+          'fill-color': 'rgba(0,0,0,0)',
           'fill-outline-color': layer.outlineColor,
         }}
       />
@@ -115,14 +134,13 @@ function WatershedLayers({ layer, index, selectedRegion, selectedYear }) {
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  selectedYear: number
 }
 
 function PmTileLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
-      key={`${layer.sourceId}`}
+      key={`${layer.sourceId}-source`}
       type="vector"
       url={`pmtiles://${layer.link}`}
     >
@@ -142,14 +160,14 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: BaseMapProps) {
+export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
-  const mapRef = useRef<MapRef | null>(null)
+  const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
   const polygonClickRef = useRef<string | number | null>(null)
@@ -162,10 +180,30 @@ export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: Bas
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
+  const handleFeatureSelect = useCallback(
+    (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => {
+      setSelectedFeature(feature)
+
+      if (feature && bounds) {
+        const map = mapRef.current?.getMap()
+
+        if (map) {
+          const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+          map.fitBounds(bounds, {
+            padding: config.padding,
+            maxZoom: config.maxZoom,
+            duration: 800,
+          })
+        }
+      }
+    },
+    [setSelectedFeature, isDesktopWidth],
+  )
+
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
-    [setSelectedFeature],
+    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
+    [handleFeatureSelect],
   )
 
   if (
@@ -218,6 +256,33 @@ export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: Bas
     return () => {
       map.off('error', (e) => handleError(e, setLayerErrors))
       map.off('sourcedata', (e) => handleSourceData(e, setLayerErrors))
+    }
+  }, [isMapLoaded])
+
+  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const benthicSubLayerFillExpression = useMemo(
+    () => [
+      'case',
+      ['==', ['get', 'class_name'], 'Coral/Algae'],
+      benthicFillColors['coral_algae'],
+      ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+      benthicFillColors['microalgal_mats'],
+      ['==', ['get', 'class_name'], 'Rock'],
+      benthicFillColors['rock'],
+      ['==', ['get', 'class_name'], 'Rubble'],
+      benthicFillColors['rubble'],
+      ['==', ['get', 'class_name'], 'Sand'],
+      benthicFillColors['sand'],
+      ['==', ['get', 'class_name'], 'Seagrass'],
+      benthicFillColors['seagrass'],
+      transparent, // Default / other
+    ],
+    [benthicFillColors],
+  )
+
+  useEffect(() => {
+    if (mapRef.current) {
+      useMapStore.getState().setMapRef(mapRef.current)
     }
   }, [isMapLoaded])
 
@@ -284,38 +349,66 @@ export default function BaseMap({ mapLayers, selectedRegion, selectedYear }: Bas
           </>
         )}
         {mapLayers.map((layer, index) => {
-          return layer.dataType === 'pmtiles' ? (
-            isMapLoaded && layer.layerId === 'watershed' ? (
-              <WatershedLayers
-                layer={layer}
-                index={index}
-                selectedRegion={selectedRegion}
-                selectedYear={selectedYear}
-              />
-            ) : (
-              <PmTileLayers layer={layer} index={index} />
+          if (layer.dataType === 'pmtiles' && layer.layerId !== 'watershed') {
+            return (
+              isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          ) : (
-            isMapLoaded && layer.isLayerOn && (
-              <Source
-                id={layer.sourceId}
-                key={`${layer.sourceId}-${index}`}
-                type="raster"
-                url={`cog://${layer.link}`}
-                tileSize={256}
-                maxzoom={16}
-                minzoom={6}
-              >
-                <Layer
-                  id={layer.layerId}
+          } else if (layer.layerId === 'watershed') {
+            return (
+              isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
+            )
+          } else if (layer.dataType === 'rastertiles') {
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
                   type="raster"
-                  key={`${layer.layerId}-${index}`}
-                  source={layer.sourceId}
-                  beforeId="label_airport"
-                />
-              </Source>
+                  url={`cog://${layer.link}`}
+                  tileSize={256}
+                  maxzoom={16}
+                  minzoom={6}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="raster"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    beforeId="label_airport"
+                  />
+                </Source>
+              )
             )
-          )
+          } else {
+            //other should just be 'vectortiles'
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
+                  type="vector"
+                  tiles={[layer.link]}
+                  maxzoom={22}
+                  minzoom={0}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="fill"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    source-layer={layer.sourceName}
+                    beforeId="label_airport"
+                    paint={{
+                      // @ts-expect-error - doesn't like fill-color being a string?
+                      'fill-color': benthicSubLayerFillExpression,
+                    }}
+                  />
+                </Source>
+              )
+            )
+          }
         })}
       </MapGL>
 

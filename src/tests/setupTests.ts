@@ -1,5 +1,20 @@
 import '@testing-library/jest-dom'
 
+process.env.VITE_CORAL_ATLAS_APP_ID =
+  process.env.VITE_CORAL_ATLAS_APP_ID ?? 'test-coral-atlas-app-id'
+
+const globalWithImportMeta = globalThis as typeof globalThis & {
+  importMeta?: {
+    env?: Record<string, string>
+  }
+}
+
+globalWithImportMeta.importMeta = globalWithImportMeta.importMeta ?? {}
+globalWithImportMeta.importMeta.env = {
+  ...globalWithImportMeta.importMeta.env,
+  VITE_CORAL_ATLAS_APP_ID: process.env.VITE_CORAL_ATLAS_APP_ID,
+}
+
 jest.mock('i18next', () => ({
   t: (key: string) => key,
   changeLanguage: jest.fn(() => Promise.resolve()),
