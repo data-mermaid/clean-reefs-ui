@@ -1,6 +1,6 @@
 import { RegionOption } from '../types/RegionDataTypes'
 import { regionOptions } from '../data/regionData'
-import { Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import { Map, MapGeoJSONFeature, MapLayerMouseEvent, LngLatBounds } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { LayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
@@ -17,9 +17,22 @@ export const getUpdatedBenthicColor = (layerId, currentColors) => {
   }
 }
 
+export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds {
+  const geometry = feature.geometry
+  const bounds = new LngLatBounds()
+
+  if (geometry.type === 'Polygon') {
+    geometry.coordinates[0].forEach(([lng, lat]) => {
+      bounds.extend([lng, lat])
+    })
+  }
+
+  return bounds
+}
+
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
+    if (!e.features || e.features.length === 0 || !e.features[0].id) {
       return
     }
 
@@ -63,14 +76,19 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
 
 export function createPolygonClickHandler(
   polygonClickedRef: RefObject<string | number | null>,
-  onSelect?: (feature: MapGeoJSONFeature | null) => void,
+  onSelect?: (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => void,
 ) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    if (!e?.features || e.features.length === 0 || !e.features[0].id) {
+    if (!e.features || e.features.length === 0) {
       return
     }
 
-    const featureId = e.features[0].id
+    const feature = e.features[0]
+    const featureId = feature.id
+
+    if (!featureId) {
+      return
+    }
 
     if (polygonClickedRef.current) {
       map.setFeatureState(
@@ -101,7 +119,8 @@ export function createPolygonClickHandler(
     )
 
     if (onSelect) {
-      onSelect(e.features[0] as MapGeoJSONFeature)
+      const bounds = calculateFeatureBounds(feature)
+      onSelect(feature, bounds)
     }
   }
 }

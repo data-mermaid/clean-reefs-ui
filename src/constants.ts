@@ -37,6 +37,17 @@ export const SED_EXPORT_2015_URL =
 export const SED_EXPORT_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
 
+/******MAP FIT BOUNDS******/
+export const mapFitBoundsDesktopConfig = {
+  padding: { top: 300, bottom: 300, left: 300, right: 300 },
+  maxZoom: 10,
+}
+
+export const mapFitBoundsMobileConfig = {
+  padding: 30,
+  maxZoom: 9,
+}
+
 /******COLORS******/
 export const polygonOutlineHoverColor = '#00FF01'
 export const polygonOutlineSelectColor = '#0000FF'

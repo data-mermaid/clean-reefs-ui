@@ -1,4 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -11,7 +19,11 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
-import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
+import maplibregl, {
+  ErrorEvent as MapErrorEvent,
+  MapGeoJSONFeature,
+  LngLatBounds,
+} from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
@@ -21,7 +33,12 @@ import { createPolygonClickHandler, createPolygonHoverHandler } from '../../util
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { polygonOutlineHoverColor, polygonOutlineSelectColor } from '../../constants'
+import {
+  polygonOutlineHoverColor,
+  polygonOutlineSelectColor,
+  mapFitBoundsDesktopConfig,
+  mapFitBoundsMobileConfig,
+} from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
@@ -161,10 +178,30 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
+  const handleFeatureSelect = useCallback(
+    (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => {
+      setSelectedFeature(feature)
+
+      if (feature && bounds) {
+        const map = mapRef.current?.getMap()
+
+        if (map) {
+          const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+          map.fitBounds(bounds, {
+            padding: config.padding,
+            maxZoom: config.maxZoom,
+            duration: 800,
+          })
+        }
+      }
+    },
+    [setSelectedFeature, isDesktopWidth],
+  )
+
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, setSelectedFeature),
-    [setSelectedFeature],
+    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
+    [handleFeatureSelect],
   )
 
   if (
