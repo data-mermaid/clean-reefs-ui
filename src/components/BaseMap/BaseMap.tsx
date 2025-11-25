@@ -14,15 +14,10 @@ import styles from './BaseMap.module.scss'
 import maplibregl, { ErrorEvent as MapErrorEvent } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
-import { benthicFillColorExpression } from '../../data/mapData'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import {
-  createPolygonClickHandler,
-  createPolygonHoverHandler,
-  setSubLayerOpacity,
-} from '../../utils/mapUtils'
+import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -153,7 +148,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
-  const mapRef = useRef<MapRef | null>(null)
+  const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
   const polygonClickRef = useRef<string | number | null>(null)
@@ -183,11 +178,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
-  useEffect(() => {
-    return () => {
-      useMapStore.getState().setMapApi(null)
-    }
-  }, [])
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
@@ -230,6 +220,33 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
     }
   }, [isMapLoaded])
 
+  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const benthicSubLayerFillExpression = useMemo(
+    () => [
+      'case',
+      ['==', ['get', 'class_name'], 'Coral/Algae'],
+      benthicFillColors['coral_algae'],
+      ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+      benthicFillColors['microalgal_mats'],
+      ['==', ['get', 'class_name'], 'Rock'],
+      benthicFillColors['rock'],
+      ['==', ['get', 'class_name'], 'Rubble'],
+      benthicFillColors['rubble'],
+      ['==', ['get', 'class_name'], 'Sand'],
+      benthicFillColors['sand'],
+      ['==', ['get', 'class_name'], 'Seagrass'],
+      benthicFillColors['seagrass'],
+      benthicFillColors['reef_extent'], // Default / other
+    ],
+    [benthicFillColors],
+  )
+
+  useEffect(() => {
+    if (mapRef.current) {
+      useMapStore.getState().setMapRef(mapRef.current)
+    }
+  }, [isMapLoaded])
+
   const handleMapLoad = () => {
     setIsMapLoaded(true)
 
@@ -238,12 +255,13 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
       return
     }
 
-    const api = {
-      setSubLayerOpacity: (layerId: string, otherthing) => {
-        setSubLayerOpacity(map, layerId, otherthing)
-      },
-    }
-    useMapStore.getState().setMapApi(api)
+    //is this binding the ref?????
+    // const mapApi = {
+    //   toggleSubLayerFillColor: (layerId: string) => {
+    //     useMapStore.getState().toggleSubLayerFillColor(map, layerId)
+    //   },
+    // }
+    // useMapStore.getState().setMapApi(mapApi)
 
     const watershedLayer =
       mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
@@ -353,7 +371,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
                     beforeId="label_airport"
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?
-                      'fill-color': benthicFillColorExpression,
+                      'fill-color': benthicSubLayerFillExpression,
                     }}
                   />
                 </Source>

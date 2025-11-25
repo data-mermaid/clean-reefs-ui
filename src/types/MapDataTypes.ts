@@ -22,6 +22,5 @@ export interface LayerInfo {
 
 export interface SubLayerInfo {
   layerId: string
-  legendColor: string
   isLayerOn: boolean
 }

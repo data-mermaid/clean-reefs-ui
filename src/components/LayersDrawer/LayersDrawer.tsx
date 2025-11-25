@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicColors, atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
+import {
+  atlasBenthicColors,
+  atlasBenthicLayers,
+  parentLayerTitles,
+  transparent,
+} from '../../data/mapData'
 import Legend from '../Legend/Legend'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
@@ -35,6 +40,20 @@ const mapToggleChange = (
   })
 }
 
+export const getUpdatedBenthicColor = (layerId, currentColors) => {
+  if (currentColors[layerId] === transparent) {
+    return atlasBenthicColors[layerId]
+  } else {
+    return transparent
+  }
+}
+
+export const mapBenthicColorChange = (toggledProperty, currentColors, newColor) => {
+  return currentColors.map((property) => {
+    return property === toggledProperty ? { toggledProperty: newColor } : property
+  })
+}
+
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -44,7 +63,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
-  const setSubLayerOpacity = useMapStore((store) => store.mapApi?.setSubLayerOpacity)
+  const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -72,16 +91,10 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
       const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+      toggleSubLayerFillColor(toggledLayer) //but this should already have the mapref bound?
       setMapSubLayers(updatedLayers)
-      if (setSubLayerOpacity) {
-        setSubLayerOpacity(
-          toggledLayer,
-          updatedLayers,
-          // checked ? atlasBenthicColors[toggledLayer] : 'rgba(0,0,0,0)',
-        )
-      }
     },
-    [mapSubLayers, setSubLayerOpacity],
+    [mapSubLayers, toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {

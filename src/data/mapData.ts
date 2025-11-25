@@ -16,6 +16,8 @@ import {
 } from '../constants'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 
+export const transparent = 'rgba(0,0,0,0)'
+
 export const atlasBenthicColors = {
   reef_extent: '#B2084C80',
   coral_algae: '#CC6677',
@@ -29,56 +31,32 @@ export const atlasBenthicColors = {
 export const atlasBenthicLayers: SubLayerInfo[] = [
   {
     layerId: 'reef_extent',
-    legendColor: atlasBenthicColors['reef_extent'],
-    isLayerOn: false,
+    isLayerOn: true,
   },
   {
     layerId: 'coral_algae',
-    legendColor: atlasBenthicColors['reef_extent'],
     isLayerOn: true,
   },
   {
     layerId: 'seagrass',
-    legendColor: atlasBenthicColors['seagrass'],
     isLayerOn: true,
   },
   {
     layerId: 'microalgal_mats',
-    legendColor: atlasBenthicColors['microalgal_mats'],
     isLayerOn: true,
   },
   {
     layerId: 'rock',
-    legendColor: atlasBenthicColors['rock'],
     isLayerOn: true,
   },
   {
     layerId: 'rubble',
-    legendColor: atlasBenthicColors['rubble'],
     isLayerOn: true,
   },
   {
     layerId: 'sand',
-    legendColor: atlasBenthicColors['sand'],
     isLayerOn: true,
   },
-]
-
-export const benthicFillColorExpression = [
-  'case',
-  ['==', ['get', 'class_name'], 'Coral/Algae'],
-  atlasBenthicColors['coral_algae'],
-  ['==', ['get', 'class_name'], 'Benthic Microalgae'],
-  atlasBenthicColors['microalgal_mats'],
-  ['==', ['get', 'class_name'], 'Rock'],
-  atlasBenthicColors['rock'],
-  ['==', ['get', 'class_name'], 'Rubble'],
-  atlasBenthicColors['rubble'],
-  ['==', ['get', 'class_name'], 'Sand'],
-  atlasBenthicColors['sand'],
-  ['==', ['get', 'class_name'], 'Seagrass'],
-  atlasBenthicColors['seagrass'],
-  atlasBenthicColors['reef_extent'], // Default / other
 ]
 
 export const sedExportColorMapping = {
