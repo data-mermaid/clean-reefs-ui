@@ -12,19 +12,22 @@ import GradientLegend from '../GradientLegend/GradientLegend'
 import Legend from '../Legend/Legend'
 import styles from '../LayerToggleCard/LayerToggleCard.module.scss'
 import { useTranslation } from 'react-i18next'
-import { LayerInfo } from '../../data/mapData'
 import { useState } from 'react'
+import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
+import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (layerId: string, on: boolean) => void
-  toggleSubLayer: (layerId: string, on: boolean) => void
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
+  mapSubLayers?: SubLayerInfo[]
   selectedYear: number
 }
 
 const getLayerToggleDetails = (
   layer: LayerInfo,
-  toggleSubLayer: (layerId: string, on: boolean) => void,
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void,
+  mapSubLayers?: SubLayerInfo[],
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -38,6 +41,11 @@ const getLayerToggleDetails = (
           <GradientLegend variation={layerId} title={layer.legendTitle} />
           <RadioSelect layerId={layerId} toggleSubLayer={toggleSubLayer} />
         </>
+      )
+      break
+    case 'benthic':
+      toggleCardDetails = layer.isLayerOn && mapSubLayers && (
+        <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
       )
       break
     default:
@@ -78,30 +86,36 @@ const RadioSelect = ({ layerId, toggleSubLayer }) => {
 export default function LayerToggleCard({
   layer,
   toggleLayer,
+  toggleSubLayer,
   selectedYear,
+  mapSubLayers,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
   return (
     <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
       <div className={styles['layer-toggle-header']}>
-        <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-        {layer.year && <Typography>{selectedYear}</Typography>}
-        {layer.outlineColor ? (
-          <div
-            className={styles['map-layer-key']}
-            style={{ border: `3px solid ${layer.outlineColor}` }}
-          />
-        ) : (
-          <Switch
-            className={styles['MuiSwitch-root']}
-            id={layer.layerId}
-            checked={layer.isLayerOn}
-            onChange={(e, checked) => toggleLayer(e.target.id, checked)}
-          />
+        {layer.layerId !== 'benthic' && (
+          <>
+            <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+            {layer.year && <Typography>{selectedYear}</Typography>}
+            {layer.outlineColor ? (
+              <div
+                className={styles['map-layer-key']}
+                style={{ border: `3px solid ${layer.outlineColor}` }}
+              />
+            ) : (
+              <Switch
+                className={styles['MuiSwitch-root']}
+                id={layer.layerId}
+                checked={layer.isLayerOn}
+                onChange={(e, checked) => toggleLayer(e.target.id, checked)}
+              />
+            )}
+          </>
         )}
       </div>
-      {getLayerToggleDetails(layer, toggleLayer)}
+      {getLayerToggleDetails(layer, toggleSubLayer, mapSubLayers)}
     </Card>
   )
 }

@@ -252,7 +252,7 @@ export const layers: LayerInfo[] = [
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
     isLayerOn: true,
-    layerId: 'atlas-benthic',
+    layerId: 'benthic',
     legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',

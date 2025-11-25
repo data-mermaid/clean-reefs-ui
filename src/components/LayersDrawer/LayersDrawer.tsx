@@ -1,4 +1,3 @@
-import { Card, Switch, Typography } from '@mui/material'
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
@@ -6,11 +5,9 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
 import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
-import Legend from '../Legend/Legend'
-import GradientLegend from '../GradientLegend/GradientLegend'
-import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 
 /**
  * Business rule:
@@ -75,17 +72,14 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     },
     [mapSubLayers, toggleSubLayerFillColor],
   )
-    //currently only applies to sed_export & sublayers
-    // const toggleSubLayer = (subLayerId: string, checked: boolean) => {}
-    // const toggleSubLayer = useCallback((subLayerId: string, checked: boolean) => {
-    // if (subLayerId === 'sed_export_watershed') {}
-    //todo: get map reference
-    // map.removeLayer(subLayerId)
-    // map.addLayer(sedExportWatershedLayer, { before: 'label_airport' })
-    // })
+  //currently only applies to sed_export & sublayers
+  // if (subLayerId === 'sed_export_watershed') {}
+  //todo: get map reference
+  // map.removeLayer(subLayerId)
+  // map.addLayer(sedExportWatershedLayer, { before: 'label_airport' })
+  // })
 
-
-    const getLayersByParentGroup = (parentGroup, toggleLayer) => {
+  const getLayersByParentGroup = (parentGroup, toggleLayer) => {
     const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
 
     let mappedLayers
@@ -95,43 +89,14 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
           return null
         }
         return (
-          <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-            {layer.legendType !== 'benthic' && (
-              <div className={styles['layer-toggle-header']}>
-                <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-                {layer.year && <Typography>{selectedYear}</Typography>}
-                {layer.outlineColor ? (
-                  <div
-                    className={styles['map-layer-key']}
-                    style={{ border: `3px solid ${layer.outlineColor}` }}
-                  />
-                ) : (
-                  <Switch
-                    className={styles['MuiSwitch-root']}
-                    id={layer.layerId}
-                    checked={layer.isLayerOn}
-                    onChange={toggleLayer}
-                  />
-                )}
-              </div>
-            )}
-
-            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-            {layer.legendType === 'benthic' && layer.isLayerOn && (
-              <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
-            )}
-            {layer.legendType === 'gradient' && layer.isLayerOn && (
-              <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
-            )}
-          </Card>
-
-          // <LayerToggleCard
-          //     layer={layer}
-          //     toggleLayer={toggleLayer}
-          //     toggleSubLayer={toggleSubLayer}
-          //     selectedYear={selectedYear}
-          //     key={`layertoggle-${layer.sourceId}-${index}`}
-          // />
+          <LayerToggleCard
+            layer={layer}
+            toggleLayer={toggleLayer}
+            toggleSubLayer={toggleSubLayer}
+            mapSubLayers={mapSubLayers}
+            selectedYear={selectedYear}
+            key={`layertoggle-${layer.sourceId}-${index}`}
+          />
         )
       })
     }
