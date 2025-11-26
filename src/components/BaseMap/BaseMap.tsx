@@ -167,7 +167,6 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
-  const [watershedFillState, setWatershedFillState] = useState('default')
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)

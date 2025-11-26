@@ -40,11 +40,9 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend variation={layerId} title={layer.legendTitle} />
-          <RadioSelect layerId={layerId} toggleSubLayer={toggleSubLayer} />
+          <RadioSelect />
         </>
       )
-
-      //trigger map load data here
       break
     case 'benthic':
       toggleCardDetails = layer.isLayerOn && mapSubLayers && (
@@ -60,7 +58,7 @@ const getLayerToggleDetails = (
 //TODO: restrict based on selected region (add to mapstore?)
 //if not country or region, disable watershed option
 
-const RadioSelect = ({ layerId, toggleSubLayer }) => {
+const RadioSelect = () => {
   const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 

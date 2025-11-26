@@ -42,11 +42,10 @@ export default function MapContainer() {
             <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
-          {/*<TrendsDrawer selectedRegion={selectedRegion} />*/}
+          <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
       )}
       <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />
-      {/*// selectedYear={selectedYear}*/}
     </div>
   )
 }

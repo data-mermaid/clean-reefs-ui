@@ -69,13 +69,6 @@ export const sedExportColorMapping = {
   '90-100': '#c79853',
 }
 
-export const sedExportWatershedLayer = {
-  id: 'sed_export_watershed',
-  type: 'vector',
-  source: 'watershed_src',
-  'source-layer': 'sed_export',
-}
-
 //this is the order the parent layers will appear in the layer toggle drawer
 //currently, ocean pollution and base layers are not implemented
 export const parentLayerTitles = {
@@ -90,7 +83,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP true,
+    isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -102,7 +95,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //TEMP true,
+    isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -238,7 +231,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2020_visual',
     dataType: 'rastertiles',
-    isLayerOn: true, //TEMP false,
+    isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -251,7 +244,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
-    isLayerOn: false, //TEMP true,
+    isLayerOn: true,
     layerId: 'benthic',
     legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,

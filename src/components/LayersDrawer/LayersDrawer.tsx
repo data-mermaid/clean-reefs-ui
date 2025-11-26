@@ -40,9 +40,6 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
-  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
-
-  // const setSedExportWatershedLayer = useMapStore((state) => state.setSedExportWatershedLayer)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -56,9 +53,6 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         }
         if (checked) {
           setActiveRasterLayerId(toggledLayer)
-          // if (toggledLayer === 'sed_export') {
-          //   setSedExportWatershedLayer()
-          // }
         } else {
           setActiveRasterLayerId(null)
         }
@@ -76,19 +70,11 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
       if (toggledLayer === 'benthic') {
         updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
         toggleSubLayerFillColor(toggledLayer)
-        // } else if (toggledLayer === 'sed_export') {
-        //   toggleSedExportSubLayerFills(toggledLayer)
       }
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],
   )
-  //currently only applies to sed_export & sublayers
-  // if (subLayerId === 'sed_export_watershed') {}
-  //todo: get map reference
-  // map.removeLayer(subLayerId)
-  // map.addLayer(sedExportWatershedLayer, { before: 'label_airport' })
-  // })
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
     const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
