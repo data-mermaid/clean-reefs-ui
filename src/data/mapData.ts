@@ -238,7 +238,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2020_visual',
     dataType: 'rastertiles',
-    isLayerOn: false, //TEMP false,
+    isLayerOn: true, //TEMP false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',

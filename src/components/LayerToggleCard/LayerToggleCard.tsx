@@ -59,22 +59,21 @@ const getLayerToggleDetails = (
 
 //TODO: restrict based on selected region (add to mapstore?)
 //if not country or region, disable watershed option
-//isWatershedLevelDisabled
 
 const RadioSelect = ({ layerId, toggleSubLayer }) => {
-  const [selectedValue, setSelectedValue] = useState(`${layerId}_pixel`)
+  const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedValue(event.target.value) //can this value be used in setPaintProperty
-    // toggleSubLayer(event, true)
-    toggleSedExportSubLayerFills()
+    const toggledOnItem = event.target.value as 'pixel' | 'watershed'
+    toggleSedExportSubLayerFills(toggledOnItem)
+    setSelectedValue(toggledOnItem)
   }
 
   const { t } = useTranslation()
   const radioControlProps = (item: string) =>
     ({
-      checked: selectedValue === item,
+      checked: item === selectedValue,
       onChange: handleChange,
       control: <Radio />,
       value: item,
@@ -83,11 +82,8 @@ const RadioSelect = ({ layerId, toggleSubLayer }) => {
   return (
     <FormControl>
       <RadioGroup>
-        <FormControlLabel {...radioControlProps(`${layerId}_pixel`)} label={t('pixel_value')} />
-        <FormControlLabel
-          {...radioControlProps(`${layerId}_watershed`)}
-          label={t('regions.watershed')}
-        />
+        <FormControlLabel {...radioControlProps(`pixel`)} label={t('pixel_value')} />
+        <FormControlLabel {...radioControlProps(`watershed`)} label={t('regions.watershed')} />
       </RadioGroup>
     </FormControl>
   )

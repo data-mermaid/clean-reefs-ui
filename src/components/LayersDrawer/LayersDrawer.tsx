@@ -42,7 +42,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
-  const setSedExportWatershedLayer = useMapStore((state) => state.setSedExportWatershedLayer)
+  // const setSedExportWatershedLayer = useMapStore((state) => state.setSedExportWatershedLayer)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -56,9 +56,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         }
         if (checked) {
           setActiveRasterLayerId(toggledLayer)
-          if (toggledLayer === 'sed_export') {
-            setSedExportWatershedLayer()
-          }
+          // if (toggledLayer === 'sed_export') {
+          //   setSedExportWatershedLayer()
+          // }
         } else {
           setActiveRasterLayerId(null)
         }

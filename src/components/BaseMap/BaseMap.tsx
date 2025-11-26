@@ -94,7 +94,7 @@ function WatershedLayers({ layer, index }) {
         source-layer={layer.sourceName}
         beforeId="label_airport"
         paint={{
-          'fill-color': 'rgba(0,0,0,0)',
+          'fill-color': transparent,
           'fill-outline-color': layer.outlineColor,
         }}
       />
@@ -167,6 +167,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   const defaultLng = 178.4 //Initial location - Fiji
   const defaultLat = -17.816028
   const defaultMapZoom = 10
+  const [watershedFillState, setWatershedFillState] = useState('default')
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
