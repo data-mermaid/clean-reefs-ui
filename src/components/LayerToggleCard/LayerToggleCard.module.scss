@@ -1,6 +1,7 @@
 @use '../../styles/theme';
 .MuiFormControl-root {
   display: block;
+  width: 100%;
 
   .MuiRadioGroup-root {
     .MuiFormControlLabel-root {
@@ -10,6 +11,10 @@
   }
 }
 
+.MuiFormControlLabel-root {
+  margin-left: 0;
+  justify-content: space-between;
+}
 .layer-card {
   margin: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;

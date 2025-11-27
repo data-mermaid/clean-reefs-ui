@@ -78,10 +78,22 @@ const RadioSelect = () => {
       labelPlacement: 'start',
     }) as unknown as FormControlLabelProps
   return (
-    <FormControl>
+    <FormControl classes={{ root: styles['MuiFormControl-root'] }}>
       <RadioGroup>
-        <FormControlLabel {...radioControlProps(`pixel`)} label={t('pixel_value')} />
-        <FormControlLabel {...radioControlProps(`watershed`)} label={t('regions.watershed')} />
+        <FormControlLabel
+          {...radioControlProps(`pixel`)}
+          classes={{
+            root: styles['MuiFormControlLabel-root'],
+          }}
+          label={t('pixel_value')}
+        />
+        <FormControlLabel
+          {...radioControlProps(`watershed`)}
+          classes={{
+            root: styles['MuiFormControlLabel-root'],
+          }}
+          label={t('regions.watershed')}
+        />
       </RadioGroup>
     </FormControl>
   )
