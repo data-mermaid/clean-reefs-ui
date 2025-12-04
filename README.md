@@ -1,6 +1,6 @@
 # Clean Reefs
 
-UI package for the Clean Reefs application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
+Clean Reefs - a map-based utility for exploring global pollution data layers in the context of identifying ideal coral reef restoration locations. This utility provides visual access to navigate data layers throughout time and associated metrics. Powered by MERMAID in conjunction with University of Australia.
 
 ## Getting started
 
