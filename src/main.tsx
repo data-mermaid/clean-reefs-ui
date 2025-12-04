@@ -14,7 +14,7 @@ import '@fontsource/titillium-web/900.css'
 
 if (import.meta.env.DEV) {
   scan({
-    enabled: true,
+    enabled: false,
   })
 }
 

@@ -69,13 +69,6 @@ export const sedExportColorMapping = {
   '90-100': '#c79853',
 }
 
-export const sedExportWatershedLayer = {
-  id: 'sed_export_watershed',
-  type: 'vector',
-  source: 'watershed_src',
-  'source-layer': 'sed_export',
-}
-
 //this is the order the parent layers will appear in the layer toggle drawer
 //currently, ocean pollution and base layers are not implemented
 export const parentLayerTitles = {
@@ -173,7 +166,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'rastertiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'lulc',
     legendType: 'lulc',
     link: LULC_2020_URL,
@@ -252,7 +245,7 @@ export const layers: LayerInfo[] = [
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
     isLayerOn: true,
-    layerId: 'atlas-benthic',
+    layerId: 'benthic',
     legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',

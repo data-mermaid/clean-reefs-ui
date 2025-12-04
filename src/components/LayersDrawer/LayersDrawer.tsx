@@ -1,4 +1,3 @@
-import { Card, Switch, Typography } from '@mui/material'
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
@@ -6,11 +5,9 @@ import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawe
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
 import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
-import Legend from '../Legend/Legend'
-import GradientLegend from '../GradientLegend/GradientLegend'
-import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 
 /**
  * Business rule:
@@ -69,8 +66,11 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      toggleSubLayerFillColor(toggledLayer)
+      let updatedLayers
+      if (toggledLayer === 'benthic') {
+        updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+        toggleSubLayerFillColor(toggledLayer)
+      }
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],
@@ -81,40 +81,19 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
     let mappedLayers
     if (groupedLayers.length > 0) {
-      mappedLayers = groupedLayers.map((layer) => {
+      mappedLayers = groupedLayers.map((layer, index) => {
         if (layer.year && layer.year !== selectedYear) {
           return null
         }
         return (
-          <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
-            {layer.legendType !== 'benthic' && (
-              <div className={styles['layer-toggle-header']}>
-                <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
-                {layer.year && <Typography>{selectedYear}</Typography>}
-                {layer.outlineColor ? (
-                  <div
-                    className={styles['map-layer-key']}
-                    style={{ border: `3px solid ${layer.outlineColor}` }}
-                  />
-                ) : (
-                  <Switch
-                    className={styles['MuiSwitch-root']}
-                    id={layer.layerId}
-                    checked={layer.isLayerOn}
-                    onChange={toggleLayer}
-                  />
-                )}
-              </div>
-            )}
-
-            {layer.legendType === 'lulc' && layer.isLayerOn && <Legend />}
-            {layer.legendType === 'benthic' && layer.isLayerOn && (
-              <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
-            )}
-            {layer.legendType === 'gradient' && layer.isLayerOn && (
-              <GradientLegend variation={layer.layerId} title={layer.legendTitle} />
-            )}
-          </Card>
+          <LayerToggleCard
+            layer={layer}
+            toggleLayer={toggleLayer}
+            toggleSubLayer={toggleSubLayer}
+            mapSubLayers={mapSubLayers}
+            selectedYear={selectedYear}
+            key={`layertoggle-${layer.sourceId}-${index}`}
+          />
         )
       })
     }

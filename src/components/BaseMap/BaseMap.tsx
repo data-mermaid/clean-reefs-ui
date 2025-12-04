@@ -44,10 +44,6 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 
-interface BaseMapProps {
-  mapLayers: LayerInfo[]
-  selectedRegion: RegionOption
-}
 const handleSourceData = (
   e: SourceDataEvent,
   setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
@@ -98,7 +94,7 @@ function WatershedLayers({ layer, index }) {
         source-layer={layer.sourceName}
         beforeId="label_airport"
         paint={{
-          'fill-color': 'rgba(0,0,0,0)',
+          'fill-color': transparent,
           'fill-outline-color': layer.outlineColor,
         }}
       />
@@ -133,6 +129,11 @@ function WatershedLayers({ layer, index }) {
       />
     </Source>
   )
+}
+
+interface BaseMapProps {
+  mapLayers: LayerInfo[]
+  selectedRegion: RegionOption
 }
 
 function PmTileLayers({ layer, index }) {
