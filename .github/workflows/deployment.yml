@@ -2,14 +2,94 @@ name: Deploy
 
 on:
   push:
-    branches:
-      - develop
-    tags:
-      - 'v*.*.*'
+    branches: ['develop']
+#    tags:
+#      - 'v[0-9]+.[0-9]+.[0-9]+' # eg: v1.1.1
 jobs:
-  deploy_develop:
-    if: startsWith(github.ref, 'refs/heads/develop')
-    uses: ./.github/workflows/_deploy.yml
-    secrets: inherit
-    with:
-      environment: dev
+  deps-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - uses: actions/cache@v5.0.3
+        id: yarn-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
+        name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+  call-lint:
+    needs: [deps-cache]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Fetch yarn cache
+        uses: actions/cache@v5.0.3
+        id: yarn-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+
+      - if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
+        name: Install dependencies
+        run: yarn install
+
+      - run: yarn lint
+
+  call-cdk:
+    needs: [deps-cache]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Fetch yarn cache
+        uses: actions/cache@v5.0.3
+        id: yarn-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Yarn Build
+        run: yarn build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build
+
+  deploy:
+    needs: [call-cdk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: build
+
+      - name: Deploy via SFTP
+        uses: milanmk/actions-file-deployer@master
+        with:
+          remote-protocol: 'sftp'
+          remote-host: ${{ secrets.SFTP_HOST }}
+          remote-user: ${{ secrets.SFTP_USER }}
+          remote-password: ${{ secrets.SFTP_PASSWORD }}
+
+          local-path: 'build'
+          remote-path: ''
+
+          sync: 'delta'
