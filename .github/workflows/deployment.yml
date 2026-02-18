@@ -91,5 +91,3 @@ jobs:
 
           local-path: 'build'
           remote-path: '/'
-
-          sync: 'delta'
