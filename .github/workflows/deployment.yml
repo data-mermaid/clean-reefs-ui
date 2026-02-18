@@ -63,23 +63,26 @@ jobs:
       - name: Yarn Build
         run: yarn build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: build
+  #      - name: Upload build artifacts
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: build-artifact
+  #          path: build
 
   deploy:
     needs: [call-cdk]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: 'Checkout'
+        uses: actions/checkout@v6
         with:
-          name: build-artifact
-          path: build
+          fetch-depth: 0
+      #
+      #      - name: Download build artifacts
+      #        uses: actions/download-artifact@v4
+      #        with:
+      #          name: build-artifact
+      #          path: build
 
       - name: Deploy via SFTP
         uses: milanmk/actions-file-deployer@master
@@ -88,6 +91,5 @@ jobs:
           remote-host: ${{ secrets.SFTP_HOST }}
           remote-user: ${{ secrets.SFTP_USER }}
           remote-password: ${{ secrets.SFTP_PASSWORD }}
-
           local-path: 'build'
-          remote-path: '/'
+          remote-path: '/htdocs/'
