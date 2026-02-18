@@ -46,7 +46,7 @@ jobs:
       - run: yarn lint
 
   call-cdk:
-    needs: [deps-cache]
+    needs: [call-lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
@@ -90,6 +90,6 @@ jobs:
           remote-password: ${{ secrets.SFTP_PASSWORD }}
 
           local-path: 'build'
-          remote-path: ''
+          remote-path: '/'
 
           sync: 'delta'
