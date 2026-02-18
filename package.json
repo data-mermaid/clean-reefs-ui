@@ -24,7 +24,7 @@
     "eslint-plugin-react-dom": "^1.52.3",
     "i18next": "^25.3.2",
     "i18next-resources-to-backend": "^1.2.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "maplibre-gl": "^5.7.2",
     "plotly.js": "^3.0.3",
     "plotly.js-dist": "^3.0.3",
