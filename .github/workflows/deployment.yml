@@ -46,7 +46,7 @@ jobs:
       - run: yarn lint
 
   call-cdk:
-    needs: [deps-cache]
+    needs: [call-lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
@@ -73,7 +73,10 @@ jobs:
     needs: [call-cdk]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - name: 'Checkout'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -88,8 +91,7 @@ jobs:
           remote-host: ${{ secrets.SFTP_HOST }}
           remote-user: ${{ secrets.SFTP_USER }}
           remote-password: ${{ secrets.SFTP_PASSWORD }}
-
-          local-path: 'build'
-          remote-path: ''
-
-          sync: 'delta'
+          local-path: './build'
+          remote-path: '/htdocs/'
+          sync: 'full'
+          debug: true
