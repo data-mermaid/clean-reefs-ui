@@ -66,11 +66,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
-      let updatedLayers
-      if (toggledLayer === 'benthic') {
-        updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-        toggleSubLayerFillColor(toggledLayer)
-      }
+      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+      toggleSubLayerFillColor(toggledLayer)
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],

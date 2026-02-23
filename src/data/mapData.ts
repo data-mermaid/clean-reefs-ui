@@ -31,7 +31,7 @@ export const atlasBenthicColors = {
 export const atlasBenthicLayers: SubLayerInfo[] = [
   {
     layerId: 'reef_extent',
-    isLayerOn: true,
+    isLayerOn: false,
   },
   {
     layerId: 'coral_algae',
