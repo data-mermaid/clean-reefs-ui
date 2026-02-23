@@ -5,6 +5,16 @@ on:
     branches: ['develop']
 #    tags:
 #      - 'v[0-9]+.[0-9]+.[0-9]+' # eg: v1.1.1
+
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+
+env:
+  VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
+  VITE_CORAL_ATLAS_APP_ID: ${{ secrets.VITE_CORAL_ATLAS_APP_ID }}
+
 jobs:
   deps-cache:
     runs-on: ubuntu-latest
