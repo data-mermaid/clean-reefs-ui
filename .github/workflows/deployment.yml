@@ -102,6 +102,6 @@ jobs:
           remote-user: ${{ secrets.SFTP_USER }}
           remote-password: ${{ secrets.SFTP_PASSWORD }}
           local-path: './build'
-          remote-path: './htdocs/'
+          remote-path: '/htdocs/'
           sync: 'full'
           debug: true
