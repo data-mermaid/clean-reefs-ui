@@ -31,7 +31,7 @@ export const atlasBenthicColors = {
 export const atlasBenthicLayers: SubLayerInfo[] = [
   {
     layerId: 'reef_extent',
-    isLayerOn: true,
+    isLayerOn: false,
   },
   {
     layerId: 'coral_algae',
@@ -104,18 +104,18 @@ export const layers: LayerInfo[] = [
     sourceName: 'countries',
     title: 'boundary_map_layers.country_boundaries',
   },
-  {
-    dataType: 'rastertiles',
-    isLayerOn: false,
-    layerId: 'sed_export',
-    legendType: 'gradient',
-    link: SED_EXPORT_2000_URL,
-    parentLayerType: 'landPollution',
-    sourceId: 'sed_export_load_2000_visual',
-    sourceName: '',
-    title: 'map_layers.sediment_export',
-    year: 2000,
-  },
+  // {
+  //   dataType: 'rastertiles',
+  //   isLayerOn: false,
+  //   layerId: 'sed_export',
+  //   legendType: 'gradient',
+  //   link: SED_EXPORT_2000_URL,
+  //   parentLayerType: 'landPollution',
+  //   sourceId: 'sed_export_load_2000_visual',
+  //   sourceName: '',
+  //   title: 'map_layers.sediment_export',
+  //   year: 2000,
+  // },
   {
     dataType: 'rastertiles',
     isLayerOn: false,
