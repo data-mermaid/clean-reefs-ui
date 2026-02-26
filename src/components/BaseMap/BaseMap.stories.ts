@@ -17,6 +17,7 @@ const mockRegionOption: RegionOption = {
   label: 'global',
   centerCoord: new LngLat(25, -50),
   zoomLevel: 5,
+  grouping: 0,
 }
 export const Primary: Story = {
   args: {

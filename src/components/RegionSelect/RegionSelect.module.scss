@@ -11,56 +11,106 @@
   }
 }
 
-.MuiAutocomplete-root {
-  width: 100%;
-  background-color: theme.$greyWhite;
+.crumbles-container {
+  display: flex;
+  border: 1px solid black;
+  border-right: none;
   border-radius: theme.$borderRadius;
+}
 
-  & .MuiAutocomplete-input {
+.crumbles-container-span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.crumb-item {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  p {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  &:first-of-type {
+    padding-left: 10px;
+  }
+
+  &:last-of-type {
+    padding-right: 10px;
+    border-right: 1px solid black;
+  }
+}
+
+.MuiSelect-root {
+  width: theme.$selectButtonHeight;
+  background-color: theme.$greyWhite;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: theme.$borderRadius;
+  border-bottom-right-radius: theme.$borderRadius;
+
+  & .MuiSelect-select {
     font-size: theme.$defaultTextSize;
   }
 
-  & .MuiAutocomplete-clearIndicator {
+  & .MuiSelect-clearIndicator {
     & svg {
       font-size: theme.$svgSizeSmall;
     }
   }
 
-  & .MuiAutocomplete-popupIndicator {
+  & .MuiSelect-popupIndicator {
     & svg {
       font-size: theme.$svgSizeMedium;
     }
   }
 }
 
-.custom-autocomplete-popper {
-  .MuiAutocomplete-option {
-    font-size: theme.$textSizeSmall;
+.MuiSelect-select {
+  font-size: theme.$textSizeSmall;
 
-    &[aria-selected='true'] {
-      background-color: theme.$primary !important;
-      color: theme.$white !important;
-      font-weight: theme.$semiBold;
-
-      &:hover {
-        background-color: theme.$primary;
-        color: theme.$white;
-        opacity: 0.9;
-      }
-    }
+  &[aria-selected='true'] {
+    background-color: theme.$primary !important;
+    color: theme.$white !important;
+    font-weight: theme.$semiBold;
 
     &:hover {
-      background-color: theme.$primaryLight;
-      color: theme.$textColor;
+      background-color: theme.$primary;
+      color: theme.$white;
+      opacity: 0.9;
     }
   }
 
-  .MuiAutocomplete-noOptions {
-    font-size: theme.$textSizeSmall;
-    color: theme.$textSecondary;
-    padding: theme.$spacingSmall theme.$spacingMedium;
+  &:hover {
+    background-color: theme.$primaryLight;
+    color: theme.$textColor;
   }
 }
+
+.MuiSelect-noOptions {
+  font-size: theme.$textSizeSmall;
+  color: theme.$textSecondary;
+  padding: theme.$spacingSmall theme.$spacingMedium;
+}
+
+//testing
+//.MuiPaper-root {
+//  background-color: hotpink;
+//}
+//
+//.MuiList-root {
+//  background-color: limegreen;
+//
+//}
+//.MuiMenuItem-root {
+//  background-color: purple;
+//}
 
 .group-header {
   position: sticky;
