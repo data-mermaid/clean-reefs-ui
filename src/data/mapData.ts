@@ -7,6 +7,7 @@ import {
   LULC_2015_URL,
   LULC_2020_URL,
   REGIONS_PMTILES_URL,
+  SED_DISPERSAL_2000_URL,
   SED_EXPORT_2000_URL,
   SED_EXPORT_2005_URL,
   SED_EXPORT_2010_URL,
@@ -73,7 +74,7 @@ export const sedExportColorMapping = {
 //currently, ocean pollution and base layers are not implemented
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
-  // oceanPollution: 'map_layer_groups.ocean_pollution_layers',
+  oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
   boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
@@ -103,6 +104,19 @@ export const layers: LayerInfo[] = [
     sourceId: 'countries_src',
     sourceName: 'countries',
     title: 'boundary_map_layers.country_boundaries',
+  },
+  {
+    dataType: 'rastertiles',
+    isLayerOn: true,
+    layerId: 'sed_dispersal',
+    legendTitle: 'concentration',
+    legendType: 'gradient',
+    link: SED_DISPERSAL_2000_URL,
+    parentLayerType: 'oceanPollution',
+    sourceId: 'sediment_exposure_2000',
+    sourceName: 'sediment_exposure_2000',
+    title: 'map_layers.sediment_dispersal',
+    year: 2000, //temp - data only available for Solomon Islands
   },
   // {
   //   dataType: 'rastertiles',

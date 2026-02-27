@@ -36,6 +36,11 @@ const getLayerToggleDetails = (
     case 'lulc':
       toggleCardDetails = layer.isLayerOn && <Legend />
       break
+    case 'sed_dispersal':
+      toggleCardDetails = layer.isLayerOn && (
+        <GradientLegend variation={layerId} title={layer.legendTitle} />
+      )
+      break
     case 'sed_export':
       toggleCardDetails = layer.isLayerOn && (
         <>

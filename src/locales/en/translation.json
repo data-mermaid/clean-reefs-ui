@@ -43,6 +43,7 @@
     "country_boundaries": "Country boundaries"
   },
   "map_layers": {
+    "sediment_dispersal": "Ocean sediment dispersal",
     "sediment_export": "Sediment export"
   },
   "regions": {
