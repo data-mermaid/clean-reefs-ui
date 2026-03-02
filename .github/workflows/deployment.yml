@@ -104,4 +104,4 @@ jobs:
           remote-password: ${{ secrets.SFTP_PASSWORD }}
           local-path: './build'
           remote-path: '/htdocs/'
-          sync: 'delta'
+          sync: 'full'
