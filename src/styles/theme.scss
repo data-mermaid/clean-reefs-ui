@@ -27,6 +27,7 @@ $svgSizeMedium: 26px;
 
 /** Layout, spacing **/
 $defaultSpacing: 10px;
+$spacingXXSmall: 3px;
 $spacingXSmall: 5px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
@@ -50,7 +51,8 @@ $drawerPullerWidth: 90px;
 $chartCardMaxWidth: 500px;
 
 /** Breakpoints **/
-$breakpointMobile: 1024px;
+$breakpointMobile: 768px;
+$breakpointTablet: 1024px;
 
 /** Mixins **/
 @mixin mobileUpBreakPoint {

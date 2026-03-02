@@ -5,6 +5,7 @@
   height: 100%;
 
   .layer-controls--desktop {
+    max-width: 100%;
     position: relative;
     top: -40px;
     z-index: theme.$layersDrawer;
@@ -25,10 +26,12 @@
   }
 
   .layer-controls--mobile {
+    max-width: 100%;
     position: relative;
     z-index: theme.$layersDrawer;
     display: flex;
+    justify-content: space-between;
     gap: theme.$spacingXSmall;
-    padding: theme.$spacingXSmall;
+    padding: theme.$spacingXXSmall;
   }
 }

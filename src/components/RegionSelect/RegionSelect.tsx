@@ -4,7 +4,7 @@ import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
 import { defaultRegionOption, regionOptions } from '../../data/regionData'
-import { FormControl, Select } from '@mui/material'
+import { Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 
@@ -30,12 +30,17 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
             key={_.kebabCase(crumb.label)}
             // onClick={(e) => {
             // e.preventDefault()
-            // console.log('Hitting')
             //todo:implement jumpzoom to coordinates
             //}}
           >
-            <p>{crumb.label}</p>
-            {idx !== breadcrumb.length - 1 && <ChevronRightIcon />}
+            {idx !== breadcrumb.length - 1 ? (
+              <span>
+                <p className={styles['mobile-ellipses']}>{crumb.label}</p>
+                <ChevronRightIcon />
+              </span>
+            ) : (
+              <p>{crumb.label}</p>
+            )}
           </button>
         )
       })
@@ -58,36 +63,25 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
 
   return (
     <div className={styles['RegionSelect-root']}>
-      <FormControl>
-        <Box className={styles['crumbles-container']}>
-          {breadcrumb.length > 0 && getCrumbles()}
-          <Select<RegionOption[]>
-            size="small"
-            aria-label={t('regions.select_region')}
-            value={[selectedRegion]}
-            onChange={handleSelect}
-            classes={{
-              root: styles['MuiSelect-root'],
-              select: styles['MuiSelect-select'],
-              // clearIndicator: styles['MuiAutocomplete-clearIndicator'],
-              // popupIndicator: styles['MuiAutocomplete-popupIndicator'],
-              // option: styles['MuiAutocomplete-option'],
-              // noOptions: styles['MuiAutocomplete-noOptions'],
-            }}
-            // renderValue={getCrumbles}
-          >
-            {regionOptions.map((option) => (
-              <li
-                className={styles['MuiMenuItem-root']}
-                key={_.kebabCase(option.label)}
-                // value={option}
-              >
-                {option.label}
-              </li>
-            ))}
-          </Select>
-        </Box>
-      </FormControl>
+      <Box className={styles['crumbles-container']}>
+        {breadcrumb.length > 0 && getCrumbles()}
+        <Select<RegionOption[]>
+          size="small"
+          aria-label={t('regions.select_region')}
+          value={[selectedRegion]}
+          onChange={handleSelect}
+          classes={{
+            root: styles['MuiSelect-root'],
+            select: styles['MuiSelect-select'],
+          }}
+        >
+          {regionOptions.map((option) => (
+            <li className={styles['MuiMenuItem-root']} key={_.kebabCase(option.label)}>
+              {option.label}
+            </li>
+          ))}
+        </Select>
+      </Box>
     </div>
   )
 }

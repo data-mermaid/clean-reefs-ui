@@ -4,7 +4,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: theme.$regionSelectWidth;
 
   @include theme.mobileDownBreakPoint {
     width: 100%;
@@ -13,9 +12,10 @@
 
 .crumbles-container {
   display: flex;
-  border: 1px solid black;
   border-right: none;
   border-radius: theme.$borderRadius;
+  justify-content: space-between;
+  background-color: theme.$greyWhite;
 }
 
 .crumbles-container-span {
@@ -24,36 +24,49 @@
   align-items: center;
 }
 
+.mobile-ellipses {
+  max-width: 2ch;
+  @include theme.mobileUpBreakPoint {
+    max-width: 100%;
+  }
+}
+
 .crumb-item {
-  background-color: white;
+  background-color: theme.$greyWhite;
   display: flex;
   align-items: center;
   border: none;
   padding: 0;
   margin: 0;
+  @include theme.mobileDownBreakPoint {
+    max-width: 30%;
+  }
 
+  span {
+    display: flex;
+  }
   p {
     display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     cursor: pointer;
   }
 
   &:first-of-type {
-    padding-left: 10px;
+    padding-left: theme.$spacingXSmall;
   }
 
   &:last-of-type {
-    padding-right: 10px;
-    border-right: 1px solid black;
+    padding-right: theme.$spacingXSmall;
+    max-width: 100%;
   }
 }
 
 .MuiSelect-root {
   width: theme.$selectButtonHeight;
   background-color: theme.$greyWhite;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: theme.$borderRadius;
-  border-bottom-right-radius: theme.$borderRadius;
+  border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
 
   & .MuiSelect-select {
     font-size: theme.$defaultTextSize;
@@ -117,7 +130,6 @@
   top: -8px;
   font-weight: theme.$semiBold;
   padding: theme.$spacingSmall theme.$spacingMedium;
-  background-color: theme.$secondaryLight;
   border-bottom: 1px solid theme.$secondary;
   font-size: theme.$textSizeSmall;
 }
