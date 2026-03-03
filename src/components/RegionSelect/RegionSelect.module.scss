@@ -13,6 +13,7 @@
 .crumbles-container {
   display: flex;
   border-right: none;
+  border-color: transparent;
   border-radius: theme.$borderRadius;
   justify-content: space-between;
   background-color: theme.$greyWhite;
@@ -36,15 +37,18 @@
   display: flex;
   align-items: center;
   border: none;
-  padding: 0;
+  padding: theme.$defaultSpacing;
   margin: 0;
+  height: 100%;
   @include theme.mobileDownBreakPoint {
     max-width: 30%;
   }
 
   span {
     display: flex;
+    align-items: center;
   }
+
   p {
     display: inline-block;
     white-space: nowrap;
@@ -54,7 +58,8 @@
   }
 
   &:first-of-type {
-    padding-left: theme.$spacingXSmall;
+    border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
+    //padding-left: theme.$spacingXSmall;
   }
 
   &:last-of-type {
@@ -66,9 +71,20 @@
 .MuiSelect-root {
   width: theme.$selectButtonHeight;
   background-color: theme.$greyWhite;
+  //border-color: transparent;
+  //border:1px solid hotpink;
+  text-align: center;
+  border-left: 1px solid black;
+  border-bottom: none;
   border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
 
+  &:after {
+    border-bottom: none;
+  }
   & .MuiSelect-select {
+    padding-right: 0 !important;
+    border: none;
+
     font-size: theme.$defaultTextSize;
   }
 
@@ -87,6 +103,14 @@
 
 .MuiSelect-select {
   font-size: theme.$textSizeSmall;
+  border-bottom: none;
+
+  &:after {
+    border-bottom: none !important;
+  }
+  &:hover {
+    border-bottom: none;
+  }
 
   &[aria-selected='true'] {
     background-color: theme.$primary !important;
@@ -106,23 +130,32 @@
   }
 }
 
-.MuiSelect-noOptions {
-  font-size: theme.$textSizeSmall;
-  color: theme.$textSecondary;
-  padding: theme.$spacingSmall theme.$spacingMedium;
+//unused?
+//.MuiSelect-noOptions {
+//  font-size: theme.$textSizeSmall;
+//  color: theme.$textSecondary;
+//  padding: theme.$spacingSmall theme.$spacingMedium;
+//}
+
+.MuiSelect-standard {
+  border-bottom: none;
+}
+.MuiPaper-root {
+  width: 330px;
+  left: calc(50vw - 160px) !important;
+  margin-right: 30px;
 }
 
-//testing
-//.MuiPaper-root {
-//  background-color: hotpink;
-//}
-//
-//.MuiList-root {
-//  background-color: limegreen;
-//
-//}
+.MuiMenu-list {
+  background-color: yellow;
+}
+
+.MuiList-root {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 //.MuiMenuItem-root {
-//  background-color: purple;
 //}
 
 .group-header {

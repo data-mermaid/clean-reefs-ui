@@ -13,6 +13,7 @@ const meta = {
 type Story = StoryObj<typeof meta>
 
 const mockRegionOption: RegionOption = {
+  id: 'global',
   regionType: 'global',
   label: 'global',
   centerCoord: new LngLat(25, -50),

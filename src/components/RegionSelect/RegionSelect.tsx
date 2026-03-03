@@ -4,22 +4,22 @@ import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
 import { defaultRegionOption, regionOptions } from '../../data/regionData'
-import { Select } from '@mui/material'
+import { MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
+import { useMapStore } from '../../stores/mapStore'
 
 interface RegionSelectProps {
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
 }
 
+const getRegionById = (regionId) => regionOptions.find((opt) => opt.id === regionId)
+
 export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
   const { t } = useTranslation()
-  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([
-    regionOptions[3],
-    regionOptions[2],
-    regionOptions[4],
-  ]) //[selectedRegion]
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
+  const mapRef = useMapStore((s) => s.mapReference)
   const getCrumbles = () => {
     let items
     if (breadcrumb.length > 0) {
@@ -28,18 +28,28 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
           <button
             className={styles['crumb-item']}
             key={_.kebabCase(crumb.label)}
-            // onClick={(e) => {
-            // e.preventDefault()
-            //todo:implement jumpzoom to coordinates
-            //}}
+            value={crumb.id}
+            onClick={(e) => {
+              e.preventDefault()
+              if (mapRef && mapRef.getMap) {
+                mapRef.getMap().jumpTo({
+                  center: crumb.centerCoord,
+                  zoom: crumb.zoomLevel,
+                  bearing: 0,
+                })
+              }
+              // debugger
+              setSelectedRegion(crumb)
+              setBreadcrumb([crumb])
+            }}
           >
             {idx !== breadcrumb.length - 1 ? (
-              <span>
-                <p className={styles['mobile-ellipses']}>{crumb.label}</p>
+              <span className={styles['mobile-ellipses']}>
+                {crumb.label}
                 <ChevronRightIcon />
               </span>
             ) : (
-              <p>{crumb.label}</p>
+              crumb.label
             )}
           </button>
         )
@@ -52,13 +62,13 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
   }
 
   const handleSelect = (event) => {
-    const selections = [event.target.value]
-    if (selections[0].grouping > 0) {
-      selections.unshift(defaultRegionOption)
+    const selectedId = event.target.value
+    const selectedOptions = [getRegionById(selectedId) || defaultRegionOption]
+    if (selectedOptions[0].grouping > 0) {
+      selectedOptions.unshift(defaultRegionOption)
     }
-
-    setSelectedRegion(event.target.value || defaultRegionOption)
-    setBreadcrumb(selections)
+    setSelectedRegion(selectedOptions[0])
+    setBreadcrumb(selectedOptions)
   }
 
   return (
@@ -70,16 +80,34 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
           aria-label={t('regions.select_region')}
           value={[selectedRegion]}
           onChange={handleSelect}
+          variant="standard"
+          MenuProps={{
+            classes: {
+              paper: styles['MuiPaper-root'],
+              list: styles['MuiList-root'],
+            },
+          }}
           classes={{
             root: styles['MuiSelect-root'],
             select: styles['MuiSelect-select'],
+            icon: styles['MuiSelect-icon'],
+            standard: styles['MuiSelect-standard'],
+            outlined: styles['MuiOutlinedInput-notchedOutline'],
           }}
         >
-          {regionOptions.map((option) => (
-            <li className={styles['MuiMenuItem-root']} key={_.kebabCase(option.label)}>
-              {option.label}
-            </li>
-          ))}
+          {regionOptions.map((option) => {
+            return (
+              option.grouping <= 2 && (
+                <MenuItem
+                  className={styles['MuiMenuItem-root']}
+                  key={_.kebabCase(option.label)}
+                  value={option.id}
+                >
+                  {option.label}
+                </MenuItem>
+              )
+            )
+          })}
         </Select>
       </Box>
     </div>

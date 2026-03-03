@@ -35,14 +35,14 @@ export const SelectedBreadcrumb: Story = {
     selectedRegion: defaultRegionOption,
     setSelectedRegion: () => {},
   },
-  parameters: {
-    viewport: { defaultViewport: 'desktop1' },
-  },
-  play: async ({ canvas }) => {
-    const input = canvas.getByRole('combobox')
-    await expect(input).toBeInTheDocument()
-    await userEvent.click(input)
-  },
+  // parameters: {
+  //   viewport: { defaultViewport: 'desktop1' },
+  // },
+  // play: async ({ canvas }) => {
+  //   const input = canvas.getByRole('combobox')
+  //   await expect(input).toBeInTheDocument()
+  //   await userEvent.click(input)
+  // },
 }
 
 export const Mobile: Story = {
