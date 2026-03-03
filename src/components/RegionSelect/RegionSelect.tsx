@@ -38,7 +38,6 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
                   bearing: 0,
                 })
               }
-              // debugger
               setSelectedRegion(crumb)
               setBreadcrumb([crumb])
             }}
@@ -63,9 +62,17 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
 
   const handleSelect = (event) => {
     const selectedId = event.target.value
-    const selectedOptions = [getRegionById(selectedId) || defaultRegionOption]
-    if (selectedOptions[0].grouping > 0) {
+    const selectedOption = getRegionById(selectedId) || defaultRegionOption
+    const selectedOptions = [selectedOption]
+    if (selectedOption.grouping > 0) {
       selectedOptions.unshift(defaultRegionOption)
+      if (mapRef && mapRef.getMap) {
+        mapRef.getMap().jumpTo({
+          center: selectedOption.centerCoord,
+          zoom: selectedOption.zoomLevel,
+          bearing: 0,
+        })
+      }
     }
     setSelectedRegion(selectedOptions[0])
     setBreadcrumb(selectedOptions)
@@ -80,7 +87,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
           aria-label={t('regions.select_region')}
           value={[selectedRegion]}
           onChange={handleSelect}
-          variant="standard"
+          variant="outlined"
           MenuProps={{
             classes: {
               paper: styles['MuiPaper-root'],
@@ -91,8 +98,7 @@ export default function RegionSelect({ selectedRegion, setSelectedRegion }: Regi
             root: styles['MuiSelect-root'],
             select: styles['MuiSelect-select'],
             icon: styles['MuiSelect-icon'],
-            standard: styles['MuiSelect-standard'],
-            outlined: styles['MuiOutlinedInput-notchedOutline'],
+            outlined: styles['MuiSelect-standard'],
           }}
         >
           {regionOptions.map((option) => {
