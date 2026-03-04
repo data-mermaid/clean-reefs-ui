@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
-import { defaultRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import { MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 import { useMapStore } from '../../stores/mapStore'
 
-const getRegionById = (regionId) => regionOptions.find((opt) => opt.id === regionId)
+const getRegionById = (regionId: string) => regionOptions.find((opt) => opt.id === regionId)
 
 interface RegionSelectProps {
   breadcrumb: RegionOption[]
@@ -27,15 +27,27 @@ export default function RegionSelect({
   const { t } = useTranslation()
   const mapRef = useMapStore((s) => s.mapReference)
 
-  const prepCrumbles = (crumb) => {
-    const selectedOptions = [crumb]
-    if (crumb.grouping > 0) {
-      selectedOptions.unshift(defaultRegionOption)
+  const prepBreadcrumb = (region: RegionOption) => {
+    const selectedOptions = [region]
+    if (region.grouping > 0) {
+      selectedOptions.unshift(defaultGlobalRegionOption)
     }
     setBreadcrumb(selectedOptions)
   }
+  const jumpToRegion = (region: RegionOption) => {
+    // no jump on global click
+    if (region.grouping > 0) {
+      if (mapRef && mapRef.getMap) {
+        mapRef.getMap().jumpTo({
+          center: region.centerCoord,
+          zoom: region.zoomLevel,
+          bearing: 0,
+        })
+      }
+    }
+  }
 
-  const getCrumbles = () => {
+  const getBreadcrumbs = () => {
     let items
     if (breadcrumb.length > 0) {
       items = breadcrumb.map((crumb, idx) => {
@@ -46,15 +58,10 @@ export default function RegionSelect({
             value={crumb.id}
             onClick={(e) => {
               e.preventDefault()
-              if (mapRef && mapRef.getMap) {
-                mapRef.getMap().jumpTo({
-                  center: crumb.centerCoord,
-                  zoom: crumb.zoomLevel,
-                  bearing: 0,
-                })
-              }
+
+              jumpToRegion(crumb)
               setSelectedRegion(crumb)
-              prepCrumbles(crumb)
+              prepBreadcrumb(crumb)
             }}
           >
             {idx !== breadcrumb.length - 1 ? (
@@ -68,39 +75,27 @@ export default function RegionSelect({
           </button>
         )
       })
-    } else {
-      items = breadcrumb[0].label
     }
 
     return <span className={styles['crumbles-container-span']}>{items}</span>
   }
 
   const handleSelect = (event) => {
-    const selectedId = event.target.value
-    const selectedOption = getRegionById(selectedId) || defaultRegionOption
+    const selectedOption = getRegionById(event.target?.value) || defaultGlobalRegionOption
 
-    // no jump on global click
-    if (selectedOption.grouping > 0) {
-      if (mapRef && mapRef.getMap) {
-        mapRef.getMap().jumpTo({
-          center: selectedOption.centerCoord,
-          zoom: selectedOption.zoomLevel,
-          bearing: 0,
-        })
-      }
-    }
+    jumpToRegion(selectedOption)
     setSelectedRegion(selectedOption)
-    prepCrumbles(selectedOption)
+    prepBreadcrumb(selectedOption)
   }
 
   return (
     <div className={styles['RegionSelect-root']}>
       <Box className={styles['crumbles-container']}>
-        {breadcrumb.length > 0 && getCrumbles()}
-        <Select<RegionOption[]>
+        {breadcrumb.length > 0 && getBreadcrumbs()}
+        <Select<RegionOption>
           size="small"
           aria-label={t('regions.select_region')}
-          value={[selectedRegion]}
+          value={selectedRegion}
           onChange={handleSelect}
           variant="outlined"
           MenuProps={{

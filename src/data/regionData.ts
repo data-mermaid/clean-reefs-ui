@@ -1,7 +1,7 @@
 import { LngLat } from 'maplibre-gl'
 import { RegionOption } from '../types/RegionDataTypes'
 
-export const defaultRegionOption: RegionOption = {
+export const defaultGlobalRegionOption: RegionOption = {
   id: 'global',
   regionType: 'global',
   label: 'Global',
@@ -12,7 +12,7 @@ export const defaultRegionOption: RegionOption = {
 
 /** MVP: Starts with just the two countries & one region */
 export const regionOptions: RegionOption[] = [
-  defaultRegionOption,
+  defaultGlobalRegionOption,
   {
     id: 'fiji',
     regionType: 'country',

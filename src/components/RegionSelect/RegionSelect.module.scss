@@ -59,7 +59,6 @@
 
   &:first-of-type {
     border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
-    //padding-left: theme.$spacingXSmall;
   }
 
   &:last-of-type {
@@ -71,8 +70,6 @@
 .MuiSelect-root {
   width: theme.$selectButtonHeight;
   background-color: theme.$greyWhite;
-  //border-color: transparent;
-  //border:1px solid hotpink;
   text-align: center;
   border-left: 1px solid black;
   border-bottom: none;
@@ -130,13 +127,6 @@
   }
 }
 
-//unused?
-//.MuiSelect-noOptions {
-//  font-size: theme.$textSizeSmall;
-//  color: theme.$textSecondary;
-//  padding: theme.$spacingSmall theme.$spacingMedium;
-//}
-
 .MuiSelect-standard {
   border-bottom: none;
 }
@@ -154,9 +144,6 @@
   padding-top: 0;
   padding-bottom: 0;
 }
-
-//.MuiMenuItem-root {
-//}
 
 .group-header {
   position: sticky;

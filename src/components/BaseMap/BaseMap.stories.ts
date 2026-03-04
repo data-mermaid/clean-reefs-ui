@@ -3,7 +3,7 @@ import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
-import { defaultRegionOption } from '../../data/regionData'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 const meta = {
   component: BaseMap,
@@ -15,7 +15,7 @@ export const Primary: Story = {
   args: {
     mapLayers: layers,
     setSelectedRegion: () => {},
-    selectedRegion: defaultRegionOption,
+    selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
   },
   play: async ({ canvas }) => {
@@ -36,7 +36,7 @@ export const Loading: Story = {
   args: {
     mapLayers: layers,
     setSelectedRegion: () => {},
-    selectedRegion: defaultRegionOption,
+    selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
   },
   // play: async ({ canvasElement }) => {

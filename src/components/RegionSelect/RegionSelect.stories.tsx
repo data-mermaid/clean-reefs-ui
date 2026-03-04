@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
 import { expect, userEvent } from 'storybook/test'
-import { defaultRegionOption } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 
 const meta: Meta<typeof RegionSelect> = {
   component: RegionSelect,
@@ -14,7 +14,9 @@ type Story = StoryObj<typeof RegionSelect>
 
 export const Primary: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    breadcrumb: [defaultGlobalRegionOption],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
   },
   parameters: {
@@ -24,30 +26,23 @@ export const Primary: Story = {
     const input = canvas.getByRole('combobox')
     await expect(input).toBeInTheDocument()
     await userEvent.click(input)
-    const clearButton = canvas.getByTitle('Clear')
-    await expect(clearButton).toBeInTheDocument()
-    await userEvent.click(clearButton)
   },
 }
 
-export const SelectedBreadcrumb: Story = {
+export const LongBreadcrumb: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
   },
-  // parameters: {
-  //   viewport: { defaultViewport: 'desktop1' },
-  // },
-  // play: async ({ canvas }) => {
-  //   const input = canvas.getByRole('combobox')
-  //   await expect(input).toBeInTheDocument()
-  //   await userEvent.click(input)
-  // },
 }
 
-export const Mobile: Story = {
+export const MobileShortBreadcrumb: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    breadcrumb: [defaultGlobalRegionOption],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
   },
   parameters: {
@@ -56,21 +51,21 @@ export const Mobile: Story = {
   decorators: [(Story) => <Story />],
 }
 
-// export const NoResults: Story = {
-//   args: {
-//     selectedRegion: defaultRegionOption,
-//     setSelectedRegion: () => {},
-//   },
-//   play: async ({ canvas }) => {
-//     const input = canvas.getByRole('combobox')
-//     await expect(input).toBeInTheDocument()
-//     await userEvent.click(input)
-//     await expect(clearButton).toBeInTheDocument()
-//     await userEvent.click(clearButton)
-//
-//     const noResultsText = screen.getByText('No regions match your search')
-//     await expect(noResultsText).toBeInTheDocument()
-//   },
-// }
+export const MobileLongBreadcrumb: Story = {
+  args: {
+    breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
+    setSelectedRegion: () => {},
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  play: async ({ canvas }) => {
+    const input = canvas.getByRole('combobox')
+    await expect(input).toBeInTheDocument()
+    await userEvent.click(input)
+  },
+}
 
 export default meta

@@ -3,35 +3,29 @@
 .MapContainer-root {
   width: 100%;
   height: 100%;
+}
 
-  .layer-controls--desktop {
+.layer-controls {
+  max-width: 100%;
+  position: relative;
+  z-index: theme.$layersDrawer;
+  display: flex;
+  justify-content: space-between;
+  gap: theme.$spacingXSmall;
+  padding: theme.$spacingXXSmall;
+
+  @media (min-width: theme.$breakpointTablet) {
     max-width: 100%;
     position: relative;
-    top: -40px;
     z-index: theme.$layersDrawer;
     align-items: center;
     padding: theme.$spacingSmall;
     gap: theme.$spacingMedium;
-    pointer-events: none;
-
-    > * {
-      pointer-events: auto;
-    }
-
-    > div {
-      justify-self: center;
-      display: flex;
-      gap: theme.$spacingXSmall;
-    }
   }
 
-  .layer-controls--mobile {
-    max-width: 100%;
-    position: relative;
-    z-index: theme.$layersDrawer;
+  > div {
+    justify-self: center;
     display: flex;
-    justify-content: space-between;
     gap: theme.$spacingXSmall;
-    padding: theme.$spacingXXSmall;
   }
 }
