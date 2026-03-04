@@ -198,8 +198,6 @@ export default function BaseMap({
         const map = mapRef.current?.getMap()
 
         if (map) {
-          // debugger
-
           //todo: for plume
           const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
 

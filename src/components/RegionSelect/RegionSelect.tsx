@@ -26,6 +26,15 @@ export default function RegionSelect({
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const mapRef = useMapStore((s) => s.mapReference)
+
+  const prepCrumbles = (crumb) => {
+    const selectedOptions = [crumb]
+    if (crumb.grouping > 0) {
+      selectedOptions.unshift(defaultRegionOption)
+    }
+    setBreadcrumb(selectedOptions)
+  }
+
   const getCrumbles = () => {
     let items
     if (breadcrumb.length > 0) {
@@ -45,7 +54,7 @@ export default function RegionSelect({
                 })
               }
               setSelectedRegion(crumb)
-              setBreadcrumb([crumb])
+              prepCrumbles(crumb)
             }}
           >
             {idx !== breadcrumb.length - 1 ? (
@@ -69,9 +78,9 @@ export default function RegionSelect({
   const handleSelect = (event) => {
     const selectedId = event.target.value
     const selectedOption = getRegionById(selectedId) || defaultRegionOption
-    const selectedOptions = [selectedOption]
+
+    // no jump on global click
     if (selectedOption.grouping > 0) {
-      selectedOptions.unshift(defaultRegionOption)
       if (mapRef && mapRef.getMap) {
         mapRef.getMap().jumpTo({
           center: selectedOption.centerCoord,
@@ -80,8 +89,8 @@ export default function RegionSelect({
         })
       }
     }
-    setSelectedRegion(selectedOptions[0])
-    setBreadcrumb(selectedOptions)
+    setSelectedRegion(selectedOption)
+    prepCrumbles(selectedOption)
   }
 
   return (
