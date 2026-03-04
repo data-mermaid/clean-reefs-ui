@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
@@ -9,16 +9,22 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 import { useMapStore } from '../../stores/mapStore'
 
+const getRegionById = (regionId) => regionOptions.find((opt) => opt.id === regionId)
+
 interface RegionSelectProps {
+  breadcrumb: RegionOption[]
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
 }
 
-const getRegionById = (regionId) => regionOptions.find((opt) => opt.id === regionId)
-
-export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
+export default function RegionSelect({
+  breadcrumb,
+  setBreadcrumb,
+  selectedRegion,
+  setSelectedRegion,
+}: RegionSelectProps) {
   const { t } = useTranslation()
-  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
   const mapRef = useMapStore((s) => s.mapReference)
   const getCrumbles = () => {
     let items

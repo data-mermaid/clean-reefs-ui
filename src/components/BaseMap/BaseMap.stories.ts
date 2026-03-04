@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
-import { RegionOption } from '../../types/RegionDataTypes'
-import { LngLat } from 'maplibre-gl'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
+import { defaultRegionOption } from '../../data/regionData'
 
 const meta = {
   component: BaseMap,
@@ -12,18 +11,12 @@ const meta = {
 
 type Story = StoryObj<typeof meta>
 
-const mockRegionOption: RegionOption = {
-  id: 'global',
-  regionType: 'global',
-  label: 'global',
-  centerCoord: new LngLat(25, -50),
-  zoomLevel: 5,
-  grouping: 0,
-}
 export const Primary: Story = {
   args: {
     mapLayers: layers,
-    selectedRegion: mockRegionOption,
+    setSelectedRegion: () => {},
+    selectedRegion: defaultRegionOption,
+    setBreadcrumb: () => {},
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -42,7 +35,9 @@ export const Primary: Story = {
 export const Loading: Story = {
   args: {
     mapLayers: layers,
-    selectedRegion: mockRegionOption,
+    setSelectedRegion: () => {},
+    selectedRegion: defaultRegionOption,
+    setBreadcrumb: () => {},
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

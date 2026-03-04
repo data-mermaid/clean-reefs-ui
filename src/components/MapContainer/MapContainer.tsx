@@ -17,6 +17,7 @@ export default function MapContainer() {
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedYear, setSelectedYear] = useState(2020)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
 
   return (
     <div className={styles['MapContainer-root']}>
@@ -27,7 +28,12 @@ export default function MapContainer() {
             setMapLayers={setMapLayers}
             selectedYear={selectedYear}
           />
-          <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
+          <RegionSelect
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            breadcrumb={breadcrumb}
+            setBreadcrumb={setBreadcrumb}
+          />
           <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
@@ -39,13 +45,23 @@ export default function MapContainer() {
             selectedYear={selectedYear}
           />
           <div>
-            <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
+            <RegionSelect
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+              breadcrumb={breadcrumb}
+              setBreadcrumb={setBreadcrumb}
+            />
             <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
           </div>
           <TrendsDrawer selectedRegion={selectedRegion} />
         </div>
       )}
-      <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />
+      <BaseMap
+        mapLayers={mapLayers}
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
+        setBreadcrumb={setBreadcrumb}
+      />
     </div>
   )
 }
