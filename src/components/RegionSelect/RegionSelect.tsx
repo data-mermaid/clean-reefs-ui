@@ -56,12 +56,10 @@ export default function RegionSelect({
             className={styles['breadcrumb']}
             key={_.kebabCase(crumb.label)}
             value={crumb.id}
+            type="button"
             onClick={(e) => {
               e.preventDefault()
-
-              jumpToRegion(crumb)
-              setSelectedRegion(crumb)
-              prepBreadcrumb(crumb)
+              updateRegion(crumb)
             }}
           >
             {idx !== breadcrumb.length - 1 ? (
@@ -82,14 +80,19 @@ export default function RegionSelect({
 
   const handleSelect = (event) => {
     const selectedOption = getRegionById(event.target?.value) || defaultGlobalRegionOption
+    updateRegion(selectedOption)
+  }
 
-    jumpToRegion(selectedOption)
-    setSelectedRegion(selectedOption)
-    prepBreadcrumb(selectedOption)
+  const updateRegion = (region: RegionOption) => {
+    jumpToRegion(region)
+
+    if (selectedRegion !== region) {
+      setSelectedRegion(region)
+      prepBreadcrumb(region)
+    }
   }
 
   return (
-    // <div className={styles['RegionSelect-root']}>
     <Box className={styles['RegionSelect-root']}>
       {breadcrumb.length > 0 && getBreadcrumbs()}
       <Select<RegionOption>
@@ -126,6 +129,5 @@ export default function RegionSelect({
         })}
       </Select>
     </Box>
-    // </div>
   )
 }
