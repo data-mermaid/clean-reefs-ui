@@ -1,46 +1,41 @@
-@use '../../styles/theme';
+@use '../../styles/theme' as *;
 
 .RegionSelect-root {
   display: flex;
   align-items: center;
-  justify-content: center;
+  border-right: none;
+  border-color: transparent;
+  border-radius: $borderRadius;
+  justify-content: space-between;
+  background-color: $greyWhite;
 
-  @include theme.mobileDownBreakPoint {
+  @include mobileDownBreakPoint {
     width: 100%;
   }
 }
 
-.crumbles-container {
-  display: flex;
-  border-right: none;
-  border-color: transparent;
-  border-radius: theme.$borderRadius;
-  justify-content: space-between;
-  background-color: theme.$greyWhite;
-}
-
-.crumbles-container-span {
+.breadcrumbs-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .mobile-ellipses {
   max-width: 2ch;
-  @include theme.mobileUpBreakPoint {
+  @include mobileUpBreakPoint {
     max-width: 100%;
   }
 }
 
-.crumb-item {
-  background-color: theme.$greyWhite;
+.breadcrumb {
+  background-color: $greyWhite;
   display: flex;
   align-items: center;
   border: none;
-  padding: theme.$defaultSpacing;
-  margin: 0;
+  padding: $defaultSpacing 0 $defaultSpacing $defaultSpacing;
   height: 100%;
-  @include theme.mobileDownBreakPoint {
+  @include mobileDownBreakPoint {
     max-width: 30%;
   }
 
@@ -58,105 +53,121 @@
   }
 
   &:first-of-type {
-    border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
+    border-radius: $borderRadius 0 0 $borderRadius;
+  }
+
+  &:not(:first-of-type) {
+    padding-left: 4px;
   }
 
   &:last-of-type {
-    padding-right: theme.$spacingXSmall;
+    padding-right: $spacingXSmall;
     max-width: 100%;
   }
 }
 
 .MuiSelect-root {
-  width: theme.$selectButtonHeight;
-  background-color: theme.$greyWhite;
+  height: 100%;
+  max-height: 100%;
+  width: $mapUtilButtonHeight;
+  background-color: $greyWhite;
   text-align: center;
-  border-left: 1px solid black;
+  border-left: 1px solid $textSecondary;
   border-bottom: none;
-  border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
+  border-radius: 0 $borderRadius $borderRadius 0;
 
   &:after {
     border-bottom: none;
   }
-  & .MuiSelect-select {
-    padding-right: 0 !important;
-    border: none;
-
-    font-size: theme.$defaultTextSize;
-  }
 
   & .MuiSelect-clearIndicator {
     & svg {
-      font-size: theme.$svgSizeSmall;
+      font-size: $svgSizeSmall;
     }
   }
 
   & .MuiSelect-popupIndicator {
     & svg {
-      font-size: theme.$svgSizeMedium;
+      font-size: $svgSizeMedium;
     }
+  }
+
+  fieldset {
+    border: none;
   }
 }
 
 .MuiSelect-select {
-  font-size: theme.$textSizeSmall;
-  border-bottom: none;
+  padding: $defaultSpacing 0 $defaultSpacing $defaultSpacing;
+  border: none;
+  font-size: $defaultTextSize;
 
   &:after {
     border-bottom: none !important;
   }
+
   &:hover {
-    border-bottom: none;
+    background-color: $primaryLight;
+    color: $textColor;
+    border-radius: 0;
+  }
+  &:active {
+    background-color: $grey;
   }
 
   &[aria-selected='true'] {
-    background-color: theme.$primary !important;
-    color: theme.$white !important;
-    font-weight: theme.$semiBold;
+    background-color: $primary !important;
+    color: $white !important;
+    font-weight: $semiBold;
 
     &:hover {
-      background-color: theme.$primary;
-      color: theme.$white;
+      background-color: $primary;
+      color: $white;
       opacity: 0.9;
     }
-  }
-
-  &:hover {
-    background-color: theme.$primaryLight;
-    color: theme.$textColor;
   }
 }
 
 .MuiSelect-standard {
-  border-bottom: none;
-}
-.MuiPaper-root {
-  width: 330px;
-  left: calc(50vw - 160px) !important;
-  margin-right: 30px;
+  //border-bottom: none;
+  //width: 100%;
 }
 
-.MuiMenu-list {
-  background-color: yellow;
+.MuiPaper-root {
+  width: calc(100% - $spacingXSmall * 2);
+  margin: $spacingXSmall;
+  left: 0 !important;
+  max-width: calc(100% - $spacingXSmall * 2);
+  @include mobileUpBreakPoint {
+    margin-right: 30px;
+    left: calc(50vw - 160px) !important;
+    width: 330px;
+  }
 }
+
+//.MuiMenu-list {
+//  background-color: yellow;
+//}
 
 .MuiList-root {
+  //width: 100%;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.group-header {
-  position: sticky;
-  top: -8px;
-  font-weight: theme.$semiBold;
-  padding: theme.$spacingSmall theme.$spacingMedium;
-  border-bottom: 1px solid theme.$secondary;
-  font-size: theme.$textSizeSmall;
-}
-
-.group-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  font-size: theme.$textSizeSmall;
-}
+// Currently unused - would be used for the regional grouping headers
+//.group-header {
+//  position: sticky;
+//  top: -8px;
+//  font-weight: $semiBold;
+//  padding: $spacingSmall $spacingMedium;
+//  border-bottom: 1px solid $secondary;
+//  font-size: $textSizeSmall;
+//}
+//
+//.group-list {
+//  padding: 0;
+//  margin: 0;
+//  list-style: none;
+//  font-size: $textSizeSmall;
+//}

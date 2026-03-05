@@ -24,15 +24,13 @@ export default function MapContainer() {
           setMapLayers={setMapLayers}
           selectedYear={selectedYear}
         />
-        <div>
-          <RegionSelect
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            breadcrumb={breadcrumb}
-            setBreadcrumb={setBreadcrumb}
-          />
-          <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-        </div>
+        <RegionSelect
+          selectedRegion={selectedRegion}
+          setSelectedRegion={setSelectedRegion}
+          breadcrumb={breadcrumb}
+          setBreadcrumb={setBreadcrumb}
+        />
+        <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
         <TrendsDrawer selectedRegion={selectedRegion} />
       </div>
       <BaseMap

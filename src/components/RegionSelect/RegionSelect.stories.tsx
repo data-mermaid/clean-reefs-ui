@@ -12,16 +12,14 @@ const meta: Meta<typeof RegionSelect> = {
 
 type Story = StoryObj<typeof RegionSelect>
 
-export const Primary: Story = {
+export const ShortBreadcrumb: Story = {
   args: {
     breadcrumb: [defaultGlobalRegionOption],
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
   },
-  parameters: {
-    viewport: { defaultViewport: 'desktop1' },
-  },
+  decorators: [(Story) => <Story />],
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')
     await expect(input).toBeInTheDocument()
@@ -35,31 +33,6 @@ export const LongBreadcrumb: Story = {
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
-  },
-}
-
-export const MobileShortBreadcrumb: Story = {
-  args: {
-    breadcrumb: [defaultGlobalRegionOption],
-    setBreadcrumb: () => {},
-    selectedRegion: defaultGlobalRegionOption,
-    setSelectedRegion: () => {},
-  },
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
-  },
-  decorators: [(Story) => <Story />],
-}
-
-export const MobileLongBreadcrumb: Story = {
-  args: {
-    breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
-    setBreadcrumb: () => {},
-    selectedRegion: defaultGlobalRegionOption,
-    setSelectedRegion: () => {},
-  },
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
   },
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')

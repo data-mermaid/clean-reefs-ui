@@ -12,11 +12,12 @@
   display: flex;
   justify-content: space-between;
   gap: theme.$spacingXSmall;
-  padding: theme.$spacingXXSmall;
+  padding: theme.$spacingXSmall;
 
   @media (min-width: theme.$breakpointTablet) {
     max-width: 100%;
     position: relative;
+    justify-content: center;
     z-index: theme.$layersDrawer;
     align-items: center;
     padding: theme.$spacingSmall;

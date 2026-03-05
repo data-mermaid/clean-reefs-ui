@@ -53,7 +53,7 @@ export default function RegionSelect({
       items = breadcrumb.map((crumb, idx) => {
         return (
           <button
-            className={styles['crumb-item']}
+            className={styles['breadcrumb']}
             key={_.kebabCase(crumb.label)}
             value={crumb.id}
             onClick={(e) => {
@@ -77,7 +77,7 @@ export default function RegionSelect({
       })
     }
 
-    return <span className={styles['crumbles-container-span']}>{items}</span>
+    return <span className={styles['breadcrumbs-container']}>{items}</span>
   }
 
   const handleSelect = (event) => {
@@ -89,43 +89,43 @@ export default function RegionSelect({
   }
 
   return (
-    <div className={styles['RegionSelect-root']}>
-      <Box className={styles['crumbles-container']}>
-        {breadcrumb.length > 0 && getBreadcrumbs()}
-        <Select<RegionOption>
-          size="small"
-          aria-label={t('regions.select_region')}
-          value={selectedRegion}
-          onChange={handleSelect}
-          variant="outlined"
-          MenuProps={{
-            classes: {
-              paper: styles['MuiPaper-root'],
-              list: styles['MuiList-root'],
-            },
-          }}
-          classes={{
-            root: styles['MuiSelect-root'],
-            select: styles['MuiSelect-select'],
-            icon: styles['MuiSelect-icon'],
-            outlined: styles['MuiSelect-standard'],
-          }}
-        >
-          {regionOptions.map((option) => {
-            return (
-              option.grouping <= 2 && (
-                <MenuItem
-                  className={styles['MuiMenuItem-root']}
-                  key={_.kebabCase(option.label)}
-                  value={option.id}
-                >
-                  {option.label}
-                </MenuItem>
-              )
+    // <div className={styles['RegionSelect-root']}>
+    <Box className={styles['RegionSelect-root']}>
+      {breadcrumb.length > 0 && getBreadcrumbs()}
+      <Select<RegionOption>
+        size="small"
+        aria-label={t('regions.select_region')}
+        value={selectedRegion}
+        onChange={handleSelect}
+        variant="outlined"
+        MenuProps={{
+          classes: {
+            paper: styles['MuiPaper-root'],
+            list: styles['MuiList-root'],
+          },
+        }}
+        classes={{
+          root: styles['MuiSelect-root'],
+          select: styles['MuiSelect-select'],
+          icon: styles['MuiSelect-icon'],
+          outlined: styles['MuiSelect-standard'],
+        }}
+      >
+        {regionOptions.map((option) => {
+          return (
+            option.grouping <= 2 && (
+              <MenuItem
+                className={styles['MuiMenuItem-root']}
+                key={_.kebabCase(option.label)}
+                value={option.id}
+              >
+                {option.label}
+              </MenuItem>
             )
-          })}
-        </Select>
-      </Box>
-    </div>
+          )
+        })}
+      </Select>
+    </Box>
+    // </div>
   )
 }
