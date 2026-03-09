@@ -5,16 +5,18 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1SRHVJMF00"></script>
     <script>
       window.dataLayer = window.dataLayer || []
-      function gtag() {
-        dataLayer.push(arguments)
+      const env = import.meta.env.VITE_ENVIRONMENT || 'local'
+      if (env === 'production') {
+        function gtag() {
+          dataLayer.push(arguments)
+        }
+        gtag('js', new Date())
+        gtag('config', 'G-1SRHVJMF00')
       }
-      gtag('js', new Date())
-
-      gtag('config', 'G-1SRHVJMF00')
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clean Reefs</title>
+    <title>GPW - Global Pollution Watch</title>
   </head>
   <body>
     <div id="root"></div>
