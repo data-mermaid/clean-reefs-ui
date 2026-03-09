@@ -63,10 +63,10 @@ export default function RegionSelect({
             }}
           >
             {idx !== breadcrumb.length - 1 ? (
-              <span className={styles['mobile-ellipses']}>
-                {crumb.label}
+              <>
+                <span className={styles['mobile-ellipses']}>{crumb.label}</span>
                 <ChevronRightIcon />
-              </span>
+              </>
             ) : (
               crumb.label
             )}

@@ -23,6 +23,10 @@
 
 .mobile-ellipses {
   max-width: 2ch;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+
   @include mobileUpBreakPoint {
     max-width: 100%;
   }
@@ -36,6 +40,10 @@
   border: none;
   padding: $defaultSpacing 0 $defaultSpacing $defaultSpacing;
   height: 100%;
+  &:hover {
+    background-color: $primaryLight;
+  }
+
   @include mobileDownBreakPoint {
     max-width: 30%;
   }
@@ -58,11 +66,11 @@
   }
 
   &:not(:first-of-type) {
-    padding-left: 4px;
+    padding-left: 0;
   }
 
   &:last-of-type {
-    padding-right: $spacingXSmall;
+    padding-right: 0;
     max-width: 100%;
   }
 }
@@ -99,10 +107,12 @@
 }
 
 .MuiSelect-select {
-  padding: $defaultSpacing 0 $defaultSpacing $defaultSpacing;
+  padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
   border: none;
   font-size: $defaultTextSize;
-
+  @include mobileUpBreakPoint {
+    max-width: 30%;
+  }
   &:after {
     border-bottom: none !important;
   }
@@ -129,11 +139,6 @@
   }
 }
 
-.MuiSelect-standard {
-  //border-bottom: none;
-  //width: 100%;
-}
-
 .MuiPaper-root {
   width: calc(100% - $spacingXSmall * 2);
   margin: $spacingXSmall;
@@ -146,17 +151,12 @@
   }
 }
 
-//.MuiMenu-list {
-//  background-color: yellow;
-//}
-
 .MuiList-root {
-  //width: 100%;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-// Currently unused - would be used for the regional grouping headers
+// To be implemented with regional grouping headers
 //.group-header {
 //  position: sticky;
 //  top: -8px;
