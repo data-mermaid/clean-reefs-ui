@@ -4,7 +4,7 @@ import { RegionOption } from '../types/RegionDataTypes'
 export const defaultRegionOption: RegionOption = {
   regionType: 'global',
   label: 'Global',
-  centerCoord: new LngLat(160.414413, -5.578193),
+  centerCoord: new LngLat(160.414413, -9.64571),
   zoomLevel: 6,
 }
 

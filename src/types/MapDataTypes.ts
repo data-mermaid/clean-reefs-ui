@@ -15,7 +15,7 @@ export interface LayerInfo {
     | 'landPollution'
     | 'oceanPollution'
   sourceId: string
-  sourceName: string //layer name defaults to the file name
+  sourceFileName: string //layer name defaults to the file name
   title: string
   year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
