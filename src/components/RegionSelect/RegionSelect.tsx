@@ -53,14 +53,13 @@ export default function RegionSelect({
       items = breadcrumb.map((crumb, idx) => {
         const isNotLastBreadcrumb = idx !== breadcrumb.length - 1
         return (
-          <span key={_.kebabCase(crumb.label)}>
+          <span key={_.kebabCase(crumb.label)} className={styles['breadcrumb']}>
             <button
-              className={styles['breadcrumb']}
               value={crumb.id}
               type="button"
               onClick={(e) => {
                 e.preventDefault()
-                if (!isNotLastBreadcrumb) {
+                if (isNotLastBreadcrumb) {
                   updateRegion(crumb)
                 }
               }}

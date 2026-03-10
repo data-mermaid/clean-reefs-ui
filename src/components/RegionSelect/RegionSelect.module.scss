@@ -10,14 +10,18 @@
   background-color: $greyWhite;
 
   @include mobileDownBreakPoint {
-    width: 100%;
+    flex-shrink: 3;
+    flex-grow: 3;
   }
 }
 
 .breadcrumbs-container {
+  height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: calc(100% - $mapUtilButtonHeight);
+
   width: 100%;
 }
 
@@ -26,6 +30,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  height: 100%;
+  cursor: pointer;
 
   @include mobileUpBreakPoint {
     max-width: 100%;
@@ -39,57 +45,56 @@
   align-items: center;
   cursor: pointer;
   border: none;
-  padding: $spacingXSmall;
-  margin: $spacingXSmall;
+  margin: 0;
   height: 100%;
-  width: 100%;
   white-space: nowrap;
 
-  &:hover {
-    //background-color: $anotherGrey;
-    background-color: hotpink;
-  }
+  > button {
+    padding: $defaultSpacing;
+    background-color: $greyWhite;
+    border: none;
+    display: flex;
 
-  @include mobileDownBreakPoint {
-    max-width: 30%;
-  }
-
-  span {
-    width: 100%;
+    //mobile
+    flex-wrap: wrap;
     align-items: center;
+    height: 100%;
+
+    @include mobileDownBreakPoint {
+      padding: $defaultSpacing $spacingXSmall;
+    }
+
+    &:hover {
+      background-color: $hoverGrey;
+    }
   }
 
-  p {
-    display: inline-block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: pointer;
+  //current state is not interactive
+  &:last-of-type {
+    cursor: default;
+    &:hover {
+      button {
+        background-color: $greyWhite;
+      }
+    }
+  }
+  &:first-of-type {
+    button {
+      border-radius: $borderRadius 0 0 $borderRadius;
+    }
   }
 
   &:first-of-type {
     border-radius: $borderRadius 0 0 $borderRadius;
   }
-
   &:not(:first-of-type) {
     padding-left: 0;
-  }
-
-  &:first-of-type:last-of-type {
-    padding-right: $defaultSpacing;
-  }
-
-  &:last-of-type {
-    cursor: default;
-    padding-right: 0;
-    max-width: 100%;
   }
 }
 
 .MuiSelect-root {
   height: 100%;
   max-height: 100%;
-  width: $mapUtilButtonHeight;
   background-color: $greyWhite;
   text-align: center;
   border-left: 1px solid $textSecondary;
@@ -121,8 +126,9 @@
   padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
   border: none;
   font-size: $defaultTextSize;
+
   @include mobileUpBreakPoint {
-    max-width: 30%;
+    padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
   }
 
   &:after {
@@ -130,25 +136,13 @@
   }
 
   &:hover {
-    background-color: $anotherGrey;
+    background-color: $hoverGrey;
     color: $textColor;
     border-radius: 0;
   }
 
   &:active {
     background-color: $grey;
-  }
-
-  &[aria-selected='true'] {
-    background-color: $primary !important;
-    color: $white !important;
-    font-weight: $semiBold;
-
-    &:hover {
-      background-color: $anotherGrey;
-      color: $white;
-      opacity: 0.9;
-    }
   }
 }
 
