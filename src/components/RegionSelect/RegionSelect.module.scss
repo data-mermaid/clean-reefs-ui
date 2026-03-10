@@ -46,7 +46,8 @@
   white-space: nowrap;
 
   &:hover {
-    background-color: $primaryLight;
+    //background-color: $anotherGrey;
+    background-color: hotpink;
   }
 
   @include mobileDownBreakPoint {
@@ -79,6 +80,7 @@
   }
 
   &:last-of-type {
+    cursor: default;
     padding-right: 0;
     max-width: 100%;
   }
@@ -128,7 +130,7 @@
   }
 
   &:hover {
-    background-color: $primaryLight;
+    background-color: $anotherGrey;
     color: $textColor;
     border-radius: 0;
   }
@@ -143,7 +145,7 @@
     font-weight: $semiBold;
 
     &:hover {
-      background-color: $primary;
+      background-color: $anotherGrey;
       color: $white;
       opacity: 0.9;
     }

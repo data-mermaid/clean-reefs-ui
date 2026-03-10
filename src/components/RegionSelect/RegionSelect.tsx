@@ -51,26 +51,26 @@ export default function RegionSelect({
     let items
     if (breadcrumb.length > 0) {
       items = breadcrumb.map((crumb, idx) => {
+        const isNotLastBreadcrumb = idx !== breadcrumb.length - 1
         return (
-          <button
-            className={styles['breadcrumb']}
-            key={_.kebabCase(crumb.label)}
-            value={crumb.id}
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              updateRegion(crumb)
-            }}
-          >
-            {idx !== breadcrumb.length - 1 ? (
-              <>
-                <span className={styles['mobile-ellipses']}>{crumb.label}</span>
-                <ChevronRightIcon />
-              </>
-            ) : (
-              crumb.label
-            )}
-          </button>
+          <span key={_.kebabCase(crumb.label)}>
+            <button
+              className={styles['breadcrumb']}
+              value={crumb.id}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                if (!isNotLastBreadcrumb) {
+                  updateRegion(crumb)
+                }
+              }}
+            >
+              <span className={isNotLastBreadcrumb ? styles['mobile-ellipses'] : ''}>
+                {crumb.label}
+              </span>
+            </button>
+            {isNotLastBreadcrumb && <ChevronRightIcon />}
+          </span>
         )
       })
     }
