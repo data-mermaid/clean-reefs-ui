@@ -84,8 +84,9 @@ export default function RegionSelect({
   }
 
   const updateRegion = (region: RegionOption) => {
-    jumpToRegion(region)
-
+    if (region.grouping > 0) {
+      jumpToRegion(region)
+    }
     if (selectedRegion !== region) {
       setSelectedRegion(region)
       prepBreadcrumb(region)
@@ -110,8 +111,6 @@ export default function RegionSelect({
         classes={{
           root: styles['MuiSelect-root'],
           select: styles['MuiSelect-select'],
-          icon: styles['MuiSelect-icon'],
-          outlined: styles['MuiSelect-standard'],
         }}
       >
         {regionOptions.map((option) => {

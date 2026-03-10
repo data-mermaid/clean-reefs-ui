@@ -13,6 +13,7 @@
   justify-content: space-between;
   gap: theme.$spacingXSmall;
   padding: theme.$spacingXSmall;
+  pointer-events: none;
 
   @media (min-width: theme.$breakpointTablet) {
     max-width: 100%;
@@ -25,8 +26,7 @@
   }
 
   > div {
-    justify-self: center;
+    pointer-events: auto;
     display: flex;
-    gap: theme.$spacingXSmall;
   }
 }

@@ -35,11 +35,16 @@
 .breadcrumb {
   background-color: $greyWhite;
   display: flex;
+  justify-content: center;
   align-items: center;
   cursor: pointer;
   border: none;
-  padding: $defaultSpacing 0 $defaultSpacing $defaultSpacing;
+  padding: $spacingXSmall;
+  margin: $spacingXSmall;
   height: 100%;
+  width: 100%;
+  white-space: nowrap;
+
   &:hover {
     background-color: $primaryLight;
   }
@@ -49,7 +54,7 @@
   }
 
   span {
-    display: flex;
+    width: 100%;
     align-items: center;
   }
 
@@ -67,6 +72,10 @@
 
   &:not(:first-of-type) {
     padding-left: 0;
+  }
+
+  &:first-of-type:last-of-type {
+    padding-right: $defaultSpacing;
   }
 
   &:last-of-type {
@@ -113,6 +122,7 @@
   @include mobileUpBreakPoint {
     max-width: 30%;
   }
+
   &:after {
     border-bottom: none !important;
   }
@@ -122,6 +132,7 @@
     color: $textColor;
     border-radius: 0;
   }
+
   &:active {
     background-color: $grey;
   }
