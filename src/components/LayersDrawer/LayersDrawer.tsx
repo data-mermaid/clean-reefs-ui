@@ -18,7 +18,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
-const rasterLayers = ['sed_export', 'lulc', 'sed_exposure']
+const rasterLayers = ['sed_export', 'lulc']
 
 const mapToggleChange = (
   layers: LayerInfo[] | SubLayerInfo[],

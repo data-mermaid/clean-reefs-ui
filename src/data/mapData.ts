@@ -97,18 +97,6 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.sediment_dispersal',
     year: 2000, //temp - data only available for Solomon Islands
   },
-  // {
-  //   dataType: 'rastertiles',
-  //   isLayerOn: false,
-  //   layerId: 'sed_export',
-  //   legendType: 'gradient',
-  //   link: SED_EXPORT_2000_URL,
-  //   parentLayerType: 'landPollution',
-  //   sourceId: 'sed_export_load_2000_visual',
-  //   sourceFileName: '',
-  //   title: 'map_layers.sediment_export',
-  //   year: 2000,
-  // },
   {
     dataType: 'rastertiles',
     isLayerOn: false,

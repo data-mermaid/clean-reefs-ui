@@ -1,6 +1,10 @@
 @use 'theme';
 @use '@fontsource/titillium-web';
 
+* {
+  font-family: theme.$defaultFonts !important;
+}
+
 :root {
   background-color: theme.$white;
 

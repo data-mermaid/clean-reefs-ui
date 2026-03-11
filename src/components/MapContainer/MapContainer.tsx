@@ -5,48 +5,40 @@ import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import useResponsive from '../../hooks/useResponsive'
 import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { defaultRegionOption } from '../../data/regionData'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
 
 export default function MapContainer() {
-  const { isMobileWidth } = useResponsive()
-
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  // const [mapLayers, setMapLayers] = useMapStore()
-  const [selectedYear, setSelectedYear] = useState(2000) //todo: prod should be 2020 by default. 2000 is testing only for partial data
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultRegionOption)
+  const [selectedYear, setSelectedYear] = useState(2020)//todo: prod should be 2020 by default. 2000 is testing only for partial data
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
 
   return (
     <div className={styles['MapContainer-root']}>
-      {isMobileWidth ? (
-        <div className={styles['layer-controls--mobile']}>
-          <LayersDrawer
-            mapLayers={mapLayers}
-            setMapLayers={setMapLayers}
-            selectedYear={selectedYear}
-          />
-          <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
-          <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          <TrendsDrawer selectedRegion={selectedRegion} />
-        </div>
-      ) : (
-        <div className={styles['layer-controls--desktop']}>
-          <LayersDrawer
-            mapLayers={mapLayers}
-            setMapLayers={setMapLayers}
-            selectedYear={selectedYear}
-          />
-          <div>
-            <RegionSelect selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
-            <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
-          </div>
-          <TrendsDrawer selectedRegion={selectedRegion} />
-        </div>
-      )}
-      <BaseMap mapLayers={mapLayers} selectedRegion={selectedRegion} />
+      <div className={styles['layer-controls']}>
+        <LayersDrawer
+          mapLayers={mapLayers}
+          setMapLayers={setMapLayers}
+          selectedYear={selectedYear}
+        />
+        <RegionSelect
+          selectedRegion={selectedRegion}
+          setSelectedRegion={setSelectedRegion}
+          breadcrumb={breadcrumb}
+          setBreadcrumb={setBreadcrumb}
+        />
+        <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+        <TrendsDrawer selectedRegion={selectedRegion} />
+      </div>
+      <BaseMap
+        mapLayers={mapLayers}
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
+        setBreadcrumb={setBreadcrumb}
+      />
     </div>
   )
 }

@@ -1,111 +1,131 @@
-import { Dispatch, SetStateAction } from 'react'
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
-import TextField from '@mui/material/TextField'
+import React, { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
-import i18next from 'i18next'
-import { LngLat } from 'maplibre-gl'
-import { defaultRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { MenuItem, Select } from '@mui/material'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import Box from '@mui/material/Box'
+import { useMapStore } from '../../stores/mapStore'
+
+const getRegionById = (regionId: string) => regionOptions.find((opt) => opt.id === regionId)
 
 interface RegionSelectProps {
+  breadcrumb: RegionOption[]
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
   setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
 }
 
-const noResultOptions: RegionOption[] = [
-  {
-    regionType: 'country',
-    label: i18next.t('regions.no_countries_match'),
-    centerCoord: new LngLat(0, 0),
-    zoomLevel: 10,
-  },
-  {
-    regionType: 'region',
-    label: i18next.t('regions.no_regions_match'),
-    centerCoord: new LngLat(0, 0),
-    zoomLevel: 10,
-  },
-]
-
-export default function RegionSelect({ selectedRegion, setSelectedRegion }: RegionSelectProps) {
+export default function RegionSelect({
+  breadcrumb,
+  setBreadcrumb,
+  selectedRegion,
+  setSelectedRegion,
+}: RegionSelectProps) {
   const { t } = useTranslation()
-  const noCountriesMatchText = t('regions.no_countries_match')
-  const noRegionsMatchText = t('regions.no_regions_match')
-  const muiFilterOptions = createFilterOptions<RegionOption>({ ignoreAccents: true, trim: true })
+  const mapRef = useMapStore((s) => s.mapReference)
 
-  const handleChange = (_: unknown, newValue: RegionOption | null) => {
-    setSelectedRegion(newValue || defaultRegionOption)
+  const prepBreadcrumb = (region: RegionOption) => {
+    const selectedOptions = [region]
+    if (region.grouping > 0) {
+      selectedOptions.unshift(defaultGlobalRegionOption)
+    }
+    setBreadcrumb(selectedOptions)
+  }
+  const jumpToRegion = (region: RegionOption) => {
+    // no jump on global click
+    if (region.grouping > 0) {
+      if (mapRef && mapRef.getMap) {
+        mapRef.getMap().jumpTo({
+          center: region.centerCoord,
+          zoom: region.zoomLevel,
+          bearing: 0,
+        })
+      }
+    }
+  }
+
+  const getBreadcrumbs = () => {
+    let items
+    if (breadcrumb.length > 0) {
+      items = breadcrumb.map((crumb, idx) => {
+        const isNotLastBreadcrumb = idx !== breadcrumb.length - 1
+        return (
+          <span key={_.kebabCase(crumb.label)} className={styles['breadcrumb']}>
+            <button
+              value={crumb.id}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                if (isNotLastBreadcrumb) {
+                  updateRegion(crumb)
+                }
+              }}
+            >
+              <span className={isNotLastBreadcrumb ? styles['mobile-ellipses'] : ''}>
+                {crumb.label}
+              </span>
+            </button>
+            {isNotLastBreadcrumb && <ChevronRightIcon />}
+          </span>
+        )
+      })
+    }
+
+    return <span className={styles['breadcrumbs-container']}>{items}</span>
+  }
+
+  const handleSelect = (event) => {
+    const selectedOption = getRegionById(event.target?.value) || defaultGlobalRegionOption
+    updateRegion(selectedOption)
+  }
+
+  const updateRegion = (region: RegionOption) => {
+    if (region.grouping > 0) {
+      jumpToRegion(region)
+    }
+    if (selectedRegion !== region) {
+      setSelectedRegion(region)
+      prepBreadcrumb(region)
+    }
   }
 
   return (
-    <div className={styles['RegionSelect-root']}>
-      <Autocomplete<RegionOption>
+    <Box className={styles['RegionSelect-root']}>
+      {breadcrumb.length > 0 && getBreadcrumbs()}
+      <Select<RegionOption>
         size="small"
-        options={regionOptions}
-        groupBy={(option) => {
-          if (option.regionType === 'country') {
-            return t('regions.countries_with_coral')
-          } else if (option.regionType === 'region') {
-            return t('regions.coral_reef_regions')
-          } else {
-            return t('regions.global')
-          }
-        }}
-        getOptionLabel={(option) => option.label}
-        getOptionDisabled={(option) =>
-          option.label === noCountriesMatchText || option.label === noRegionsMatchText
-        }
         aria-label={t('regions.select_region')}
         value={selectedRegion}
-        onChange={handleChange}
-        isOptionEqualToValue={(option, value) =>
-          option.label === value.label && option.regionType === value.regionType
-        }
-        noOptionsText=""
-        filterOptions={(options, state) => {
-          const filtered = muiFilterOptions(options, state)
-          return filtered.length ? filtered : noResultOptions
-        }}
-        classes={{
-          root: styles['MuiAutocomplete-root'],
-          input: styles['MuiAutocomplete-input'],
-          clearIndicator: styles['MuiAutocomplete-clearIndicator'],
-          popupIndicator: styles['MuiAutocomplete-popupIndicator'],
-          option: styles['MuiAutocomplete-option'],
-          noOptions: styles['MuiAutocomplete-noOptions'],
-        }}
-        slotProps={{
-          popper: {
-            className: styles['custom-autocomplete-popper'],
+        onChange={handleSelect}
+        variant="outlined"
+        MenuProps={{
+          classes: {
+            paper: styles['MuiPaper-root'],
+            list: styles['MuiList-root'],
           },
         }}
-        renderInput={(params) => <TextField {...params} />}
-        renderOption={(props, option) => {
-          const { key, ...otherProps } = props
-          return (
-            <li
-              key={_.kebabCase(key)}
-              {...otherProps}
-              style={{
-                opacity:
-                  option.label === noCountriesMatchText || option.label === noRegionsMatchText
-                    ? 0.6
-                    : 1,
-              }}
-            >
-              {option.label}
-            </li>
-          )
+        classes={{
+          root: styles['MuiSelect-root'],
+          select: styles['MuiSelect-select'],
         }}
-        renderGroup={(params) => (
-          <li key={_.kebabCase(params.key)}>
-            <div className={styles['group-header']}>{t(params.group)}</div>
-            <ul className={styles['group-list']}>{params.children}</ul>
-          </li>
-        )}
-      />
-    </div>
+      >
+        {regionOptions.map((option) => {
+          return (
+            option.grouping <= 2 && (
+              <MenuItem
+                className={styles['MuiMenuItem-root']}
+                key={_.kebabCase(option.label)}
+                value={option.id}
+              >
+                {option.label}
+              </MenuItem>
+            )
+          )
+        })}
+      </Select>
+    </Box>
   )
 }
