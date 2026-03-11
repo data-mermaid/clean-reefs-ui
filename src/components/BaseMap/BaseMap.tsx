@@ -290,9 +290,8 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
   useEffect(() => {
     if (mapRef.current) {
       const map = mapRef.current.getMap()
-      // console.log('hey')
-      //need to wait until the layer has finished loading?
-      map.moveLayer('watershed', 'label_airport')
+      map.moveLayer('plumes')
+      map.moveLayer('watershed')
     }
   }, [mapLayers])
 

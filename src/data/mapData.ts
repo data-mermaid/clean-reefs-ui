@@ -13,9 +13,8 @@ import {
   SED_EXPORT_2010_URL,
   SED_EXPORT_2015_URL,
   SED_EXPORT_2020_URL,
-  SED_DISPERSAL_VECTOR_URL,
+  SED_DISPERSAL_PMTILES_URL,
   WATERSHED_PMTILES_URL,
-  // SED_DISPERSAL_2000_URL_ALL,
   plumeOutlineColor,
 } from '../constants'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
@@ -86,36 +85,12 @@ export const parentLayerTitles = {
 
 export const layers: LayerInfo[] = [
   {
-    dataType: 'pmtiles',
-    isLayerOn: false, //true,
-    layerId: 'regions',
-    link: REGIONS_PMTILES_URL,
-    outlineColor: '#CECE00',
-    outlineStyle: false,
-    parentLayerType: 'boundaries',
-    sourceId: 'regions_src',
-    sourceFileName: 'regions',
-    title: 'boundary_map_layers.regional_boundaries',
-  },
-  {
-    dataType: 'pmtiles',
-    isLayerOn: false, //true,
-    layerId: 'countries',
-    link: COUNTRIES_PMTILES_URL,
-    outlineColor: '#FF0000',
-    parentLayerType: 'boundaries',
-    sourceId: 'countries_src',
-    sourceFileName: 'countries',
-    title: 'boundary_map_layers.country_boundaries',
-  },
-  {
     dataType: 'rastertiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'sed_dispersal',
     legendTitle: 'concentration',
     legendType: 'gradient',
     link: SED_DISPERSAL_2000_URL,
-    // link: SED_DISPERSAL_2000_URL_ALL,
     parentLayerType: 'oceanPollution',
     sourceId: 'sediment_exposure_2000',
     sourceFileName: 'sediment_exposure_2000',
@@ -184,7 +159,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'rastertiles',
-    isLayerOn: false, //true,
+    isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
     link: LULC_2020_URL,
@@ -197,7 +172,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2000_visual',
     dataType: 'rastertiles',
-    isLayerOn: false, //true
+    isLayerOn: true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -262,7 +237,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'benthic',
     legendType: 'benthic',
     link: ATLAS_BENTHIC_URL,
@@ -273,13 +248,35 @@ export const layers: LayerInfo[] = [
   {
     dataType: 'pmtiles',
     isLayerOn: true,
-    layerId: 'sed-dispersal-plumes',
-    link: SED_DISPERSAL_VECTOR_URL,
+    layerId: 'regions',
+    link: REGIONS_PMTILES_URL,
+    outlineColor: '#CECE00',
+    outlineStyle: false,
+    parentLayerType: 'boundaries',
+    sourceId: 'regions_src',
+    sourceFileName: 'regions',
+    title: 'boundary_map_layers.regional_boundaries',
+  },
+  {
+    dataType: 'pmtiles',
+    isLayerOn: true,
+    layerId: 'countries',
+    link: COUNTRIES_PMTILES_URL,
+    outlineColor: '#FF0000',
+    parentLayerType: 'boundaries',
+    sourceId: 'countries_src',
+    sourceFileName: 'countries',
+    title: 'boundary_map_layers.country_boundaries',
+  },
+  {
+    dataType: 'pmtiles',
+    isLayerOn: true,
+    layerId: 'plumes',
+    link: SED_DISPERSAL_PMTILES_URL,
     outlineColor: plumeOutlineColor,
     parentLayerType: 'boundaries',
-    // link: SED_DISPERSAL_2000_URL_ALL,
-    sourceId: 'plumes_src',
-    sourceFileName: 'visual_solomons_plumeshape_2000',
+    sourceId: 'visual_solomons_plumeshape_2000_src',
+    sourceFileName: 'tmp4jghia4g',
     title: 'map_layers.dispersal_plume',
   },
   // { //We may or may not be using ACA, or a home-brewed reef extent. TBD early 2026
@@ -295,7 +292,7 @@ export const layers: LayerInfo[] = [
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',
-    isLayerOn: false, //true
+    isLayerOn: true,
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     outlineColor: '#000',
