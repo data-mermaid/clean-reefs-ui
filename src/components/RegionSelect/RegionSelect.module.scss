@@ -1,80 +1,181 @@
-@use '../../styles/theme';
+@use '../../styles/theme' as *;
 
 .RegionSelect-root {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: theme.$regionSelectWidth;
+  border-right: none;
+  border-color: transparent;
+  border-radius: $borderRadius;
+  justify-content: space-between;
+  background-color: $greyWhite;
 
-  @include theme.mobileDownBreakPoint {
-    width: 100%;
+  @include mobileDownBreakPoint {
+    flex-shrink: 3;
+    flex-grow: 3;
   }
 }
 
-.MuiAutocomplete-root {
+.breadcrumbs-container {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: calc(100% - $mapUtilButtonHeight);
+
   width: 100%;
-  background-color: theme.$greyWhite;
-  border-radius: theme.$borderRadius;
+}
 
-  & .MuiAutocomplete-input {
-    font-size: theme.$defaultTextSize;
-  }
+.mobile-ellipses {
+  max-width: 2ch;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  height: 100%;
+  cursor: pointer;
 
-  & .MuiAutocomplete-clearIndicator {
-    & svg {
-      font-size: theme.$svgSizeSmall;
-    }
-  }
-
-  & .MuiAutocomplete-popupIndicator {
-    & svg {
-      font-size: theme.$svgSizeMedium;
-    }
+  @include mobileUpBreakPoint {
+    max-width: 100%;
   }
 }
 
-.custom-autocomplete-popper {
-  .MuiAutocomplete-option {
-    font-size: theme.$textSizeSmall;
+.breadcrumb {
+  background-color: $greyWhite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  margin: 0;
+  height: 100%;
+  white-space: nowrap;
 
-    &[aria-selected='true'] {
-      background-color: theme.$primary !important;
-      color: theme.$white !important;
-      font-weight: theme.$semiBold;
+  > button {
+    padding: $defaultSpacing;
+    background-color: $greyWhite;
+    border: none;
+    display: flex;
 
-      &:hover {
-        background-color: theme.$primary;
-        color: theme.$white;
-        opacity: 0.9;
-      }
+    //mobile
+    flex-wrap: wrap;
+    align-items: center;
+    height: 100%;
+
+    @include mobileDownBreakPoint {
+      padding: $defaultSpacing $spacingXSmall;
     }
 
     &:hover {
-      background-color: theme.$primaryLight;
-      color: theme.$textColor;
+      background-color: $hoverGrey;
     }
   }
 
-  .MuiAutocomplete-noOptions {
-    font-size: theme.$textSizeSmall;
-    color: theme.$textSecondary;
-    padding: theme.$spacingSmall theme.$spacingMedium;
+  //current state is not interactive
+  &:last-of-type {
+    cursor: default;
+    &:hover {
+      button {
+        background-color: $greyWhite;
+      }
+    }
+  }
+  &:first-of-type {
+    button {
+      border-radius: $borderRadius 0 0 $borderRadius;
+    }
+  }
+
+  &:first-of-type {
+    border-radius: $borderRadius 0 0 $borderRadius;
+  }
+  &:not(:first-of-type) {
+    padding-left: 0;
   }
 }
 
-.group-header {
-  position: sticky;
-  top: -8px;
-  font-weight: theme.$semiBold;
-  padding: theme.$spacingSmall theme.$spacingMedium;
-  background-color: theme.$secondaryLight;
-  border-bottom: 1px solid theme.$secondary;
-  font-size: theme.$textSizeSmall;
+.MuiSelect-root {
+  height: 100%;
+  max-height: 100%;
+  background-color: $greyWhite;
+  text-align: center;
+  border-left: 1px solid $textSecondary;
+  border-bottom: none;
+  border-radius: 0 $borderRadius $borderRadius 0;
+
+  &:after {
+    border-bottom: none;
+  }
+
+  & .MuiSelect-clearIndicator {
+    & svg {
+      font-size: $svgSizeSmall;
+    }
+  }
+
+  & .MuiSelect-popupIndicator {
+    & svg {
+      font-size: $svgSizeMedium;
+    }
+  }
+
+  fieldset {
+    border: none;
+  }
 }
 
-.group-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  font-size: theme.$textSizeSmall;
+.MuiSelect-select {
+  padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
+  border: none;
+  font-size: $defaultTextSize;
+
+  @include mobileUpBreakPoint {
+    padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
+  }
+
+  &:after {
+    border-bottom: none !important;
+  }
+
+  &:hover {
+    background-color: $hoverGrey;
+    color: $textColor;
+    border-radius: 0;
+  }
+
+  &:active {
+    background-color: $grey;
+  }
 }
+
+.MuiPaper-root {
+  width: calc(100% - $spacingXSmall * 2);
+  margin: $spacingXSmall;
+  left: 0 !important;
+  max-width: calc(100% - $spacingXSmall * 2);
+  @include mobileUpBreakPoint {
+    margin-right: 30px;
+    left: calc(50vw - 160px) !important;
+    width: 330px;
+  }
+}
+
+.MuiList-root {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+// To be implemented with regional grouping headers
+//.group-header {
+//  position: sticky;
+//  top: -8px;
+//  font-weight: $semiBold;
+//  padding: $spacingSmall $spacingMedium;
+//  border-bottom: 1px solid $secondary;
+//  font-size: $textSizeSmall;
+//}
+//
+//.group-list {
+//  padding: 0;
+//  margin: 0;
+//  list-style: none;
+//  font-size: $textSizeSmall;
+//}

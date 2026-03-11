@@ -1,15 +1,18 @@
-@use '../../styles/theme';
+@use '../../styles/theme' as *;
 
 .LayersDrawer-root {
   .layer-toggle-button {
     position: relative;
     top: 0;
     left: 0;
-    height: 40px;
+    height: $mapUtilButtonHeight;
 
+    @include mobileUpBreakPoint {
+      display: none;
+    }
     & svg {
-      width: theme.$svgSizeSmall;
-      color: theme.$textColor;
+      width: $svgSizeSmall;
+      color: $textColor;
     }
   }
 }

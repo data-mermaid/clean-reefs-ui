@@ -1,6 +1,6 @@
 # Clean Reefs
 
-UI package for the Clean Reefs application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
+UI package for the Global Pollution Watch / Clean Reefs application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
 
 ## Getting started
 
@@ -9,6 +9,10 @@ Create a `.env` file based off of `.env.example`. [Sign up for Maptiler](https:/
 - `yarn install`
 - `yarn start`
 - Builds to `http://localhost:5173`
+
+## Setup notes
+
+The watersheds data source is used by both a vector layer for outlines and a vector layer for fills. The fills layer updates for sediment export and other layers as needed.
 
 ## Code contribution styles:
 
