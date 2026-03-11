@@ -15,7 +15,9 @@ export default function LoadingState({ isOverlay, height = 200 }: LoadingStatePr
   return (
     <div
       style={{
-        ...(isOverlay && { height: `${height}px`, paddingTop: height / 2 }),
+        ...(isOverlay
+          ? { height: `${height}px`, paddingTop: height / 2 }
+          : { height: `${height}px`, paddingTop: height / 4 }),
       }}
       className={isOverlay ? styles['LoadingState--overlay'] : styles['LoadingState--root']}
     >
