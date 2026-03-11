@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
-import { expect, screen, userEvent } from 'storybook/test'
-import { defaultRegionOption } from '../../data/regionData'
+import { expect, userEvent } from 'storybook/test'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 
 const meta: Meta<typeof RegionSelect> = {
   component: RegionSelect,
@@ -12,52 +12,32 @@ const meta: Meta<typeof RegionSelect> = {
 
 type Story = StoryObj<typeof RegionSelect>
 
-export const Primary: Story = {
+export const ShortBreadcrumb: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    breadcrumb: [defaultGlobalRegionOption],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
-  },
-  parameters: {
-    viewport: { defaultViewport: 'desktop1' },
-  },
-  play: async ({ canvas }) => {
-    const input = canvas.getByRole('combobox')
-    await expect(input).toBeInTheDocument()
-    await userEvent.click(input)
-    const clearButton = canvas.getByTitle('Clear')
-    await expect(clearButton).toBeInTheDocument()
-    await userEvent.click(clearButton)
-    await userEvent.type(input, 'solomon')
-  },
-}
-
-export const Mobile: Story = {
-  args: {
-    selectedRegion: defaultRegionOption,
-    setSelectedRegion: () => {},
-  },
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [(Story) => <Story />],
+  play: async ({ canvas }) => {
+    const input = canvas.getByRole('combobox')
+    await expect(input).toBeInTheDocument()
+    await userEvent.click(input)
+  },
 }
 
-export const NoResults: Story = {
+export const LongBreadcrumb: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
+    setBreadcrumb: () => {},
+    selectedRegion: defaultGlobalRegionOption,
     setSelectedRegion: () => {},
   },
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')
     await expect(input).toBeInTheDocument()
     await userEvent.click(input)
-    const clearButton = canvas.getByTitle('Clear')
-    await expect(clearButton).toBeInTheDocument()
-    await userEvent.click(clearButton)
-    await userEvent.type(input, 'solomon islad')
-
-    const noResultsText = screen.getByText('No regions match your search')
-    await expect(noResultsText).toBeInTheDocument()
   },
 }
 
