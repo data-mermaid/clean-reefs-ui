@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import TrendsDrawer from './TrendsDrawer'
-import { defaultRegionOption } from '../../data/regionData'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 const meta = {
   component: TrendsDrawer,
@@ -11,7 +11,7 @@ type Story = StoryObj<typeof meta>
 
 export const Primary: Story = {
   args: {
-    selectedRegion: defaultRegionOption,
+    selectedRegion: defaultGlobalRegionOption,
   },
 }
 

@@ -21,8 +21,8 @@ import '@maptiler/sdk/dist/maptiler-sdk.css'
 import styles from './BaseMap.module.scss'
 import maplibregl, {
   ErrorEvent as MapErrorEvent,
-  MapGeoJSONFeature,
   LngLatBounds,
+  MapGeoJSONFeature,
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
@@ -34,15 +34,18 @@ import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import {
-  polygonOutlineHoverColor,
-  polygonOutlineSelectColor,
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
+  polygonOutlineHoverColor,
+  polygonOutlineSelectColor,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
+import { regionOptions } from '../../data/regionData'
+
+const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -131,11 +134,6 @@ function WatershedLayers({ layer, index }) {
   )
 }
 
-interface BaseMapProps {
-  mapLayers: LayerInfo[]
-  selectedRegion: RegionOption
-}
-
 function PmTileLayers({ layer, index }) {
   return (
     <Source
@@ -160,7 +158,19 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
+interface BaseMapProps {
+  mapLayers: LayerInfo[]
+  selectedRegion: RegionOption
+  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+}
+
+export default function BaseMap({
+  mapLayers,
+  selectedRegion,
+  setSelectedRegion,
+  setBreadcrumb,
+}: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -188,6 +198,27 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
         const map = mapRef.current?.getMap()
 
         if (map) {
+          //todo: for plume
+          const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
+
+          const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
+          const subRegionWithUpdatedConfig: RegionOption = {
+            id: 'watershed',
+            regionType: 'watershed',
+            label: 'Watershed',
+            centerCoord: bounds.getCenter(),
+            zoomLevel: map.getZoom(),
+            grouping: 3,
+          }
+          const updatedRegions: RegionOption[] = [selectedRegion]
+          if (addtlRegion) {
+            updatedRegions.push(addtlRegion)
+          }
+          updatedRegions.push(subRegionWithUpdatedConfig)
+
+          setBreadcrumb(updatedRegions)
+          setSelectedRegion(subRegionWithUpdatedConfig)
+
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
           map.fitBounds(bounds, {
             padding: config.padding,
@@ -197,7 +228,7 @@ export default function BaseMap({ mapLayers, selectedRegion }: BaseMapProps) {
         }
       }
     },
-    [setSelectedFeature, isDesktopWidth],
+    [isDesktopWidth, selectedRegion, setBreadcrumb, setSelectedFeature, setSelectedRegion],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
