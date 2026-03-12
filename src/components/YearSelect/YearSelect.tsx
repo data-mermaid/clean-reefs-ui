@@ -7,8 +7,7 @@ import clsx from 'clsx'
 
 import styles from './YearSelect.module.scss'
 import { useTranslation } from 'react-i18next'
-
-const availableYears = [2020, 2015, 2010, 2005, 2000]
+import { availableYears } from '../../constants'
 
 export interface YearSelectProps {
   selectedYear: number

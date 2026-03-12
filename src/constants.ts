@@ -51,3 +51,7 @@ export const mapFitBoundsMobileConfig = {
 /******COLORS******/
 export const polygonOutlineHoverColor = '#00FF01'
 export const polygonOutlineSelectColor = '#0000FF'
+
+/******OTHERS******/
+export const availableYears = [2020, 2015, 2010, 2005, 2000]
+export const defaultYear = 2020
