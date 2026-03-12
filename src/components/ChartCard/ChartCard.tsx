@@ -1,4 +1,4 @@
-import React, { lazy, MouseEventHandler, Suspense, useState } from 'react'
+import React, { lazy, MouseEventHandler, Suspense } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './ChartCard.module.scss'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +14,7 @@ interface ChartCardProps {
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
   chartConfigData: ChartProperties | null
+  isChartDataLoading: boolean
 }
 
 const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperties | null) => {
@@ -30,12 +31,12 @@ export default function ChartCard({
   onClick,
   regionType = 'global',
   chartConfigData,
+  isChartDataLoading,
 }: ChartCardProps) {
   const { t } = useTranslation()
-  const [loading] = useState(false)
 
   const renderChartContent = () => {
-    if (loading) {
+    if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
     }
     if (chartConfigData !== null) {
