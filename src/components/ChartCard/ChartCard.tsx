@@ -14,6 +14,7 @@ interface ChartCardProps {
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
   chartConfigData: ChartProperties | null
+  isChartDataLoading: boolean
 }
 
 const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperties | null) => {
@@ -30,10 +31,10 @@ export default function ChartCard({
   onClick,
   regionType = 'global',
   chartConfigData,
+  isChartDataLoading,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
-  const [loading] = useState(false)
   const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function ChartCard({
   }, [open, pendingScrollAfterOpen])
 
   const renderChartContent = () => {
-    if (loading) {
+    if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
     }
     if (chartConfigData !== null) {

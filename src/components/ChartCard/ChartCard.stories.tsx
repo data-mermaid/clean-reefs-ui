@@ -15,6 +15,7 @@ export const Primary: Story = {
   args: {
     open: true,
     chartConfigData: mockChartConfig,
+    isChartDataLoading: false,
   },
 }
 
@@ -22,6 +23,7 @@ export const Loading: Story = {
   args: {
     open: true,
     chartConfigData: null,
+    isChartDataLoading: true,
   },
 }
 
@@ -29,6 +31,7 @@ export const NoData: Story = {
   args: {
     open: true,
     chartConfigData: null,
+    isChartDataLoading: false,
   },
   play: async ({ canvas }) => {
     const noGraphText = i18next.t('charts.no_data_available')
@@ -40,6 +43,7 @@ export const Closed: Story = {
   args: {
     open: false,
     chartConfigData: null,
+    isChartDataLoading: false,
   },
   play: async ({ canvas }) => {
     const noGraphText = i18next.t('charts.no_data_available')

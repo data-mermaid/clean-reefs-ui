@@ -28,12 +28,15 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )
+  const [isChartDataLoading, setIsChartDataLoading] = useState(false)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
   useEffect(() => {
     if (selectedFeature) {
+      setIsChartDataLoading(true)
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
+      setIsChartDataLoading(false)
     } else {
       setChartConfigData(null)
     }
@@ -75,6 +78,7 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
                   {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                   regionType={selectedRegion.regionType}
                   chartConfigData={chart}
+                  isChartDataLoading={isChartDataLoading}
                 />
               </SelectedFeatureContext.Provider>
             )
