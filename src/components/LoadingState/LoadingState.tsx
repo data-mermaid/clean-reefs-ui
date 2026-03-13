@@ -9,16 +9,11 @@ interface LoadingStateProps {
   height?: number
 }
 
-export default function LoadingState({ isOverlay, height = 200 }: LoadingStateProps) {
+export default function LoadingState({ isOverlay }: LoadingStateProps) {
   const { t } = useTranslation()
 
   return (
-    <div
-      style={{
-        ...(isOverlay && { height: `${height}px`, paddingTop: height / 2 }),
-      }}
-      className={isOverlay ? styles['LoadingState--overlay'] : styles['LoadingState--root']}
-    >
+    <div className={isOverlay ? styles['LoadingState--overlay'] : styles['LoadingState--root']}>
       <Typography style={{ textAlign: 'center' }}>{t('loading')}...</Typography>
       <CircularProgress className={styles['CircularProgress--root']} />
     </div>
