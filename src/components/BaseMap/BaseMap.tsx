@@ -319,12 +319,12 @@ export default function BaseMap({
   }, [isMapLoaded])
 
   useEffect(() => {
-    if (mapRef.current) {
+    if (mapRef.current && isMapLoaded) {
       const map = mapRef.current.getMap()
-      map.moveLayer('plumes')
-      map.moveLayer('watershed')
+      map.moveLayer('plumes', 'label_airport')
+      map.moveLayer('watershed', 'label_airport')
     }
-  }, [mapLayers])
+  }, [isMapLoaded, mapLayers])
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
@@ -447,7 +447,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="label_airport"
+                    // beforeId="label_airport"
                   />
                 </Source>
               )

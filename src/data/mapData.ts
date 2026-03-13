@@ -167,7 +167,7 @@ export const layers: LayerInfo[] = [
     link: SED_EXPORT_2000_URL,
     parentLayerType: 'landPollution',
     sourceFileName: '',
-    title: 'sediment_export',
+    title: 'map_layers.sediment_export',
     year: 2000,
   },
   {
@@ -180,7 +180,7 @@ export const layers: LayerInfo[] = [
     link: SED_EXPORT_2005_URL,
     parentLayerType: 'landPollution',
     sourceFileName: '',
-    title: 'sediment_export',
+    title: 'map_layers.sediment_export',
     year: 2005,
   },
   {
@@ -193,7 +193,7 @@ export const layers: LayerInfo[] = [
     link: SED_EXPORT_2010_URL,
     parentLayerType: 'landPollution',
     sourceFileName: '',
-    title: 'sediment_export',
+    title: 'map_layers.sediment_export',
     year: 2010,
   },
   {
@@ -206,7 +206,7 @@ export const layers: LayerInfo[] = [
     link: SED_EXPORT_2015_URL,
     parentLayerType: 'landPollution',
     sourceFileName: '',
-    title: 'sediment_export',
+    title: 'map_layers.sediment_export',
     year: 2015,
   },
   {
@@ -219,7 +219,7 @@ export const layers: LayerInfo[] = [
     link: SED_EXPORT_2020_URL,
     parentLayerType: 'landPollution',
     sourceFileName: '',
-    title: 'sediment_export',
+    title: 'map_layers.sediment_export',
     year: 2020,
   },
   {
@@ -231,7 +231,7 @@ export const layers: LayerInfo[] = [
     link: ATLAS_BENTHIC_URL,
     parentLayerType: 'benthic',
     sourceFileName: 'benthic',
-    title: 'Benthic',
+    title: 'map_layer_groups.benthic_layers',
   },
   {
     dataType: 'pmtiles',

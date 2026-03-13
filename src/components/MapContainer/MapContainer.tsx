@@ -12,7 +12,7 @@ import { LayerInfo } from '../../types/MapDataTypes'
 
 export default function MapContainer() {
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedYear, setSelectedYear] = useState(2020)//todo: prod should be 2020 by default. 2000 is testing only for partial data
+  const [selectedYear, setSelectedYear] = useState(2000) //todo: prod should be 2020 by default. 2000 is testing only for ocean pollution data
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
 

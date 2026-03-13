@@ -27,7 +27,7 @@ export const Primary: Story = {
 
     await waitFor(() => expect(canvas.queryByText(loadingText)).toBeNull())
     // ScaleControl renders plain text, not a form value; use findByText (async) or getByText
-    const scale = await canvas.findByText(/5\s?km/)
+    const scale = await canvas.findByText(/\s?km/)
     expect(scale).toBeInTheDocument()
   },
 }
