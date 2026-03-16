@@ -13,6 +13,12 @@ export const SedimentExport: Story = {
     title: 'sediment',
   },
 }
+export const OceanSedimentDispersal: Story = {
+  args: {
+    variation: 'sed_dispersal',
+    title: 'sediment',
+  },
+}
 export const SedimentConcentration: Story = {
   args: {
     variation: 'sediment-concentration',

@@ -5,7 +5,7 @@ export const defaultGlobalRegionOption: RegionOption = {
   id: 'global',
   regionType: 'global',
   label: 'Global',
-  centerCoord: new LngLat(160.414413, -5.578193),
+  centerCoord: new LngLat(160.414413, -9.64571),
   zoomLevel: 6,
   grouping: 0,
 }

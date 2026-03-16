@@ -13,7 +13,7 @@ const mockUrl = 'https://things.com'
 const mockLayers: LayerInfo[] = [
   {
     sourceId: 'lulc_2000_visual',
-    sourceName: '',
+    sourceFileName: '',
     layerId: 'lulc',
     link: mockUrl,
     dataType: 'cog',
@@ -23,7 +23,7 @@ const mockLayers: LayerInfo[] = [
   },
   {
     sourceId: 'countries_src',
-    sourceName: 'countries',
+    sourceFileName: 'countries',
     layerId: 'countries',
     link: mockUrl,
     dataType: 'pmtiles',
@@ -33,7 +33,7 @@ const mockLayers: LayerInfo[] = [
   },
   {
     sourceId: 'watershed_src',
-    sourceName: 'Fiji+Solomons_watershed_LULC_SDR_v2',
+    sourceFileName: 'Fiji+Solomons_watershed_LULC_SDR_v2',
     layerId: 'watershed',
     link: mockUrl,
     dataType: 'pmtiles',
