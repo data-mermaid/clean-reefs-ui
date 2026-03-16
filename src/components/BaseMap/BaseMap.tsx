@@ -388,7 +388,7 @@ export default function BaseMap({
             return (
               isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          } else if (layer.dataType === 'rastertiles') {
+          } else if (layer.dataType === 'cog') {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -397,6 +397,29 @@ export default function BaseMap({
                   key={`${layer.sourceId}-${index}`}
                   type="raster"
                   url={`cog://${layer.link}`}
+                  tileSize={256}
+                  maxzoom={16}
+                  minzoom={6}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="raster"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    beforeId="label_airport"
+                  />
+                </Source>
+              )
+            )
+          } else if (layer.dataType === 'rastertiles') {
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
+                  type="raster"
+                  tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
                   minzoom={6}

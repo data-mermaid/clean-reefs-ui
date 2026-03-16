@@ -6,6 +6,7 @@ import {
   LULC_2010_URL,
   LULC_2015_URL,
   LULC_2020_URL,
+  REEF_EXTENT_URL,
   REGIONS_PMTILES_URL,
   SED_EXPORT_2000_URL,
   SED_EXPORT_2005_URL,
@@ -105,7 +106,7 @@ export const layers: LayerInfo[] = [
     title: 'boundary_map_layers.country_boundaries',
   },
   // {
-  //   dataType: 'rastertiles',
+  //   dataType: 'cog',
   //   isLayerOn: false,
   //   layerId: 'sed_export',
   //   legendType: 'gradient',
@@ -117,7 +118,7 @@ export const layers: LayerInfo[] = [
   //   year: 2000,
   // },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -129,7 +130,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -141,7 +142,7 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -153,7 +154,7 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -165,7 +166,7 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: true,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -178,7 +179,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2000_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -191,7 +192,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2005_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -204,7 +205,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2010_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -217,7 +218,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2015_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -230,7 +231,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2020_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -240,6 +241,16 @@ export const layers: LayerInfo[] = [
     sourceName: '',
     title: 'sediment_export',
     year: 2020,
+  },
+  {
+    sourceId: 'reefextent',
+    dataType: 'rastertiles',
+    isLayerOn: true,
+    layerId: 'atlas-reefextent',
+    link: REEF_EXTENT_URL,
+    parentLayerType: 'benthic',
+    sourceName: 'data_aca_extent',
+    title: 'Reef extent',
   },
   {
     sourceId: 'atlas-benthic',
@@ -252,16 +263,7 @@ export const layers: LayerInfo[] = [
     sourceName: 'benthic',
     title: 'Benthic',
   },
-  // { //We may or may not be using ACA, or a home-brewed reef extent. TBD early 2026
-  //   sourceId: 'atlas-reefextent',
-  //   dataType: 'vectortiles',
-  //   isLayerOn: false,
-  //   layerId: 'atlas-reefextent',
-  //   link: ATLAS_REEF_EXTENT_URL,
-  //   parentLayerType: 'benthic',
-  //   sourceName: 'reefextent',
-  //   title: 'Reef extent',
-  // },
+
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',

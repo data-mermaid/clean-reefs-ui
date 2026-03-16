@@ -79,6 +79,9 @@ To enable consistent communications, the terminology used refers to the followin
 - Series: A group of related data points
 - Trace: A singular set of data points within a series
 
+## Adding more data layers
+ Add the corresponding data object in layers in mapData.ts in the order of preference for rendering. 
+
 ## More Resources
 
 - [Translation best practices](https://github.com/data-mermaid/mermaid-webapp/blob/develop/docs/TranslationBestPractices.md)

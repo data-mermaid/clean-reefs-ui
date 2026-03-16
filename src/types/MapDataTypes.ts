@@ -4,7 +4,7 @@ export interface LayerInfo {
   layerId: string
   legendType?: 'gradient' | 'lulc' | 'benthic'
   link: string
-  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
+  dataType: 'pmtiles' | 'cog' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   outlineColor?: string //vector files only
   outlineStyle?: boolean //vector files only
   parentLayerType:
