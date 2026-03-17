@@ -99,8 +99,10 @@ export default function ChartCard({
   return (
     <Card
       onClick={(event) => {
-        onClick?.(event)
-        setPendingScrollAfterOpen(true)
+        if (onClick) {
+          onClick(event)
+          setPendingScrollAfterOpen(true)
+        }
       }}
       className={styles['chart-card']}
     >
