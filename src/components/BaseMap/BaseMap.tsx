@@ -320,8 +320,9 @@ export default function BaseMap({
   useEffect(() => {
     if (mapRef.current && isMapLoaded) {
       const map = mapRef.current.getMap()
-      map.moveLayer('plumes', 'label_airport')
-      map.moveLayer('watershed', 'label_airport')
+      map.moveLayer('benthic')
+      map.moveLayer('plumes')
+      map.moveLayer('watershed')
     }
   }, [isMapLoaded, mapLayers])
 
