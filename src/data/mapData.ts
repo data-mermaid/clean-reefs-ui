@@ -68,7 +68,7 @@ export const layers: LayerInfo[] = [
   reefExtentSubLayer,
   {
     dataType: 'rastertiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'sed_dispersal',
     legendTitle: 'concentration',
     legendType: 'gradient',
@@ -129,7 +129,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'cog',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'lulc',
     legendType: 'lulc',
     link: LULC_2020_URL,
@@ -142,7 +142,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2000_visual',
     dataType: 'cog',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -218,7 +218,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -230,7 +230,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -241,7 +241,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'plumes',
     link: SED_DISPERSAL_PMTILES_URL,
     outlineColor: plumeOutlineColor,
@@ -253,7 +253,7 @@ export const layers: LayerInfo[] = [
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',
-    isLayerOn: false, //true,
+    isLayerOn: true,
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     outlineColor: '#000',
