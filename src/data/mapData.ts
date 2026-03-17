@@ -65,6 +65,7 @@ export const reefExtentSubLayer: LayerInfo = {
 }
 
 export const layers: LayerInfo[] = [
+  reefExtentSubLayer,
   {
     dataType: 'rastertiles',
     isLayerOn: false, //true,

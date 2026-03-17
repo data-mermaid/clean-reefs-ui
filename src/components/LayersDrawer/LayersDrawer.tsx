@@ -34,16 +34,16 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      const toggledLayer = event.target.id
-      const isRasterLayer = landRasterLayers.indexOf(toggledLayer) > -1
+      const toggledLayerId = event.target.id
+      const isRasterLayer = landRasterLayers.indexOf(toggledLayerId) > -1
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
+      let updatedLayers = mapToggleChange(mapLayers, toggledLayerId, checked)
       if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
+        if (activeRasterLayerId && activeRasterLayerId !== toggledLayerId) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
         }
         if (checked) {
-          setActiveRasterLayerId(toggledLayer)
+          setActiveRasterLayerId(toggledLayerId)
         } else {
           setActiveRasterLayerId(null)
         }
@@ -57,11 +57,15 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayerId = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked)
+      const updatedSubLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked)
       toggleSubLayerFillColor(toggledLayerId)
-      setMapSubLayers(updatedLayers)
+      setMapSubLayers(updatedSubLayers)
+
+      if (toggledLayerId === 'reef_extent') {
+        setMapLayers(mapToggleChange(mapLayers, toggledLayerId, checked))
+      }
     },
-    [mapSubLayers, toggleSubLayerFillColor],
+    [mapLayers, mapSubLayers, setMapLayers, toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
@@ -70,7 +74,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     let mappedLayers
     if (groupedLayers.length > 0) {
       mappedLayers = groupedLayers.map((layer, index) => {
-        if (layer.year && layer.year !== selectedYear) {
+        if ((layer.year && layer.year !== selectedYear) || layer.layerId === 'reef_extent') {
           return null
         }
         return (
@@ -105,12 +109,18 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
       >
-        {Object.entries(parentLayerTitles).map(([key, value]) => (
-          <div key={key}>
-            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
-            {getLayersByParentGroup(key, toggleLayer)}
-          </div>
-        ))}
+        {Object.entries(parentLayerTitles).map(([key, value]) => {
+          const parentGroupLayers = getLayersByParentGroup(key, toggleLayer)
+          if (parentGroupLayers.length > 0) {
+            return (
+              <div key={key}>
+                <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+                {parentGroupLayers}
+              </div>
+            )
+          }
+          return null
+        })}
       </StyledSwipeableDrawer>
     </div>
   )
