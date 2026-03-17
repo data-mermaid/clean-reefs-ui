@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
-import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
+import { benthicSubLayers, parentLayerTitles } from '../../data/mapData'
+import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
+import { mapToggleChange } from '../../utils/mapUtils'
 
 /**
  * Business rule:
@@ -18,17 +19,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
-const rasterLayers = ['sed_export', 'lulc']
-
-const mapToggleChange = (
-  layers: LayerInfo[] | SubLayerInfo[],
-  layerId: string,
-  checked: boolean,
-) => {
-  return layers.map((layer) => {
-    return layer.layerId === layerId ? { ...layer, isLayerOn: checked } : layer
-  })
-}
+const landRasterLayers = ['sed_export', 'lulc']
 
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
@@ -37,14 +28,14 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     setOpen(newOpen)
   }
   const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
-  const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
+  const [mapSubLayers, setMapSubLayers] = useState(benthicSubLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayer = event.target.id
-      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
+      const isRasterLayer = landRasterLayers.indexOf(toggledLayer) > -1
 
       let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
       if (isRasterLayer) {
@@ -65,9 +56,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      const toggledLayer = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      toggleSubLayerFillColor(toggledLayer)
+      const toggledLayerId = event.target.id
+      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked)
+      toggleSubLayerFillColor(toggledLayerId)
       setMapSubLayers(updatedLayers)
     },
     [mapSubLayers, toggleSubLayerFillColor],

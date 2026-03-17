@@ -1,6 +1,6 @@
 import LayerToggleLegend from './LayerToggleLegend'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { atlasBenthicLayers } from '../../data/mapData'
+import { benthicSubLayers } from '../../data/mapData'
 
 const meta = {
   component: LayerToggleLegend,
@@ -10,7 +10,7 @@ type Story = StoryObj<typeof meta>
 
 export const Primary: Story = {
   args: {
-    mapSubLayers: atlasBenthicLayers,
+    mapSubLayers: benthicSubLayers,
     toggleSubLayer: () => {},
   },
 }

@@ -12,6 +12,9 @@ Create a `.env` file based off of `.env.example`. [Sign up for Maptiler](https:/
 
 ## Setup notes
 
+mapData.ts holds the main configurations.
+The layerId in mapData is used to identify an associated legend and chart, if they exist.
+
 The watersheds data source is used by both a vector layer for outlines and a vector layer for fills. The fills layer updates for sediment export and other layers as needed.
 
 ## Code contribution styles:
@@ -80,7 +83,8 @@ To enable consistent communications, the terminology used refers to the followin
 - Trace: A singular set of data points within a series
 
 ## Adding more data layers
- Add the corresponding data object in layers in mapData.ts in the order of preference for rendering. 
+
+Add the corresponding data object in layers in mapData.ts in the order of preference for rendering.
 
 ## More Resources
 

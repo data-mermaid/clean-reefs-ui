@@ -6,17 +6,17 @@ import {
   LULC_2010_URL,
   LULC_2015_URL,
   LULC_2020_URL,
+  plumeOutlineColor,
   REEF_EXTENT_URL,
   REGIONS_PMTILES_URL,
   SED_DISPERSAL_2000_URL,
+  SED_DISPERSAL_PMTILES_URL,
   SED_EXPORT_2000_URL,
   SED_EXPORT_2005_URL,
   SED_EXPORT_2010_URL,
   SED_EXPORT_2015_URL,
   SED_EXPORT_2020_URL,
-  SED_DISPERSAL_PMTILES_URL,
   WATERSHED_PMTILES_URL,
-  plumeOutlineColor,
 } from '../constants'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 
@@ -32,37 +32,6 @@ export const atlasBenthicColors = {
   sand: '#DECC77',
 }
 
-export const atlasBenthicLayers: SubLayerInfo[] = [
-  {
-    layerId: 'reef_extent',
-    isLayerOn: false,
-  },
-  {
-    layerId: 'coral_algae',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'seagrass',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'microalgal_mats',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'rock',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'rubble',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'sand',
-    isLayerOn: true,
-  },
-]
-
 export const sedExportColorMapping = {
   '0': '#018571',
   '1-10': '#4aae9f',
@@ -74,7 +43,7 @@ export const sedExportColorMapping = {
 }
 
 //this is the order the parent layers will appear in the layer toggle drawer
-//currently, ocean pollution and base layers are not implemented
+//currently, base layers are not implemented
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
   oceanPollution: 'map_layer_groups.ocean_pollution_layers',
@@ -84,10 +53,21 @@ export const parentLayerTitles = {
   // base: 'map_layer_groups.base_map',
 }
 
+export const reefExtentSubLayer: LayerInfo = {
+  sourceId: 'reef_extent',
+  dataType: 'rastertiles',
+  isLayerOn: true,
+  layerId: 'reef_extent',
+  link: REEF_EXTENT_URL,
+  parentLayerType: 'benthic',
+  sourceFileName: 'data_aca_extent',
+  title: 'benthic_map_layers.reef_extent',
+}
+
 export const layers: LayerInfo[] = [
   {
     dataType: 'rastertiles',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'sed_dispersal',
     legendTitle: 'concentration',
     legendType: 'gradient',
@@ -148,7 +128,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'cog',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'lulc',
     legendType: 'lulc',
     link: LULC_2020_URL,
@@ -161,7 +141,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2000_visual',
     dataType: 'cog',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -223,16 +203,7 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.sediment_export',
     year: 2020,
   },
-  {
-    sourceId: 'reefextent',
-    dataType: 'rastertiles',
-    isLayerOn: true,
-    layerId: 'atlas-reefextent',
-    link: REEF_EXTENT_URL,
-    parentLayerType: 'benthic',
-    sourceFileName: 'data_aca_extent',
-    title: 'Reef extent',
-  },
+
   {
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
@@ -246,7 +217,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
     outlineColor: '#CECE00',
@@ -258,7 +229,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
     outlineColor: '#FF0000',
@@ -269,7 +240,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'plumes',
     link: SED_DISPERSAL_PMTILES_URL,
     outlineColor: plumeOutlineColor,
@@ -278,11 +249,10 @@ export const layers: LayerInfo[] = [
     sourceFileName: 'tmp4jghia4g',
     title: 'map_layers.dispersal_plume',
   },
-
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',
-    isLayerOn: true,
+    isLayerOn: false, //true,
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
     outlineColor: '#000',
@@ -290,5 +260,33 @@ export const layers: LayerInfo[] = [
     sourceId: 'watershed_src',
     sourceFileName: 'watersheds',
     title: 'boundary_map_layers.watershed_boundaries',
+  },
+]
+
+export const benthicSubLayers: (SubLayerInfo | LayerInfo)[] = [
+  reefExtentSubLayer,
+  {
+    layerId: 'coral_algae',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'seagrass',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'microalgal_mats',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rock',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rubble',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'sand',
+    isLayerOn: true,
   },
 ]

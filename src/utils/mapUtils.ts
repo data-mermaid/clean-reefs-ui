@@ -2,7 +2,7 @@ import { RegionOption } from '../types/RegionDataTypes'
 import { regionOptions } from '../data/regionData'
 import { LngLatBounds, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
-import { LayerInfo } from '../types/MapDataTypes'
+import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
@@ -123,6 +123,16 @@ export function createPolygonClickHandler(
       onSelect(feature, bounds)
     }
   }
+}
+
+export const mapToggleChange = (
+  layers: LayerInfo[] | SubLayerInfo[],
+  layerId: string,
+  checked: boolean,
+) => {
+  return layers.map((layer) => {
+    return layer.layerId === layerId ? { ...layer, isLayerOn: checked } : layer
+  })
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
