@@ -41,7 +41,7 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
     // If the polygon is already selected, do not apply hover state
     const selectedRef = map.getFeatureState({
       source: mapDataLayer.sourceId,
-      sourceLayer: mapDataLayer.sourceName,
+      sourceLayer: mapDataLayer.sourceFileName,
       id: featureId,
     })
 
@@ -53,7 +53,7 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
       map.setFeatureState(
         {
           source: mapDataLayer.sourceId,
-          sourceLayer: mapDataLayer.sourceName,
+          sourceLayer: mapDataLayer.sourceFileName,
           id: hoveredRef.current,
         },
         { hover: false },
@@ -66,7 +66,7 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
     map.setFeatureState(
       {
         source: mapDataLayer.sourceId,
-        sourceLayer: mapDataLayer.sourceName,
+        sourceLayer: mapDataLayer.sourceFileName,
         id: hoveredRef.current,
       },
       { hover: true },
@@ -94,7 +94,7 @@ export function createPolygonClickHandler(
       map.setFeatureState(
         {
           source: mapDataLayer.sourceId,
-          sourceLayer: mapDataLayer.sourceName,
+          sourceLayer: mapDataLayer.sourceFileName,
           id: polygonClickedRef.current,
         },
         { select: false },
@@ -112,7 +112,7 @@ export function createPolygonClickHandler(
     map.setFeatureState(
       {
         source: mapDataLayer.sourceId,
-        sourceLayer: mapDataLayer.sourceName,
+        sourceLayer: mapDataLayer.sourceFileName,
         id: polygonClickedRef.current,
       },
       { select: true, hover: false },

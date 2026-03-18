@@ -1,10 +1,10 @@
 export interface LayerInfo {
-  sourceId: string
-  sourceName: string //layer name defaults to the file name
+  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
+  isLayerOn: boolean
   layerId: string
+  legendTitle?: string
   legendType?: 'gradient' | 'lulc' | 'benthic'
   link: string
-  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   outlineColor?: string //vector files only
   outlineStyle?: boolean //vector files only
   parentLayerType:
@@ -14,13 +14,13 @@ export interface LayerInfo {
     | 'landcover'
     | 'landPollution'
     | 'oceanPollution'
-  isLayerOn: boolean
+  sourceId: string
+  sourceFileName: string //layer name defaults to the file name
   title: string
-  legendTitle?: string
   year?: 2000 | 2005 | 2010 | 2015 | 2020
 }
 
 export interface SubLayerInfo {
-  layerId: string
   isLayerOn: boolean
+  layerId: string
 }
