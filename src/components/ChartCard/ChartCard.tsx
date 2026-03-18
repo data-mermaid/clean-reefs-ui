@@ -1,4 +1,4 @@
-import React, { lazy, MouseEventHandler, Suspense } from 'react'
+import React, { lazy, MouseEventHandler, Suspense, useEffect, useRef, useState } from 'react'
 import { Card, Typography } from '@mui/material'
 import styles from './ChartCard.module.scss'
 import { useTranslation } from 'react-i18next'
@@ -34,6 +34,25 @@ export default function ChartCard({
   isChartDataLoading,
 }: ChartCardProps) {
   const { t } = useTranslation()
+  const chartRef = useRef<HTMLDivElement>(null)
+  const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
+
+  useEffect(() => {
+    let animationFrameId: number | null = null
+
+    if (open && pendingScrollAfterOpen) {
+      animationFrameId = window.requestAnimationFrame(() => {
+        chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setPendingScrollAfterOpen(false)
+      })
+    }
+
+    return () => {
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId)
+      }
+    }
+  }, [open, pendingScrollAfterOpen])
 
   const renderChartContent = () => {
     if (isChartDataLoading) {
@@ -78,8 +97,16 @@ export default function ChartCard({
   }
 
   return (
-    <Card {...(onClick ? { onClick: onClick } : {})} className={styles['chart-card']}>
-      <div className={getCardHeaderClassNames(open, chartConfigData)}>
+    <Card
+      onClick={(event) => {
+        if (onClick) {
+          onClick(event)
+          setPendingScrollAfterOpen(true)
+        }
+      }}
+      className={styles['chart-card']}
+    >
+      <div className={getCardHeaderClassNames(open, chartConfigData)} ref={chartRef}>
         <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${regionType}`)}
         </Typography>
