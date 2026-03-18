@@ -4,12 +4,16 @@
   display: block;
   position: relative;
   padding: theme.$defaultSpacing;
+  height: theme.$loadingStateDefaultHeight;
+  padding-top: calc(theme.$loadingStateDefaultHeight / 4);
 }
 
 .LoadingState--overlay {
   position: absolute;
   top: calc((100vh - theme.$loadingStateDefaultHeight) / 2);
   left: calc((100vw - theme.$loadingStateDefaultHeight) / 2);
+  height: theme.$loadingStateDefaultHeight;
+  padding-top: calc(theme.$loadingStateDefaultHeight / 2);
 }
 
 .CircularProgress--root {

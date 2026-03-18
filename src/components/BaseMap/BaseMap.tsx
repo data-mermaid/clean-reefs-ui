@@ -94,7 +94,7 @@ function WatershedLayers({ layer, index }) {
         type="fill"
         key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
-        source-layer={layer.sourceName}
+        source-layer={layer.sourceFileName}
         beforeId="label_airport"
         paint={{
           'fill-color': transparent,
@@ -106,7 +106,7 @@ function WatershedLayers({ layer, index }) {
         type="line"
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
-        source-layer={layer.sourceName}
+        source-layer={layer.sourceFileName}
         beforeId="label_airport" // label_airport labels show on top
         layout={{
           'line-sort-key': 5, //watershed outlines should overlay all other layers
@@ -147,7 +147,7 @@ function PmTileLayers({ layer, index }) {
         type="line"
         key={`${layer.layerId}-${index}`}
         source={layer.sourceId}
-        source-layer={layer.sourceName}
+        source-layer={layer.sourceFileName}
         beforeId="label_airport"
         paint={{
           'line-color': layer.outlineColor,
@@ -174,9 +174,9 @@ export default function BaseMap({
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLng = 178.4 //Initial location - Fiji
-  const defaultLat = -17.816028
-  const defaultMapZoom = 10
+  const defaultLng = 157.146019 //Initial location - Solomon Islands
+  const defaultLat = -7.980446
+  const defaultMapZoom = 11
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -220,6 +220,7 @@ export default function BaseMap({
           setSelectedRegion(subRegionWithUpdatedConfig)
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+          //temp disable
           map.fitBounds(bounds, {
             padding: config.padding,
             maxZoom: config.maxZoom,
@@ -317,6 +318,14 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
+  useEffect(() => {
+    if (mapRef.current && isMapLoaded) {
+      const map = mapRef.current.getMap()
+      map.moveLayer('plumes', 'label_airport')
+      map.moveLayer('watershed', 'label_airport')
+    }
+  }, [isMapLoaded, mapLayers])
+
   const handleMapLoad = () => {
     setIsMapLoaded(true)
 
@@ -382,13 +391,18 @@ export default function BaseMap({
         {mapLayers.map((layer, index) => {
           if (layer.dataType === 'pmtiles' && layer.layerId !== 'watershed') {
             return (
-              isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
+              isMapLoaded &&
+              layer.isLayerOn && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          } else if (layer.layerId === 'watershed') {
+          } else if (layer.layerId === 'watershed' && layer.isLayerOn) {
             return (
               isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          } else if (layer.dataType === 'rastertiles') {
+          } else if (
+            layer.dataType === 'rastertiles' &&
+            layer.parentLayerType !== 'oceanPollution' &&
+            layer.isLayerOn
+          ) {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -411,6 +425,33 @@ export default function BaseMap({
                 </Source>
               )
             )
+          } else if (
+            layer.dataType === 'rastertiles' &&
+            layer.parentLayerType === 'oceanPollution' &&
+            layer.isLayerOn
+          ) {
+            return (
+              isMapLoaded &&
+              layer.isLayerOn && (
+                <Source
+                  id={layer.sourceId}
+                  key={`${layer.sourceId}-${index}`}
+                  type="raster"
+                  tiles={[layer.link]}
+                  tileSize={256}
+                  maxzoom={16}
+                  minzoom={6}
+                >
+                  <Layer
+                    id={layer.layerId}
+                    type="raster"
+                    key={`${layer.layerId}-${index}`}
+                    source={layer.sourceId}
+                    // beforeId="label_airport"
+                  />
+                </Source>
+              )
+            )
           } else {
             //other should just be 'vectortiles'
             return (
@@ -429,7 +470,7 @@ export default function BaseMap({
                     type="fill"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    source-layer={layer.sourceName}
+                    source-layer={layer.sourceFileName}
                     beforeId="label_airport"
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?

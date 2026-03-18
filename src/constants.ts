@@ -37,6 +37,12 @@ export const SED_EXPORT_2015_URL =
 export const SED_EXPORT_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
 
+export const SED_DISPERSAL_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2000/visual_solomons_plumeshape_2000.pmtiles'
+
+export const SED_DISPERSAL_2000_URL =
+  'https://mermaid.prescient.earth/raster/collections/sediment_exposure/items/sediment_exposure_2000/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.41&assets=cog&colormap_name=viridis&asset_bidx=cog|1&expression=where(cog_b1>1.41,1.41,cog_b1)'
+
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {
   padding: { top: 300, bottom: 300, left: 300, right: 300 },
@@ -49,5 +55,6 @@ export const mapFitBoundsMobileConfig = {
 }
 
 /******COLORS******/
+export const plumeOutlineColor = '#FFEA46'
 export const polygonOutlineHoverColor = '#00FF01'
 export const polygonOutlineSelectColor = '#0000FF'
