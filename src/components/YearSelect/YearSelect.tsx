@@ -7,7 +7,7 @@ import clsx from 'clsx'
 
 import styles from './YearSelect.module.scss'
 import { useTranslation } from 'react-i18next'
-import { availableYears } from '../../constants'
+import { availableYears } from '../../data/mapData'
 
 export interface YearSelectProps {
   selectedYear: number

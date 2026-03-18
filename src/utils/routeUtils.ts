@@ -1,4 +1,4 @@
-import { availableYears, defaultYear } from '../constants'
+import { availableYears, defaultYear } from '../data/mapData'
 
 export function getValidYear(yearFromSearchParam: string | null) {
   const parsedYear = Number(yearFromSearchParam)

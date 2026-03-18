@@ -10,28 +10,28 @@ import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { availableYears } from '../../constants'
 import { getValidYear } from '../../utils/routeUtils'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
   const year = searchParams.get('year')
-  const isInvalidYearParam = year !== null && !availableYears.includes(Number(year))
   const selectedYear = getValidYear(year)
+  const normalizedYearParam = selectedYear.toString()
+  const shouldSyncYearParam = year !== normalizedYearParam
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
 
   useEffect(() => {
-    if (!isInvalidYearParam) {
+    if (!shouldSyncYearParam) {
       return
     }
 
     const nextSearchParams = new URLSearchParams(searchParams)
-    nextSearchParams.delete('year')
+    nextSearchParams.set('year', normalizedYearParam)
     setSearchParams(nextSearchParams, { replace: true })
-  }, [isInvalidYearParam, searchParams, setSearchParams])
+  }, [normalizedYearParam, searchParams, setSearchParams, shouldSyncYearParam])
 
   const handleYearChange = (year: number) => {
     const nextSearchParams = new URLSearchParams(searchParams)
