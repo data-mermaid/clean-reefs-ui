@@ -37,10 +37,10 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
       const toggledLayerId = event.target.id
       const isRasterLayer = landRasterLayers.indexOf(toggledLayerId) > -1
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayerId, checked)
+      let updatedLayers = mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear)
       if (isRasterLayer) {
         if (activeRasterLayerId && activeRasterLayerId !== toggledLayerId) {
-          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
+          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false, selectedYear)
         }
         if (checked) {
           setActiveRasterLayerId(toggledLayerId)
@@ -57,15 +57,15 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
       const toggledLayerId = event.target.id
-      const updatedSubLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked)
+      const updatedSubLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked, selectedYear)
       toggleSubLayerFillColor(toggledLayerId)
       setMapSubLayers(updatedSubLayers)
 
       if (toggledLayerId === 'reef_extent') {
-        setMapLayers(mapToggleChange(mapLayers, toggledLayerId, checked))
+        setMapLayers(mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear))
       }
     },
-    [mapLayers, mapSubLayers, setMapLayers, toggleSubLayerFillColor],
+    [mapLayers, mapSubLayers, selectedYear, setMapLayers, toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {

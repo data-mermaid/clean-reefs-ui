@@ -320,7 +320,9 @@ export default function BaseMap({
   useEffect(() => {
     if (mapRef.current && isMapLoaded) {
       const map = mapRef.current.getMap()
-      map.moveLayer('benthic')
+      if (map.getLayer('benthic')) {
+        map.moveLayer('benthic')
+      }
       map.moveLayer('plumes')
       map.moveLayer('watershed')
     }
