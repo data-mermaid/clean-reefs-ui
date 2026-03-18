@@ -29,7 +29,11 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
+import {
+  createPolygonClickHandler,
+  createPolygonHoverHandler,
+  prepareZonalStatsCall,
+} from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +82,13 @@ const handleError = (
     ...prev,
     [e.type]: e.error?.message || 'Failed to load layer',
   }))
+}
+
+const handleMapClick = (e) => {
+  //todo: check if click is on land or in ocean
+  //if on land: do nothing / pull featureselection click here
+  //if in ocean:
+  prepareZonalStatsCall(e.lngLat)
 }
 
 function WatershedLayers({ layer, index }) {
@@ -202,11 +213,13 @@ export default function BaseMap({
           const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
 
           const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
+          //if watershed clicked
+          const latLng = bounds.getCenter()
           const subRegionWithUpdatedConfig: RegionOption = {
             id: 'watershed',
             regionType: 'watershed',
             label: 'Watershed',
-            centerCoord: bounds.getCenter(),
+            centerCoord: latLng,
             zoomLevel: map.getZoom(),
             grouping: 3,
           }
@@ -281,6 +294,7 @@ export default function BaseMap({
       return
     }
 
+    map.on('click', (e) => handleMapClick(e))
     map.on('error', (e) => handleError(e, setLayerErrors))
     map.on('sourcedata', (e) => handleSourceData(e, setLayerErrors))
 

@@ -1,6 +1,6 @@
 # Clean Reefs
 
-UI package for the Global Pollution Watch / Clean Reefs application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
+UI package for the Global Pollution Watch application - a map-based utility for exploring global pollution data layers. Powered by MERMAID in conjunction with the University of Australia.
 
 ## Getting started
 
@@ -57,11 +57,24 @@ Data constants go into 'constants.ts', which include:
 - Links
 - Data used across the app (years, etc)
 
+## Data Sources
+
+Both raster and vector data types are in use.
+Rasters are provided through COGs in TIF format
+Vectors are provided via PMTiles
+Map clicks check within polygons given (PMTiles) and send requests accordingly
+
+Sediment exposure data is given through the Zonal Stats API
+
+- (API docs)[https://api.zonalstats.datamermaid.org/docs]
+- (API Concepts / Property breakdowns)[https://data-mermaid.github.io/zonal-stats/concepts/statistics/]
+- (mermaid-zonal-stats-ui repository)[https://github.com/data-mermaid/mermaid-zonal-stats-ui]
+
 ## Tests
 
 ### Unit tests
 
-Write out tests for functions targetting main and edge cases. Use Jest and React Testing Library.
+Write out tests for functions targeting main and edge cases. Use Jest and React Testing Library.
 
 - `yarn test`
 
