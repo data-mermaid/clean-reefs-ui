@@ -69,27 +69,23 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
-    const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
-
-    let mappedLayers
-    if (groupedLayers.length > 0) {
-      mappedLayers = groupedLayers.map((layer, index) => {
-        if ((layer.year && layer.year !== selectedYear) || layer.layerId === 'reef_extent') {
-          return null
-        }
-        return (
-          <LayerToggleCard
-            layer={layer}
-            toggleLayer={toggleLayer}
-            toggleSubLayer={toggleSubLayer}
-            mapSubLayers={mapSubLayers}
-            selectedYear={selectedYear}
-            key={`layertoggle-${layer.sourceId}-${index}`}
-          />
-        )
-      })
-    }
-    return mappedLayers
+    return mapLayers
+      .filter(
+        (layer) =>
+          layer.parentLayerType === parentGroup &&
+          layer.layerId !== 'reef_extent' &&
+          (!layer.year || layer.year === selectedYear),
+      )
+      .map((layer, index) => (
+        <LayerToggleCard
+          layer={layer}
+          toggleLayer={toggleLayer}
+          toggleSubLayer={toggleSubLayer}
+          mapSubLayers={mapSubLayers}
+          selectedYear={selectedYear}
+          key={`layertoggle-${layer.sourceId}-${index}`}
+        />
+      ))
   }
 
   return (
@@ -110,7 +106,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         onOpen={toggleDrawer(true)}
       >
         {Object.entries(parentLayerTitles).map(([key, value]) => {
-          const parentGroupLayers = getLayersByParentGroup(key, toggleLayer)
+          const parentGroupLayers = getLayersByParentGroup(key, toggleLayer) ?? []
           if (parentGroupLayers.length > 0) {
             return (
               <div key={key}>

@@ -142,7 +142,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2000_visual',
     dataType: 'cog',
-    isLayerOn: true,
+    isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -194,7 +194,7 @@ export const layers: LayerInfo[] = [
   {
     sourceId: 'sed_export_load_2020_visual',
     dataType: 'cog',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',

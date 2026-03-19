@@ -132,9 +132,9 @@ export const mapToggleChange = (
   year: number,
 ) => {
   return layers.map((layer) => {
-    return layer.layerId === layerId && layer.year === year
-      ? { ...layer, isLayerOn: checked }
-      : layer
+    const layerMatch = layer.layerId === layerId
+    const yearMatch = layer.year === undefined || layer.year === year
+    return layerMatch && yearMatch ? { ...layer, isLayerOn: checked } : layer
   })
 }
 

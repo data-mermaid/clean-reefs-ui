@@ -21,14 +21,14 @@ interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
-  mapSubLayers?: SubLayerInfo[]
+  mapSubLayers?: (LayerInfo | SubLayerInfo)[]
   selectedYear: number
 }
 
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void,
-  mapSubLayers?: SubLayerInfo[],
+  mapSubLayers?: (LayerInfo | SubLayerInfo)[],
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
