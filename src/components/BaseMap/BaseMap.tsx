@@ -233,7 +233,6 @@ export default function BaseMap({
           setSelectedRegion(subRegionWithUpdatedConfig)
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
-          //temp disable
           map.fitBounds(bounds, {
             padding: config.padding,
             maxZoom: config.maxZoom,
@@ -335,8 +334,11 @@ export default function BaseMap({
   useEffect(() => {
     if (mapRef.current && isMapLoaded) {
       const map = mapRef.current.getMap()
-      map.moveLayer('plumes', 'label_airport')
-      map.moveLayer('watershed', 'label_airport')
+      if (map.getLayer('benthic')) {
+        map.moveLayer('benthic')
+      }
+      map.moveLayer('plumes')
+      map.moveLayer('watershed')
     }
   }, [isMapLoaded, mapLayers])
 
@@ -402,7 +404,7 @@ export default function BaseMap({
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
         )}
-        {mapLayers.map((layer, index) => {
+        {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.dataType === 'pmtiles' && layer.layerId !== 'watershed') {
             return (
               isMapLoaded &&
@@ -412,11 +414,7 @@ export default function BaseMap({
             return (
               isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          } else if (
-            layer.dataType === 'rastertiles' &&
-            layer.parentLayerType !== 'oceanPollution' &&
-            layer.isLayerOn
-          ) {
+          } else if (layer.dataType === 'cog') {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -439,11 +437,7 @@ export default function BaseMap({
                 </Source>
               )
             )
-          } else if (
-            layer.dataType === 'rastertiles' &&
-            layer.parentLayerType === 'oceanPollution' &&
-            layer.isLayerOn
-          ) {
+          } else if (layer.dataType === 'rastertiles') {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -461,7 +455,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    // beforeId="label_airport"
+                    beforeId="label_airport"
                   />
                 </Source>
               )

@@ -1,5 +1,5 @@
 export interface LayerInfo {
-  dataType: 'pmtiles' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
+  dataType: 'pmtiles' | 'cog' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   isLayerOn: boolean
   layerId: string
   legendTitle?: string

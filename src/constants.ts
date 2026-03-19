@@ -27,7 +27,8 @@ export const LULC_2020_URL =
 
 /* Benthic Attribute Layers */
 export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
-// export const ATLAS_REEF_EXTENT_URL = `https://allencoralatlas.org/tiles/reefextent/{z}/{x}/{y}?appid=${coralAtlasAppId}`
+export const REEF_EXTENT_URL =
+  'https://mermaid.prescient.earth/raster/collections/aca_extent/items/aca_extent/tiles/WebMercatorQuad/{z}/{x}/{y}.png?assets=cog&colormap={"0":[0,0,0,0],"1":[178,8,76,200]}'
 
 /* Sediment Export Layers */
 export const SED_EXPORT_2000_URL =

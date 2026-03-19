@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicLayers, parentLayerTitles } from '../../data/mapData'
-import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
+import { benthicSubLayers, parentLayerTitles } from '../../data/mapData'
+import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
+import { mapToggleChange } from '../../utils/mapUtils'
 
 /**
  * Business rule:
@@ -18,17 +19,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
-const rasterLayers = ['sed_export', 'lulc']
-
-const mapToggleChange = (
-  layers: LayerInfo[] | SubLayerInfo[],
-  layerId: string,
-  checked: boolean,
-) => {
-  return layers.map((layer) => {
-    return layer.layerId === layerId ? { ...layer, isLayerOn: checked } : layer
-  })
-}
+const landRasterLayers = ['sed_export', 'lulc']
 
 export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
   const { t } = useTranslation()
@@ -36,23 +27,23 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
-  const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
+  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>('sed_export')
+  const [mapSubLayers, setMapSubLayers] = useState(benthicSubLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      const toggledLayer = event.target.id
-      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
+      const toggledLayerId = event.target.id
+      const isRasterLayer = landRasterLayers.indexOf(toggledLayerId) > -1
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
+      let updatedLayers = mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear)
       if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
-          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
+        if (activeRasterLayerId && activeRasterLayerId !== toggledLayerId) {
+          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false, selectedYear)
         }
         if (checked) {
-          setActiveRasterLayerId(toggledLayer)
+          setActiveRasterLayerId(toggledLayerId)
         } else {
           setActiveRasterLayerId(null)
         }
@@ -65,36 +56,36 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
   const toggleSubLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      const toggledLayer = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
-      toggleSubLayerFillColor(toggledLayer)
-      setMapSubLayers(updatedLayers)
+      const toggledLayerId = event.target.id
+      const updatedSubLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked, selectedYear)
+      toggleSubLayerFillColor(toggledLayerId)
+      setMapSubLayers(updatedSubLayers)
+
+      if (toggledLayerId === 'reef_extent') {
+        setMapLayers(mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear))
+      }
     },
-    [mapSubLayers, toggleSubLayerFillColor],
+    [mapLayers, mapSubLayers, selectedYear, setMapLayers, toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
-    const groupedLayers = mapLayers.filter((l) => l.parentLayerType === parentGroup)
-
-    let mappedLayers
-    if (groupedLayers.length > 0) {
-      mappedLayers = groupedLayers.map((layer, index) => {
-        if (layer.year && layer.year !== selectedYear) {
-          return null
-        }
-        return (
-          <LayerToggleCard
-            layer={layer}
-            toggleLayer={toggleLayer}
-            toggleSubLayer={toggleSubLayer}
-            mapSubLayers={mapSubLayers}
-            selectedYear={selectedYear}
-            key={`layertoggle-${layer.sourceId}-${index}`}
-          />
-        )
-      })
-    }
-    return mappedLayers
+    return mapLayers
+      .filter(
+        (layer) =>
+          layer.parentLayerType === parentGroup &&
+          layer.layerId !== 'reef_extent' &&
+          (!layer.year || layer.year === selectedYear),
+      )
+      .map((layer, index) => (
+        <LayerToggleCard
+          layer={layer}
+          toggleLayer={toggleLayer}
+          toggleSubLayer={toggleSubLayer}
+          mapSubLayers={mapSubLayers}
+          selectedYear={selectedYear}
+          key={`layertoggle-${layer.sourceId}-${index}`}
+        />
+      ))
   }
 
   return (
@@ -114,12 +105,18 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer(true)}
       >
-        {Object.entries(parentLayerTitles).map(([key, value]) => (
-          <div key={key}>
-            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
-            {getLayersByParentGroup(key, toggleLayer)}
-          </div>
-        ))}
+        {Object.entries(parentLayerTitles).map(([key, value]) => {
+          const parentGroupLayers = getLayersByParentGroup(key, toggleLayer) ?? []
+          if (parentGroupLayers.length > 0) {
+            return (
+              <div key={key}>
+                <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+                {parentGroupLayers}
+              </div>
+            )
+          }
+          return null
+        })}
       </StyledSwipeableDrawer>
     </div>
   )

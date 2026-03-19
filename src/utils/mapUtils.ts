@@ -2,7 +2,7 @@ import { RegionOption } from '../types/RegionDataTypes'
 import { regionOptions } from '../data/regionData'
 import { LngLatBounds, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
-import { LayerInfo } from '../types/MapDataTypes'
+import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
 import { BASE_ZONAL_STATS_API, SEDIMENT_EXPOSURE_2000_URL } from '../constants'
 
@@ -124,6 +124,19 @@ export function createPolygonClickHandler(
       onSelect(feature, bounds)
     }
   }
+}
+
+export const mapToggleChange = (
+  layers: LayerInfo[] | SubLayerInfo[],
+  layerId: string,
+  checked: boolean,
+  year: number,
+) => {
+  return layers.map((layer) => {
+    const layerMatch = layer.layerId === layerId
+    const yearMatch = layer.year === undefined || layer.year === year
+    return layerMatch && yearMatch ? { ...layer, isLayerOn: checked } : layer
+  })
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {

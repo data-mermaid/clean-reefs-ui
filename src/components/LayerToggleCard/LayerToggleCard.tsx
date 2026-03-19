@@ -21,14 +21,14 @@ interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
-  mapSubLayers?: SubLayerInfo[]
+  mapSubLayers?: (LayerInfo | SubLayerInfo)[]
   selectedYear: number
 }
 
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void,
-  mapSubLayers?: SubLayerInfo[],
+  mapSubLayers?: (LayerInfo | SubLayerInfo)[],
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -60,9 +60,7 @@ const getLayerToggleDetails = (
   return toggleCardDetails
 }
 
-//TODO: restrict based on selected region (add to mapstore?)
 //if not country or region, disable watershed option
-
 const RadioSelect = () => {
   const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
