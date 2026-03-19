@@ -18,6 +18,21 @@ export const getUpdatedBenthicColor = (layerId, currentColors) => {
   }
 }
 
+export const setPolygonFill = (layerId, polygonIds, fillColors, map) => {
+  //get map, or pass
+  map.setPaintProperty(layerId, 'fill-color', [
+    'match',
+    ['get', 'watershed_id'],
+    polygonIds[0],
+    fillColors[0],
+    polygonIds[1],
+    fillColors[1],
+    polygonIds[2],
+    fillColors[2],
+    transparent, // default
+  ])
+}
+
 export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds {
   const geometry = feature.geometry
   const bounds = new LngLatBounds()
@@ -160,12 +175,10 @@ export async function postZonalStats(payload) {
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`)
+      throw new Error(`HTTP error, status: ${response.status}`)
     }
 
-    const data = await response.json()
-
-    return data
+    return await response.json()
   } catch (err) {
     throw new Error(`HTTP error: ${err}`)
   }
@@ -181,6 +194,5 @@ export async function prepareZonalStatsCall(lngLat) {
     bands: [1, 2, 3, 4, 5, 6, 7],
     stats: ['majority'],
   }
-  const dataResults = await postZonalStats(basePayload)
-  return dataResults
+  return await postZonalStats(basePayload)
 }

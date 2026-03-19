@@ -28,6 +28,7 @@ interface LayerToggleCardProps {
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void,
+  selectedYear: number,
   mapSubLayers?: (LayerInfo | SubLayerInfo)[],
 ) => {
   const layerId: string = layer.layerId
@@ -45,7 +46,7 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend variation={layerId} title={layer.legendTitle} />
-          <RadioSelect />
+          <RadioSelect selectedYear={selectedYear} />
         </>
       )
       break
@@ -61,13 +62,13 @@ const getLayerToggleDetails = (
 }
 
 //if not country or region, disable watershed option
-const RadioSelect = () => {
+const RadioSelect = ({ selectedYear }) => {
   const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const toggledOnItem = event.target.value as 'pixel' | 'watershed'
-    toggleSedExportSubLayerFills(toggledOnItem)
+    toggleSedExportSubLayerFills(toggledOnItem, selectedYear)
     setSelectedValue(toggledOnItem)
   }
 
@@ -134,7 +135,7 @@ export default function LayerToggleCard({
           </>
         )}
       </div>
-      {getLayerToggleDetails(layer, toggleSubLayer, mapSubLayers)}
+      {getLayerToggleDetails(layer, toggleSubLayer, selectedYear, mapSubLayers)}
     </Card>
   )
 }

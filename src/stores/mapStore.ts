@@ -13,7 +13,10 @@ type MapActions = {
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
-  toggleSedExportSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed') => void
+  toggleSedExportSubLayerFills: (
+    subLayerToggledOn: 'pixel' | 'watershed',
+    selectedYear: number,
+  ) => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -36,14 +39,16 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     set({ benthicMapSubLayerColors: updatedFillColors })
   },
-  toggleSedExportSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed') => {
+  toggleSedExportSubLayerFills: (
+    subLayerToggledOn: 'pixel' | 'watershed',
+    selectedYear: number,
+  ) => {
     const state = get()
     const map = state.mapReference?.getMap()
     if (!map) {
       return
     }
     const regionLevel = 'country' //TODO: pass in selected region level
-    const selectedYear = 2020
 
     const pixelLayer = map.getLayer('sed_export')
     if (!pixelLayer) {

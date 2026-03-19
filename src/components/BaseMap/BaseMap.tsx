@@ -33,6 +33,7 @@ import {
   createPolygonClickHandler,
   createPolygonHoverHandler,
   prepareZonalStatsCall,
+  setPolygonFill,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -44,7 +45,7 @@ import {
   polygonOutlineSelectColor,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
-import { LayerInfo } from '../../types/MapDataTypes'
+import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { regionOptions } from '../../data/regionData'
@@ -84,11 +85,35 @@ const handleError = (
   }))
 }
 
-const handleMapClick = (e) => {
+const handleMapClick = async (e, map) => {
   //todo: check if click is on land or in ocean
   //if on land: do nothing / pull featureselection click here
   //if in ocean:
-  prepareZonalStatsCall(e.lngLat)
+  const zonalStats: ZonalStatsBand[] = await prepareZonalStatsCall(e.lngLat)
+
+  //todo: placement
+  const topContributingWatershedIds: number[] = []
+
+  for (let i = 2; i <= 5; i++) {
+    if (topContributingWatershedIds.indexOf(zonalStats[`band_${i}`].majority) < 0) {
+      topContributingWatershedIds.push(zonalStats[`band_${i}`].majority)
+    }
+  }
+  // const topContributingWatershedIds =
+  //   [
+  //   zonalStats['band_2'].majority,
+  //   zonalStats['band_3'].majority,
+  //   zonalStats['band_4'].majority,
+  // ]
+
+  //will be used for 'Contributing Watershed' graph
+  // const topContributingWatershedPercentages = [
+  //   zonalStats['band_5'].majority,
+  //   zonalStats['band_6'].majority,
+  //   zonalStats['band_7'].majority,
+  // ]
+  const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
+  setPolygonFill('watershed', topContributingWatershedIds, topContributingWatershedColorFills, map)
 }
 
 function WatershedLayers({ layer, index }) {
@@ -293,7 +318,7 @@ export default function BaseMap({
       return
     }
 
-    map.on('click', (e) => handleMapClick(e))
+    map.on('click', (e) => handleMapClick(e, map))
     map.on('error', (e) => handleError(e, setLayerErrors))
     map.on('sourcedata', (e) => handleSourceData(e, setLayerErrors))
 

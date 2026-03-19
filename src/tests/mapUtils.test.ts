@@ -230,4 +230,7 @@ describe('map utilities', () => {
       expect(onSelect).toHaveBeenCalledWith(null)
     })
   })
+  describe('postZonalStats', () => {
+    it('', () => {})
+  })
 })
