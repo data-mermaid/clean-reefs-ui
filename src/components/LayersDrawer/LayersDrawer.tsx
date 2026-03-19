@@ -27,7 +27,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
+  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>('sed_export')
   const [mapSubLayers, setMapSubLayers] = useState(benthicSubLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)

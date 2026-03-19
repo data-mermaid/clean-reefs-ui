@@ -129,7 +129,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'cog',
-    isLayerOn: true,
+    isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
     link: LULC_2020_URL,
