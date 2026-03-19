@@ -18,6 +18,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
 }
+
 const rasterLayers = ['sed_export', 'lulc']
 
 const mapToggleChange = (
@@ -26,7 +27,8 @@ const mapToggleChange = (
   checked: boolean,
 ) => {
   return layers.map((layer) => {
-    return layer.layerId === layerId ? { ...layer, isLayerOn: checked } : layer
+    const isLayerIdMatch = layer.layerId === layerId
+    return isLayerIdMatch ? { ...layer, isLayerOn: checked } : layer
   })
 }
 
@@ -36,41 +38,49 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>(null)
+  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>('sed_export')
   const [mapSubLayers, setMapSubLayers] = useState(atlasBenthicLayers)
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayer = event.target.id
-      const isRasterLayer = rasterLayers.indexOf(toggledLayer) > -1
+      const isChecked = event.target.checked
+      const isRasterLayer = rasterLayers.includes(toggledLayer)
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayer, checked)
-      if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== toggledLayer) {
+      setMapLayers((prevLayers) => {
+        let updatedLayers = mapToggleChange(prevLayers, toggledLayer, isChecked)
+
+        // Enforce mutual exclusivity: only one raster layer active at a time
+        if (
+          isRasterLayer &&
+          isChecked &&
+          activeRasterLayerId &&
+          activeRasterLayerId !== toggledLayer
+        ) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false)
         }
-        if (checked) {
-          setActiveRasterLayerId(toggledLayer)
-        } else {
-          setActiveRasterLayerId(null)
-        }
+
+        return updatedLayers
+      })
+
+      // Update active raster layer tracker
+      if (isRasterLayer) {
+        setActiveRasterLayerId(isChecked ? toggledLayer : null)
       }
-      setMapLayers(updatedLayers)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeRasterLayerId, setMapLayers],
+    [setMapLayers, activeRasterLayerId],
   )
 
   const toggleSubLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayer = event.target.id
-      const updatedLayers = mapToggleChange(mapSubLayers, toggledLayer, checked)
+      const isChecked = event.target.checked
       toggleSubLayerFillColor(toggledLayer)
-      setMapSubLayers(updatedLayers)
+      setMapSubLayers((prevLayers) => mapToggleChange(prevLayers, toggledLayer, isChecked))
     },
-    [mapSubLayers, toggleSubLayerFillColor],
+    [toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {

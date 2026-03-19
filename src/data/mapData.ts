@@ -86,7 +86,7 @@ export const parentLayerTitles = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'rastertiles',
-    isLayerOn: true,
+    isLayerOn: false,
     layerId: 'sed_dispersal',
     legendTitle: 'concentration',
     legendType: 'gradient',

@@ -6,7 +6,7 @@ import { atlasBenthicColors } from '../../data/mapData'
 
 interface LayerToggleLegendProps {
   mapSubLayers: SubLayerInfo[]
-  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export default function LayerToggleLegend({
