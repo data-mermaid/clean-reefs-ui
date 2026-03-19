@@ -204,7 +204,6 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.sediment_export',
     year: 2020,
   },
-
   {
     sourceId: 'atlas-benthic',
     dataType: 'vectortiles',
@@ -291,3 +290,6 @@ export const benthicSubLayers: (SubLayerInfo | LayerInfo)[] = [
     isLayerOn: true,
   },
 ]
+
+export const availableYears = [2020, 2015, 2010, 2005, 2000]
+export const defaultYear = 2020

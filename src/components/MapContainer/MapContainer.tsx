@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
@@ -9,12 +10,34 @@ import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
+import { getValidYear } from '../../utils/routeUtils'
 
 export default function MapContainer() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const year = searchParams.get('year')
+  const selectedYear = getValidYear(year)
+  const normalizedYearParam = selectedYear.toString()
+  const shouldSyncYearParam = year !== normalizedYearParam
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedYear, setSelectedYear] = useState(2020)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
+
+  useEffect(() => {
+    if (!shouldSyncYearParam) {
+      return
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('year', normalizedYearParam)
+    setSearchParams(nextSearchParams, { replace: true })
+  }, [normalizedYearParam, searchParams, setSearchParams, shouldSyncYearParam])
+
+  const handleYearChange = (year: number) => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('year', year.toString())
+    setSearchParams(nextSearchParams)
+  }
 
   return (
     <div className={styles['MapContainer-root']}>
@@ -30,7 +53,7 @@ export default function MapContainer() {
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
         />
-        <YearSelect selectedYear={selectedYear} onChange={setSelectedYear} />
+        <YearSelect selectedYear={selectedYear} onChange={handleYearChange} />
         <TrendsDrawer selectedRegion={selectedRegion} />
       </div>
       <BaseMap
