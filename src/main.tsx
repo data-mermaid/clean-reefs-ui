@@ -1,6 +1,7 @@
 import { scan } from 'react-scan'
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import './styles/reset.scss'
 import './styles/index.scss'
 import { StyledEngineProvider } from '@mui/material'
@@ -20,9 +21,11 @@ if (import.meta.env.DEV) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <StyledEngineProvider injectFirst>
-      <NavigationHeader />
-      <MapContainer />
-    </StyledEngineProvider>
+    <BrowserRouter>
+      <StyledEngineProvider injectFirst>
+        <NavigationHeader />
+        <MapContainer />
+      </StyledEngineProvider>
+    </BrowserRouter>
   </StrictMode>,
 )
