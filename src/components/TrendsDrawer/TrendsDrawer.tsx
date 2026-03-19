@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -33,14 +32,22 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
   useEffect(() => {
-    if (selectedFeature) {
-      setIsChartDataLoading(true)
-      updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
+    if (selectedRegion.regionType === 'global') {
       setIsChartDataLoading(false)
-    } else {
-      setChartConfigData(null)
+      setChartConfigData(tempGlobalChartSeriesData)
+      return
     }
-  }, [selectedFeature])
+
+    if (!selectedFeature) {
+      setIsChartDataLoading(false)
+      setChartConfigData(null)
+      return
+    }
+
+    setIsChartDataLoading(true)
+    updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
+    setIsChartDataLoading(false)
+  }, [selectedFeature, selectedRegion.regionType])
 
   let drawerTitle = selectedRegion.label
   if (selectedRegion.regionType === 'global') {
