@@ -34,19 +34,19 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const toggledLayer = event.target.id
+      const toggledLayerId = event.target.id
       const isChecked = event.target.checked
-      const isRasterLayer = landRasterLayers.includes(toggledLayer)
+      const isRasterLayer = landRasterLayers.includes(toggledLayerId)
 
       setMapLayers((prevMapLayers) => {
-        let updatedLayers = mapToggleChange(prevMapLayers, toggledLayer, isChecked, selectedYear)
+        let updatedLayers = mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear)
 
         // Enforce mutual exclusivity: only one raster layer active at a time
         if (
           isRasterLayer &&
           isChecked &&
           activeRasterLayerId &&
-          activeRasterLayerId !== toggledLayer
+          activeRasterLayerId !== toggledLayerId
         ) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false, selectedYear)
         }
@@ -56,7 +56,7 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
 
       // Update active raster layer tracker
       if (isRasterLayer) {
-        setActiveRasterLayerId(isChecked ? toggledLayer : null)
+        setActiveRasterLayerId(isChecked ? toggledLayerId : null)
       }
     },
     [setMapLayers, activeRasterLayerId, selectedYear],
