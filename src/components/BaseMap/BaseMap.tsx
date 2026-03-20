@@ -96,6 +96,9 @@ function WatershedLayers({ layer, index }) {
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="label_airport"
+        layout={{
+          visibility: layer.isLayerOn ? 'visible' : 'none',
+        }}
         paint={{
           'fill-color': transparent,
           'fill-outline-color': layer.outlineColor,
@@ -107,9 +110,10 @@ function WatershedLayers({ layer, index }) {
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport" // label_airport labels show on top
+        beforeId="label_airport"
         layout={{
-          'line-sort-key': 5, //watershed outlines should overlay all other layers
+          visibility: layer.isLayerOn ? 'visible' : 'none',
+          'line-sort-key': 5,
         }}
         paint={{
           'line-width': [
@@ -148,7 +152,10 @@ function PmTileLayers({ layer, index }) {
         key={`${layer.layerId}-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId="watershed"
+        layout={{
+          visibility: layer.isLayerOn ? 'visible' : 'none',
+        }}
         paint={{
           'line-color': layer.outlineColor,
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
@@ -280,15 +287,24 @@ export default function BaseMap({
       return
     }
 
-    map.on('error', (e) => handleError(e, setLayerErrors))
-    map.on('sourcedata', (e) => handleSourceData(e, setLayerErrors))
+    const onError = (e) => handleError(e, setLayerErrors)
+    const onSourceData = (e) => handleSourceData(e, setLayerErrors)
+
+    map.on('error', onError)
+    map.on('sourcedata', onSourceData)
 
     // eslint-disable-next-line consistent-return
     return () => {
-      map.off('error', (e) => handleError(e, setLayerErrors))
-      map.off('sourcedata', (e) => handleSourceData(e, setLayerErrors))
+      map.off('error', onError)
+      map.off('sourcedata', onSourceData)
     }
   }, [isMapLoaded])
+
+  const watershedIndex = useMemo(
+    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
+    [mapLayers],
+  )
+  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
 
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
@@ -317,27 +333,13 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
-  useEffect(() => {
-    if (mapRef.current && isMapLoaded) {
-      const map = mapRef.current.getMap()
-      if (map.getLayer('benthic')) {
-        map.moveLayer('benthic')
-      }
-      map.moveLayer('plumes')
-      map.moveLayer('watershed')
-    }
-  }, [isMapLoaded, mapLayers])
-
   const handleMapLoad = () => {
     setIsMapLoaded(true)
 
     const map = mapRef.current?.getMap()
-    if (!map) {
+    if (!map || !watershedLayer) {
       return
     }
-
-    const watershedLayer =
-      mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -390,15 +392,20 @@ export default function BaseMap({
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
         )}
+        {/* Watershed always rendered first so other layers can reference it via beforeId */}
+        {isMapLoaded && watershedLayer && (
+          <WatershedLayers
+            key={`layer-${watershedIndex}`}
+            layer={watershedLayer}
+            index={watershedIndex}
+          />
+        )}
         {mapLayers.map((layer: LayerInfo, index) => {
-          if (layer.dataType === 'pmtiles' && layer.layerId !== 'watershed') {
+          if (layer.layerId === 'watershed') {
+            return null // rendered above, always present
+          } else if (layer.dataType === 'pmtiles') {
             return (
-              isMapLoaded &&
-              layer.isLayerOn && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
-            )
-          } else if (layer.layerId === 'watershed' && layer.isLayerOn) {
-            return (
-              isMapLoaded && <WatershedLayers key={`layer-${index}`} layer={layer} index={index} />
+              isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
           } else if (layer.dataType === 'cog') {
             return (
@@ -418,15 +425,14 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="label_airport"
+                    beforeId="sed_dispersal"
                   />
                 </Source>
               )
             )
           } else if (layer.dataType === 'rastertiles') {
             return (
-              isMapLoaded &&
-              layer.isLayerOn && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -441,7 +447,8 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="label_airport"
+                    beforeId="watershed"
+                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                   />
                 </Source>
               )
@@ -449,8 +456,7 @@ export default function BaseMap({
           } else {
             //other should just be 'vectortiles'
             return (
-              isMapLoaded &&
-              layer.isLayerOn && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -465,7 +471,8 @@ export default function BaseMap({
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
                     source-layer={layer.sourceFileName}
-                    beforeId="label_airport"
+                    beforeId="watershed"
+                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?
                       'fill-color': benthicSubLayerFillExpression,
