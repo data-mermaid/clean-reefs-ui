@@ -60,9 +60,7 @@ const getLayerToggleDetails = (
   return toggleCardDetails
 }
 
-//TODO: restrict based on selected region (add to mapstore?)
 //if not country or region, disable watershed option
-
 const RadioSelect = () => {
   const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)

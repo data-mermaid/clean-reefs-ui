@@ -6,16 +6,17 @@ import {
   LULC_2010_URL,
   LULC_2015_URL,
   LULC_2020_URL,
+  plumeOutlineColor,
+  REEF_EXTENT_URL,
   REGIONS_PMTILES_URL,
   SED_DISPERSAL_2000_URL,
+  SED_DISPERSAL_PMTILES_URL,
   SED_EXPORT_2000_URL,
   SED_EXPORT_2005_URL,
   SED_EXPORT_2010_URL,
   SED_EXPORT_2015_URL,
   SED_EXPORT_2020_URL,
-  SED_DISPERSAL_PMTILES_URL,
   WATERSHED_PMTILES_URL,
-  plumeOutlineColor,
 } from '../constants'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 
@@ -31,37 +32,6 @@ export const atlasBenthicColors = {
   sand: '#DECC77',
 }
 
-export const atlasBenthicLayers: SubLayerInfo[] = [
-  {
-    layerId: 'reef_extent',
-    isLayerOn: false,
-  },
-  {
-    layerId: 'coral_algae',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'seagrass',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'microalgal_mats',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'rock',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'rubble',
-    isLayerOn: true,
-  },
-  {
-    layerId: 'sand',
-    isLayerOn: true,
-  },
-]
-
 export const sedExportColorMapping = {
   '0': '#018571',
   '1-10': '#4aae9f',
@@ -73,7 +43,7 @@ export const sedExportColorMapping = {
 }
 
 //this is the order the parent layers will appear in the layer toggle drawer
-//currently, ocean pollution and base layers are not implemented
+//currently, base layers are not implemented
 export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
   oceanPollution: 'map_layer_groups.ocean_pollution_layers',
@@ -83,7 +53,19 @@ export const parentLayerTitles = {
   // base: 'map_layer_groups.base_map',
 }
 
+export const reefExtentSubLayer: LayerInfo = {
+  sourceId: 'reef_extent',
+  dataType: 'rastertiles',
+  isLayerOn: true,
+  layerId: 'reef_extent',
+  link: REEF_EXTENT_URL,
+  parentLayerType: 'benthic',
+  sourceFileName: 'data_aca_extent',
+  title: 'benthic_map_layers.reef_extent',
+}
+
 export const layers: LayerInfo[] = [
+  reefExtentSubLayer,
   {
     dataType: 'rastertiles',
     isLayerOn: false,
@@ -98,7 +80,7 @@ export const layers: LayerInfo[] = [
     year: 2000, //temp - data only available for Solomon Islands
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -110,7 +92,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -122,7 +104,7 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -134,7 +116,7 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -146,7 +128,7 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
@@ -159,8 +141,8 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2000_visual',
-    dataType: 'rastertiles',
-    isLayerOn: true,
+    dataType: 'cog',
+    isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -172,7 +154,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2005_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -185,7 +167,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2010_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -198,7 +180,7 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2015_visual',
-    dataType: 'rastertiles',
+    dataType: 'cog',
     isLayerOn: false,
     layerId: 'sed_export',
     legendTitle: 'sediment',
@@ -211,8 +193,8 @@ export const layers: LayerInfo[] = [
   },
   {
     sourceId: 'sed_export_load_2020_visual',
-    dataType: 'rastertiles',
-    isLayerOn: false,
+    dataType: 'cog',
+    isLayerOn: true,
     layerId: 'sed_export',
     legendTitle: 'sediment',
     legendType: 'gradient',
@@ -267,16 +249,6 @@ export const layers: LayerInfo[] = [
     sourceFileName: 'tmp4jghia4g',
     title: 'map_layers.dispersal_plume',
   },
-  // { //We may or may not be using ACA, or a home-brewed reef extent. TBD early 2026
-  //   sourceId: 'atlas-reefextent',
-  //   dataType: 'vectortiles',
-  //   isLayerOn: false,
-  //   layerId: 'atlas-reefextent',
-  //   link: ATLAS_REEF_EXTENT_URL,
-  //   parentLayerType: 'benthic',
-  //   sourceFileName: 'reefextent',
-  //   title: 'Reef extent',
-  // },
   {
     //keep this layer last so it's always rendered on top
     dataType: 'pmtiles',
@@ -290,3 +262,34 @@ export const layers: LayerInfo[] = [
     title: 'boundary_map_layers.watershed_boundaries',
   },
 ]
+
+export const benthicSubLayers: (SubLayerInfo | LayerInfo)[] = [
+  reefExtentSubLayer,
+  {
+    layerId: 'coral_algae',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'seagrass',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'microalgal_mats',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rock',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'rubble',
+    isLayerOn: true,
+  },
+  {
+    layerId: 'sand',
+    isLayerOn: true,
+  },
+]
+
+export const availableYears = [2020, 2015, 2010, 2005, 2000]
+export const defaultYear = 2020
