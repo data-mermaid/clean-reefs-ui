@@ -425,15 +425,14 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="watershed"
+                    beforeId="sed_dispersal"
                   />
                 </Source>
               )
             )
           } else if (layer.dataType === 'rastertiles') {
             return (
-              isMapLoaded &&
-              layer.isLayerOn && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -449,6 +448,7 @@ export default function BaseMap({
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
                     beforeId="watershed"
+                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                   />
                 </Source>
               )
@@ -456,8 +456,7 @@ export default function BaseMap({
           } else {
             //other should just be 'vectortiles'
             return (
-              isMapLoaded &&
-              layer.isLayerOn && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -473,6 +472,7 @@ export default function BaseMap({
                     source={layer.sourceId}
                     source-layer={layer.sourceFileName}
                     beforeId="watershed"
+                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                     paint={{
                       // @ts-expect-error - doesn't like fill-color being a string?
                       'fill-color': benthicSubLayerFillExpression,

@@ -65,7 +65,6 @@ export const reefExtentSubLayer: LayerInfo = {
 }
 
 export const layers: LayerInfo[] = [
-  reefExtentSubLayer,
   {
     dataType: 'rastertiles',
     isLayerOn: true,
@@ -79,6 +78,7 @@ export const layers: LayerInfo[] = [
     title: 'map_layers.sediment_dispersal',
     year: 2000, //temp - data only available for Solomon Islands
   },
+  reefExtentSubLayer,
   {
     dataType: 'cog',
     isLayerOn: false,
