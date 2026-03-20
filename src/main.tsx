@@ -1,7 +1,7 @@
 import { scan } from 'react-scan'
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 import './styles/reset.scss'
 import './styles/index.scss'
 import { StyledEngineProvider } from '@mui/material'

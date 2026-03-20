@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
