@@ -161,22 +161,19 @@ function PmTileLayers({ layer, index }) {
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+  onRegionChange: (region: RegionOption) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
 }
 
 export default function BaseMap({
   mapLayers,
   selectedRegion,
-  setSelectedRegion,
+  onRegionChange,
   setBreadcrumb,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLng = 157.146019 //Initial location - Solomon Islands
-  const defaultLat = -7.980446
-  const defaultMapZoom = 11
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -217,7 +214,7 @@ export default function BaseMap({
           updatedRegions.push(subRegionWithUpdatedConfig)
 
           setBreadcrumb(updatedRegions)
-          setSelectedRegion(subRegionWithUpdatedConfig)
+          onRegionChange(subRegionWithUpdatedConfig)
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
           map.fitBounds(bounds, {
@@ -228,7 +225,7 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, selectedRegion, setBreadcrumb, setSelectedFeature, setSelectedRegion],
+    [isDesktopWidth, selectedRegion, setBreadcrumb, setSelectedFeature, onRegionChange],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
@@ -376,9 +373,9 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
-          longitude: defaultLng,
-          latitude: defaultLat,
-          zoom: defaultMapZoom,
+          longitude: selectedRegion.centerCoord.lng,
+          latitude: selectedRegion.centerCoord.lat,
+          zoom: selectedRegion.zoomLevel,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}

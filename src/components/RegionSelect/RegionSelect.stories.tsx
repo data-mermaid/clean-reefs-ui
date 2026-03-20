@@ -17,7 +17,7 @@ export const ShortBreadcrumb: Story = {
     breadcrumb: [defaultGlobalRegionOption],
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
-    setSelectedRegion: () => {},
+    onRegionChange: () => {},
   },
   decorators: [(Story) => <Story />],
   play: async ({ canvas }) => {
@@ -32,7 +32,7 @@ export const LongBreadcrumb: Story = {
     breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
-    setSelectedRegion: () => {},
+    onRegionChange: () => {},
   },
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')

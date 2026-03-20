@@ -15,14 +15,14 @@ interface RegionSelectProps {
   breadcrumb: RegionOption[]
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+  onRegionChange: (region: RegionOption) => void
 }
 
 export default function RegionSelect({
   breadcrumb,
   setBreadcrumb,
   selectedRegion,
-  setSelectedRegion,
+  onRegionChange,
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const mapRef = useMapStore((s) => s.mapReference)
@@ -87,7 +87,7 @@ export default function RegionSelect({
       jumpToRegion(region)
     }
     if (selectedRegion !== region) {
-      setSelectedRegion(region)
+      onRegionChange(region)
       prepBreadcrumb(region)
     }
   }
