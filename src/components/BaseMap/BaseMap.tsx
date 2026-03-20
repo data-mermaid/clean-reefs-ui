@@ -227,7 +227,6 @@ export default function BaseMap({
           setSelectedRegion(subRegionWithUpdatedConfig)
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
-          //temp disable
           map.fitBounds(bounds, {
             padding: config.padding,
             maxZoom: config.maxZoom,
@@ -338,12 +337,9 @@ export default function BaseMap({
     setIsMapLoaded(true)
 
     const map = mapRef.current?.getMap()
-    if (!map) {
+    if (!map || !watershedLayer) {
       return
     }
-
-    const watershedLayer =
-      mapLayers.find((l) => l.layerId === 'watershed') || mapLayers[mapLayers.length - 1]
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -404,18 +400,14 @@ export default function BaseMap({
             index={watershedIndex}
           />
         )}
-        {mapLayers.map((layer, index) => {
+        {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
           } else if (layer.dataType === 'pmtiles') {
             return (
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
-          } else if (
-            layer.dataType === 'rastertiles' &&
-            layer.parentLayerType !== 'oceanPollution' &&
-            layer.isLayerOn
-          ) {
+          } else if (layer.dataType === 'cog') {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
@@ -438,11 +430,7 @@ export default function BaseMap({
                 </Source>
               )
             )
-          } else if (
-            layer.dataType === 'rastertiles' &&
-            layer.parentLayerType === 'oceanPollution' &&
-            layer.isLayerOn
-          ) {
+          } else if (layer.dataType === 'rastertiles') {
             return (
               isMapLoaded &&
               layer.isLayerOn && (
