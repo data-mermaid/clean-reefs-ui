@@ -67,7 +67,7 @@ export const reefExtentSubLayer: LayerInfo = {
 export const layers: LayerInfo[] = [
   {
     dataType: 'rastertiles',
-    isLayerOn: true,
+    isLayerOn: false,
     layerId: 'sed_dispersal',
     legendTitle: 'concentration',
     legendType: 'gradient',

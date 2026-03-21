@@ -19,16 +19,16 @@ import { useMapStore } from '../../stores/mapStore'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
-  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
-  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void
-  mapSubLayers?: (LayerInfo | SubLayerInfo)[]
+  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  mapSubLayers?: SubLayerInfo[]
   selectedYear: number
 }
 
 const getLayerToggleDetails = (
   layer: LayerInfo,
-  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, on: boolean) => void,
-  mapSubLayers?: (LayerInfo | SubLayerInfo)[],
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  mapSubLayers?: SubLayerInfo[],
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -128,7 +128,7 @@ export default function LayerToggleCard({
                 className={styles['MuiSwitch-root']}
                 id={layer.layerId}
                 checked={layer.isLayerOn}
-                onChange={(e, checked) => toggleLayer(e, checked)}
+                onChange={toggleLayer}
               />
             )}
           </>

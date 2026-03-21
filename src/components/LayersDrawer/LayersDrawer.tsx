@@ -33,39 +33,51 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
-      const isRasterLayer = landRasterLayers.indexOf(toggledLayerId) > -1
+      const isChecked = event.target.checked
+      const isRasterLayer = landRasterLayers.includes(toggledLayerId)
 
-      let updatedLayers = mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear)
-      if (isRasterLayer) {
-        if (activeRasterLayerId && activeRasterLayerId !== toggledLayerId) {
+      setMapLayers((prevMapLayers) => {
+        let updatedLayers = mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear)
+
+        // Enforce mutual exclusivity: only one raster layer active at a time
+        if (
+          isRasterLayer &&
+          isChecked &&
+          activeRasterLayerId &&
+          activeRasterLayerId !== toggledLayerId
+        ) {
           updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false, selectedYear)
         }
-        if (checked) {
-          setActiveRasterLayerId(toggledLayerId)
-        } else {
-          setActiveRasterLayerId(null)
-        }
+
+        return updatedLayers
+      })
+
+      // Update active raster layer tracker
+      if (isRasterLayer) {
+        setActiveRasterLayerId(isChecked ? toggledLayerId : null)
       }
-      setMapLayers(updatedLayers)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeRasterLayerId, setMapLayers],
+    [setMapLayers, activeRasterLayerId, selectedYear],
   )
 
   const toggleSubLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
-      const updatedSubLayers = mapToggleChange(mapSubLayers, toggledLayerId, checked, selectedYear)
+      const isChecked = event.target.checked
       toggleSubLayerFillColor(toggledLayerId)
-      setMapSubLayers(updatedSubLayers)
+      setMapSubLayers((prevMapSubLayers) =>
+        mapToggleChange(prevMapSubLayers, toggledLayerId, isChecked, selectedYear),
+      )
 
       if (toggledLayerId === 'reef_extent') {
-        setMapLayers(mapToggleChange(mapLayers, toggledLayerId, checked, selectedYear))
+        setMapLayers((prevMapLayers) =>
+          mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear),
+        )
       }
     },
-    [mapLayers, mapSubLayers, selectedYear, setMapLayers, toggleSubLayerFillColor],
+    [selectedYear, setMapLayers, toggleSubLayerFillColor],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
