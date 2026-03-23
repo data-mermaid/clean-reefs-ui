@@ -11,6 +11,8 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { getValidYear } from '../../utils/routeUtils'
+import { mapToggleChange } from '../../utils/mapUtils'
+import { useMapStore } from '../../stores/mapStore'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -18,6 +20,8 @@ export default function MapContainer() {
   const selectedYear = getValidYear(year)
   const normalizedYearParam = selectedYear.toString()
   const shouldSyncYearParam = year !== normalizedYearParam
+
+  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
@@ -33,9 +37,25 @@ export default function MapContainer() {
     setSearchParams(nextSearchParams, { replace: true })
   }, [normalizedYearParam, searchParams, setSearchParams, shouldSyncYearParam])
 
-  const handleYearChange = (year: number) => {
+  const handleYearChange = (nextYear: number) => {
     const nextSearchParams = new URLSearchParams(searchParams)
-    nextSearchParams.set('year', year.toString())
+
+    setMapLayers((prevMapLayers) => {
+      const yearBasedLayerIds = ['sed_export', 'lulc', 'sed_dispersal']
+
+      return yearBasedLayerIds.reduce((acc, layerId) => {
+        const prevIsLayerOn =
+          acc.find((layer) => layer.layerId === layerId && layer.year === selectedYear)
+            ?.isLayerOn ?? false
+
+        const updated = mapToggleChange(acc, layerId, false, selectedYear)
+        return mapToggleChange(updated, layerId, prevIsLayerOn, nextYear)
+      }, prevMapLayers)
+    })
+
+    toggleSedExportSubLayerFills('pixel', nextYear)
+
+    nextSearchParams.set('year', nextYear.toString())
     setSearchParams(nextSearchParams)
   }
 
