@@ -95,11 +95,12 @@ export default function RegionSelect({
   return (
     <Box className={styles['RegionSelect-root']}>
       {breadcrumb.length > 0 && getBreadcrumbs()}
-      <Select<RegionOption>
+      <Select<string>
         size="small"
         aria-label={t('regions.select_region')}
-        value={selectedRegion}
+        value={selectedRegion.id}
         onChange={handleSelect}
+        renderValue={() => ''}
         variant="outlined"
         MenuProps={{
           classes: {

@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import styles from './LayerToggleLegend.module.scss'
 import { Switch, Typography } from '@mui/material'
-import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
+import { SubLayerInfo } from '../../types/MapDataTypes'
 import { atlasBenthicColors } from '../../data/mapData'
 
 interface LayerToggleLegendProps {
-  mapSubLayers: (LayerInfo | SubLayerInfo)[]
-  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
+  mapSubLayers: SubLayerInfo[]
+  toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export default function LayerToggleLegend({

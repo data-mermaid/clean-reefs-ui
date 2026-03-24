@@ -1,0 +1,78 @@
+@use './theme';
+
+/** Shared MUI Select styles **/
+@mixin muiSelectRoot {
+  background-color: theme.$greyWhite;
+  border-radius: theme.$borderRadius;
+  height: 100%;
+  max-height: 100%;
+  border-left: 1px solid theme.$textSecondary;
+  border-bottom: none;
+  border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
+
+  &:after {
+    border-bottom: none;
+  }
+
+  fieldset {
+    border: none;
+  }
+}
+
+@mixin muiSelectValue {
+  font-size: theme.$defaultTextSize;
+  color: theme.$textColor;
+  padding: theme.$spacingSmall;
+  border: none;
+
+  &:after {
+    border-bottom: none !important;
+  }
+
+  &:hover {
+    background-color: theme.$hoverGrey;
+    color: theme.$textColor;
+    border-radius: 0;
+  }
+
+  &:active {
+    background-color: theme.$grey;
+  }
+
+  @include theme.mobileDownBreakPoint {
+    font-size: theme.$textSizeSmall;
+  }
+}
+
+@mixin muiSelectList {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+@mixin muiSelectPaper {
+  border-radius: theme.$borderRadius;
+}
+
+@mixin muiSelectMenuItem {
+  font-size: theme.$defaultTextSize;
+  color: theme.$textColor;
+
+  &:hover {
+    background: theme.$primaryLight;
+  }
+
+  &[aria-selected='true'] {
+    background: theme.$primary !important;
+    color: theme.$white !important;
+    font-weight: theme.$semiBold;
+
+    &:hover {
+      background: theme.$primary !important;
+      opacity: 0.9;
+    }
+  }
+
+  @include theme.mobileDownBreakPoint {
+    font-size: theme.$textSizeSmall;
+  }
+}
