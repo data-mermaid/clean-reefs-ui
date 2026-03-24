@@ -1,28 +1,41 @@
 @use '../../styles/theme';
+@use '../../styles/muiComponents';
 
 .year-select {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  background-color: theme.$greyWhite;
+  border-radius: theme.$borderRadius;
+  height: theme.$mapUtilButtonHeight;
+}
+
+.year-label {
+  padding: theme.$spacingSmall theme.$spacingMedium;
+  font-size: theme.$defaultTextSize;
+  color: theme.$textColor;
+
+  @include theme.mobileDownBreakPoint {
+    font-size: theme.$textSizeSmall;
+  }
 }
 
 .MuiSelect-root {
-  @include theme.muiSelectRoot;
-  height: theme.$mapUtilButtonHeight;
-  max-height: theme.$mapUtilButtonHeight;
+  @include muiComponents.muiSelectRoot;
 }
 
 .MuiSelect-select {
-  @include theme.muiSelectValue;
+  @include muiComponents.muiSelectValue;
 }
 
 .MuiPaper-root {
-  @include theme.muiSelectPaper;
+  @include muiComponents.muiSelectPaper;
   margin-top: theme.$spacingXSmall;
 }
 
 .MuiList-root {
-  @include theme.muiSelectList;
+  @include muiComponents.muiSelectList;
 }
 
 .MuiMenuItem-root {
-  @include theme.muiSelectMenuItem;
+  @include muiComponents.muiSelectMenuItem;
 }

@@ -28,6 +28,7 @@ export const YearSelect = ({
 
   return (
     <Box className={clsx(styles['year-select'], className)}>
+      <span className={styles['year-label']}>{selectedYear}</span>
       <Select<number>
         size="small"
         aria-label={t('select_year')}
@@ -35,6 +36,7 @@ export const YearSelect = ({
         onChange={handleChange}
         disabled={disabled}
         variant="outlined"
+        renderValue={() => ''}
         MenuProps={{
           classes: {
             paper: styles['MuiPaper-root'],

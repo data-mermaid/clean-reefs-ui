@@ -1,4 +1,5 @@
 @use '../../styles/theme';
+@use '../../styles/muiComponents';
 
 .RegionSelect-root {
   display: flex;
@@ -93,17 +94,8 @@
 }
 
 .MuiSelect-root {
-  @include theme.muiSelectRoot;
-  height: 100%;
-  max-height: 100%;
+  @include muiComponents.muiSelectRoot;
   text-align: center;
-  border-left: 1px solid theme.$textSecondary;
-  border-bottom: none;
-  border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
-
-  &:after {
-    border-bottom: none;
-  }
 
   & .MuiSelect-clearIndicator {
     & svg {
@@ -119,19 +111,15 @@
 }
 
 .MuiSelect-select {
-  @include theme.muiSelectValue;
+  @include muiComponents.muiSelectValue;
 
   & {
     padding: theme.$defaultSpacing 0 theme.$defaultSpacing theme.$spacingSmall;
   }
-
-  &:hover {
-    border-radius: 0;
-  }
 }
 
 .MuiPaper-root {
-  @include theme.muiSelectPaper;
+  @include muiComponents.muiSelectPaper;
   width: calc(100% - theme.$spacingXSmall * 2);
   margin: theme.$spacingXSmall;
   left: 0 !important;
@@ -144,11 +132,11 @@
 }
 
 .MuiList-root {
-  @include theme.muiSelectList;
+  @include muiComponents.muiSelectList;
 }
 
 .MuiMenuItem-root {
-  @include theme.muiSelectMenuItem;
+  @include muiComponents.muiSelectMenuItem;
 }
 
 // To be implemented with regional grouping headers
