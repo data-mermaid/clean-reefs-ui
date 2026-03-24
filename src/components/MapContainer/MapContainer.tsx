@@ -10,6 +10,7 @@ import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { getValidRegion, getValidYear } from '../../utils/routeUtils'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -25,7 +26,9 @@ export default function MapContainer() {
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
+    initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+  )
 
   useEffect(() => {
     if (!shouldSyncYearParam && !shouldSyncRegionParam) {
@@ -44,6 +47,13 @@ export default function MapContainer() {
     shouldSyncYearParam,
     shouldSyncRegionParam,
   ])
+
+  useEffect(() => {
+    setSelectedRegion(initialRegion)
+    setBreadcrumb(
+      initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+    )
+  }, [initialRegion])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {

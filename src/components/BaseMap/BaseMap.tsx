@@ -43,7 +43,7 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
@@ -214,14 +214,16 @@ export default function BaseMap({
             zoomLevel: map.getZoom(),
             grouping: 3,
           }
-          const updatedRegions: RegionOption[] = [selectedRegion]
+          const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
           if (addtlRegion) {
             updatedRegions.push(addtlRegion)
           }
           updatedRegions.push(subRegionWithUpdatedConfig)
 
           setBreadcrumb(updatedRegions)
-          onRegionChange(subRegionWithUpdatedConfig)
+          if (addtlRegion) {
+            onRegionChange(addtlRegion)
+          }
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
           map.fitBounds(bounds, {
@@ -232,7 +234,7 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, selectedRegion, setBreadcrumb, setSelectedFeature, onRegionChange],
+    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
