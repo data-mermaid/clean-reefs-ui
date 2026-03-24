@@ -22,14 +22,12 @@ export default function MapContainer() {
 
   const layersParam = searchParams.get('layers')
   const selectedLayers = getValidLayers(layersParam)
-  const normalizedLayersParam = selectedLayers.join(',')
+  const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : null
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-
-  // isLayerOn for URL-controlled layers is derived from URL params + selectedYear
   const urlSyncedMapLayers = useMemo(
     () =>
       mapLayers.map((layer) => {
@@ -55,7 +53,11 @@ export default function MapContainer() {
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', normalizedYearParam)
-    nextSearchParams.set('layers', normalizedLayersParam)
+    if (normalizedLayersParam) {
+      nextSearchParams.set('layers', normalizedLayersParam)
+    } else {
+      nextSearchParams.delete('layers')
+    }
     setSearchParams(nextSearchParams, { replace: true })
   }, [
     normalizedYearParam,
@@ -73,30 +75,32 @@ export default function MapContainer() {
     toggleSedExportSubLayerFills('pixel', year)
   }
 
-  const handleLayerToggleChange = (layerId: string | null, isChecked: boolean) => {
-    if (!layerId) {
+  const handleLayerToggleChange = (toggledLayerId: string | null, isChecked: boolean) => {
+    if (!toggledLayerId) {
       return
     }
 
     setSearchParams((prevSearchParams) => {
       const sedExportAndLandUseLayers = ['sed_export', 'lulc']
-      const isRasterLayer = sedExportAndLandUseLayers.includes(layerId)
       const nextSearchParams = new URLSearchParams(prevSearchParams)
       const currentLayers = nextSearchParams.get('layers') || ''
       const layerSet = new Set(currentLayers.split(',').filter((l) => l))
 
       if (isChecked) {
-        if (isRasterLayer) {
-          sedExportAndLandUseLayers
-            .filter((rasterLayerId) => rasterLayerId !== layerId)
-            .forEach((rasterLayerId) => layerSet.delete(rasterLayerId))
+        if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
+          sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
         }
-        layerSet.add(layerId)
+        layerSet.add(toggledLayerId)
       } else {
-        layerSet.delete(layerId)
+        layerSet.delete(toggledLayerId)
       }
 
-      nextSearchParams.set('layers', Array.from(layerSet).join(','))
+      const layersValue = Array.from(layerSet).join(',')
+      if (layersValue) {
+        nextSearchParams.set('layers', layersValue)
+      } else {
+        nextSearchParams.delete('layers')
+      }
       return nextSearchParams
     })
   }

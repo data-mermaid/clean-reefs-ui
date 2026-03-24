@@ -6,34 +6,21 @@ export function getValidYear(yearFromSearchParam: string | null) {
 }
 
 export function getValidLayers(layersFromSearchParam: string | null) {
+  if (!layersFromSearchParam) {
+    return []
+  }
+
   const benthicLayers = benthicSubLayers.map((layer) => layer?.layerId)
   const availableLayers = ['sed_export', 'lulc', 'sed_dispersal', ...benthicLayers]
-  const sedExportAndLandUseLayers = ['sed_export', 'lulc']
+  const layers = layersFromSearchParam.split(',').filter(Boolean)
 
-  if (!layersFromSearchParam) {
+  if (layers.length === 0) {
+    return []
+  }
+
+  if (layers.some((layer) => !availableLayers.includes(layer))) {
     return defaultLayersToShow
   }
 
-  const validLayers = layersFromSearchParam
-    .split(',')
-    .filter((layer) => availableLayers.includes(layer))
-  const inValidLayers = layersFromSearchParam
-    .split(',')
-    .filter((layer) => !availableLayers.includes(layer))
-
-  if (inValidLayers.length > 0) {
-    return defaultLayersToShow
-  }
-
-  const selectedRasterLayers = validLayers.filter((layer) =>
-    sedExportAndLandUseLayers.includes(layer),
-  )
-  if (selectedRasterLayers.length <= 1) {
-    return validLayers
-  }
-
-  const chosenRasterLayer = selectedRasterLayers[selectedRasterLayers.length - 1]
-  return validLayers.filter(
-    (layer) => !sedExportAndLandUseLayers.includes(layer) || layer === chosenRasterLayer,
-  )
+  return layers
 }

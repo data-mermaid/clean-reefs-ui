@@ -19,7 +19,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
   selectedLayers: string[]
-  onLayerToggleChange: (layerId: string, isChecked: boolean) => void
+  onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
 }
 export default function LayersDrawer({
   mapLayers,
