@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import LayerToggleCard from './LayerToggleCard'
-import { atlasBenthicLayers, layers } from '../../data/mapData'
+import { benthicSubLayers, layers } from '../../data/mapData'
 
 const meta = {
   component: LayerToggleCard,
@@ -47,7 +47,7 @@ export const Benthic: Story = {
     toggleLayer: () => {},
     selectedYear: 2000,
     toggleSubLayer: () => {},
-    mapSubLayers: atlasBenthicLayers,
+    mapSubLayers: benthicSubLayers,
   },
 }
 

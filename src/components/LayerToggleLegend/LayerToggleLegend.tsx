@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import styles from './LayerToggleLegend.module.scss'
 import { Switch, Typography } from '@mui/material'
-import { SubLayerInfo } from '../../types/MapDataTypes'
+import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import { atlasBenthicColors } from '../../data/mapData'
 
 interface LayerToggleLegendProps {
-  mapSubLayers: SubLayerInfo[]
+  mapSubLayers: (LayerInfo | SubLayerInfo)[]
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
 }
 
@@ -28,8 +28,7 @@ export default function LayerToggleLegend({
             <Switch
               className={styles['MuiSwitch-root']}
               id={layerId}
-              checked={isLayerOn && layerId !== 'reef_extent'} //reef_extent is temp disabled and off until data is resolved
-              disabled={layerId === 'reef_extent'}
+              checked={isLayerOn}
               onChange={toggleSubLayer}
             />
           </div>
