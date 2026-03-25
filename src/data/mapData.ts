@@ -246,7 +246,7 @@ export const layers: LayerInfo[] = [
     outlineColor: plumeOutlineColor,
     parentLayerType: 'boundaries',
     sourceId: 'visual_solomons_plumeshape_2000_src',
-    sourceFileName: 'tmp4jghia4g',
+    sourceFileName: 'data',
     title: 'map_layers.dispersal_plume',
   },
   {
