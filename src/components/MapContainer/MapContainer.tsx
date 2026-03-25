@@ -28,6 +28,8 @@ export default function MapContainer() {
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
   const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
 
+  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const urlSyncedMapLayers = useMemo(
     () =>
@@ -69,11 +71,14 @@ export default function MapContainer() {
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', year.toString())
     setSearchParams(nextSearchParams)
-    toggleSedExportSubLayerFills('pixel', year)
+
+    if (selectedLayers.includes('sed_export')) {
+      toggleSedExportSubLayerFills(subSedLayerValue, year)
+    }
   }
 
   const handleLayerToggleChange = (toggledLayerId: string | null, isChecked: boolean) => {
-    const mutuallyExclusiveLayers = ['sed_export', 'lulc']
+    const sedExportAndLandUseLayers = ['sed_export', 'lulc']
     if (!toggledLayerId) {
       return
     }
@@ -83,28 +88,33 @@ export default function MapContainer() {
       const currentLayers = nextSearchParams.get('layers') || ''
       const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
 
-      if (isChecked) {
-        if (mutuallyExclusiveLayers.includes(toggledLayerId)) {
-          mutuallyExclusiveLayers.forEach((layerId) => layerSet.delete(layerId))
+      // Remove on uncheck; on check, enforce sed/lulc exclusivity before adding.
+      if (!isChecked) {
+        layerSet.delete(toggledLayerId)
+      } else {
+        if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
+          sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
         }
         layerSet.add(toggledLayerId)
-      } else {
-        layerSet.delete(toggledLayerId)
       }
 
       nextSearchParams.set('layers', Array.from(layerSet).join(',') || 'none')
       return nextSearchParams
     })
 
-    if (toggledLayerId === 'sed_export') {
-      if (isChecked) {
-        toggleSedExportSubLayerFills('pixel', selectedYear)
-      } else {
-        turnOffSedExportSubLayerFills()
-      }
-    } else if (toggledLayerId === 'lulc' && isChecked) {
+    if (toggledLayerId === 'sed_export' && isChecked) {
+      toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
+      return
+    }
+
+    if (toggledLayerId === 'sed_export' || (toggledLayerId === 'lulc' && isChecked)) {
       turnOffSedExportSubLayerFills()
     }
+  }
+
+  const handleSedSubLayerChange = (subLayerValue: 'pixel' | 'watershed') => {
+    setSubLayerValue(subLayerValue)
+    toggleSedExportSubLayerFills(subLayerValue, selectedYear)
   }
 
   return (
@@ -116,6 +126,8 @@ export default function MapContainer() {
           selectedYear={selectedYear}
           selectedLayers={selectedLayers}
           onLayerToggleChange={handleLayerToggleChange}
+          onSedSubLayerChange={handleSedSubLayerChange}
+          subSedLayerValue={subSedLayerValue}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -128,6 +140,7 @@ export default function MapContainer() {
       </div>
       <BaseMap
         mapLayers={urlSyncedMapLayers}
+        sedExportSubLayerValue={subSedLayerValue}
         selectedRegion={selectedRegion}
         setSelectedRegion={setSelectedRegion}
         setBreadcrumb={setBreadcrumb}

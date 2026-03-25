@@ -52,15 +52,13 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     const regionLevel = 'country' //TODO: pass in selected region level
 
     const pixelLayer = map.getLayer('sed_export')
-    if (!pixelLayer) {
-      return
+    if (pixelLayer) {
+      map.setLayoutProperty(
+        'sed_export',
+        'visibility',
+        subLayerToggledOn === 'pixel' ? 'visible' : 'none',
+      )
     }
-
-    map.setLayoutProperty(
-      'sed_export',
-      'visibility',
-      subLayerToggledOn === 'pixel' ? 'visible' : 'none',
-    )
 
     if (subLayerToggledOn === 'watershed') {
       map.setPaintProperty('watershed', 'fill-color', [
@@ -94,11 +92,9 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     const pixelLayer = map.getLayer('sed_export')
-    if (!pixelLayer) {
-      return
+    if (pixelLayer) {
+      map.setLayoutProperty('sed_export', 'visibility', 'none')
     }
-
-    map.setLayoutProperty('sed_export', 'visibility', 'none')
     map.setPaintProperty('watershed', 'fill-color', transparent)
   },
 }))

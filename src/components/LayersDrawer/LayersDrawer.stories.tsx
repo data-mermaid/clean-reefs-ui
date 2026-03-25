@@ -16,6 +16,8 @@ export const Primary: Story = {
     selectedYear: 2020,
     selectedLayers: defaultLayersToShow,
     onLayerToggleChange: () => {},
+    onSedSubLayerChange: () => {},
+    subSedLayerValue: 'pixel',
   },
 }
 

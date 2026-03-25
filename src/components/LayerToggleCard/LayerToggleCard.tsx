@@ -12,10 +12,8 @@ import GradientLegend from '../GradientLegend/GradientLegend'
 import Legend from '../Legend/Legend'
 import styles from '../LayerToggleCard/LayerToggleCard.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
-import { useMapStore } from '../../stores/mapStore'
 
 interface LayerToggleCardProps {
   layer: LayerInfo
@@ -23,12 +21,15 @@ interface LayerToggleCardProps {
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
   mapSubLayers?: SubLayerInfo[]
   selectedYear: number
+  subSedLayerValue: 'pixel' | 'watershed'
+  onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
 }
 
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  selectedYear: number,
+  subSedLayerValue: 'pixel' | 'watershed',
+  onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void,
   mapSubLayers?: SubLayerInfo[],
 ) => {
   const layerId: string = layer.layerId
@@ -46,7 +47,10 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend variation={layerId} title={layer.legendTitle} />
-          <RadioSelect selectedYear={selectedYear} />
+          <RadioSelect
+            subSedLayerValue={subSedLayerValue}
+            onSedSubLayerChange={onSedSubLayerChange}
+          />
         </>
       )
       break
@@ -62,25 +66,28 @@ const getLayerToggleDetails = (
 }
 
 //if not country or region, disable watershed option
-const RadioSelect = ({ selectedYear }: { selectedYear: number }) => {
-  const [selectedValue, setSelectedValue] = useState<'pixel' | 'watershed'>('pixel')
-  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
-
+const RadioSelect = ({
+  subSedLayerValue,
+  onSedSubLayerChange,
+}: {
+  subSedLayerValue: 'pixel' | 'watershed'
+  onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
+}) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const toggledOnItem = event.target.value as 'pixel' | 'watershed'
-    toggleSedExportSubLayerFills(toggledOnItem, selectedYear)
-    setSelectedValue(toggledOnItem)
+    onSedSubLayerChange(toggledOnItem)
   }
 
   const { t } = useTranslation()
   const radioControlProps = (item: string) =>
     ({
-      checked: item === selectedValue,
+      checked: item === subSedLayerValue,
       onChange: handleChange,
       control: <Radio />,
       value: item,
       labelPlacement: 'start',
     }) as unknown as FormControlLabelProps
+
   return (
     <FormControl classes={{ root: styles['MuiFormControl-root'] }}>
       <RadioGroup>
@@ -109,6 +116,8 @@ export default function LayerToggleCard({
   toggleSubLayer,
   selectedYear,
   mapSubLayers,
+  subSedLayerValue,
+  onSedSubLayerChange,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
@@ -135,7 +144,13 @@ export default function LayerToggleCard({
           </>
         )}
       </div>
-      {getLayerToggleDetails(layer, toggleSubLayer, selectedYear, mapSubLayers)}
+      {getLayerToggleDetails(
+        layer,
+        toggleSubLayer,
+        subSedLayerValue,
+        onSedSubLayerChange,
+        mapSubLayers,
+      )}
     </Card>
   )
 }

@@ -20,6 +20,8 @@ interface LayersDrawerProps {
   selectedYear: number
   selectedLayers: string[]
   onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
+  onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
+  subSedLayerValue: 'pixel' | 'watershed'
 }
 export default function LayersDrawer({
   mapLayers,
@@ -27,6 +29,8 @@ export default function LayersDrawer({
   selectedYear,
   selectedLayers,
   onLayerToggleChange,
+  onSedSubLayerChange,
+  subSedLayerValue,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -87,6 +91,8 @@ export default function LayersDrawer({
           toggleSubLayer={toggleSubLayer}
           mapSubLayers={mapSubLayers}
           selectedYear={selectedYear}
+          subSedLayerValue={subSedLayerValue}
+          onSedSubLayerChange={onSedSubLayerChange}
           key={`layertoggle-${layer.sourceId}-${index}`}
         />
       ))
