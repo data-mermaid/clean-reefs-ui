@@ -38,3 +38,31 @@ export function getValidLayers(layersFromSearchParam: string | null) {
 
   return layers
 }
+
+export function getValidZoom(zoomFromSearchParam: string | null): number | null {
+  if (!zoomFromSearchParam) {
+    return null
+  }
+  const zoom = parseFloat(zoomFromSearchParam)
+  if (isNaN(zoom) || zoom < 0 || zoom > 24) {
+    return null
+  }
+  return zoom
+}
+
+export function getValidLatLng(
+  latFromSearchParam: string | null,
+  lngFromSearchParam: string | null,
+): { lat: number | null; lng: number | null } {
+  const lat = latFromSearchParam ? parseFloat(latFromSearchParam) : null
+  const lng = lngFromSearchParam ? parseFloat(lngFromSearchParam) : null
+
+  const isLatValid = lat !== null && !isNaN(lat) && lat >= -90 && lat <= 90
+  const isLngValid = lng !== null && !isNaN(lng) && lng >= -180 && lng <= 180
+
+  if (!isLatValid || !isLngValid) {
+    return { lat: null, lng: null }
+  }
+
+  return { lat, lng }
+}

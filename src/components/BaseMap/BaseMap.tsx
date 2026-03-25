@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { useSearchParams } from 'react-router'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -44,6 +45,7 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { getValidLatLng, getValidZoom } from '../../utils/routeUtils'
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
@@ -182,6 +184,11 @@ export default function BaseMap({
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const { lat, lng } = getValidLatLng(searchParams.get('lat'), searchParams.get('lng'))
+  const zoom = getValidZoom(searchParams.get('zoom'))
+
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
@@ -243,6 +250,23 @@ export default function BaseMap({
   const polygonClickHandler = useMemo(
     () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
     [handleFeatureSelect],
+  )
+
+  const handleMoveEnd = useCallback(
+    (e) => {
+      const { latitude, longitude, zoom } = e.viewState
+      setSearchParams(
+        (prev) => {
+          const nextSearchParams = new URLSearchParams(prev)
+          nextSearchParams.set('lat', latitude.toFixed(6))
+          nextSearchParams.set('lng', longitude.toFixed(6))
+          nextSearchParams.set('zoom', zoom.toFixed(2))
+          return nextSearchParams
+        },
+        { replace: true },
+      )
+    },
+    [setSearchParams],
   )
 
   if (
@@ -379,12 +403,13 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
-          longitude: selectedRegion.centerCoord.lng,
-          latitude: selectedRegion.centerCoord.lat,
-          zoom: selectedRegion.zoomLevel,
+          longitude: lng ?? selectedRegion.centerCoord.lng,
+          latitude: lat ?? selectedRegion.centerCoord.lat,
+          zoom: zoom ?? selectedRegion.zoomLevel,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
+        onMoveEnd={handleMoveEnd}
         attributionControl={false}
       >
         {isDesktopWidth && (
