@@ -30,6 +30,24 @@ export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds
   return bounds
 }
 
+export function clearPolygonHover(
+  map: Map,
+  hoveredRef: RefObject<string | number | null>,
+  mapDataLayer: LayerInfo,
+) {
+  if (hoveredRef.current) {
+    map.setFeatureState(
+      {
+        source: mapDataLayer.sourceId,
+        sourceLayer: mapDataLayer.sourceFileName,
+        id: hoveredRef.current,
+      },
+      { hover: false },
+    )
+    hoveredRef.current = null
+  }
+}
+
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e.features || e.features.length === 0 || !e.features[0].id) {
@@ -49,17 +67,7 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
       return
     }
 
-    if (hoveredRef.current) {
-      map.setFeatureState(
-        {
-          source: mapDataLayer.sourceId,
-          sourceLayer: mapDataLayer.sourceFileName,
-          id: hoveredRef.current,
-        },
-        { hover: false },
-      )
-      hoveredRef.current = null
-    }
+    clearPolygonHover(map, hoveredRef, mapDataLayer)
 
     // set hover on new feature
     hoveredRef.current = featureId
@@ -90,6 +98,16 @@ export function createPolygonClickHandler(
       return
     }
 
+    // Clicking an already-selected watershed recenters the map on it
+    if (polygonClickedRef.current === featureId) {
+      if (onSelect) {
+        const bounds = calculateFeatureBounds(feature)
+        onSelect(feature, bounds)
+      }
+      return
+    }
+
+    // Deselect the previously selected watershed (user clicked a different one)
     if (polygonClickedRef.current) {
       map.setFeatureState(
         {
@@ -99,13 +117,6 @@ export function createPolygonClickHandler(
         },
         { select: false },
       )
-      if (polygonClickedRef.current === featureId) {
-        polygonClickedRef.current = null
-        if (onSelect) {
-          onSelect(null)
-        }
-        return
-      }
     }
 
     polygonClickedRef.current = featureId

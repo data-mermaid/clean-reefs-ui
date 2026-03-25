@@ -29,7 +29,11 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { createPolygonClickHandler, createPolygonHoverHandler } from '../../utils/mapUtils'
+import {
+  clearPolygonHover,
+  createPolygonClickHandler,
+  createPolygonHoverHandler,
+} from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -368,6 +372,7 @@ export default function BaseMap({
     })
     map.on('mouseleave', 'watershed', () => {
       map.getCanvas().style.cursor = ''
+      clearPolygonHover(map, polygonHoverRef, watershedLayer)
     })
   }
 
