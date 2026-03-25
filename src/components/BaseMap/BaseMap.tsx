@@ -43,7 +43,7 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
@@ -168,22 +168,19 @@ function PmTileLayers({ layer, index }) {
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+  onRegionChange: (region: RegionOption) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
 }
 
 export default function BaseMap({
   mapLayers,
   selectedRegion,
-  setSelectedRegion,
+  onRegionChange,
   setBreadcrumb,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const defaultLng = 157.146019 //Initial location - Solomon Islands
-  const defaultLat = -7.980446
-  const defaultMapZoom = 11
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -217,14 +214,16 @@ export default function BaseMap({
             zoomLevel: map.getZoom(),
             grouping: 3,
           }
-          const updatedRegions: RegionOption[] = [selectedRegion]
+          const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
           if (addtlRegion) {
             updatedRegions.push(addtlRegion)
           }
           updatedRegions.push(subRegionWithUpdatedConfig)
 
           setBreadcrumb(updatedRegions)
-          setSelectedRegion(subRegionWithUpdatedConfig)
+          if (addtlRegion) {
+            onRegionChange(addtlRegion)
+          }
 
           const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
           map.fitBounds(bounds, {
@@ -235,7 +234,7 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, selectedRegion, setBreadcrumb, setSelectedFeature, setSelectedRegion],
+    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
@@ -378,9 +377,9 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={{
-          longitude: defaultLng,
-          latitude: defaultLat,
-          zoom: defaultMapZoom,
+          longitude: selectedRegion.centerCoord.lng,
+          latitude: selectedRegion.centerCoord.lat,
+          zoom: selectedRegion.zoomLevel,
         }}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
@@ -8,9 +8,9 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { getValidYear } from '../../utils/routeUtils'
+import { getValidRegion, getValidYear } from '../../utils/routeUtils'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -19,19 +19,51 @@ export default function MapContainer() {
   const normalizedYearParam = selectedYear.toString()
   const shouldSyncYearParam = year !== normalizedYearParam
 
+  const regionParam = searchParams.get('region')
+  const initialRegion = getValidRegion(regionParam)
+  const normalizedRegionParam = initialRegion.id
+  const shouldSyncRegionParam = regionParam !== normalizedRegionParam
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
-  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
+    initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+  )
 
   useEffect(() => {
-    if (!shouldSyncYearParam) {
+    if (!shouldSyncYearParam && !shouldSyncRegionParam) {
       return
     }
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', normalizedYearParam)
+    nextSearchParams.set('region', normalizedRegionParam)
     setSearchParams(nextSearchParams, { replace: true })
-  }, [normalizedYearParam, searchParams, setSearchParams, shouldSyncYearParam])
+  }, [
+    normalizedYearParam,
+    normalizedRegionParam,
+    searchParams,
+    setSearchParams,
+    shouldSyncYearParam,
+    shouldSyncRegionParam,
+  ])
+
+  useEffect(() => {
+    setSelectedRegion(initialRegion)
+    setBreadcrumb(
+      initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+    )
+  }, [initialRegion])
+
+  const handleRegionChange = useCallback(
+    (region: RegionOption) => {
+      setSelectedRegion(region)
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('region', region.id)
+      setSearchParams(nextSearchParams)
+    },
+    [searchParams, setSearchParams],
+  )
 
   const handleYearChange = (year: number) => {
     const nextSearchParams = new URLSearchParams(searchParams)
@@ -49,7 +81,7 @@ export default function MapContainer() {
         />
         <RegionSelect
           selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
+          onRegionChange={handleRegionChange}
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
         />
@@ -59,7 +91,7 @@ export default function MapContainer() {
       <BaseMap
         mapLayers={mapLayers}
         selectedRegion={selectedRegion}
-        setSelectedRegion={setSelectedRegion}
+        onRegionChange={handleRegionChange}
         setBreadcrumb={setBreadcrumb}
       />
     </div>
