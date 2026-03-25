@@ -107,7 +107,7 @@ export function createPolygonClickHandler(
       return
     }
 
-    // Deselect previously selected watershed
+    // Deselect the previously selected watershed (user clicked a different one)
     if (polygonClickedRef.current) {
       map.setFeatureState(
         {
