@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
@@ -6,10 +6,11 @@ import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import { layers } from '../../data/mapData'
+import { layers, urlControlledLayerIds } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { getValidRegion, getValidYear } from '../../utils/routeUtils'
+import { getValidLayers, getValidYear, getValidRegion } from '../../utils/routeUtils'
+import { useMapStore } from '../../stores/mapStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
@@ -23,29 +24,56 @@ export default function MapContainer() {
   const initialRegion = getValidRegion(regionParam)
   const normalizedRegionParam = initialRegion.id
   const shouldSyncRegionParam = regionParam !== normalizedRegionParam
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
+
+  const layersParam = searchParams.get('layers')
+  const selectedLayers = getValidLayers(layersParam)
+  const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
+  const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
+  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
+
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
     initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
   )
 
+  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
+  const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
+
+  const urlSyncedMapLayers = useMemo(
+    () =>
+      mapLayers.map((layer) => {
+        if (!urlControlledLayerIds.includes(layer.layerId)) {
+          return layer
+        }
+
+        const isOn =
+          selectedLayers.includes(layer.layerId) &&
+          (layer.year === undefined || layer.year === selectedYear)
+        return { ...layer, isLayerOn: isOn }
+      }),
+    [mapLayers, selectedLayers, selectedYear],
+  )
   useEffect(() => {
-    if (!shouldSyncYearParam && !shouldSyncRegionParam) {
+    if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
       return
     }
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', normalizedYearParam)
     nextSearchParams.set('region', normalizedRegionParam)
+    nextSearchParams.set('layers', normalizedLayersParam)
     setSearchParams(nextSearchParams, { replace: true })
   }, [
-    normalizedYearParam,
-    normalizedRegionParam,
     searchParams,
     setSearchParams,
+    normalizedYearParam,
+    normalizedRegionParam,
+    normalizedLayersParam,
     shouldSyncYearParam,
     shouldSyncRegionParam,
+    shouldSyncLayersParam,
   ])
 
   useEffect(() => {
@@ -69,15 +97,63 @@ export default function MapContainer() {
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', year.toString())
     setSearchParams(nextSearchParams)
+
+    if (selectedLayers.includes('sed_export')) {
+      toggleSedExportSubLayerFills(subSedLayerValue, year)
+    }
+  }
+
+  const handleLayerToggleChange = (toggledLayerId: string | null, isChecked: boolean) => {
+    const sedExportAndLandUseLayers = ['sed_export', 'lulc']
+    if (!toggledLayerId) {
+      return
+    }
+
+    setSearchParams((prevSearchParams) => {
+      const nextSearchParams = new URLSearchParams(prevSearchParams)
+      const currentLayers = nextSearchParams.get('layers') || ''
+      const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
+
+      // Remove on uncheck; on check, enforce sed/lulc exclusivity before adding.
+      if (!isChecked) {
+        layerSet.delete(toggledLayerId)
+      } else {
+        if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
+          sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
+        }
+        layerSet.add(toggledLayerId)
+      }
+
+      nextSearchParams.set('layers', Array.from(layerSet).join(',') || 'none')
+      return nextSearchParams
+    })
+
+    if (toggledLayerId === 'sed_export' && isChecked) {
+      toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
+      return
+    }
+
+    if (toggledLayerId === 'sed_export' || (toggledLayerId === 'lulc' && isChecked)) {
+      turnOffSedExportSubLayerFills()
+    }
+  }
+
+  const handleSedSubLayerChange = (subLayerValue: 'pixel' | 'watershed') => {
+    setSubLayerValue(subLayerValue)
+    toggleSedExportSubLayerFills(subLayerValue, selectedYear)
   }
 
   return (
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
         <LayersDrawer
-          mapLayers={mapLayers}
+          mapLayers={urlSyncedMapLayers}
           setMapLayers={setMapLayers}
           selectedYear={selectedYear}
+          selectedLayers={selectedLayers}
+          onLayerToggleChange={handleLayerToggleChange}
+          onSedSubLayerChange={handleSedSubLayerChange}
+          subSedLayerValue={subSedLayerValue}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -89,7 +165,8 @@ export default function MapContainer() {
         <TrendsDrawer selectedRegion={selectedRegion} />
       </div>
       <BaseMap
-        mapLayers={mapLayers}
+        mapLayers={urlSyncedMapLayers}
+        sedExportSubLayerValue={subSedLayerValue}
         selectedRegion={selectedRegion}
         onRegionChange={handleRegionChange}
         setBreadcrumb={setBreadcrumb}

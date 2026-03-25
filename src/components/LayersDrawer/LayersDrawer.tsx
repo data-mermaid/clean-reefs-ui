@@ -1,10 +1,10 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import styles from './LayersDrawer.module.scss'
-import { benthicSubLayers, parentLayerTitles } from '../../data/mapData'
+import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
@@ -18,17 +18,33 @@ interface LayersDrawerProps {
   mapLayers: LayerInfo[]
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
+  selectedLayers: string[]
+  onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
+  onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
+  subSedLayerValue: 'pixel' | 'watershed'
 }
-const landRasterLayers = ['sed_export', 'lulc']
-
-export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: LayersDrawerProps) {
+export default function LayersDrawer({
+  mapLayers,
+  setMapLayers,
+  selectedYear,
+  selectedLayers,
+  onLayerToggleChange,
+  onSedSubLayerChange,
+  subSedLayerValue,
+}: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-  const [activeRasterLayerId, setActiveRasterLayerId] = useState<string | null>('sed_export')
-  const [mapSubLayers, setMapSubLayers] = useState(benthicSubLayers)
+  const mapSubLayers = useMemo(
+    () =>
+      benthicSubLayers.map((layer) => ({
+        ...layer,
+        isLayerOn: selectedLayers.includes(layer.layerId),
+      })),
+    [selectedLayers],
+  )
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
@@ -36,30 +52,18 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
-      const isRasterLayer = landRasterLayers.includes(toggledLayerId)
+      const isUrlControlled = urlControlledLayerIds.includes(toggledLayerId)
 
-      setMapLayers((prevMapLayers) => {
-        let updatedLayers = mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear)
-
-        // Enforce mutual exclusivity: only one raster layer active at a time
-        if (
-          isRasterLayer &&
-          isChecked &&
-          activeRasterLayerId &&
-          activeRasterLayerId !== toggledLayerId
-        ) {
-          updatedLayers = mapToggleChange(updatedLayers, activeRasterLayerId, false, selectedYear)
-        }
-
-        return updatedLayers
-      })
-
-      // Update active raster layer tracker
-      if (isRasterLayer) {
-        setActiveRasterLayerId(isChecked ? toggledLayerId : null)
+      // URL-controlled layers derive isLayerOn from URL; skip local state
+      if (!isUrlControlled) {
+        setMapLayers((prevMapLayers) =>
+          mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear),
+        )
       }
+
+      onLayerToggleChange(toggledLayerId, isChecked)
     },
-    [setMapLayers, activeRasterLayerId, selectedYear],
+    [setMapLayers, selectedYear, onLayerToggleChange],
   )
 
   const toggleSubLayer = useCallback(
@@ -67,17 +71,9 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
       toggleSubLayerFillColor(toggledLayerId)
-      setMapSubLayers((prevMapSubLayers) =>
-        mapToggleChange(prevMapSubLayers, toggledLayerId, isChecked, selectedYear),
-      )
-
-      if (toggledLayerId === 'reef_extent') {
-        setMapLayers((prevMapLayers) =>
-          mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear),
-        )
-      }
+      onLayerToggleChange(toggledLayerId, isChecked)
     },
-    [selectedYear, setMapLayers, toggleSubLayerFillColor],
+    [toggleSubLayerFillColor, onLayerToggleChange],
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
@@ -95,6 +91,8 @@ export default function LayersDrawer({ mapLayers, setMapLayers, selectedYear }: 
           toggleSubLayer={toggleSubLayer}
           mapSubLayers={mapSubLayers}
           selectedYear={selectedYear}
+          subSedLayerValue={subSedLayerValue}
+          onSedSubLayerChange={onSedSubLayerChange}
           key={`layertoggle-${layer.sourceId}-${index}`}
         />
       ))

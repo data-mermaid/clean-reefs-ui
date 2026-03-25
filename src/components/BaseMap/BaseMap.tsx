@@ -167,6 +167,7 @@ function PmTileLayers({ layer, index }) {
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
+  sedExportSubLayerValue: 'pixel' | 'watershed'
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
@@ -174,6 +175,7 @@ interface BaseMapProps {
 
 export default function BaseMap({
   mapLayers,
+  sedExportSubLayerValue,
   selectedRegion,
   onRegionChange,
   setBreadcrumb,
@@ -407,9 +409,13 @@ export default function BaseMap({
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
           } else if (layer.dataType === 'cog') {
+            const shouldRenderSedExportRaster =
+              layer.layerId !== 'sed_export' || sedExportSubLayerValue === 'pixel'
+
             return (
               isMapLoaded &&
-              layer.isLayerOn && (
+              layer.isLayerOn &&
+              shouldRenderSedExportRaster && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}

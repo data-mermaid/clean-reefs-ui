@@ -20,6 +20,8 @@ export const Primary: Story = {
     toggleLayer: () => {},
     toggleSubLayer: () => {},
     selectedYear: 2020,
+    subSedLayerValue: 'pixel',
+    onSedSubLayerChange: () => {},
   },
 }
 
@@ -29,6 +31,8 @@ export const SedExport: Story = {
     toggleLayer: () => {},
     toggleSubLayer: () => {},
     selectedYear: 2000,
+    subSedLayerValue: 'pixel',
+    onSedSubLayerChange: () => {},
   },
 }
 
@@ -48,6 +52,8 @@ export const Benthic: Story = {
     selectedYear: 2000,
     toggleSubLayer: () => {},
     mapSubLayers: benthicSubLayers,
+    subSedLayerValue: 'pixel',
+    onSedSubLayerChange: () => {},
   },
 }
 
@@ -57,6 +63,8 @@ export const Lulc: Story = {
     toggleLayer: () => {},
     toggleSubLayer: () => {},
     selectedYear: 2000,
+    subSedLayerValue: 'pixel',
+    onSedSubLayerChange: () => {},
   },
 }
 export default meta

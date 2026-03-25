@@ -13,7 +13,11 @@ type MapActions = {
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
-  toggleSedExportSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed') => void
+  toggleSedExportSubLayerFills: (
+    subLayerToggledOn: 'pixel' | 'watershed',
+    selectedYear: number,
+  ) => void
+  turnOffSedExportSubLayerFills: () => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -36,25 +40,25 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     set({ benthicMapSubLayerColors: updatedFillColors })
   },
-  toggleSedExportSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed') => {
+  toggleSedExportSubLayerFills: (
+    subLayerToggledOn: 'pixel' | 'watershed',
+    selectedYear: number,
+  ) => {
     const state = get()
     const map = state.mapReference?.getMap()
     if (!map) {
       return
     }
     const regionLevel = 'country' //TODO: pass in selected region level
-    const selectedYear = 2020
 
     const pixelLayer = map.getLayer('sed_export')
-    if (!pixelLayer) {
-      return
+    if (pixelLayer) {
+      map.setLayoutProperty(
+        'sed_export',
+        'visibility',
+        subLayerToggledOn === 'pixel' ? 'visible' : 'none',
+      )
     }
-
-    map.setLayoutProperty(
-      'sed_export',
-      'visibility',
-      subLayerToggledOn === 'pixel' ? 'visible' : 'none',
-    )
 
     if (subLayerToggledOn === 'watershed') {
       map.setPaintProperty('watershed', 'fill-color', [
@@ -79,5 +83,18 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     } else {
       map.setPaintProperty('watershed', 'fill-color', transparent)
     }
+  },
+  turnOffSedExportSubLayerFills: () => {
+    const state = get()
+    const map = state.mapReference?.getMap()
+    if (!map) {
+      return
+    }
+
+    const pixelLayer = map.getLayer('sed_export')
+    if (pixelLayer) {
+      map.setLayoutProperty('sed_export', 'visibility', 'none')
+    }
+    map.setPaintProperty('watershed', 'fill-color', transparent)
   },
 }))

@@ -14,6 +14,7 @@ type Story = StoryObj<typeof meta>
 export const Primary: Story = {
   args: {
     mapLayers: layers,
+    sedExportSubLayerValue: 'pixel',
     onRegionChange: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
@@ -38,6 +39,7 @@ export const Loading: Story = {
     onRegionChange: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
+    sedExportSubLayerValue: 'pixel',
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

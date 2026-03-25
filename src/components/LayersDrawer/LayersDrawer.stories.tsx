@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import LayersDrawer from './LayersDrawer'
-import { layers } from '../../data/mapData'
+import { defaultLayersToShow, layers } from '../../data/mapData'
 
 const meta = {
   component: LayersDrawer,
@@ -14,6 +14,10 @@ export const Primary: Story = {
     mapLayers: layers,
     setMapLayers: () => {},
     selectedYear: 2020,
+    selectedLayers: defaultLayersToShow,
+    onLayerToggleChange: () => {},
+    onSedSubLayerChange: () => {},
+    subSedLayerValue: 'pixel',
   },
 }
 

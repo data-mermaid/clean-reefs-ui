@@ -291,5 +291,16 @@ export const benthicSubLayers: (SubLayerInfo | LayerInfo)[] = [
   },
 ]
 
+export const urlControlledLayerIds = [
+  'none',
+  'sed_export',
+  'lulc',
+  'sed_dispersal',
+  ...benthicSubLayers.map((l) => l.layerId),
+]
+export const defaultLayersToShow = urlControlledLayerIds.filter(
+  (id) => id !== 'lulc' && id !== 'none',
+)
+
 export const availableYears = [2020, 2015, 2010, 2005, 2000]
-export const defaultYear = 2020
+export const defaultYear = 2000
