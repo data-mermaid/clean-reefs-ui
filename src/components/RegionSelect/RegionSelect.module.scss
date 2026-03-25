@@ -1,15 +1,16 @@
-@use '../../styles/theme' as *;
+@use '../../styles/theme';
+@use '../../styles/muiComponents';
 
 .RegionSelect-root {
   display: flex;
   align-items: center;
   border-right: none;
   border-color: transparent;
-  border-radius: $borderRadius;
+  border-radius: theme.$borderRadius;
   justify-content: space-between;
-  background-color: $greyWhite;
+  background-color: theme.$greyWhite;
 
-  @include mobileDownBreakPoint {
+  @include theme.mobileDownBreakPoint {
     flex-shrink: 3;
     flex-grow: 3;
   }
@@ -20,7 +21,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: calc(100% - $mapUtilButtonHeight);
+  max-width: calc(100% - theme.$mapUtilButtonHeight);
 
   width: 100%;
 }
@@ -33,13 +34,13 @@
   height: 100%;
   cursor: pointer;
 
-  @include mobileUpBreakPoint {
+  @include theme.mobileUpBreakPoint {
     max-width: 100%;
   }
 }
 
 .breadcrumb {
-  background-color: $greyWhite;
+  background-color: theme.$greyWhite;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -50,8 +51,8 @@
   white-space: nowrap;
 
   > button {
-    padding: $defaultSpacing;
-    background-color: $greyWhite;
+    padding: theme.$defaultSpacing;
+    background-color: theme.$greyWhite;
     border: none;
     display: flex;
 
@@ -60,12 +61,12 @@
     align-items: center;
     height: 100%;
 
-    @include mobileDownBreakPoint {
-      padding: $defaultSpacing $spacingXSmall;
+    @include theme.mobileDownBreakPoint {
+      padding: theme.$defaultSpacing theme.$spacingXSmall;
     }
 
     &:hover {
-      background-color: $hoverGrey;
+      background-color: theme.$hoverGrey;
     }
   }
 
@@ -74,18 +75,18 @@
     cursor: default;
     &:hover {
       button {
-        background-color: $greyWhite;
+        background-color: theme.$greyWhite;
       }
     }
   }
   &:first-of-type {
     button {
-      border-radius: $borderRadius 0 0 $borderRadius;
+      border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
     }
   }
 
   &:first-of-type {
-    border-radius: $borderRadius 0 0 $borderRadius;
+    border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
   }
   &:not(:first-of-type) {
     padding-left: 0;
@@ -93,65 +94,37 @@
 }
 
 .MuiSelect-root {
-  height: 100%;
-  max-height: 100%;
-  background-color: $greyWhite;
+  @include muiComponents.muiSelectRoot;
   text-align: center;
-  border-left: 1px solid $textSecondary;
-  border-bottom: none;
-  border-radius: 0 $borderRadius $borderRadius 0;
-
-  &:after {
-    border-bottom: none;
-  }
 
   & .MuiSelect-clearIndicator {
     & svg {
-      font-size: $svgSizeSmall;
+      font-size: theme.$svgSizeSmall;
     }
   }
 
   & .MuiSelect-popupIndicator {
     & svg {
-      font-size: $svgSizeMedium;
+      font-size: theme.$svgSizeMedium;
     }
-  }
-
-  fieldset {
-    border: none;
   }
 }
 
 .MuiSelect-select {
-  padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
-  border: none;
-  font-size: $defaultTextSize;
+  @include muiComponents.muiSelectValue;
 
-  @include mobileUpBreakPoint {
-    padding: $defaultSpacing 0 $defaultSpacing $spacingSmall;
-  }
-
-  &:after {
-    border-bottom: none !important;
-  }
-
-  &:hover {
-    background-color: $hoverGrey;
-    color: $textColor;
-    border-radius: 0;
-  }
-
-  &:active {
-    background-color: $grey;
+  & {
+    padding: theme.$defaultSpacing 0 theme.$defaultSpacing theme.$spacingSmall;
   }
 }
 
 .MuiPaper-root {
-  width: calc(100% - $spacingXSmall * 2);
-  margin: $spacingXSmall;
+  @include muiComponents.muiSelectPaper;
+  width: calc(100% - theme.$spacingXSmall * 2);
+  margin: theme.$spacingXSmall;
   left: 0 !important;
-  max-width: calc(100% - $spacingXSmall * 2);
-  @include mobileUpBreakPoint {
+  max-width: calc(100% - theme.$spacingXSmall * 2);
+  @include theme.mobileUpBreakPoint {
     margin-right: 30px;
     left: calc(50vw - 160px) !important;
     width: 330px;
@@ -159,23 +132,26 @@
 }
 
 .MuiList-root {
-  padding-top: 0;
-  padding-bottom: 0;
+  @include muiComponents.muiSelectList;
+}
+
+.MuiMenuItem-root {
+  @include muiComponents.muiSelectMenuItem;
 }
 
 // To be implemented with regional grouping headers
 //.group-header {
 //  position: sticky;
 //  top: -8px;
-//  font-weight: $semiBold;
-//  padding: $spacingSmall $spacingMedium;
-//  border-bottom: 1px solid $secondary;
-//  font-size: $textSizeSmall;
+//  font-weight: theme.$semiBold;
+//  padding: theme.$spacingSmall theme.$spacingMedium;
+//  border-bottom: 1px solid theme.$secondary;
+//  font-size: theme.$textSizeSmall;
 //}
 //
 //.group-list {
 //  padding: 0;
 //  margin: 0;
 //  list-style: none;
-//  font-size: $textSizeSmall;
+//  font-size: theme.$textSizeSmall;
 //}

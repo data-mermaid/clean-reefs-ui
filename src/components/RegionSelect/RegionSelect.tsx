@@ -15,14 +15,14 @@ interface RegionSelectProps {
   breadcrumb: RegionOption[]
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
-  setSelectedRegion: Dispatch<SetStateAction<RegionOption>>
+  onRegionChange: (region: RegionOption) => void
 }
 
 export default function RegionSelect({
   breadcrumb,
   setBreadcrumb,
   selectedRegion,
-  setSelectedRegion,
+  onRegionChange,
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const mapRef = useMapStore((s) => s.mapReference)
@@ -87,7 +87,7 @@ export default function RegionSelect({
       jumpToRegion(region)
     }
     if (selectedRegion !== region) {
-      setSelectedRegion(region)
+      onRegionChange(region)
       prepBreadcrumb(region)
     }
   }
@@ -95,11 +95,12 @@ export default function RegionSelect({
   return (
     <Box className={styles['RegionSelect-root']}>
       {breadcrumb.length > 0 && getBreadcrumbs()}
-      <Select<RegionOption>
+      <Select<string>
         size="small"
         aria-label={t('regions.select_region')}
-        value={selectedRegion}
+        value={selectedRegion.id}
         onChange={handleSelect}
+        renderValue={() => ''}
         variant="outlined"
         MenuProps={{
           classes: {

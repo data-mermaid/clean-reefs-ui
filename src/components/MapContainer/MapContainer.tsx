@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
@@ -8,10 +8,10 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { getValidLayers, getValidYear } from '../../utils/routeUtils'
+import { getValidLayers, getValidYear, getValidRegion } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -20,17 +20,27 @@ export default function MapContainer() {
   const normalizedYearParam = selectedYear.toString()
   const shouldSyncYearParam = year !== normalizedYearParam
 
+  const regionParam = searchParams.get('region')
+  const initialRegion = getValidRegion(regionParam)
+  const normalizedRegionParam = initialRegion.id
+  const shouldSyncRegionParam = regionParam !== normalizedRegionParam
+
   const layersParam = searchParams.get('layers')
   const selectedLayers = getValidLayers(layersParam)
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
+  const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
+  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
+
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
+  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
+    initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+  )
+
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
   const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
 
-  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
-
-  const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const urlSyncedMapLayers = useMemo(
     () =>
       mapLayers.map((layer) => {
@@ -45,27 +55,43 @@ export default function MapContainer() {
       }),
     [mapLayers, selectedLayers, selectedYear],
   )
-
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption>(defaultGlobalRegionOption)
-  const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>([selectedRegion])
-
   useEffect(() => {
-    if (!shouldSyncYearParam && !shouldSyncLayersParam) {
+    if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
       return
     }
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', normalizedYearParam)
+    nextSearchParams.set('region', normalizedRegionParam)
     nextSearchParams.set('layers', normalizedLayersParam)
     setSearchParams(nextSearchParams, { replace: true })
   }, [
-    normalizedYearParam,
     searchParams,
     setSearchParams,
-    shouldSyncYearParam,
-    shouldSyncLayersParam,
+    normalizedYearParam,
+    normalizedRegionParam,
     normalizedLayersParam,
+    shouldSyncYearParam,
+    shouldSyncRegionParam,
+    shouldSyncLayersParam,
   ])
+
+  useEffect(() => {
+    setSelectedRegion(initialRegion)
+    setBreadcrumb(
+      initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+    )
+  }, [initialRegion])
+
+  const handleRegionChange = useCallback(
+    (region: RegionOption) => {
+      setSelectedRegion(region)
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('region', region.id)
+      setSearchParams(nextSearchParams)
+    },
+    [searchParams, setSearchParams],
+  )
 
   const handleYearChange = (year: number) => {
     const nextSearchParams = new URLSearchParams(searchParams)
@@ -131,7 +157,7 @@ export default function MapContainer() {
         />
         <RegionSelect
           selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
+          onRegionChange={handleRegionChange}
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
         />
@@ -142,7 +168,7 @@ export default function MapContainer() {
         mapLayers={urlSyncedMapLayers}
         sedExportSubLayerValue={subSedLayerValue}
         selectedRegion={selectedRegion}
-        setSelectedRegion={setSelectedRegion}
+        onRegionChange={handleRegionChange}
         setBreadcrumb={setBreadcrumb}
       />
     </div>

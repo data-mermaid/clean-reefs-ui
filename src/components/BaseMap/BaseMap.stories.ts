@@ -15,7 +15,7 @@ export const Primary: Story = {
   args: {
     mapLayers: layers,
     sedExportSubLayerValue: 'pixel',
-    setSelectedRegion: () => {},
+    onRegionChange: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
   },
@@ -36,7 +36,7 @@ export const Primary: Story = {
 export const Loading: Story = {
   args: {
     mapLayers: layers,
-    setSelectedRegion: () => {},
+    onRegionChange: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
     sedExportSubLayerValue: 'pixel',
