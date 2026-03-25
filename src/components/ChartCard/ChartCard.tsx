@@ -1,13 +1,12 @@
-import React, { lazy, MouseEventHandler, Suspense, useEffect, useRef, useState } from 'react'
-import { Card, Typography } from '@mui/material'
+import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
+import type { PlotMouseEvent } from 'plotly.js'
+import Plot from 'react-plotly.js'
+import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
-
-type PlotComponentType = (typeof import('react-plotly.js'))['default']
-const Plot = lazy(() => import('react-plotly.js') as Promise<{ default: PlotComponentType }>)
 
 interface ChartCardProps {
   open: boolean
@@ -36,6 +35,7 @@ export default function ChartCard({
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
   const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
+  const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(null)
 
   useEffect(() => {
     let animationFrameId: number | null = null
@@ -54,39 +54,68 @@ export default function ChartCard({
     }
   }, [open, pendingScrollAfterOpen])
 
+  useEffect(() => {
+    setSelectedPointIndex(null)
+  }, [chartConfigData])
+
+  const handleBarClick = (event: PlotMouseEvent) => {
+    const clickedPointIndex = event.points[0]?.pointIndex ?? null
+
+    if (clickedPointIndex !== null) {
+      setSelectedPointIndex((prev) => (prev === clickedPointIndex ? null : clickedPointIndex))
+    }
+  }
+
   const renderChartContent = () => {
     if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
     }
     if (chartConfigData !== null) {
       return (
-        <Suspense fallback={<LoadingState isOverlay={false} />}>
-          <Plot
-            data={chartConfigData.chartSeriesData}
-            className={styles['chart-card__plot']}
-            config={plotlyTheme.config}
-            layout={{
-              ...plotlyTheme.layout,
-              barmode: chartConfigData.barmode,
-              yaxis: {
-                ...plotlyTheme.layout?.yaxis,
-                title: {
-                  ...plotlyTheme.layout?.yaxis?.title,
-                  text: t(chartConfigData.yAxisTitle),
-                },
+        <Plot
+          data={chartConfigData.chartSeriesData.map((trace) => {
+            if (selectedPointIndex === null) {
+              return trace
+            }
+
+            const pointCount = Array.isArray(trace.x) ? trace.x.length : 0
+            // Per-point opacity array dims all years except the selected one
+            const opacityArray = Array.from({ length: pointCount }, (_, i) =>
+              i === selectedPointIndex ? 1 : 0.5,
+            )
+
+            return {
+              ...trace,
+              marker: {
+                ...(trace.marker && typeof trace.marker === 'object' ? trace.marker : {}),
+                opacity: opacityArray,
               },
-              xaxis: {
-                ...plotlyTheme.layout?.xaxis,
-                title: {
-                  ...plotlyTheme.layout?.xaxis?.title,
-                  text: t(chartConfigData.xAxisTitle),
-                },
+            }
+          })}
+          className={styles['chart-card__plot']}
+          config={plotlyTheme.config}
+          layout={{
+            ...plotlyTheme.layout,
+            barmode: chartConfigData.barmode,
+            yaxis: {
+              ...plotlyTheme.layout?.yaxis,
+              title: {
+                ...plotlyTheme.layout?.yaxis?.title,
+                text: t(chartConfigData.yAxisTitle),
               },
-              showlegend: chartConfigData.chartSeriesData.length > 1,
-            }}
-            style={{ width: '100%', height: '100%' }}
-          />
-        </Suspense>
+            },
+            xaxis: {
+              ...plotlyTheme.layout?.xaxis,
+              title: {
+                ...plotlyTheme.layout?.xaxis?.title,
+                text: t(chartConfigData.xAxisTitle),
+              },
+            },
+            showlegend: chartConfigData.chartSeriesData.length > 1,
+          }}
+          style={{ width: '100%', height: '100%' }}
+          onClick={handleBarClick}
+        />
       )
     }
     return (
