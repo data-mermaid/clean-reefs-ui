@@ -1,4 +1,9 @@
-import { availableYears, benthicSubLayers, defaultYear, defaultLayersToShow } from '../data/mapData'
+import {
+  availableYears,
+  defaultYear,
+  defaultLayersToShow,
+  urlControlledLayerIds,
+} from '../data/mapData'
 
 export function getValidYear(yearFromSearchParam: string | null) {
   const parsedYear = Number(yearFromSearchParam)
@@ -7,18 +12,16 @@ export function getValidYear(yearFromSearchParam: string | null) {
 
 export function getValidLayers(layersFromSearchParam: string | null) {
   if (!layersFromSearchParam) {
+    return defaultLayersToShow
+  }
+
+  if (layersFromSearchParam === 'none') {
     return []
   }
 
-  const benthicLayers = benthicSubLayers.map((layer) => layer?.layerId)
-  const availableLayers = ['sed_export', 'lulc', 'sed_dispersal', ...benthicLayers]
   const layers = layersFromSearchParam.split(',').filter(Boolean)
 
-  if (layers.length === 0) {
-    return []
-  }
-
-  if (layers.some((layer) => !availableLayers.includes(layer))) {
+  if (layers.length === 0 || layers.some((layer) => !urlControlledLayerIds.includes(layer))) {
     return defaultLayersToShow
   }
 

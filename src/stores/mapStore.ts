@@ -17,6 +17,7 @@ type MapActions = {
     subLayerToggledOn: 'pixel' | 'watershed',
     selectedYear: number,
   ) => void
+  turnOffSedExportSubLayerFills: () => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -84,5 +85,20 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     } else {
       map.setPaintProperty('watershed', 'fill-color', transparent)
     }
+  },
+  turnOffSedExportSubLayerFills: () => {
+    const state = get()
+    const map = state.mapReference?.getMap()
+    if (!map) {
+      return
+    }
+
+    const pixelLayer = map.getLayer('sed_export')
+    if (!pixelLayer) {
+      return
+    }
+
+    map.setLayoutProperty('sed_export', 'visibility', 'none')
+    map.setPaintProperty('watershed', 'fill-color', transparent)
   },
 }))

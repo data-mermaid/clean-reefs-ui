@@ -22,10 +22,11 @@ export default function MapContainer() {
 
   const layersParam = searchParams.get('layers')
   const selectedLayers = getValidLayers(layersParam)
-  const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : null
+  const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
+  const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const urlSyncedMapLayers = useMemo(
@@ -53,11 +54,7 @@ export default function MapContainer() {
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('year', normalizedYearParam)
-    if (normalizedLayersParam) {
-      nextSearchParams.set('layers', normalizedLayersParam)
-    } else {
-      nextSearchParams.delete('layers')
-    }
+    nextSearchParams.set('layers', normalizedLayersParam)
     setSearchParams(nextSearchParams, { replace: true })
   }, [
     normalizedYearParam,
@@ -76,33 +73,38 @@ export default function MapContainer() {
   }
 
   const handleLayerToggleChange = (toggledLayerId: string | null, isChecked: boolean) => {
+    const mutuallyExclusiveLayers = ['sed_export', 'lulc']
     if (!toggledLayerId) {
       return
     }
 
     setSearchParams((prevSearchParams) => {
-      const sedExportAndLandUseLayers = ['sed_export', 'lulc']
       const nextSearchParams = new URLSearchParams(prevSearchParams)
       const currentLayers = nextSearchParams.get('layers') || ''
-      const layerSet = new Set(currentLayers.split(',').filter((l) => l))
+      const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
 
       if (isChecked) {
-        if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
-          sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
+        if (mutuallyExclusiveLayers.includes(toggledLayerId)) {
+          mutuallyExclusiveLayers.forEach((layerId) => layerSet.delete(layerId))
         }
         layerSet.add(toggledLayerId)
       } else {
         layerSet.delete(toggledLayerId)
       }
 
-      const layersValue = Array.from(layerSet).join(',')
-      if (layersValue) {
-        nextSearchParams.set('layers', layersValue)
-      } else {
-        nextSearchParams.delete('layers')
-      }
+      nextSearchParams.set('layers', Array.from(layerSet).join(',') || 'none')
       return nextSearchParams
     })
+
+    if (toggledLayerId === 'sed_export') {
+      if (isChecked) {
+        toggleSedExportSubLayerFills('pixel', selectedYear)
+      } else {
+        turnOffSedExportSubLayerFills()
+      }
+    } else if (toggledLayerId === 'lulc' && isChecked) {
+      turnOffSedExportSubLayerFills()
+    }
   }
 
   return (
