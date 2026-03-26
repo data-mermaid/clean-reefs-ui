@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useSearchParams } from 'react-router'
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
@@ -45,7 +44,6 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
-import { getValidLatLng, getValidZoom } from '../../utils/routeUtils'
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
@@ -173,6 +171,12 @@ interface BaseMapProps {
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  initialViewState: {
+    longitude: number
+    latitude: number
+    zoom: number
+  }
+  onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
 }
 
 export default function BaseMap({
@@ -181,13 +185,11 @@ export default function BaseMap({
   selectedRegion,
   onRegionChange,
   setBreadcrumb,
+  initialViewState,
+  onMapMoveEnd,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const { lat, lng } = getValidLatLng(searchParams.get('lat'), searchParams.get('lng'))
-  const zoom = getValidZoom(searchParams.get('zoom'))
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
@@ -254,19 +256,9 @@ export default function BaseMap({
 
   const handleMoveEnd = useCallback(
     (e) => {
-      const { latitude, longitude, zoom } = e.viewState
-      setSearchParams(
-        (prev) => {
-          const nextSearchParams = new URLSearchParams(prev)
-          nextSearchParams.set('lat', latitude.toFixed(6))
-          nextSearchParams.set('lng', longitude.toFixed(6))
-          nextSearchParams.set('zoom', zoom.toFixed(2))
-          return nextSearchParams
-        },
-        { replace: true },
-      )
+      onMapMoveEnd(e.viewState)
     },
-    [setSearchParams],
+    [onMapMoveEnd],
   )
 
   if (
@@ -402,11 +394,7 @@ export default function BaseMap({
         id="satellite-map"
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
-        initialViewState={{
-          longitude: lng ?? selectedRegion.centerCoord.lng,
-          latitude: lat ?? selectedRegion.centerCoord.lat,
-          zoom: zoom ?? selectedRegion.zoomLevel,
-        }}
+        initialViewState={initialViewState}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}

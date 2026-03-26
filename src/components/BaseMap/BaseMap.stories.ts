@@ -18,6 +18,12 @@ export const Primary: Story = {
     onRegionChange: () => {},
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
+    initialViewState: {
+      longitude: defaultGlobalRegionOption.centerCoord.lng,
+      latitude: defaultGlobalRegionOption.centerCoord.lat,
+      zoom: defaultGlobalRegionOption.zoomLevel,
+    },
+    onMapMoveEnd: () => {},
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -40,6 +46,12 @@ export const Loading: Story = {
     selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
     sedExportSubLayerValue: 'pixel',
+    initialViewState: {
+      longitude: defaultGlobalRegionOption.centerCoord.lng,
+      latitude: defaultGlobalRegionOption.centerCoord.lat,
+      zoom: defaultGlobalRegionOption.zoomLevel,
+    },
+    onMapMoveEnd: () => {},
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')
