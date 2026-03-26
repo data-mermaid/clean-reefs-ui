@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
+import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
 import Plot from 'react-plotly.js'
 import { Card, Typography } from '@mui/material'
@@ -76,51 +76,54 @@ export default function ChartCard({
     if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
     }
+
     if (chartConfigData !== null) {
       return (
-        <Plot
-          data={chartConfigData.chartSeriesData.map((trace) => {
-            if (selectedPointIndex === null) {
-              return trace
-            }
+        <Suspense fallback={<LoadingState isOverlay={false} />}>
+          <Plot
+            data={chartConfigData.chartSeriesData.map((trace) => {
+              if (selectedPointIndex === null) {
+                return trace
+              }
 
-            const pointCount = Array.isArray(trace.x) ? trace.x.length : 0
-            // Per-point opacity array dims all years except the selected one
-            const opacityArray = Array.from({ length: pointCount }, (_, i) =>
-              i === selectedPointIndex ? 1 : 0.5,
-            )
+              const pointCount = Array.isArray(trace.x) ? trace.x.length : 0
+              // Per-point opacity array dims all years except the selected one
+              const opacityArray = Array.from({ length: pointCount }, (_, i) =>
+                i === selectedPointIndex ? 1 : 0.5,
+              )
 
-            return {
-              ...trace,
-              marker: {
-                ...(trace.marker && typeof trace.marker === 'object' ? trace.marker : {}),
-                opacity: opacityArray,
+              return {
+                ...trace,
+                marker: {
+                  ...(trace.marker && typeof trace.marker === 'object' ? trace.marker : {}),
+                  opacity: opacityArray,
+                },
+              }
+            })}
+            className={styles['chart-card__plot']}
+            config={plotlyTheme.config}
+            layout={{
+              ...plotlyTheme.layout,
+              barmode: chartConfigData.barmode,
+              yaxis: {
+                ...plotlyTheme.layout?.yaxis,
+                title: {
+                  ...plotlyTheme.layout?.yaxis?.title,
+                  text: t(chartConfigData.yAxisTitle),
+                },
               },
-            }
-          })}
-          className={styles['chart-card__plot']}
-          config={plotlyTheme.config}
-          layout={{
-            ...plotlyTheme.layout,
-            barmode: chartConfigData.barmode,
-            yaxis: {
-              ...plotlyTheme.layout?.yaxis,
-              title: {
-                ...plotlyTheme.layout?.yaxis?.title,
-                text: t(chartConfigData.yAxisTitle),
+              xaxis: {
+                ...plotlyTheme.layout?.xaxis,
+                title: {
+                  ...plotlyTheme.layout?.xaxis?.title,
+                  text: t(chartConfigData.xAxisTitle),
+                },
               },
-            },
-            xaxis: {
-              ...plotlyTheme.layout?.xaxis,
-              title: {
-                ...plotlyTheme.layout?.xaxis?.title,
-                text: t(chartConfigData.xAxisTitle),
-              },
-            },
-            showlegend: chartConfigData.chartSeriesData.length > 1,
-          }}
-          style={{ width: '100%', height: '100%' }}
-        />
+              showlegend: chartConfigData.chartSeriesData.length > 1,
+            }}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </Suspense>
       )
     }
     return (
