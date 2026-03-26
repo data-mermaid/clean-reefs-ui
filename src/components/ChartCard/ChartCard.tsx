@@ -25,6 +25,28 @@ const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperti
   return `${baseClass} ${styles[`chart-card__header--${isOpen ? 'open' : 'closed'}`]}`
 }
 
+const getSelectedBarIndex = (
+  chartConfigData: ChartProperties | null,
+  selectedYear?: number,
+): number | null => {
+  if (!chartConfigData || selectedYear === undefined) {
+    return null
+  }
+
+  for (const { x } of chartConfigData.chartSeriesData) {
+    if (!Array.isArray(x)) {
+      continue
+    }
+
+    const barIndex = x.findIndex((value) => String(value) === String(selectedYear))
+    if (barIndex !== -1) {
+      return barIndex
+    }
+  }
+
+  return null
+}
+
 export default function ChartCard({
   open = true,
   onClick,
@@ -54,23 +76,10 @@ export default function ChartCard({
     }
   }, [open, pendingScrollAfterOpen])
 
-  const selectedPointIndex = useMemo(() => {
-    if (!chartConfigData || selectedYear === undefined) {
-      return null
-    }
-    const selectedYearKey = String(selectedYear)
-
-    for (const trace of chartConfigData.chartSeriesData) {
-      const xValues = Array.isArray(trace.x) ? trace.x : []
-      const pointIndex = xValues.findIndex((value) => String(value) === selectedYearKey)
-
-      if (pointIndex !== -1) {
-        return pointIndex
-      }
-    }
-
-    return null
-  }, [chartConfigData, selectedYear])
+  const selectedBarIndex = useMemo(
+    () => getSelectedBarIndex(chartConfigData, selectedYear),
+    [chartConfigData, selectedYear],
+  )
 
   const renderChartContent = () => {
     if (isChartDataLoading) {
@@ -82,14 +91,13 @@ export default function ChartCard({
         <Suspense fallback={<LoadingState isOverlay={false} />}>
           <Plot
             data={chartConfigData.chartSeriesData.map((trace) => {
-              if (selectedPointIndex === null) {
+              if (selectedBarIndex === null) {
                 return trace
               }
 
-              const pointCount = Array.isArray(trace.x) ? trace.x.length : 0
-              // Per-point opacity array dims all years except the selected one
-              const opacityArray = Array.from({ length: pointCount }, (_, i) =>
-                i === selectedPointIndex ? 1 : 0.5,
+              const numberOfBars = Array.isArray(trace.x) ? trace.x.length : 0
+              const opacityArray = Array.from({ length: numberOfBars }, (_, i) =>
+                i === selectedBarIndex ? 1 : 0.5,
               )
 
               return {
