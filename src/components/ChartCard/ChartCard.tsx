@@ -1,6 +1,5 @@
-import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
+import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
-import type { PlotMouseEvent } from 'plotly.js'
 import Plot from 'react-plotly.js'
 import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +11,7 @@ interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
+  selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
 }
@@ -29,13 +29,13 @@ export default function ChartCard({
   open = true,
   onClick,
   regionType = 'global',
+  selectedYear,
   chartConfigData,
   isChartDataLoading,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
   const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
-  const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(null)
 
   useEffect(() => {
     let animationFrameId: number | null = null
@@ -54,17 +54,23 @@ export default function ChartCard({
     }
   }, [open, pendingScrollAfterOpen])
 
-  useEffect(() => {
-    setSelectedPointIndex(null)
-  }, [chartConfigData])
-
-  const handleBarClick = (event: PlotMouseEvent) => {
-    const clickedPointIndex = event.points[0]?.pointIndex ?? null
-
-    if (clickedPointIndex !== null) {
-      setSelectedPointIndex((prev) => (prev === clickedPointIndex ? null : clickedPointIndex))
+  const selectedPointIndex = useMemo(() => {
+    if (!chartConfigData || selectedYear === undefined) {
+      return null
     }
-  }
+    const selectedYearKey = String(selectedYear)
+
+    for (const trace of chartConfigData.chartSeriesData) {
+      const xValues = Array.isArray(trace.x) ? trace.x : []
+      const pointIndex = xValues.findIndex((value) => String(value) === selectedYearKey)
+
+      if (pointIndex !== -1) {
+        return pointIndex
+      }
+    }
+
+    return null
+  }, [chartConfigData, selectedYear])
 
   const renderChartContent = () => {
     if (isChartDataLoading) {
@@ -114,7 +120,6 @@ export default function ChartCard({
             showlegend: chartConfigData.chartSeriesData.length > 1,
           }}
           style={{ width: '100%', height: '100%' }}
-          onClick={handleBarClick}
         />
       )
     }

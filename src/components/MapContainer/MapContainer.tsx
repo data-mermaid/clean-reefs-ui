@@ -60,11 +60,16 @@ export default function MapContainer() {
       return
     }
 
-    const nextSearchParams = new URLSearchParams(searchParams)
-    nextSearchParams.set('year', normalizedYearParam)
-    nextSearchParams.set('region', normalizedRegionParam)
-    nextSearchParams.set('layers', normalizedLayersParam)
-    setSearchParams(nextSearchParams, { replace: true })
+    setSearchParams(
+      (prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('year', normalizedYearParam)
+        nextSearchParams.set('region', normalizedRegionParam)
+        nextSearchParams.set('layers', normalizedLayersParam)
+        return nextSearchParams
+      },
+      { replace: true },
+    )
   }, [
     searchParams,
     setSearchParams,
@@ -86,57 +91,73 @@ export default function MapContainer() {
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
       setSelectedRegion(region)
-      const nextSearchParams = new URLSearchParams(searchParams)
-      nextSearchParams.set('region', region.id)
-      setSearchParams(nextSearchParams)
+      setSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('region', region.id)
+        return nextSearchParams
+      })
     },
-    [searchParams, setSearchParams],
+    [setSearchParams],
   )
 
-  const handleYearChange = (year: number) => {
-    const nextSearchParams = new URLSearchParams(searchParams)
-    nextSearchParams.set('year', year.toString())
-    setSearchParams(nextSearchParams)
+  const handleYearChange = useCallback(
+    (year: number) => {
+      setSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('year', year.toString())
+        return nextSearchParams
+      })
 
-    if (selectedLayers.includes('sed_export')) {
-      toggleSedExportSubLayerFills(subSedLayerValue, year)
-    }
-  }
+      if (selectedLayers.includes('sed_export')) {
+        toggleSedExportSubLayerFills(subSedLayerValue, year)
+      }
+    },
+    [setSearchParams, selectedLayers, toggleSedExportSubLayerFills, subSedLayerValue],
+  )
 
-  const handleLayerToggleChange = (toggledLayerId: string | null, isChecked: boolean) => {
-    const sedExportAndLandUseLayers = ['sed_export', 'lulc']
-    if (!toggledLayerId) {
-      return
-    }
-
-    setSearchParams((prevSearchParams) => {
-      const nextSearchParams = new URLSearchParams(prevSearchParams)
-      const currentLayers = nextSearchParams.get('layers') || ''
-      const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
-
-      // Remove on uncheck; on check, enforce sed/lulc exclusivity before adding.
-      if (!isChecked) {
-        layerSet.delete(toggledLayerId)
-      } else {
-        if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
-          sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
-        }
-        layerSet.add(toggledLayerId)
+  const handleLayerToggleChange = useCallback(
+    (toggledLayerId: string | null, isChecked: boolean) => {
+      const sedExportAndLandUseLayers = ['sed_export', 'lulc']
+      if (!toggledLayerId) {
+        return
       }
 
-      nextSearchParams.set('layers', Array.from(layerSet).join(',') || 'none')
-      return nextSearchParams
-    })
+      setSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        const currentLayers = nextSearchParams.get('layers') || ''
+        const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
 
-    if (toggledLayerId === 'sed_export' && isChecked) {
-      toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
-      return
-    }
+        // Remove on uncheck; on check, enforce sed/lulc exclusivity before adding.
+        if (!isChecked) {
+          layerSet.delete(toggledLayerId)
+        } else {
+          if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
+            sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
+          }
+          layerSet.add(toggledLayerId)
+        }
 
-    if (toggledLayerId === 'sed_export' || (toggledLayerId === 'lulc' && isChecked)) {
-      turnOffSedExportSubLayerFills()
-    }
-  }
+        nextSearchParams.set('layers', Array.from(layerSet).join(',') || 'none')
+        return nextSearchParams
+      })
+
+      if (toggledLayerId === 'sed_export' && isChecked) {
+        toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
+        return
+      }
+
+      if (toggledLayerId === 'sed_export' || (toggledLayerId === 'lulc' && isChecked)) {
+        turnOffSedExportSubLayerFills()
+      }
+    },
+    [
+      setSearchParams,
+      subSedLayerValue,
+      selectedYear,
+      toggleSedExportSubLayerFills,
+      turnOffSedExportSubLayerFills,
+    ],
+  )
 
   const handleSedSubLayerChange = (subLayerValue: 'pixel' | 'watershed') => {
     setSubLayerValue(subLayerValue)
@@ -162,7 +183,7 @@ export default function MapContainer() {
           setBreadcrumb={setBreadcrumb}
         />
         <YearSelect selectedYear={selectedYear} onChange={handleYearChange} />
-        <TrendsDrawer selectedRegion={selectedRegion} />
+        <TrendsDrawer selectedRegion={selectedRegion} selectedYear={selectedYear} />
       </div>
       <BaseMap
         mapLayers={urlSyncedMapLayers}
