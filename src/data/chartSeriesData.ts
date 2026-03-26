@@ -1,4 +1,5 @@
-import { ChartSeriesConfig } from '../types/ChartDataTypes'
+import { ChartSeriesConfig, ChartSeriesName } from '../types/ChartDataTypes'
+import { RegionType } from '../types/RegionDataTypes'
 
 export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.land_use_historical': {
@@ -67,4 +68,18 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     yAxisTitle: 'chart_information.pollution_contribution',
     width: 3,
   },
+}
+
+const sharedCharts: ChartSeriesName[] = [
+  'land_use_historical',
+  'ecosystem_extent_exposed',
+  'sediment_load_historical',
+]
+
+export const chartsByRegionType: Record<RegionType, ChartSeriesName[]> = {
+  global: sharedCharts,
+  country: sharedCharts,
+  region: sharedCharts,
+  watershed: sharedCharts,
+  plume: [...sharedCharts, 'sediment_exposure_historical', 'contributing_watersheds'],
 }

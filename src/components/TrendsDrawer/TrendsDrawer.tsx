@@ -7,12 +7,13 @@ import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
 import { RegionOption } from '../../types/RegionDataTypes'
-import { ChartProperties } from '../../types/ChartDataTypes'
+import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { updateChartData } from '../../utils/chartUtils'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
+import { chartsByRegionType } from '../../data/chartSeriesData'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
@@ -49,6 +50,11 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
     setIsChartDataLoading(false)
   }, [selectedFeature, selectedRegion.regionType])
 
+  const allowedCharts = chartsByRegionType[selectedRegion.regionType]
+  const filteredChartData = chartConfigData?.filter((chart) =>
+    allowedCharts.includes(chart.chartName as ChartSeriesName),
+  )
+
   let drawerTitle = selectedRegion.label
   if (selectedRegion.regionType === 'global') {
     drawerTitle = 'global_trends'
@@ -72,8 +78,8 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
       </div>
 
       <div className={styles[`charts-container--${open ? 'open' : 'closed'}`]}>
-        {chartConfigData ? (
-          chartConfigData?.map((chart) => {
+        {filteredChartData?.length ? (
+          filteredChartData.map((chart) => {
             return (
               <SelectedFeatureContext.Provider
                 key={chart.chartName}

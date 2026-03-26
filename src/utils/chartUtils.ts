@@ -18,12 +18,12 @@ export interface LulcAndSedimentSeriesData {
     shrubland_grassland: object
     surface_water: object
   }
-  sediment_exposure_historical: {
+  sediment_load_historical: {
     sediment: object
   }
 }
 
-//The boundary PM tiles layers include data for land_use_historical and sediment_exposure_historical
+//The boundary PM tiles layers include data for land_use_historical and sediment_load_historical
 export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeriesData => {
   const chartSeriesData: LulcAndSedimentSeriesData = {
     land_use_historical: {
@@ -35,7 +35,7 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
       shrubland_grassland: {},
       surface_water: {},
     },
-    sediment_exposure_historical: {
+    sediment_load_historical: {
       sediment: {},
     },
   }
@@ -78,7 +78,7 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
           chartSeriesData.land_use_historical.surface_water[year] = val
           break
         case 'sed_export_':
-          chartSeriesData.sediment_exposure_historical.sediment[year] = val
+          chartSeriesData.sediment_load_historical.sediment[year] = val
           break
       }
     }
@@ -103,7 +103,7 @@ export const mapChartConfigToData = (
       : `${category}`
     const traceName: string = i18next.t(prefixedTrace)
     const hoverTemplate =
-      chartName === 'sediment_exposure_historical'
+      chartName === 'sediment_load_historical'
         ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
         : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
 
@@ -111,7 +111,7 @@ export const mapChartConfigToData = (
       type: 'bar',
       x: sortedYears,
       y:
-        chartName === 'sediment_exposure_historical'
+        chartName === 'sediment_load_historical'
           ? sortedYears.map((year) => yearData[year] / 1000000)
           : sortedYears.map((year) => yearData[year]),
       name: i18next.t(prefixedTrace),
