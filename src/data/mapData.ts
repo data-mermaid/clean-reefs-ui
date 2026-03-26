@@ -48,8 +48,8 @@ export const parentLayerTitles = {
   landPollution: 'map_layer_groups.land_pollution_layers',
   oceanPollution: 'map_layer_groups.ocean_pollution_layers',
   landcover: 'map_layer_groups.land_use_cover',
-  boundaries: 'map_layer_groups.boundaries',
   benthic: 'map_layer_groups.benthic_layers',
+  boundaries: 'map_layer_groups.boundaries',
   // base: 'map_layer_groups.base_map',
 }
 
