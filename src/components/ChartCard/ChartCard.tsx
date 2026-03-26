@@ -1,18 +1,17 @@
-import React, { lazy, MouseEventHandler, Suspense, useEffect, useRef, useState } from 'react'
-import { Card, Typography } from '@mui/material'
+import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
+import Plot from 'react-plotly.js'
+import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
 
-type PlotComponentType = (typeof import('react-plotly.js'))['default']
-const Plot = lazy(() => import('react-plotly.js') as Promise<{ default: PlotComponentType }>)
-
 interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
+  selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
 }
@@ -26,10 +25,33 @@ const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperti
   return `${baseClass} ${styles[`chart-card__header--${isOpen ? 'open' : 'closed'}`]}`
 }
 
+const getSelectedBarIndex = (
+  chartConfigData: ChartProperties | null,
+  selectedYear?: number,
+): number | null => {
+  if (!chartConfigData || selectedYear === undefined) {
+    return null
+  }
+
+  for (const { x } of chartConfigData.chartSeriesData) {
+    if (!Array.isArray(x)) {
+      continue
+    }
+
+    const barIndex = x.findIndex((value) => String(value) === String(selectedYear))
+    if (barIndex !== -1) {
+      return barIndex
+    }
+  }
+
+  return null
+}
+
 export default function ChartCard({
   open = true,
   onClick,
   regionType = 'global',
+  selectedYear,
   chartConfigData,
   isChartDataLoading,
 }: ChartCardProps) {
@@ -54,15 +76,38 @@ export default function ChartCard({
     }
   }, [open, pendingScrollAfterOpen])
 
+  const selectedBarIndex = useMemo(
+    () => getSelectedBarIndex(chartConfigData, selectedYear),
+    [chartConfigData, selectedYear],
+  )
+
   const renderChartContent = () => {
     if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
     }
+
     if (chartConfigData !== null) {
       return (
         <Suspense fallback={<LoadingState isOverlay={false} />}>
           <Plot
-            data={chartConfigData.chartSeriesData}
+            data={chartConfigData.chartSeriesData.map((trace) => {
+              if (selectedBarIndex === null) {
+                return trace
+              }
+
+              const numberOfBars = Array.isArray(trace.x) ? trace.x.length : 0
+              const opacityArray = Array.from({ length: numberOfBars }, (_, i) =>
+                i === selectedBarIndex ? 1 : 0.5,
+              )
+
+              return {
+                ...trace,
+                marker: {
+                  ...(trace.marker && typeof trace.marker === 'object' ? trace.marker : {}),
+                  opacity: opacityArray,
+                },
+              }
+            })}
             className={styles['chart-card__plot']}
             config={plotlyTheme.config}
             layout={{

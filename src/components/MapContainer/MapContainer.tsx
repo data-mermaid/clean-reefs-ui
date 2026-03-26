@@ -225,7 +225,7 @@ export default function MapContainer() {
           setBreadcrumb={setBreadcrumb}
         />
         <YearSelect selectedYear={selectedYear} onChange={handleYearChange} />
-        <TrendsDrawer selectedRegion={selectedRegion} />
+        <TrendsDrawer selectedRegion={selectedRegion} selectedYear={selectedYear} />
       </div>
       <BaseMap
         mapLayers={urlSyncedMapLayers}
