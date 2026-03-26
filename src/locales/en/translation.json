@@ -43,7 +43,7 @@
     "country_boundaries": "Country boundaries"
   },
   "map_layers": {
-    "dispersal_plume": "Plumes",
+    "dispersal_plume": "Plume boundaries",
     "sediment_dispersal": "Ocean sediment dispersal",
     "sediment_export": "Sediment export"
   },
