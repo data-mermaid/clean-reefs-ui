@@ -9,7 +9,13 @@ import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { getValidLayers, getValidYear, getValidRegion } from '../../utils/routeUtils'
+import {
+  getValidLatLng,
+  getValidLayers,
+  getValidYear,
+  getValidRegion,
+  getValidZoom,
+} from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 
@@ -29,6 +35,9 @@ export default function MapContainer() {
   const selectedLayers = getValidLayers(layersParam)
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
+
+  const { lat, lng } = getValidLatLng(searchParams.get('lat'), searchParams.get('lng'))
+  const zoom = getValidZoom(searchParams.get('zoom'))
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
@@ -52,7 +61,6 @@ export default function MapContainer() {
       navigateOptions?: { replace?: boolean },
     ) => {
       const nextSearchParams = updater(new URLSearchParams(latestSearchParamsRef.current))
-
       latestSearchParamsRef.current = new URLSearchParams(nextSearchParams)
       setSearchParams(nextSearchParams, navigateOptions)
     },
@@ -73,6 +81,7 @@ export default function MapContainer() {
       }),
     [mapLayers, selectedLayers, selectedYear],
   )
+
   useEffect(() => {
     if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
       return
@@ -89,7 +98,6 @@ export default function MapContainer() {
       { replace: true },
     )
   }, [
-    searchParams,
     updateSearchParams,
     normalizedYearParam,
     normalizedRegionParam,
@@ -182,6 +190,22 @@ export default function MapContainer() {
     toggleSedExportSubLayerFills(subLayerValue, selectedYear)
   }
 
+  const handleMapMoveEnd = useCallback(
+    (viewState: { latitude: number; longitude: number; zoom: number }) => {
+      updateSearchParams(
+        (prevSearchParams) => {
+          const nextSearchParams = new URLSearchParams(prevSearchParams)
+          nextSearchParams.set('lat', viewState.latitude.toFixed(6))
+          nextSearchParams.set('lng', viewState.longitude.toFixed(6))
+          nextSearchParams.set('zoom', viewState.zoom.toFixed(2))
+          return nextSearchParams
+        },
+        { replace: true },
+      )
+    },
+    [updateSearchParams],
+  )
+
   return (
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
@@ -209,6 +233,12 @@ export default function MapContainer() {
         selectedRegion={selectedRegion}
         onRegionChange={handleRegionChange}
         setBreadcrumb={setBreadcrumb}
+        initialViewState={{
+          longitude: lng ?? selectedRegion.centerCoord.lng,
+          latitude: lat ?? selectedRegion.centerCoord.lat,
+          zoom: zoom ?? selectedRegion.zoomLevel,
+        }}
+        onMapMoveEnd={handleMapMoveEnd}
       />
     </div>
   )
