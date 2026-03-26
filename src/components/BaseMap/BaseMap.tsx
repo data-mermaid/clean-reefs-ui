@@ -175,6 +175,12 @@ interface BaseMapProps {
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  initialViewState: {
+    longitude: number
+    latitude: number
+    zoom: number
+  }
+  onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
 }
 
 export default function BaseMap({
@@ -183,9 +189,12 @@ export default function BaseMap({
   selectedRegion,
   onRegionChange,
   setBreadcrumb,
+  initialViewState,
+  onMapMoveEnd,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
+
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
@@ -247,6 +256,13 @@ export default function BaseMap({
   const polygonClickHandler = useMemo(
     () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
     [handleFeatureSelect],
+  )
+
+  const handleMoveEnd = useCallback(
+    (e) => {
+      onMapMoveEnd(e.viewState)
+    },
+    [onMapMoveEnd],
   )
 
   if (
@@ -383,13 +399,10 @@ export default function BaseMap({
         id="satellite-map"
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
-        initialViewState={{
-          longitude: selectedRegion.centerCoord.lng,
-          latitude: selectedRegion.centerCoord.lat,
-          zoom: selectedRegion.zoomLevel,
-        }}
+        initialViewState={initialViewState}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
+        onMoveEnd={handleMoveEnd}
         attributionControl={false}
       >
         {isDesktopWidth && (
