@@ -89,7 +89,7 @@ export default function LayersDrawer({
       filteredLayers.sort(sortBoundaryLayers)
     }
 
-    return filteredLayers.map((layer, index) => (
+    return filteredLayers.map((layer) => (
       <LayerToggleCard
         layer={layer}
         toggleLayer={toggleLayer}
@@ -98,7 +98,7 @@ export default function LayersDrawer({
         selectedYear={selectedYear}
         subSedLayerValue={subSedLayerValue}
         onSedSubLayerChange={onSedSubLayerChange}
-        key={`layertoggle-${layer.sourceId}-${index}`}
+        key={`layertoggle-${layer.sourceId}`}
       />
     ))
   }
