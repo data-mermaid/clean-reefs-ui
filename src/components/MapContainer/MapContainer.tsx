@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
@@ -40,6 +40,24 @@ export default function MapContainer() {
 
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
   const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
+  const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
+
+  useEffect(() => {
+    latestSearchParamsRef.current = new URLSearchParams(searchParams)
+  }, [searchParams])
+
+  const updateSearchParams = useCallback(
+    (
+      updater: (prevSearchParams: URLSearchParams) => URLSearchParams,
+      navigateOptions?: { replace?: boolean },
+    ) => {
+      const nextSearchParams = updater(new URLSearchParams(latestSearchParamsRef.current))
+
+      latestSearchParamsRef.current = new URLSearchParams(nextSearchParams)
+      setSearchParams(nextSearchParams, navigateOptions)
+    },
+    [setSearchParams],
+  )
 
   const urlSyncedMapLayers = useMemo(
     () =>
@@ -60,7 +78,7 @@ export default function MapContainer() {
       return
     }
 
-    setSearchParams(
+    updateSearchParams(
       (prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         nextSearchParams.set('year', normalizedYearParam)
@@ -72,7 +90,7 @@ export default function MapContainer() {
     )
   }, [
     searchParams,
-    setSearchParams,
+    updateSearchParams,
     normalizedYearParam,
     normalizedRegionParam,
     normalizedLayersParam,
@@ -91,18 +109,18 @@ export default function MapContainer() {
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
       setSelectedRegion(region)
-      setSearchParams((prevSearchParams) => {
+      updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         nextSearchParams.set('region', region.id)
         return nextSearchParams
       })
     },
-    [setSearchParams],
+    [updateSearchParams],
   )
 
   const handleYearChange = useCallback(
     (year: number) => {
-      setSearchParams((prevSearchParams) => {
+      updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         nextSearchParams.set('year', year.toString())
         return nextSearchParams
@@ -112,7 +130,7 @@ export default function MapContainer() {
         toggleSedExportSubLayerFills(subSedLayerValue, year)
       }
     },
-    [setSearchParams, selectedLayers, toggleSedExportSubLayerFills, subSedLayerValue],
+    [updateSearchParams, selectedLayers, toggleSedExportSubLayerFills, subSedLayerValue],
   )
 
   const handleLayerToggleChange = useCallback(
@@ -122,7 +140,7 @@ export default function MapContainer() {
         return
       }
 
-      setSearchParams((prevSearchParams) => {
+      updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         const currentLayers = nextSearchParams.get('layers') || ''
         const layerSet = new Set(currentLayers.split(',').filter((l) => l && l !== 'none'))
@@ -151,7 +169,7 @@ export default function MapContainer() {
       }
     },
     [
-      setSearchParams,
+      updateSearchParams,
       subSedLayerValue,
       selectedYear,
       toggleSedExportSubLayerFills,
