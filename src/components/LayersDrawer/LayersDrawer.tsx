@@ -40,7 +40,7 @@ function BoundaryLegendCard({ layers }: BoundaryLegendCardProps) {
           <Typography className={styles['boundary-layer-title']}>{t(layer.title)}</Typography>
           <div
             className={styles['boundary-layer-legend']}
-            style={{ border: `3px solid ${layer.outlineColor}` }}
+            style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
           />
         </div>
       ))}
