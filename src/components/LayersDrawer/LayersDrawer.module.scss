@@ -1,18 +1,41 @@
-@use '../../styles/theme' as *;
+@use '../../styles/theme';
 
 .LayersDrawer-root {
   .layer-toggle-button {
     position: relative;
     top: 0;
     left: 0;
-    height: $mapUtilButtonHeight;
+    height: theme.$mapUtilButtonHeight;
 
-    @include mobileUpBreakPoint {
+    @include theme.mobileUpBreakPoint {
       display: none;
     }
     & svg {
-      width: $svgSizeSmall;
-      color: $textColor;
+      width: theme.$svgSizeSmall;
+      color: theme.$textColor;
     }
   }
+}
+
+.boundary-legend-card {
+  display: flex;
+  flex-direction: column;
+  gap: theme.$defaultSpacing;
+  margin: theme.$defaultSpacing;
+  padding: theme.$defaultSpacing;
+  background-color: theme.$greyWhite;
+}
+
+.boundary-legend-row {
+  display: flex;
+  align-items: center;
+}
+
+.boundary-layer-title {
+  flex-grow: 1;
+}
+
+.boundary-layer-legend {
+  width: 20px;
+  height: 15px;
 }
