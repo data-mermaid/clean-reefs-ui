@@ -141,6 +141,10 @@ export const updateChartData = (
     chartSeriesData = getBoundaryFileChartData(feature.properties)
     //more sources to go here
   }
+  if (!chartSeriesData) {
+    setChartData(null)
+    return
+  }
   const hasData = Object.values(chartSeriesData).some((series) =>
     Object.values(series as Record<string, object>).some(
       (yearData) => Object.keys(yearData).length > 0,
