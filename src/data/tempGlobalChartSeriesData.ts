@@ -34,7 +34,7 @@ export const tempGlobalChartSeriesData: ChartProperties[] = [
     chartName: 'sediment_load_historical',
     chartSeriesData: tempSedimentLoadChartData as Partial<PlotData>[],
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.sediment_exposure',
+    yAxisTitle: 'chart_information.sediment_load',
   },
   {
     barmode: 'stack',

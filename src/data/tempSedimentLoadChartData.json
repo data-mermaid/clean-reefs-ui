@@ -2,11 +2,11 @@
   {
     "type": "bar",
     "marker": {
-      "color": "#E7CC11"
+      "color": "#003F5C"
     },
-    "hovertemplate": "Year: %{x}<br />Sediment export (tons): %{y}<extra></extra>",
+    "hovertemplate": "Year: %{x}<br />Sediment: %{y:.2f}T<extra></extra>",
     "name": "Sediment",
-    "width": 3,
+    "width": 2,
     "x": ["2000", "2005", "2010", "2015", "2020"],
     "y": [25, 40, 70, 80, 95]
   }

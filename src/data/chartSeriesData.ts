@@ -41,7 +41,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: '',
     width: 2,
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.sediment_exposure',
+    yAxisTitle: 'chart_information.sediment_load',
   },
   //specific to Ocean Pollution, should only populate when watershed is selected
   'charts.sediment_exposure_historical': {
@@ -79,7 +79,7 @@ const sharedCharts: ChartSeriesName[] = [
 export const chartsByRegionType: Record<RegionType, ChartSeriesName[]> = {
   global: sharedCharts,
   country: sharedCharts,
-  region: sharedCharts,
+  region: sharedCharts, // Is this required? How is region different from country? (see chartUtils.ts 140 countries_src vs regions_src)
   watershed: sharedCharts,
   plume: [...sharedCharts, 'sediment_exposure_historical', 'contributing_watersheds'],
 }
