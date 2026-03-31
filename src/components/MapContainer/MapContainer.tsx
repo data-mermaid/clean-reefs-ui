@@ -143,13 +143,13 @@ export default function MapContainer() {
     (newWatershedId: string | null) => {
       updateSearchParams(
         (prev) => {
-          const next = new URLSearchParams(prev)
+          const nextSearchParams = new URLSearchParams(prev)
           if (newWatershedId) {
-            next.set('watershed', newWatershedId)
+            nextSearchParams.set('watershed', newWatershedId)
           } else {
-            next.delete('watershed')
+            nextSearchParams.delete('watershed')
           }
-          return next
+          return nextSearchParams
         },
         { replace: true },
       )
