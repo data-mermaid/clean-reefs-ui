@@ -52,6 +52,9 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
+
+const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
@@ -164,6 +167,43 @@ function PmTileLayers({ layer, index }) {
         layout={{
           visibility: layer.isLayerOn ? 'visible' : 'none',
         }}
+        paint={{
+          'line-color': layer.outlineColor,
+          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+        }}
+      />
+    </Source>
+  )
+}
+
+// Transparent fill layer so mousemove/mouseleave fire over the full plume area,
+// not just the outline stroke. Line layer preserves the visual yellow outline.
+function PlumeLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}-source`}
+      type="vector"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-fill-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceFileName}
+        beforeId="watershed"
+        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        paint={{ 'fill-color': transparent }}
+      />
+      <Layer
+        id={`${layer.layerId}-lines`}
+        type="line"
+        key={`${layer.layerId}-lines-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceFileName}
+        beforeId="watershed"
+        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
           'line-color': layer.outlineColor,
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
@@ -473,6 +513,13 @@ export default function BaseMap({
       map.getCanvas().style.cursor = ''
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
     })
+
+    map.on('mousemove', 'plumes', () => {
+      map.getCanvas().style.cursor = plumeCrosshairCursor
+    })
+    map.on('mouseleave', 'plumes', () => {
+      map.getCanvas().style.cursor = ''
+    })
   }
 
   return (
@@ -505,6 +552,8 @@ export default function BaseMap({
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
+          } else if (layer.layerId === 'plumes') {
+            return isMapLoaded && <PlumeLayers key={`layer-${index}`} layer={layer} index={index} />
           } else if (layer.dataType === 'pmtiles') {
             return (
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
