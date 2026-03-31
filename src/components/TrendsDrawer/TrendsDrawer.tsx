@@ -45,7 +45,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
       return
     }
 
-    // Watershed/plume: selectedFeature from map click takes priority
+    // Watershed: selectedFeature from map click takes priority
     if (selectedFeature) {
       setIsChartDataLoading(true)
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)

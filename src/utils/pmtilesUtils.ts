@@ -15,7 +15,7 @@ function getPMTiles(url: string): PMTiles {
   return instance
 }
 
-const boundarySourceConfig: Partial<
+export const boundarySourceConfig: Partial<
   Record<RegionType, { url: string; sourceLayer: string; filterProp: string }>
 > = {
   region: { url: REGIONS_PMTILES_URL, sourceLayer: 'regions', filterProp: 'name' },
