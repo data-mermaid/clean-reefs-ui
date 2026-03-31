@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
@@ -11,9 +11,10 @@ import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
-import { updateChartData } from '../../utils/chartUtils'
+import { buildChartDataFromProperties, updateChartData } from '../../utils/chartUtils'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
+import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
@@ -33,32 +34,59 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
+  // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
+  const requestIdRef = useRef(0)
   useEffect(() => {
-    if (selectedRegion.regionType === 'global') {
+    const { regionType, label } = selectedRegion
+
+    if (regionType === 'global') {
       setIsChartDataLoading(false)
       setChartConfigData(tempGlobalChartSeriesData)
       return
     }
 
-    if (!selectedFeature) {
+    // Watershed/plume: selectedFeature from map click takes priority
+    if (selectedFeature) {
+      setIsChartDataLoading(true)
+      updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
       setIsChartDataLoading(false)
-      setChartConfigData(null)
       return
     }
 
-    setIsChartDataLoading(true)
-    updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
-    setIsChartDataLoading(false)
-  }, [selectedFeature, selectedRegion.regionType])
+    // Region/country: fetch directly from PMTiles
+    if (regionType === 'region' || regionType === 'country') {
+      const requestId = ++requestIdRef.current
+      setIsChartDataLoading(true)
 
-  const allowedCharts = chartsByRegionType[selectedRegion.regionType]
+      fetchBoundaryProperties(regionType, label).then((properties) => {
+        if (requestId !== requestIdRef.current) {
+          return
+        }
+        const data = properties ? buildChartDataFromProperties(properties) : null
+        setChartConfigData(data)
+        setIsChartDataLoading(false)
+      })
+      return
+    }
+
+    setIsChartDataLoading(false)
+    setChartConfigData(null)
+  }, [selectedFeature, selectedRegion])
+
+  // When a feature is selected via map click, derive the region type from
+  // its source rather than selectedRegion (which stays as the parent country).
+  const effectiveRegionType =
+    selectedFeature?.source === 'watershed_src' ? 'watershed' : selectedRegion.regionType
+  const allowedCharts = chartsByRegionType[effectiveRegionType]
   const filteredChartData = chartConfigData?.filter((chart) =>
     allowedCharts.includes(chart.chartName as ChartSeriesName),
   )
 
   let drawerTitle = selectedRegion.label
-  if (selectedRegion.regionType === 'global') {
+  if (effectiveRegionType === 'global') {
     drawerTitle = 'global_trends'
+  } else if (effectiveRegionType === 'watershed') {
+    drawerTitle = 'watershed_information'
   }
 
   return (
@@ -90,7 +118,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
                   key={chart.chartName}
                   open={open}
                   {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
-                  regionType={selectedRegion.regionType}
+                  regionType={effectiveRegionType}
                   selectedYear={selectedYear}
                   chartConfigData={chart}
                   isChartDataLoading={isChartDataLoading}

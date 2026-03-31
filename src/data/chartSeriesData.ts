@@ -79,7 +79,7 @@ const sharedCharts: ChartSeriesName[] = [
 export const chartsByRegionType: Record<RegionType, ChartSeriesName[]> = {
   global: sharedCharts,
   country: sharedCharts,
-  region: sharedCharts, // Is this required? How is region different from country? (see chartUtils.ts 140 countries_src vs regions_src)
+  region: sharedCharts,
   watershed: sharedCharts,
   plume: [...sharedCharts, 'sediment_exposure_historical', 'contributing_watersheds'],
 }

@@ -131,34 +131,41 @@ export const mapChartConfigToData = (
   } as ChartProperties
 }
 
-export const updateChartData = (
-  feature: MapGeoJSONFeature,
-  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
-) => {
-  let chartSeriesData
-  //1. get data from appropriate source
-  if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
-    chartSeriesData = getBoundaryFileChartData(feature.properties)
-    //more sources to go here
-  }
-  if (!chartSeriesData) {
-    setChartData(null)
-    return
-  }
+export const buildChartDataFromProperties = (
+  properties: Record<string, unknown>,
+): ChartProperties[] | null => {
+  const chartSeriesData = getBoundaryFileChartData(properties)
+
   const hasData = Object.values(chartSeriesData).some((series) =>
     Object.values(series as Record<string, object>).some(
       (yearData) => Object.keys(yearData).length > 0,
     ),
   )
   if (!hasData) {
+    return null
+  }
+
+  return Object.entries(chartSeriesData).map((dataSet) =>
+    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
+  )
+}
+
+export const updateChartData = (
+  feature: MapGeoJSONFeature,
+  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
+) => {
+  let properties: Record<string, unknown> | undefined
+  //1. get data from appropriate source
+  if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
+    properties = feature.properties as Record<string, unknown>
+    //more sources to go here
+  }
+  if (!properties) {
     setChartData(null)
     return
   }
 
-  //2. map data to chart config data
-  const mappedData: ChartProperties[] = Object.entries(chartSeriesData).map((dataSet) =>
-    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
-  )
+  const mappedData = buildChartDataFromProperties(properties)
 
   //3. set data
   setChartData(mappedData)
