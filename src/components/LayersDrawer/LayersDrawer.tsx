@@ -1,13 +1,14 @@
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
+import { Card, Typography } from '@mui/material'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
+import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
-import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import { mapToggleChange } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 
@@ -24,6 +25,29 @@ interface LayersDrawerProps {
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
 }
+
+interface BoundaryLegendCardProps {
+  layers: LayerInfo[]
+}
+
+function BoundaryLegendCard({ layers }: BoundaryLegendCardProps) {
+  const { t } = useTranslation()
+
+  return (
+    <Card className={styles['boundary-legend-card']}>
+      {[...layers].sort(sortBoundaryLayers).map((layer) => (
+        <div className={styles['boundary-legend-row']} key={layer.sourceId}>
+          <Typography className={styles['boundary-layer-title']}>{t(layer.title)}</Typography>
+          <div
+            className={styles['boundary-layer-legend']}
+            style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
+          />
+        </div>
+      ))}
+    </Card>
+  )
+}
+
 export default function LayersDrawer({
   mapLayers,
   setMapLayers,
@@ -35,9 +59,11 @@ export default function LayersDrawer({
 }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
+
   const mapSubLayers = useMemo(
     () =>
       benthicSubLayers.map((layer) => ({
@@ -77,31 +103,45 @@ export default function LayersDrawer({
     [toggleSubLayerFillColor, onLayerToggleChange],
   )
 
-  const getLayersByParentGroup = (parentGroup, toggleLayer) => {
-    const filteredLayers = mapLayers.filter(
-      (layer) =>
-        layer.parentLayerType === parentGroup &&
-        layer.layerId !== 'reef_extent' &&
-        (!layer.year || layer.year === selectedYear),
-    )
+  const renderLayerGroup = useCallback(
+    (parentGroup: string): React.ReactNode[] => {
+      if (parentGroup === 'boundaries') {
+        const boundaryLayers = mapLayers.filter((layer) => layer.parentLayerType === 'boundaries')
+        return boundaryLayers.length > 0
+          ? [<BoundaryLegendCard key="boundary-legend" layers={boundaryLayers} />]
+          : []
+      }
 
-    if (parentGroup === 'boundaries') {
-      filteredLayers.sort(sortBoundaryLayers)
-    }
-
-    return filteredLayers.map((layer) => (
-      <LayerToggleCard
-        layer={layer}
-        toggleLayer={toggleLayer}
-        toggleSubLayer={toggleSubLayer}
-        mapSubLayers={mapSubLayers}
-        selectedYear={selectedYear}
-        subSedLayerValue={subSedLayerValue}
-        onSedSubLayerChange={onSedSubLayerChange}
-        key={`layertoggle-${layer.sourceId}`}
-      />
-    ))
-  }
+      return mapLayers
+        .filter(
+          (layer) =>
+            layer.parentLayerType === parentGroup &&
+            layer.layerId !== 'reef_extent' &&
+            (!layer.year || layer.year === selectedYear),
+        )
+        .map((layer) => (
+          <LayerToggleCard
+            key={`layertoggle-${layer.sourceId}`}
+            layer={layer}
+            toggleLayer={toggleLayer}
+            toggleSubLayer={toggleSubLayer}
+            mapSubLayers={mapSubLayers}
+            selectedYear={selectedYear}
+            subSedLayerValue={subSedLayerValue}
+            onSedSubLayerChange={onSedSubLayerChange}
+          />
+        ))
+    },
+    [
+      mapLayers,
+      selectedYear,
+      toggleLayer,
+      toggleSubLayer,
+      mapSubLayers,
+      subSedLayerValue,
+      onSedSubLayerChange,
+    ],
+  )
 
   return (
     <div className={styles['LayersDrawer-root']}>
@@ -121,16 +161,17 @@ export default function LayersDrawer({
         onOpen={toggleDrawer(true)}
       >
         {Object.entries(parentLayerTitles).map(([key, value]) => {
-          const parentGroupLayers = getLayersByParentGroup(key, toggleLayer) ?? []
-          if (parentGroupLayers.length > 0) {
-            return (
-              <div key={key}>
-                <h2 style={{ padding: '8px' }}>{t(value)}</h2>
-                {parentGroupLayers}
-              </div>
-            )
+          const layerNodes = renderLayerGroup(key)
+          if (layerNodes.length === 0) {
+            return null
           }
-          return null
+
+          return (
+            <div key={key}>
+              <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+              {layerNodes}
+            </div>
+          )
         })}
       </StyledSwipeableDrawer>
     </div>

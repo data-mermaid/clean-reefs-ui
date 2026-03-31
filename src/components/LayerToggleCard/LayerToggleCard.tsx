@@ -128,19 +128,12 @@ export default function LayerToggleCard({
           <>
             <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
             {layer.year && <Typography>{selectedYear}</Typography>}
-            {layer.outlineColor ? (
-              <div
-                className={styles['map-layer-key']}
-                style={{ border: `3px solid ${layer.outlineColor}` }}
-              />
-            ) : (
-              <Switch
-                className={styles['MuiSwitch-root']}
-                id={layer.layerId}
-                checked={layer.isLayerOn}
-                onChange={toggleLayer}
-              />
-            )}
+            <Switch
+              className={styles['MuiSwitch-root']}
+              id={layer.layerId}
+              checked={layer.isLayerOn}
+              onChange={toggleLayer}
+            />
           </>
         )}
       </div>
