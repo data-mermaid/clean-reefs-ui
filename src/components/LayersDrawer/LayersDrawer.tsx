@@ -9,6 +9,7 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import { mapToggleChange } from '../../utils/mapUtils'
+import { sortBoundaryLayers } from '../../utils/sortUtils'
 
 /**
  * Business rule:
@@ -77,25 +78,29 @@ export default function LayersDrawer({
   )
 
   const getLayersByParentGroup = (parentGroup, toggleLayer) => {
-    return mapLayers
-      .filter(
-        (layer) =>
-          layer.parentLayerType === parentGroup &&
-          layer.layerId !== 'reef_extent' &&
-          (!layer.year || layer.year === selectedYear),
-      )
-      .map((layer, index) => (
-        <LayerToggleCard
-          layer={layer}
-          toggleLayer={toggleLayer}
-          toggleSubLayer={toggleSubLayer}
-          mapSubLayers={mapSubLayers}
-          selectedYear={selectedYear}
-          subSedLayerValue={subSedLayerValue}
-          onSedSubLayerChange={onSedSubLayerChange}
-          key={`layertoggle-${layer.sourceId}-${index}`}
-        />
-      ))
+    const filteredLayers = mapLayers.filter(
+      (layer) =>
+        layer.parentLayerType === parentGroup &&
+        layer.layerId !== 'reef_extent' &&
+        (!layer.year || layer.year === selectedYear),
+    )
+
+    if (parentGroup === 'boundaries') {
+      filteredLayers.sort(sortBoundaryLayers)
+    }
+
+    return filteredLayers.map((layer) => (
+      <LayerToggleCard
+        layer={layer}
+        toggleLayer={toggleLayer}
+        toggleSubLayer={toggleSubLayer}
+        mapSubLayers={mapSubLayers}
+        selectedYear={selectedYear}
+        subSedLayerValue={subSedLayerValue}
+        onSedSubLayerChange={onSedSubLayerChange}
+        key={`layertoggle-${layer.sourceId}`}
+      />
+    ))
   }
 
   return (

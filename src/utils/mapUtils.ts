@@ -1,6 +1,12 @@
 import { RegionOption } from '../types/RegionDataTypes'
 import { regionOptions } from '../data/regionData'
-import { LngLatBounds, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
+import {
+  FilterSpecification,
+  LngLatBounds,
+  Map,
+  MapGeoJSONFeature,
+  MapLayerMouseEvent,
+} from 'maplibre-gl'
 import { RefObject } from 'react'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
@@ -147,6 +153,62 @@ export const mapToggleChange = (
     const yearMatch = layer.year === undefined || layer.year === year
     return layerMatch && yearMatch ? { ...layer, isLayerOn: checked } : layer
   })
+}
+
+/**
+ * Queries a vector tile source for a feature, retrying as tiles load.
+ * Calls onResult with the feature once found, or null on timeout.
+ * Returns a cancel function (suitable as useEffect cleanup).
+ * Reusable for any vector source that needs async feature lookup (watershed, plume, etc.).
+ */
+export function querySourceFeatureWhenReady(
+  map: Map,
+  sourceId: string,
+  sourceLayer: string,
+  filter: FilterSpecification,
+  onResult: (feature: MapGeoJSONFeature | null) => void,
+  timeoutMs = 10_000,
+): () => void {
+  let settled = false
+
+  const tryQuery = (): MapGeoJSONFeature | null => {
+    const features = map.querySourceFeatures(sourceId, { sourceLayer, filter })
+    return features.length > 0 ? (features[0] as MapGeoJSONFeature) : null
+  }
+
+  const settle = (result: MapGeoJSONFeature | null) => {
+    if (settled) {
+      return
+    }
+    settled = true
+    map.off('sourcedata', onSourceData)
+    clearTimeout(timeoutId)
+    onResult(result)
+  }
+
+  // Try immediately
+  const immediate = tryQuery()
+  if (immediate) {
+    settled = true
+    onResult(immediate)
+    return () => {}
+  }
+
+  // Retry on each sourcedata event as tiles stream in
+  const onSourceData = (e: { sourceId?: string }) => {
+    if (settled || e.sourceId !== sourceId) {
+      return
+    }
+    const feature = tryQuery()
+    if (feature) {
+      settle(feature)
+    }
+  }
+  map.on('sourcedata', onSourceData)
+
+  const timeoutId = setTimeout(() => settle(null), timeoutMs)
+
+  return () => settle(null)
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {

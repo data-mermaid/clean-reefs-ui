@@ -30,9 +30,11 @@ import useResponsive from '../../hooks/useResponsive'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
+  calculateFeatureBounds,
   clearPolygonHover,
   createPolygonClickHandler,
   createPolygonHoverHandler,
+  querySourceFeatureWhenReady,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -174,7 +176,16 @@ interface BaseMapProps {
   sedExportSubLayerValue: 'pixel' | 'watershed'
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
+  onWatershedChange: (id: string | null) => void
+  initialWatershedId: string | null
+  hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  initialViewState: {
+    longitude: number
+    latitude: number
+    zoom: number
+  }
+  onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
 }
 
 export default function BaseMap({
@@ -182,10 +193,16 @@ export default function BaseMap({
   sedExportSubLayerValue,
   selectedRegion,
   onRegionChange,
+  onWatershedChange,
+  initialWatershedId,
+  hasExplicitViewState,
   setBreadcrumb,
+  initialViewState,
+  onMapMoveEnd,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
+
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
@@ -201,14 +218,18 @@ export default function BaseMap({
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
   const handleFeatureSelect = useCallback(
-    (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => {
+    (
+      feature: MapGeoJSONFeature | null,
+      bounds?: LngLatBounds,
+      options?: { skipFitBounds?: boolean },
+    ) => {
       setSelectedFeature(feature)
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
 
         if (map) {
-          //todo: for plume
+          // TODO: for plume, use different property lookup
           const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
 
           const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
@@ -220,6 +241,9 @@ export default function BaseMap({
             zoomLevel: map.getZoom(),
             grouping: 3,
           }
+
+          // Breadcrumb: Global > [Country] > Watershed
+          // Country is omitted if it can't be determined from the feature
           const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
           if (addtlRegion) {
             updatedRegions.push(addtlRegion)
@@ -231,22 +255,36 @@ export default function BaseMap({
             onRegionChange(addtlRegion)
           }
 
-          const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
-          map.fitBounds(bounds, {
-            padding: config.padding,
-            maxZoom: config.maxZoom,
-            duration: 800,
-          })
+          // Sync watershed ID to URL
+          const featureWatershedId = feature.id != null ? String(feature.id) : null
+          onWatershedChange(featureWatershedId)
+
+          // Skip fitBounds when restoring from URL with explicit lat/lng/zoom
+          if (!options?.skipFitBounds) {
+            const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+            map.fitBounds(bounds, {
+              padding: config.padding,
+              maxZoom: config.maxZoom,
+              duration: 800,
+            })
+          }
         }
       }
     },
-    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange],
+    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
     () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
     [handleFeatureSelect],
+  )
+
+  const handleMoveEnd = useCallback(
+    (e) => {
+      onMapMoveEnd(e.viewState)
+    },
+    [onMapMoveEnd],
   )
 
   if (
@@ -310,6 +348,81 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+
+  // When selectedFeature is cleared externally (e.g., dropdown region change),
+  // remove the visual highlight from the map.
+  const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
+  useEffect(() => {
+    if (!selectedFeature && polygonClickRef.current && isMapLoaded) {
+      const map = mapRef.current?.getMap()
+      if (map && watershedLayer) {
+        map.setFeatureState(
+          {
+            source: watershedLayer.sourceId,
+            sourceLayer: watershedLayer.sourceFileName,
+            id: polygonClickRef.current,
+          },
+          { select: false },
+        )
+        polygonClickRef.current = null
+      }
+    }
+  }, [selectedFeature, isMapLoaded, watershedLayer])
+
+  // Watershed restoration from URL
+  useEffect(() => {
+    if (!isMapLoaded || !initialWatershedId || !watershedLayer) {
+      return undefined
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return undefined
+    }
+
+    // watershed_id is numeric in tile data. Parse to number to match
+    // the promoted feature ID used by MapLibre for setFeatureState.
+    const featureId = isNaN(Number(initialWatershedId))
+      ? initialWatershedId
+      : Number(initialWatershedId)
+
+    return querySourceFeatureWhenReady(
+      map,
+      watershedLayer.sourceId,
+      watershedLayer.sourceFileName,
+      ['==', ['get', 'watershed_id'], Number(initialWatershedId)],
+      (feature) => {
+        if (!feature) {
+          onWatershedChange(null)
+          return
+        }
+
+        // querySourceFeatures doesn't set 'source' on returned features
+        // (unlike click events). Charts need it to identify the data source.
+        if (!feature.source) {
+          feature.source = watershedLayer.sourceId
+        }
+
+        polygonClickRef.current = featureId
+        map.setFeatureState(
+          {
+            source: watershedLayer.sourceId,
+            sourceLayer: watershedLayer.sourceFileName,
+            id: featureId,
+          },
+          { select: true },
+        )
+
+        const bounds = calculateFeatureBounds(feature)
+        handleFeatureSelect(feature, bounds, {
+          skipFitBounds: hasExplicitViewState,
+        })
+      },
+    )
+    // handleFeatureSelect and onWatershedChange intentionally omitted
+    // initialWatershedId is stable (captured once at mount) so this effect only runs once when the map loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
@@ -383,13 +496,10 @@ export default function BaseMap({
         id="satellite-map"
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
-        initialViewState={{
-          longitude: selectedRegion.centerCoord.lng,
-          latitude: selectedRegion.centerCoord.lat,
-          zoom: selectedRegion.zoomLevel,
-        }}
+        initialViewState={initialViewState}
         mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
+        onMoveEnd={handleMoveEnd}
         attributionControl={false}
       >
         {isDesktopWidth && (

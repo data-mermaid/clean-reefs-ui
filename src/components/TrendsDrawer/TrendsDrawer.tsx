@@ -17,9 +17,10 @@ import { chartsByRegionType } from '../../data/chartSeriesData'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
+  selectedYear: number
 }
 
-export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
+export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
@@ -90,6 +91,7 @@ export default function TrendsDrawer({ selectedRegion }: TrendsDrawerProps) {
                   open={open}
                   {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                   regionType={selectedRegion.regionType}
+                  selectedYear={selectedYear}
                   chartConfigData={chart}
                   isChartDataLoading={isChartDataLoading}
                 />

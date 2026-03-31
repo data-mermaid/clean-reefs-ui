@@ -187,13 +187,20 @@ describe('map utilities', () => {
       expect(clickedRef.current).toBe('197297')
     })
 
-    test('deselects the feature when the same feature is clicked', () => {
+    test('recenters the polygon when the same feature is clicked', () => {
       const map = makeMap()
+      const onSelect = jest.fn()
       clickedRef.current = '128'
-      const handler = createPolygonClickHandler(clickedRef)
+      const handler = createPolygonClickHandler(clickedRef, onSelect)
       handler(map, makeEvent('128'), mockLayers[0])
-      expect(map.setFeatureState).toHaveBeenCalledTimes(1)
-      expect(clickedRef.current).toBe(null)
+      expect(onSelect).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '128' }),
+        expect.objectContaining({
+          _ne: expect.any(Object),
+          _sw: expect.any(Object),
+        }),
+      )
+      expect(clickedRef.current).toBe('128')
     })
 
     test('clears previous click and updates when a different polygon is clicked', () => {
@@ -219,15 +226,6 @@ describe('map utilities', () => {
           _sw: expect.any(Object),
         }),
       )
-    })
-
-    test('calls onSelect without bounds when feature is deselected', () => {
-      const map = makeMap()
-      const onSelect = jest.fn()
-      clickedRef.current = '128'
-      const handler = createPolygonClickHandler(clickedRef, onSelect)
-      handler(map, makeEvent('128'), mockLayers[0])
-      expect(onSelect).toHaveBeenCalledWith(null)
     })
   })
 })
