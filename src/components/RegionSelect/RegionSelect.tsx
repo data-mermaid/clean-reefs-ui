@@ -86,10 +86,8 @@ export default function RegionSelect({
     if (region.grouping > 0) {
       jumpToRegion(region)
     }
-    if (selectedRegion !== region) {
-      onRegionChange(region)
-      prepBreadcrumb(region)
-    }
+    onRegionChange(region)
+    prepBreadcrumb(region)
   }
 
   return (

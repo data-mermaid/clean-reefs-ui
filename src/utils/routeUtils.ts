@@ -16,6 +16,18 @@ export function getValidRegion(regionFromSearchParam: string | null): RegionOpti
   return found ?? defaultGlobalRegionOption
 }
 
+/**
+ * Basic format check only — returns trimmed string or null.
+ * Full validation (does this ID exist?) happens after the map loads
+ * by querying the vector tile source.
+ */
+export function getValidWatershed(watershedFromSearchParam: string | null): string | null {
+  if (!watershedFromSearchParam || watershedFromSearchParam.trim() === '') {
+    return null
+  }
+  return watershedFromSearchParam.trim()
+}
+
 export function getValidYear(yearFromSearchParam: string | null) {
   const parsedYear = Number(yearFromSearchParam)
   return availableYears.includes(parsedYear) ? parsedYear : defaultYear
