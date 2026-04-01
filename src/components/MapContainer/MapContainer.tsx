@@ -118,12 +118,16 @@ export default function MapContainer() {
     shouldSyncLayersParam,
   ])
 
+  const watershedParam = searchParams.get('watershed')
+
   useEffect(() => {
     setSelectedRegion(initialRegion)
-    setBreadcrumb(
-      initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
-    )
-  }, [initialRegion])
+    if (!watershedParam) {
+      setBreadcrumb(
+        initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+      )
+    }
+  }, [initialRegion, watershedParam])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
