@@ -10,6 +10,7 @@ import {
 import { RefObject } from 'react'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
+import { BASE_ZONAL_STATS_API, SEDIMENT_EXPOSURE_2000_URL } from '../constants'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
@@ -254,4 +255,37 @@ export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
     return { ...matchingRegion, regionType: 'watershed' }
   }
   return matchingRegion || regionOptions[0]
+}
+
+export async function postZonalStats(payload) {
+  try {
+    const response = await fetch(BASE_ZONAL_STATS_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error, status: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (err) {
+    throw new Error(`HTTP error: ${err}`)
+  }
+}
+
+export async function prepareZonalStatsCall(lngLat) {
+  const { lat, lng } = lngLat
+  //todo: check if selected year has available exposure url
+
+  const basePayload = {
+    aoi: { type: 'Point', coordinates: [lng, lat] },
+    url: SEDIMENT_EXPOSURE_2000_URL, //todo: use year as parameter
+    bands: [1, 2, 3, 4, 5, 6, 7],
+    stats: ['majority'],
+  }
+  return await postZonalStats(basePayload)
 }

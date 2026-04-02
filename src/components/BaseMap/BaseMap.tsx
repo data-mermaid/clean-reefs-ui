@@ -12,6 +12,7 @@ import {
   Layer,
   Map as MapGL,
   MapRef,
+  Marker,
   NavigationControl,
   ScaleControl,
   Source,
@@ -37,6 +38,7 @@ import {
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   setPolygonSelect,
+  prepareZonalStatsCall,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -44,11 +46,12 @@ import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
+  oceanClickMarkerColor,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
-import { LayerInfo } from '../../types/MapDataTypes'
+import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
@@ -89,6 +92,36 @@ const handleError = (
     ...prev,
     [e.type]: e.error?.message || 'Failed to load layer',
   }))
+}
+
+const handleMapClick = async (
+  e,
+  map,
+  setClickedOceanPoint: (point: { lng: number; lat: number } | null) => void,
+) => {
+  const { setTopPolygonsFill } = useMapStore.getState()
+  const plumeFeatures = map.queryRenderedFeatures(e.point, { layers: ['plumes'] })
+
+  if (plumeFeatures.length === 0) {
+    return
+  }
+
+  setClickedOceanPoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
+
+  const zonalStats: ZonalStatsBand[] = await prepareZonalStatsCall(e.lngLat)
+
+  const topContributingWatershedIds: number[] = []
+  // TODO: example ids used temporarily - actual zonal stats ids are not yet synced with watershed polygon ids
+  const exampleTopWatershedIds = [974529, 977314, 977908]
+
+  for (let i = 2; i <= 5; i++) {
+    if (topContributingWatershedIds.indexOf(zonalStats[`band_${i}`].majority) < 0) {
+      topContributingWatershedIds.push(zonalStats[`band_${i}`].majority)
+    }
+  }
+
+  const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
+  setTopPolygonsFill('watershed', exampleTopWatershedIds, topContributingWatershedColorFills)
 }
 
 function WatershedLayers({ layer, index }) {
@@ -246,7 +279,14 @@ export default function BaseMap({
   const { isDesktopWidth } = useResponsive()
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
+  const [clickedOceanPoint, setClickedOceanPoint] = useState<{
+    lng: number
+    lat: number
+  } | null>(null)
+  const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
+  const setMapRef = useMapStore((s) => s.setMapRef)
+  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
   const polygonClickRef = useRef<string | number | null>(null)
@@ -372,14 +412,17 @@ export default function BaseMap({
       return
     }
 
+    const onClick = (e) => handleMapClick(e, map, setClickedOceanPoint)
     const onError = (e) => handleError(e, setLayerErrors)
     const onSourceData = (e) => handleSourceData(e, setLayerErrors)
 
+    map.on('click', onClick)
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
 
     // eslint-disable-next-line consistent-return
     return () => {
+      map.off('click', onClick)
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
     }
@@ -450,7 +493,6 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
-  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
     () => [
       'case',
@@ -471,12 +513,6 @@ export default function BaseMap({
     [benthicFillColors],
   )
 
-  useEffect(() => {
-    if (mapRef.current) {
-      useMapStore.getState().setMapRef(mapRef.current)
-    }
-  }, [isMapLoaded])
-
   const handleMapLoad = () => {
     setIsMapLoaded(true)
 
@@ -484,6 +520,8 @@ export default function BaseMap({
     if (!map || !watershedLayer) {
       return
     }
+
+    setMapRef(mapRef.current!)
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -540,6 +578,24 @@ export default function BaseMap({
             <ScaleControl position="bottom-right" />
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
+        )}
+        {clickedOceanPoint && (
+          <Marker
+            longitude={clickedOceanPoint.lng}
+            latitude={clickedOceanPoint.lat}
+            anchor="center"
+          >
+            <div
+              style={{
+                width: 15,
+                height: 15,
+                border: `2px solid ${oceanClickMarkerColor}`,
+                borderRadius: 5,
+                background: 'transparent',
+                pointerEvents: 'none',
+              }}
+            />
+          </Marker>
         )}
         {/* Watershed always rendered first so other layers can reference it via beforeId */}
         {isMapLoaded && watershedLayer && (
