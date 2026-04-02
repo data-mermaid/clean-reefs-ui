@@ -2,7 +2,7 @@
   {
     "type": "bar",
     "marker": {
-      "color": "#003F5C"
+      "color": "#e7cb11"
     },
     "hovertemplate": "Year: %{x}<br />Sediment: %{y:.2f}T<extra></extra>",
     "name": "Sediment",

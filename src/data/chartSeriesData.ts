@@ -35,7 +35,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.sediment_load_historical': {
     barmode: 'group',
     legendColors: {
-      sediment: '#003F5C',
+      sediment: '#e7cb11',
     },
     name: 'charts.sediment_load_historical',
     tracePrefix: '',
