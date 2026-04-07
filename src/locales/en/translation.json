@@ -12,15 +12,20 @@
     "land_cover_pct": "Land cover (%)",
     "pollution_contribution": "Pollution contribution (%)",
     "sediment_exposure": "Sediment exposure (tonnes)",
-    "sediment_load": "Sediment load (tonnes)"
+    "sediment_load": "Sediment load (tonnes)",
+    "pollution": "Polution"
   },
+
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
     "land_use_historical": "Land use",
     "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure",
-    "sediment_load_historical": "Sediment load"
+    "sediment_load_historical": "Sediment load",
+    "w1": "W1",
+    "w2": "W2",
+    "w3": "W3"
   },
   "land_types": {
     "bare_ground": "Bare ground",

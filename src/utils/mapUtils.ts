@@ -10,7 +10,14 @@ import {
 import { RefObject } from 'react'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, transparent } from '../data/mapData'
-import { BASE_ZONAL_STATS_API, SEDIMENT_EXPOSURE_2000_URL } from '../constants'
+import {
+  BASE_ZONAL_STATS_API,
+  SEDIMENT_EXPOSURE_2000_URL,
+  SEDIMENT_EXPOSURE_2005_URL,
+  SEDIMENT_EXPOSURE_2010_URL,
+  SEDIMENT_EXPOSURE_2015_URL,
+  SEDIMENT_EXPOSURE_2020_URL,
+} from '../constants'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
@@ -277,15 +284,42 @@ export async function postZonalStats(payload) {
   }
 }
 
-export async function prepareZonalStatsCall(lngLat) {
+export async function prepareZonalStatsCall(lngLat, year) {
   const { lat, lng } = lngLat
   //todo: check if selected year has available exposure url
+  const exposureUrls = {
+    2000: SEDIMENT_EXPOSURE_2000_URL,
+    2005: SEDIMENT_EXPOSURE_2005_URL,
+    2010: SEDIMENT_EXPOSURE_2010_URL,
+    2015: SEDIMENT_EXPOSURE_2015_URL,
+    2020: SEDIMENT_EXPOSURE_2020_URL,
+  }
 
   const basePayload = {
     aoi: { type: 'Point', coordinates: [lng, lat] },
-    url: SEDIMENT_EXPOSURE_2000_URL, //todo: use year as parameter
+    url: exposureUrls[year], //todo: use year as parameter
     bands: [1, 2, 3, 4, 5, 6, 7],
     stats: ['majority'],
   }
   return await postZonalStats(basePayload)
+}
+
+export async function getAllYearZonalStats(lngLat) {
+  const years = [2000, 2005, 2010, 2015, 2020]
+  const availableYears = [2000]
+
+  const zonalStatsPromises = years.map(async (year) => {
+    if (!availableYears.includes(year)) {
+      return { [year]: {} }
+    }
+    try {
+      const stats = await prepareZonalStatsCall(lngLat, year)
+      return { [year]: stats }
+    } catch {
+      return { [year]: {} }
+    }
+  })
+
+  const results = await Promise.all(zonalStatsPromises)
+  return Object.assign({}, ...results)
 }

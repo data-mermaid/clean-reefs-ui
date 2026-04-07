@@ -66,7 +66,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: '',
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.pollution_contribution',
-    width: 3,
+    width: 2,
   },
 }
 
