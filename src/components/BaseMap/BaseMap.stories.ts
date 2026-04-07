@@ -26,6 +26,7 @@ export const Primary: Story = {
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
+    selectedYear: 2000,
     onMapMoveEnd: () => {},
   },
   play: async ({ canvas }) => {
@@ -57,6 +58,7 @@ export const Loading: Story = {
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
+    selectedYear: 2000,
     onMapMoveEnd: () => {},
   },
   // play: async ({ canvasElement }) => {

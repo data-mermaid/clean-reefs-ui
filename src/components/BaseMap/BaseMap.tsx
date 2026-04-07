@@ -38,7 +38,6 @@ import {
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   setPolygonSelect,
-  prepareZonalStatsCall,
   getAllYearZonalStats,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
@@ -52,7 +51,7 @@ import {
   polygonOutlineSelectColor,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
-import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
+import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
@@ -122,9 +121,9 @@ const handleMapClick = async (
   // TODO: example ids used temporarily - actual zonal stats ids are not yet synced with watershed polygon ids
   const exampleTopWatershedIds = [974529, 977314, 977908]
 
-  for (let i = 2; i <= 5; i++) {
-    if (topContributingWatershedIds.indexOf(currentYearZonalStats[`band_${i}`].majority) < 0) {
-      topContributingWatershedIds.push(currentYearZonalStats[`band_${i}`].majority)
+  for (let i = 2; i < 5; i++) {
+    if (topContributingWatershedIds.indexOf(currentYearZonalStats[`band_${i}`]?.majority) < 0) {
+      topContributingWatershedIds.push(currentYearZonalStats[`band_${i}`]?.majority)
     }
   }
 
@@ -436,7 +435,7 @@ export default function BaseMap({
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
     }
-  }, [isMapLoaded])
+  }, [isMapLoaded, selectedYear])
 
   const watershedIndex = useMemo(
     () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
