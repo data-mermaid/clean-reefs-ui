@@ -39,6 +39,7 @@ import {
   querySourceFeatureWhenReady,
   setPolygonSelect,
   prepareZonalStatsCall,
+  getAllYearZonalStats,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -97,26 +98,33 @@ const handleError = (
 const handleMapClick = async (
   e,
   map,
-  setClickedOceanPoint: (point: { lng: number; lat: number } | null) => void,
+  selectedYear: number,
+  setClickedPlumePoint: (point: { lng: number; lat: number } | null) => void,
 ) => {
   const { setTopPolygonsFill } = useMapStore.getState()
+  const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
+  const { clearSelectedFeature } = useSelectedFeatureStore.getState()
+
   const plumeFeatures = map.queryRenderedFeatures(e.point, { layers: ['plumes'] })
 
   if (plumeFeatures.length === 0) {
     return
   }
 
-  setClickedOceanPoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
+  clearSelectedFeature()
+  setClickedPlumePoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
 
-  const zonalStats: ZonalStatsBand[] = await prepareZonalStatsCall(e.lngLat)
+  const currentAllYearZonalStats = await getAllYearZonalStats(e.lngLat)
+  setSelectedPlumeWatershedStats(currentAllYearZonalStats)
 
+  const currentYearZonalStats = currentAllYearZonalStats[selectedYear]
   const topContributingWatershedIds: number[] = []
   // TODO: example ids used temporarily - actual zonal stats ids are not yet synced with watershed polygon ids
   const exampleTopWatershedIds = [974529, 977314, 977908]
 
   for (let i = 2; i <= 5; i++) {
-    if (topContributingWatershedIds.indexOf(zonalStats[`band_${i}`].majority) < 0) {
-      topContributingWatershedIds.push(zonalStats[`band_${i}`].majority)
+    if (topContributingWatershedIds.indexOf(currentYearZonalStats[`band_${i}`].majority) < 0) {
+      topContributingWatershedIds.push(currentYearZonalStats[`band_${i}`].majority)
     }
   }
 
@@ -253,6 +261,7 @@ interface BaseMapProps {
   onRegionChange: (region: RegionOption) => void
   onWatershedChange: (id: string | null) => void
   initialWatershedId: string | null
+  selectedYear: number
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   initialViewState: {
@@ -270,6 +279,7 @@ export default function BaseMap({
   onRegionChange,
   onWatershedChange,
   initialWatershedId,
+  selectedYear,
   hasExplicitViewState,
   setBreadcrumb,
   initialViewState,
@@ -279,7 +289,7 @@ export default function BaseMap({
   const { isDesktopWidth } = useResponsive()
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [clickedOceanPoint, setClickedOceanPoint] = useState<{
+  const [clickedPlumePoint, setClickedPlumePoint] = useState<{
     lng: number
     lat: number
   } | null>(null)
@@ -412,7 +422,7 @@ export default function BaseMap({
       return
     }
 
-    const onClick = (e) => handleMapClick(e, map, setClickedOceanPoint)
+    const onClick = (e) => handleMapClick(e, map, selectedYear, setClickedPlumePoint)
     const onError = (e) => handleError(e, setLayerErrors)
     const onSourceData = (e) => handleSourceData(e, setLayerErrors)
 
@@ -579,10 +589,10 @@ export default function BaseMap({
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
         )}
-        {clickedOceanPoint && (
+        {clickedPlumePoint && (
           <Marker
-            longitude={clickedOceanPoint.lng}
-            latitude={clickedOceanPoint.lat}
+            longitude={clickedPlumePoint.lng}
+            latitude={clickedPlumePoint.lat}
             anchor="center"
           >
             <div

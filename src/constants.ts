@@ -53,6 +53,15 @@ export const BASE_ZONAL_STATS_API =
   'https://api.zonalstats.datamermaid.org/api/v1/zonal-stats/raster'
 export const SEDIMENT_EXPOSURE_2000_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2000/data_solomons_sed_exposure_2000.tif'
+/* These below ocean tif not yet available */
+export const SEDIMENT_EXPOSURE_2005_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2005/data_solomons_sed_exposure_2005.tif'
+export const SEDIMENT_EXPOSURE_2010_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2010/data_solomons_sed_exposure_2010.tif'
+export const SEDIMENT_EXPOSURE_2015_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2015/data_solomons_sed_exposure_2015.tif'
+export const SEDIMENT_EXPOSURE_2020_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2020/data_solomons_sed_exposure_2020.tif'
 
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {

@@ -280,6 +280,7 @@ export default function MapContainer() {
         onRegionChange={handleRegionChange}
         onWatershedChange={handleWatershedChange}
         initialWatershedId={initialWatershedId}
+        selectedYear={selectedYear}
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
         initialViewState={{

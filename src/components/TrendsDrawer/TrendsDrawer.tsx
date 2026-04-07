@@ -11,7 +11,11 @@ import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
-import { buildChartDataFromProperties, updateChartData } from '../../utils/chartUtils'
+import {
+  buildChartDataFromProperties,
+  updateChartData,
+  updatePlumeChartData,
+} from '../../utils/chartUtils'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
 import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
@@ -33,6 +37,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
   const [isChartDataLoading, setIsChartDataLoading] = useState(false)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
+  const selectedPlumeWatershedStats = useSelectedFeatureStore((s) => s.selectedPlumeWatershedStats)
 
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
@@ -50,6 +55,12 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
       setIsChartDataLoading(true)
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
       setIsChartDataLoading(false)
+      return
+    }
+
+    if (selectedPlumeWatershedStats) {
+      setIsChartDataLoading(false)
+      updatePlumeChartData(selectedPlumeWatershedStats, setChartConfigData)
       return
     }
 
@@ -71,7 +82,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
 
     setIsChartDataLoading(false)
     setChartConfigData(null)
-  }, [selectedFeature, selectedRegion])
+  }, [selectedFeature, selectedRegion, selectedPlumeWatershedStats])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
