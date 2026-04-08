@@ -294,11 +294,6 @@ export default function BaseMap({
   } | null>(null)
   const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
   const setMapRef = useMapStore((s) => s.setMapRef)
-  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
-  const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
-  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
-    (s) => s.clearSelectedPlumeWatershedStats,
-  )
 
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -310,8 +305,18 @@ export default function BaseMap({
     return Object.keys(layerErrors).length > 0
   }, [layerErrors])
 
-  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
+  const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
+    (s) => s.clearSelectedPlumeWatershedStats,
+  )
 
+  const clearPlumeSelection = useCallback(() => {
+    setClickedPlumePoint(null)
+    clearTopPolygonsFill('watershed')
+    clearSelectedPlumeWatershedStats()
+  }, [clearTopPolygonsFill, clearSelectedPlumeWatershedStats])
+
+  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const handleFeatureSelect = useCallback(
     (
       feature: MapGeoJSONFeature | null,
@@ -319,9 +324,7 @@ export default function BaseMap({
       options?: { skipFitBounds?: boolean },
     ) => {
       setSelectedFeature(feature)
-      setClickedPlumePoint(null)
-      clearTopPolygonsFill('watershed')
-      clearSelectedPlumeWatershedStats()
+      clearPlumeSelection()
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
@@ -375,8 +378,7 @@ export default function BaseMap({
       setSelectedFeature,
       onRegionChange,
       onWatershedChange,
-      clearSelectedPlumeWatershedStats,
-      clearTopPolygonsFill,
+      clearPlumeSelection,
     ],
   )
 
@@ -517,6 +519,7 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
+  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
     () => [
       'case',
