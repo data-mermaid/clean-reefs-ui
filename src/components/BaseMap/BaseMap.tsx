@@ -367,8 +367,8 @@ export default function BaseMap({
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
-    [handleFeatureSelect],
+    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect, setClickedPlumePoint),
+    [handleFeatureSelect, setClickedPlumePoint],
   )
 
   const handleMoveEnd = useCallback(

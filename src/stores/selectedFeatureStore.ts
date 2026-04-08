@@ -13,9 +13,10 @@ type PlumeWatershedStats = Record<number, ZonalStatsBand>
 type SelectedFeatureState = {
   selectedFeature: MinimalFeature | null
   setSelectedFeature: (feature: MapGeoJSONFeature | null) => void
-  clearSelectedFeature: () => void
   selectedPlumeWatershedStats: PlumeWatershedStats | null
   setSelectedPlumeWatershedStats: (stats: PlumeWatershedStats | null) => void
+  clearSelectedFeature: () => void
+  clearSelectedPlumeWatershedStats: () => void
 }
 
 export const useSelectedFeatureStore = create<SelectedFeatureState>((set) => ({
@@ -35,4 +36,5 @@ export const useSelectedFeatureStore = create<SelectedFeatureState>((set) => ({
     set({ selectedFeature: minimal })
   },
   clearSelectedFeature: () => set({ selectedFeature: null }),
+  clearSelectedPlumeWatershedStats: () => set({ selectedPlumeWatershedStats: null }),
 }))
