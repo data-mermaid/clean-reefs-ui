@@ -19,6 +19,7 @@ type MapActions = {
   ) => void
   turnOffSedExportSubLayerFills: () => void
   setTopPolygonsFill: (layerId: string, polygonIds: number[], fillColors: string[]) => void
+  clearTopPolygonsFill: (layerId: string) => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -97,6 +98,14 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       map.setLayoutProperty('sed_export', 'visibility', 'none')
     }
     map.setPaintProperty('watershed', 'fill-color', transparent)
+  },
+  clearTopPolygonsFill: (layerId) => {
+    const state = get()
+    const map = state.mapReference?.getMap()
+    if (!map) {
+      return
+    }
+    map.setPaintProperty(layerId, 'fill-color', transparent)
   },
   setTopPolygonsFill: (layerId, polygonIds, fillColors) => {
     const state = get()
