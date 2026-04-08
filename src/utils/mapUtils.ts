@@ -136,11 +136,8 @@ export function createPolygonHoverHandler(hoveredRef: RefObject<string | number 
 export function createPolygonClickHandler(
   polygonClickedRef: RefObject<string | number | null>,
   onSelect?: (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => void,
-  setClickedPlumePoint?: (point: { lng: number; lat: number } | null) => void,
 ) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
-    const { clearSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
-    const { clearTopPolygonsFill } = useMapStore.getState()
     if (!e.features || e.features.length === 0) {
       return
     }
@@ -151,10 +148,6 @@ export function createPolygonClickHandler(
     if (!featureId) {
       return
     }
-
-    clearSelectedPlumeWatershedStats()
-    setClickedPlumePoint?.(null)
-    clearTopPolygonsFill('watershed')
 
     // Clicking an already-selected watershed recenters the map on it
     if (polygonClickedRef.current === featureId) {

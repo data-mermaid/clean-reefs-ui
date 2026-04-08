@@ -295,6 +295,10 @@ export default function BaseMap({
   const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
   const setMapRef = useMapStore((s) => s.setMapRef)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
+    (s) => s.clearSelectedPlumeWatershedStats,
+  )
 
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -315,6 +319,9 @@ export default function BaseMap({
       options?: { skipFitBounds?: boolean },
     ) => {
       setSelectedFeature(feature)
+      setClickedPlumePoint(null)
+      clearTopPolygonsFill('watershed')
+      clearSelectedPlumeWatershedStats()
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
@@ -362,13 +369,21 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
+    [
+      isDesktopWidth,
+      setBreadcrumb,
+      setSelectedFeature,
+      onRegionChange,
+      onWatershedChange,
+      clearSelectedPlumeWatershedStats,
+      clearTopPolygonsFill,
+    ],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect, setClickedPlumePoint),
-    [handleFeatureSelect, setClickedPlumePoint],
+    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
+    [handleFeatureSelect],
   )
 
   const handleMoveEnd = useCallback(
