@@ -11,15 +11,16 @@
     "area_exposed_ha": "Area exposed (ha)",
     "land_cover_pct": "Land cover (%)",
     "pollution_contribution": "Pollution contribution (%)",
-    "sediment_exposure": "Sediment exposure (Metric tons)"
+    "sediment_exposure": "Sediment exposure (tonnes)",
+    "sediment_load": "Sediment load (tonnes)"
   },
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
-    "land_use_historical": "Land use through time",
+    "land_use_historical": "Land use",
     "no_data_available": "No data available for selected region.",
-    "sediment_exposure_historical": "Sediment exposure through time",
-    "sediment_load_historical": "Sediment load through time"
+    "sediment_exposure_historical": "Sediment exposure",
+    "sediment_load_historical": "Sediment load"
   },
   "land_types": {
     "bare_ground": "Bare ground",
@@ -87,6 +88,7 @@
   "domestic_wastewater": "Domestic wastewater",
   "exposure": "Exposure",
   "global_trends": "Global trends",
+  "watershed_information": "Watershed Information",
   "google_satellite": "Google satellite",
   "high_concentration": "High concentration",
   "high_sediment": "High sediment",

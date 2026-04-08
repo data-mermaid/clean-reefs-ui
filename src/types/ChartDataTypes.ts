@@ -6,8 +6,10 @@ export interface ChartData {
 
 export type ChartSeriesName =
   | 'land_use_historical'
-  | 'sediment_exposure_historical'
   | 'ecosystem_extent_exposed'
+  | 'sediment_load_historical'
+  | 'sediment_exposure_historical'
+  | 'contributing_watersheds'
 
 export interface ChartSeriesConfig {
   [chartName: string]: {

@@ -54,6 +54,41 @@ export function clearPolygonHover(
   }
 }
 
+export function clearPolygonSelect(
+  map: Map,
+  clickRef: RefObject<string | number | null>,
+  mapDataLayer: LayerInfo,
+) {
+  if (clickRef.current) {
+    map.setFeatureState(
+      {
+        source: mapDataLayer.sourceId,
+        sourceLayer: mapDataLayer.sourceFileName,
+        id: clickRef.current,
+      },
+      { select: false },
+    )
+    clickRef.current = null
+  }
+}
+
+export function setPolygonSelect(
+  map: Map,
+  clickRef: RefObject<string | number | null>,
+  mapDataLayer: LayerInfo,
+  featureId: string | number,
+) {
+  clickRef.current = featureId
+  map.setFeatureState(
+    {
+      source: mapDataLayer.sourceId,
+      sourceLayer: mapDataLayer.sourceFileName,
+      id: featureId,
+    },
+    { select: true },
+  )
+}
+
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {
   return (map: Map, e: MapLayerMouseEvent, mapDataLayer: LayerInfo) => {
     if (!e.features || e.features.length === 0 || !e.features[0].id) {

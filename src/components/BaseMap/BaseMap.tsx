@@ -32,9 +32,11 @@ import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
   clearPolygonHover,
+  clearPolygonSelect,
   createPolygonClickHandler,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
+  setPolygonSelect,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -356,15 +358,7 @@ export default function BaseMap({
     if (!selectedFeature && polygonClickRef.current && isMapLoaded) {
       const map = mapRef.current?.getMap()
       if (map && watershedLayer) {
-        map.setFeatureState(
-          {
-            source: watershedLayer.sourceId,
-            sourceLayer: watershedLayer.sourceFileName,
-            id: polygonClickRef.current,
-          },
-          { select: false },
-        )
-        polygonClickRef.current = null
+        clearPolygonSelect(map, polygonClickRef, watershedLayer)
       }
     }
   }, [selectedFeature, isMapLoaded, watershedLayer])
@@ -403,15 +397,7 @@ export default function BaseMap({
           feature.source = watershedLayer.sourceId
         }
 
-        polygonClickRef.current = featureId
-        map.setFeatureState(
-          {
-            source: watershedLayer.sourceId,
-            sourceLayer: watershedLayer.sourceFileName,
-            id: featureId,
-          },
-          { select: true },
-        )
+        setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
 
         const bounds = calculateFeatureBounds(feature)
         handleFeatureSelect(feature, bounds, {

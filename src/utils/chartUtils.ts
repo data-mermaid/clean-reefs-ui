@@ -18,12 +18,12 @@ export interface LulcAndSedimentSeriesData {
     shrubland_grassland: object
     surface_water: object
   }
-  sediment_exposure_historical: {
+  sediment_load_historical: {
     sediment: object
   }
 }
 
-//The boundary PM tiles layers include data for land_use_historical and sediment_exposure_historical
+//The boundary PM tiles layers include data for land_use_historical and sediment_load_historical
 export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeriesData => {
   const chartSeriesData: LulcAndSedimentSeriesData = {
     land_use_historical: {
@@ -35,7 +35,7 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
       shrubland_grassland: {},
       surface_water: {},
     },
-    sediment_exposure_historical: {
+    sediment_load_historical: {
       sediment: {},
     },
   }
@@ -78,7 +78,7 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
           chartSeriesData.land_use_historical.surface_water[year] = val
           break
         case 'sed_export_':
-          chartSeriesData.sediment_exposure_historical.sediment[year] = val
+          chartSeriesData.sediment_load_historical.sediment[year] = val
           break
       }
     }
@@ -103,7 +103,7 @@ export const mapChartConfigToData = (
       : `${category}`
     const traceName: string = i18next.t(prefixedTrace)
     const hoverTemplate =
-      chartName === 'sediment_exposure_historical'
+      chartName === 'sediment_load_historical'
         ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
         : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
 
@@ -111,7 +111,7 @@ export const mapChartConfigToData = (
       type: 'bar',
       x: sortedYears,
       y:
-        chartName === 'sediment_exposure_historical'
+        chartName === 'sediment_load_historical'
           ? sortedYears.map((year) => yearData[year] / 1000000)
           : sortedYears.map((year) => yearData[year]),
       name: i18next.t(prefixedTrace),
@@ -131,34 +131,41 @@ export const mapChartConfigToData = (
   } as ChartProperties
 }
 
-export const updateChartData = (
-  feature: MapGeoJSONFeature,
-  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
-) => {
-  let chartSeriesData
-  //1. get data from appropriate source
-  if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
-    chartSeriesData = getBoundaryFileChartData(feature.properties)
-    //more sources to go here
-  }
-  if (!chartSeriesData) {
-    setChartData(null)
-    return
-  }
+export const buildChartDataFromProperties = (
+  properties: Record<string, unknown>,
+): ChartProperties[] | null => {
+  const chartSeriesData = getBoundaryFileChartData(properties)
+
   const hasData = Object.values(chartSeriesData).some((series) =>
     Object.values(series as Record<string, object>).some(
       (yearData) => Object.keys(yearData).length > 0,
     ),
   )
   if (!hasData) {
+    return null
+  }
+
+  return Object.entries(chartSeriesData).map((dataSet) =>
+    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
+  )
+}
+
+export const updateChartData = (
+  feature: MapGeoJSONFeature,
+  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
+) => {
+  let properties: Record<string, unknown> | undefined
+  //1. get data from appropriate source
+  if (['countries_src', 'regions_src', 'watershed_src'].includes(feature.source)) {
+    properties = feature.properties as Record<string, unknown>
+    //more sources to go here
+  }
+  if (!properties) {
     setChartData(null)
     return
   }
 
-  //2. map data to chart config data
-  const mappedData: ChartProperties[] = Object.entries(chartSeriesData).map((dataSet) =>
-    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
-  )
+  const mappedData = buildChartDataFromProperties(properties)
 
   //3. set data
   setChartData(mappedData)

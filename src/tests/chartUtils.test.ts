@@ -14,7 +14,7 @@ const groupedProperties: LulcAndSedimentSeriesData = {
     shrubland_grassland: { '2020': 6 },
     surface_water: { '2000': 1 },
   },
-  sediment_exposure_historical: {
+  sediment_load_historical: {
     sediment: {},
   },
 }
@@ -37,7 +37,7 @@ const emptyChartSeriesData: LulcAndSedimentSeriesData = {
     shrubland_grassland: {},
     surface_water: {},
   },
-  sediment_exposure_historical: {
+  sediment_load_historical: {
     sediment: {},
   },
 }
@@ -166,7 +166,7 @@ describe('chart data utilities', () => {
         barmode: 'stack',
         tracePrefix: 'land_use',
       },
-      'charts.sediment_exposure_historical': {
+      'charts.sediment_load_historical': {
         xAxisTitle: 'chart_information.year',
         yAxisTitle: 'chart_information.sediment_export',
         legendColors: {
@@ -270,7 +270,7 @@ describe('chart data utilities', () => {
       })
     })
 
-    describe('sediment_exposure_historical special handling', () => {
+    describe('sediment_load_historical special handling', () => {
       it('should divide values by 1000000 for sediment data', () => {
         const mockData: ChartData = {
           sediment: {
@@ -279,7 +279,7 @@ describe('chart data utilities', () => {
           },
         }
 
-        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+        const result = mapChartConfigToData(mockData, 'sediment_load_historical')
 
         expect(result.chartSeriesData[0].y).toEqual([3, 5])
       })
@@ -289,7 +289,7 @@ describe('chart data utilities', () => {
           sediment: { '2020': 1000000 },
         }
 
-        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+        const result = mapChartConfigToData(mockData, 'sediment_load_historical')
 
         expect(result.chartSeriesData[0].hovertemplate).toContain('%{y:.2f}T')
         expect(result.chartSeriesData[0].hovertemplate).not.toContain('%{y}%')
@@ -324,7 +324,7 @@ describe('chart data utilities', () => {
           sediment: { '2020': 1000000 },
         }
 
-        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+        const result = mapChartConfigToData(mockData, 'sediment_load_historical')
 
         expect(i18next.t).toHaveBeenCalledWith('sediment')
         expect(result.chartSeriesData[0].name).toBe('Sediment')
@@ -349,7 +349,7 @@ describe('chart data utilities', () => {
           sediment: { '2020': 1000000 },
         }
 
-        const result = mapChartConfigToData(mockData, 'sediment_exposure_historical')
+        const result = mapChartConfigToData(mockData, 'sediment_load_historical')
 
         expect(result.chartSeriesData[0].width).toBe(0.6)
       })

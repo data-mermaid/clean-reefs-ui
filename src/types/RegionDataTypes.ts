@@ -8,4 +8,4 @@ export interface RegionOption {
   zoomLevel: number
   grouping: number //0+, used to denote what level in breadcrumb hierarchy
 }
-type RegionType = 'global' | 'watershed' | 'country' | 'region' | 'plume'
+export type RegionType = 'global' | 'watershed' | 'country' | 'region' | 'plume'
