@@ -5,6 +5,34 @@ import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
 import { PlotData } from 'plotly.js'
+import { RegionType } from '../types/RegionDataTypes'
+
+export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): string {
+  if (regionType === 'global') {
+    return 'global_trends'
+  }
+  if (regionType === 'watershed') {
+    return 'watershed_information'
+  }
+  if (regionType === 'plume') {
+    return 'ocean_pollution'
+  }
+  return fallbackLabel
+}
+
+export function getEffectiveRegionType(
+  selectedPlumeWatershedStats: Record<number, ZonalStatsBand> | null,
+  selectedFeatureSource: string | undefined,
+  regionType: RegionType,
+): RegionType {
+  if (selectedPlumeWatershedStats) {
+    return 'plume'
+  }
+  if (selectedFeatureSource === 'watershed_src') {
+    return 'watershed'
+  }
+  return regionType
+}
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -117,12 +145,11 @@ export const mapChartConfigToPlumeData = (
     .reverse()
     .map(([key, band]) => {
       const name = i18next.t(`charts.${key}`)
-      const polutionPercentage = i18next.t('chart_information.pollution')
 
       return {
         type: 'bar',
         marker: { color: watershedConfig.legendColors[key] },
-        hovertemplate: `${watershedXAxisTitle}: %{x}<br />${polutionPercentage}: %{y}%<extra></extra>`,
+        hovertemplate: `${watershedXAxisTitle}: %{x}<br />${name}: %{y}%<extra></extra>`,
         name,
         width: watershedConfig.width,
         x: plumeStatsValue.map(([year]) => year),

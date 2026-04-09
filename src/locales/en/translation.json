@@ -12,8 +12,7 @@
     "land_cover_pct": "Land cover (%)",
     "pollution_contribution": "Pollution contribution (%)",
     "sediment_exposure": "Sediment exposure (tonnes)",
-    "sediment_load": "Sediment load (tonnes)",
-    "pollution": "Polution"
+    "sediment_load": "Sediment load (tonnes)"
   },
 
   "charts": {
@@ -62,7 +61,8 @@
     "no_regions_match": "No regions match your search",
     "region": "Region",
     "select_region": "Select region",
-    "watershed": "Watershed"
+    "watershed": "Watershed",
+    "plume": "Plume"
   },
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -115,5 +115,6 @@
   "year": "Year",
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_year": "Select year",
-  "map_layers_did_not_load": "Some map layers didn't load"
+  "map_layers_did_not_load": "Some map layers didn't load",
+  "ocean_pollution": "Ocean Pollution"
 }
