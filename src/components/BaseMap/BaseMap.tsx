@@ -24,6 +24,7 @@ import maplibregl, {
   ErrorEvent as MapErrorEvent,
   LngLatBounds,
   MapGeoJSONFeature,
+  LngLat,
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
@@ -99,6 +100,7 @@ const handleMapClick = async (
   map,
   selectedYear: number,
   setClickedPlumePoint: (point: { lng: number; lat: number } | null) => void,
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>,
 ) => {
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
@@ -112,6 +114,17 @@ const handleMapClick = async (
 
   clearSelectedFeature()
   setClickedPlumePoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
+
+  const subRegionWithUpdatedConfig: RegionOption = {
+    id: 'plume',
+    regionType: 'plume',
+    label: 'Plumes',
+    centerCoord: new LngLat(e.lngLat.lng, e.lngLat.lat),
+    zoomLevel: map.getZoom(),
+    grouping: 3,
+  }
+  const updatedRegions: RegionOption[] = [defaultGlobalRegionOption, subRegionWithUpdatedConfig]
+  setBreadcrumb(updatedRegions)
 
   const currentAllYearZonalStats = await getAllYearZonalStats(e.lngLat)
   setSelectedPlumeWatershedStats(currentAllYearZonalStats)
@@ -438,7 +451,7 @@ export default function BaseMap({
       return
     }
 
-    const onClick = (e) => handleMapClick(e, map, selectedYear, setClickedPlumePoint)
+    const onClick = (e) => handleMapClick(e, map, selectedYear, setClickedPlumePoint, setBreadcrumb)
     const onError = (e) => handleError(e, setLayerErrors)
     const onSourceData = (e) => handleSourceData(e, setLayerErrors)
 
@@ -452,7 +465,7 @@ export default function BaseMap({
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
     }
-  }, [isMapLoaded, selectedYear])
+  }, [isMapLoaded, selectedYear, setBreadcrumb])
 
   const watershedIndex = useMemo(
     () => mapLayers.findIndex((l) => l.layerId === 'watershed'),

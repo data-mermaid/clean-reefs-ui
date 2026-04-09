@@ -11,14 +11,17 @@ import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
-import {
-  buildChartDataFromProperties,
-  updateChartData,
-  updatePlumeChartData,
-} from '../../utils/chartUtils'
+
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
 import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
+import {
+  buildChartDataFromProperties,
+  getDrawerTitle,
+  getEffectiveRegionType,
+  updateChartData,
+  updatePlumeChartData,
+} from '../../utils/chartUtils'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
@@ -42,32 +45,31 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
   useEffect(() => {
+    setIsChartDataLoading(true)
     const { regionType, label } = selectedRegion
 
-    if (regionType === 'global') {
+    if (selectedPlumeWatershedStats) {
+      updatePlumeChartData(selectedPlumeWatershedStats, setChartConfigData)
       setIsChartDataLoading(false)
+      return
+    }
+
+    if (regionType === 'global') {
       setChartConfigData(tempGlobalChartSeriesData)
+      setIsChartDataLoading(false)
       return
     }
 
     // Watershed: selectedFeature from map click takes priority
     if (selectedFeature) {
-      setIsChartDataLoading(true)
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
       setIsChartDataLoading(false)
-      return
-    }
-
-    if (selectedPlumeWatershedStats) {
-      setIsChartDataLoading(false)
-      updatePlumeChartData(selectedPlumeWatershedStats, setChartConfigData)
       return
     }
 
     // Region/country: fetch directly from PMTiles
     if (regionType === 'region' || regionType === 'country') {
       const requestId = ++requestIdRef.current
-      setIsChartDataLoading(true)
 
       fetchBoundaryProperties(regionType, label).then((properties) => {
         if (requestId !== requestIdRef.current) {
@@ -80,25 +82,23 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
       return
     }
 
-    setIsChartDataLoading(false)
     setChartConfigData(null)
+    setIsChartDataLoading(false)
   }, [selectedFeature, selectedRegion, selectedPlumeWatershedStats])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
-  const effectiveRegionType =
-    selectedFeature?.source === 'watershed_src' ? 'watershed' : selectedRegion.regionType
+  const effectiveRegionType = getEffectiveRegionType(
+    selectedPlumeWatershedStats,
+    selectedFeature?.source,
+    selectedRegion.regionType,
+  )
+
+  const drawerTitle = getDrawerTitle(effectiveRegionType, selectedRegion.label)
   const allowedCharts = chartsByRegionType[effectiveRegionType]
   const filteredChartData = chartConfigData?.filter((chart) =>
     allowedCharts.includes(chart.chartName as ChartSeriesName),
   )
-
-  let drawerTitle = selectedRegion.label
-  if (effectiveRegionType === 'global') {
-    drawerTitle = 'global_trends'
-  } else if (effectiveRegionType === 'watershed') {
-    drawerTitle = 'watershed_information'
-  }
 
   return (
     <StyledSwipeableDrawer
