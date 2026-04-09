@@ -135,13 +135,13 @@ const handleMapClick = async (
   const exampleTopWatershedIds = [974529, 977314, 977908]
 
   for (let i = 2; i < 5; i++) {
-    if (topContributingWatershedIds.indexOf(currentYearZonalStats[`band_${i}`]?.majority) < 0) {
-      topContributingWatershedIds.push(currentYearZonalStats[`band_${i}`]?.majority)
+    const watershedId = currentYearZonalStats[`band_${i}`]?.majority
+    if (typeof watershedId === 'number' && topContributingWatershedIds.indexOf(watershedId) < 0) {
+      topContributingWatershedIds.push(watershedId)
     }
   }
 
-  const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
-  setTopPolygonsFill('watershed', exampleTopWatershedIds, topContributingWatershedColorFills)
+  setTopPolygonsFill('watershed', exampleTopWatershedIds) //TODO: replace with topContributingWatershedIds when real stats are available
 }
 
 function WatershedLayers({ layer, index }) {

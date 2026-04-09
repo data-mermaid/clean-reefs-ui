@@ -2,11 +2,13 @@ import { create } from 'zustand'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
 import { getUpdatedBenthicColor } from '../utils/mapUtils'
+import { topContributingWatershedColorFills } from '../constants'
 
 type MapState = {
   mapReference: MapRef | null
   benthicMapSubLayerColors: Record<string, string>
   sedExportMapSubLayerColors: Record<string, string>
+  topWatershedIds: number[]
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -18,7 +20,8 @@ type MapActions = {
     selectedYear: number,
   ) => void
   turnOffSedExportSubLayerFills: () => void
-  setTopPolygonsFill: (layerId: string, polygonIds: number[], fillColors: string[]) => void
+  setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
+  setTopWatershedIds: (polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
 }
 
@@ -27,6 +30,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setMapRef: (mapRef) => set({ mapReference: mapRef }),
   benthicMapSubLayerColors: atlasBenthicColors,
   sedExportMapSubLayerColors: sedExportColorMapping,
+  topWatershedIds: [],
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
   setSedExportMapSubLayerColors: (colors) => set({ sedExportMapSubLayerColors: colors }),
   toggleSubLayerFillColor: (toggledProperty) => {
@@ -62,28 +66,54 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       )
     }
 
+    const topWatershedFillExpression =
+      state.topWatershedIds.length >= 3
+        ? ([
+            'match',
+            ['get', 'watershed_id'],
+            state.topWatershedIds[0],
+            topContributingWatershedColorFills[0],
+            state.topWatershedIds[1],
+            topContributingWatershedColorFills[1],
+            state.topWatershedIds[2],
+            topContributingWatershedColorFills[2],
+          ] as const)
+        : null
+
+    const watershedSedExportThresholdFillExpression = [
+      'match',
+      ['get', `export_threshold_${regionLevel}_${selectedYear}`],
+      '0',
+      sedExportColorMapping['0'],
+      '1-10',
+      sedExportColorMapping['1-10'],
+      '10-20',
+      sedExportColorMapping['10-20'],
+      '20-50',
+      sedExportColorMapping['20-50'],
+      '50-75',
+      sedExportColorMapping['50-75'],
+      '75-90',
+      sedExportColorMapping['75-90'],
+      '90-100',
+      sedExportColorMapping['90-100'],
+      transparent,
+    ] as const
+
     if (subLayerToggledOn === 'watershed') {
-      map.setPaintProperty('watershed', 'fill-color', [
-        'match',
-        ['get', `export_threshold_${regionLevel}_${selectedYear}`],
-        '0',
-        sedExportColorMapping['0'],
-        '1-10',
-        sedExportColorMapping['1-10'],
-        '10-20',
-        sedExportColorMapping['10-20'],
-        '20-50',
-        sedExportColorMapping['20-50'],
-        '50-75',
-        sedExportColorMapping['50-75'],
-        '75-90',
-        sedExportColorMapping['75-90'],
-        '90-100',
-        sedExportColorMapping['90-100'],
-        transparent, // default
-      ])
+      map.setPaintProperty(
+        'watershed',
+        'fill-color',
+        topWatershedFillExpression
+          ? [...topWatershedFillExpression, watershedSedExportThresholdFillExpression]
+          : watershedSedExportThresholdFillExpression,
+      )
     } else {
-      map.setPaintProperty('watershed', 'fill-color', transparent)
+      map.setPaintProperty(
+        'watershed',
+        'fill-color',
+        topWatershedFillExpression ? [...topWatershedFillExpression, transparent] : transparent,
+      )
     }
   },
   turnOffSedExportSubLayerFills: () => {
@@ -97,7 +127,22 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     if (pixelLayer) {
       map.setLayoutProperty('sed_export', 'visibility', 'none')
     }
-    map.setPaintProperty('watershed', 'fill-color', transparent)
+    const topWatershedFillExpression =
+      state.topWatershedIds.length >= 3
+        ? ([
+            'match',
+            ['get', 'watershed_id'],
+            state.topWatershedIds[0],
+            topContributingWatershedColorFills[0],
+            state.topWatershedIds[1],
+            topContributingWatershedColorFills[1],
+            state.topWatershedIds[2],
+            topContributingWatershedColorFills[2],
+            transparent,
+          ] as const)
+        : transparent
+
+    map.setPaintProperty('watershed', 'fill-color', topWatershedFillExpression)
   },
   clearTopPolygonsFill: (layerId) => {
     const state = get()
@@ -107,7 +152,10 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     map.setPaintProperty(layerId, 'fill-color', transparent)
   },
-  setTopPolygonsFill: (layerId, polygonIds, fillColors) => {
+  setTopWatershedIds: (polygonIds) => {
+    set({ topWatershedIds: polygonIds })
+  },
+  setTopPolygonsFill: (layerId, polygonIds) => {
     const state = get()
     const map = state.mapReference?.getMap()
 
@@ -115,15 +163,19 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
+    if (layerId === 'watershed') {
+      set({ topWatershedIds: polygonIds })
+    }
+
     map.setPaintProperty(layerId, 'fill-color', [
       'match',
       ['get', 'watershed_id'],
       polygonIds[0],
-      fillColors[0],
+      topContributingWatershedColorFills[0],
       polygonIds[1],
-      fillColors[1],
+      topContributingWatershedColorFills[1],
       polygonIds[2],
-      fillColors[2],
+      topContributingWatershedColorFills[2],
       transparent,
     ])
   },
