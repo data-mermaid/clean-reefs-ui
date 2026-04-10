@@ -296,7 +296,7 @@ export async function postZonalStats(payload) {
 
     return await response.json()
   } catch (err) {
-    throw new Error(`HTTP error: ${err}`)
+    throw new Error('Zonal stats request failed', { cause: err })
   }
 }
 
