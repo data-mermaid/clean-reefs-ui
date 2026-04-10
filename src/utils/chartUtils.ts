@@ -1,9 +1,38 @@
 import i18next from 'i18next'
 import { ChartData, ChartProperties, ChartSeriesName } from '../types/ChartDataTypes'
+import { ZonalStatsBand } from '../types/MapDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
 import { PlotData } from 'plotly.js'
+import { RegionType } from '../types/RegionDataTypes'
+
+export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): string {
+  if (regionType === 'global') {
+    return 'global_trends'
+  }
+  if (regionType === 'watershed') {
+    return 'watershed_information'
+  }
+  if (regionType === 'plume') {
+    return 'ocean_pollution'
+  }
+  return fallbackLabel
+}
+
+export function getEffectiveRegionType(
+  selectedPlumeWatershedStats: Record<number, ZonalStatsBand> | null,
+  selectedFeatureSource: string | undefined,
+  regionType: RegionType,
+): RegionType {
+  if (selectedPlumeWatershedStats) {
+    return 'plume'
+  }
+  if (selectedFeatureSource === 'watershed_src') {
+    return 'watershed'
+  }
+  return regionType
+}
 
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
@@ -84,6 +113,81 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
     }
   }
   return chartSeriesData
+}
+
+type PlumeStatsEntries = [string, ZonalStatsBand][]
+
+export const mapChartConfigToPlumeData = (
+  plumeStatsValue: PlumeStatsEntries,
+): ChartProperties[] => {
+  const sedimentChartName = 'sediment_exposure_historical'
+  const sedimentConfig = chartSeriesConfig[`charts.${sedimentChartName}`]
+  const sedXAxisTitle = i18next.t(sedimentConfig.xAxisTitle)
+
+  const watershedsChartName = 'contributing_watersheds'
+  const watershedConfig = chartSeriesConfig[`charts.${watershedsChartName}`]
+  const watershedXAxisTitle = i18next.t(watershedConfig.xAxisTitle)
+
+  const watershedBandMap: Record<string, string> = {
+    w1: 'band_5',
+    w2: 'band_6',
+    w3: 'band_7',
+  }
+
+  const sedimentTraceName = i18next.t('land_types.sediment')
+  const sedimentBar: Partial<PlotData>[] = [
+    {
+      type: 'bar',
+      marker: { color: sedimentConfig.legendColors.sediment },
+      hovertemplate: `${sedXAxisTitle}: %{x}<br />${sedimentTraceName}: %{y:.2f}T<extra></extra>`,
+      name: sedimentTraceName,
+      width: sedimentConfig.width,
+      x: plumeStatsValue.map(([year]) => year),
+      y: plumeStatsValue.map(([, stats]) => stats?.band_1?.majority ?? 0),
+    },
+  ]
+
+  const watershedBars: Partial<PlotData>[] = Object.entries(watershedBandMap)
+    .reverse()
+    .map(([key, band]) => {
+      const name = i18next.t(`charts.${key}`)
+
+      return {
+        type: 'bar',
+        marker: { color: watershedConfig.legendColors[key] },
+        hovertemplate: `${watershedXAxisTitle}: %{x}<br />${name}: %{y}%<extra></extra>`,
+        name,
+        width: watershedConfig.width,
+        x: plumeStatsValue.map(([year]) => year),
+        y: plumeStatsValue.map(([, stats]) => stats?.[band]?.majority ?? 0),
+      }
+    })
+
+  return [
+    {
+      barmode: sedimentConfig.barmode ?? 'group',
+      chartName: i18next.t(sedimentChartName),
+      chartSeriesData: sedimentBar,
+      xAxisTitle: sedXAxisTitle,
+      yAxisTitle: i18next.t(sedimentConfig.yAxisTitle),
+    },
+    {
+      barmode: watershedConfig.barmode ?? 'stack',
+      chartName: i18next.t(watershedsChartName),
+      chartSeriesData: watershedBars,
+      xAxisTitle: watershedXAxisTitle,
+      yAxisTitle: i18next.t(watershedConfig.yAxisTitle),
+    },
+  ]
+}
+
+export const updatePlumeChartData = (
+  plumeStats: Record<string, ZonalStatsBand>,
+  setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
+) => {
+  const plumeStatsValue: PlumeStatsEntries = Object.entries(plumeStats)
+  const plumeMappedData = mapChartConfigToPlumeData(plumeStatsValue)
+  setChartData(plumeMappedData)
 }
 
 export const mapChartConfigToData = (
@@ -169,4 +273,32 @@ export const updateChartData = (
 
   //3. set data
   setChartData(mappedData)
+}
+
+export const formatForFilename = (value: string): string => {
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+}
+
+export const buildExportFilename = (
+  regionType: string,
+  regionLabel: string,
+  chartTitle: string,
+  selectedYear?: number,
+): string => {
+  const parts = [regionType]
+
+  if (regionType !== 'global' && regionLabel) {
+    parts.push(formatForFilename(regionLabel))
+  }
+
+  parts.push(formatForFilename(chartTitle))
+
+  if (selectedYear !== undefined) {
+    parts.push(String(selectedYear))
+  }
+
+  return parts.join('-')
 }

@@ -6,11 +6,13 @@ import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
+import { buildExportFilename } from '../../utils/chartUtils'
 
 interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
+  regionLabel?: string
   selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
@@ -51,6 +53,7 @@ export default function ChartCard({
   open = true,
   onClick,
   regionType = 'global',
+  regionLabel = '',
   selectedYear,
   chartConfigData,
   isChartDataLoading,
@@ -81,6 +84,21 @@ export default function ChartCard({
     [chartConfigData, selectedYear],
   )
 
+  const plotConfig = useMemo(() => {
+    const chartTitle = chartConfigData ? t(`charts.${chartConfigData.chartName}`) : ''
+    const filename = chartConfigData
+      ? buildExportFilename(regionType, regionLabel, chartTitle, selectedYear)
+      : 'chart-export'
+
+    return {
+      ...plotlyTheme.config,
+      toImageButtonOptions: {
+        format: 'png' as const,
+        filename,
+      },
+    }
+  }, [regionType, regionLabel, chartConfigData, selectedYear, t])
+
   const renderChartContent = () => {
     if (isChartDataLoading) {
       return <LoadingState isOverlay={false} />
@@ -109,7 +127,7 @@ export default function ChartCard({
               }
             })}
             className={styles['chart-card__plot']}
-            config={plotlyTheme.config}
+            config={plotConfig}
             layout={{
               ...plotlyTheme.layout,
               barmode: chartConfigData.barmode,
