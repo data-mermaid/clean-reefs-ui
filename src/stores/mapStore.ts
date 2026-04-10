@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
-import { getUpdatedBenthicColor } from '../utils/mapUtils'
-import { topContributingWatershedColorFills } from '../constants'
+import { buildWatershedMatchExpression, getUpdatedBenthicColor } from '../utils/mapUtils'
 
 type MapState = {
   mapReference: MapRef | null
@@ -66,20 +65,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       )
     }
 
-    const topWatershedFillExpression =
-      state.topWatershedIds.length >= 3
-        ? ([
-            'match',
-            ['get', 'watershed_id'],
-            state.topWatershedIds[0],
-            topContributingWatershedColorFills[0],
-            state.topWatershedIds[1],
-            topContributingWatershedColorFills[1],
-            state.topWatershedIds[2],
-            topContributingWatershedColorFills[2],
-          ] as const)
-        : null
-
     const watershedSedExportThresholdFillExpression = [
       'match',
       ['get', `export_threshold_${regionLevel}_${selectedYear}`],
@@ -104,15 +89,16 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       map.setPaintProperty(
         'watershed',
         'fill-color',
-        topWatershedFillExpression
-          ? [...topWatershedFillExpression, watershedSedExportThresholdFillExpression]
-          : watershedSedExportThresholdFillExpression,
+        buildWatershedMatchExpression(
+          state.topWatershedIds,
+          watershedSedExportThresholdFillExpression,
+        ),
       )
     } else {
       map.setPaintProperty(
         'watershed',
         'fill-color',
-        topWatershedFillExpression ? [...topWatershedFillExpression, transparent] : transparent,
+        buildWatershedMatchExpression(state.topWatershedIds, transparent),
       )
     }
   },
@@ -127,33 +113,26 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     if (pixelLayer) {
       map.setLayoutProperty('sed_export', 'visibility', 'none')
     }
-    const topWatershedFillExpression =
-      state.topWatershedIds.length >= 3
-        ? ([
-            'match',
-            ['get', 'watershed_id'],
-            state.topWatershedIds[0],
-            topContributingWatershedColorFills[0],
-            state.topWatershedIds[1],
-            topContributingWatershedColorFills[1],
-            state.topWatershedIds[2],
-            topContributingWatershedColorFills[2],
-            transparent,
-          ] as const)
-        : transparent
 
-    map.setPaintProperty('watershed', 'fill-color', topWatershedFillExpression)
+    map.setPaintProperty(
+      'watershed',
+      'fill-color',
+      buildWatershedMatchExpression(state.topWatershedIds, transparent),
+    )
+  },
+  setTopWatershedIds: (polygonIds) => {
+    set({ topWatershedIds: polygonIds })
   },
   clearTopPolygonsFill: (layerId) => {
     const state = get()
     const map = state.mapReference?.getMap()
+
     if (!map) {
       return
     }
+
+    set({ topWatershedIds: [] })
     map.setPaintProperty(layerId, 'fill-color', transparent)
-  },
-  setTopWatershedIds: (polygonIds) => {
-    set({ topWatershedIds: polygonIds })
   },
   setTopPolygonsFill: (layerId, polygonIds) => {
     const state = get()
@@ -163,20 +142,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    if (layerId === 'watershed') {
-      set({ topWatershedIds: polygonIds })
-    }
-
-    map.setPaintProperty(layerId, 'fill-color', [
-      'match',
-      ['get', 'watershed_id'],
-      polygonIds[0],
-      topContributingWatershedColorFills[0],
-      polygonIds[1],
-      topContributingWatershedColorFills[1],
-      polygonIds[2],
-      topContributingWatershedColorFills[2],
-      transparent,
-    ])
+    set({ topWatershedIds: polygonIds })
+    map.setPaintProperty(
+      layerId,
+      'fill-color',
+      buildWatershedMatchExpression(polygonIds, transparent),
+    )
   },
 }))
