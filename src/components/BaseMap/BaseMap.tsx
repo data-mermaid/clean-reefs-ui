@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  RefObject,
   SetStateAction,
   useCallback,
   useEffect,
@@ -61,13 +62,16 @@ import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
+const getRegionByLabel = (regionLabel: string | undefined) =>
+  regionOptions.find((opt) => opt.label === regionLabel)
 
 const buildBreadcrumb = (
   featureProperties: Record<string, unknown> | null | undefined,
   subRegion: RegionOption,
 ): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegion = featureProperties?.TERRITORY1 || featureProperties?.REALM
+  const countryOrRegion = (featureProperties?.TERRITORY1 || featureProperties?.REALM) as
+    | string
+    | undefined
   const addtlRegion = getRegionByLabel(countryOrRegion)
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
   if (addtlRegion) {
@@ -116,10 +120,12 @@ interface HandleMapClickParamProps {
   selectedYear: number
   setClickedPlumePoint: (point: { lng: number; lat: number } | null) => void
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  requestIdRef: RefObject<number>
 }
 
 const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParamProps) => {
-  const { map, watershedLayer, selectedYear, setClickedPlumePoint, setBreadcrumb } = clickParams
+  const { map, watershedLayer, selectedYear, setClickedPlumePoint, setBreadcrumb, requestIdRef } =
+    clickParams
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
   const { clearSelectedFeature } = useSelectedFeatureStore.getState()
@@ -127,7 +133,13 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   clearSelectedFeature()
   setClickedPlumePoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
 
+  const requestId = ++requestIdRef.current
   const currentAllYearZonalStats = await getAllYearZonalStats(e.lngLat)
+
+  if (requestId !== requestIdRef.current) {
+    return
+  }
+
   setSelectedPlumeWatershedStats(currentAllYearZonalStats)
 
   const currentYearZonalStats = currentAllYearZonalStats[selectedYear]
@@ -329,6 +341,8 @@ export default function BaseMap({
   const polygonClickRef = useRef<string | number | null>(null)
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
+  // Tracks the latest plume click fetch so earlier, slower responses don't overwrite newer ones.
+  const plumeRequestIdRef = useRef(0)
 
   const mapLayersLoadingError = useMemo(() => {
     return Object.keys(layerErrors).length > 0
@@ -590,6 +604,7 @@ export default function BaseMap({
         selectedYear,
         setClickedPlumePoint,
         setBreadcrumb,
+        requestIdRef: plumeRequestIdRef,
       })
 
     polygonHoverBoundRef.current = onWatershedHover
