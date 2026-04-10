@@ -17,9 +17,8 @@ import {
   SEDIMENT_EXPOSURE_2010_URL,
   SEDIMENT_EXPOSURE_2015_URL,
   SEDIMENT_EXPOSURE_2020_URL,
+  topContributingWatershedColorFills,
 } from '../constants'
-import { useSelectedFeatureStore } from '../stores/selectedFeatureStore'
-import { useMapStore } from '../stores/mapStore'
 
 export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
@@ -254,6 +253,21 @@ export function querySourceFeatureWhenReady(
   const timeoutId = setTimeout(() => settle(null), timeoutMs)
 
   return () => settle(null)
+}
+
+/**
+ * Builds a MapLibre `match` expression that assigns a colour to each watershed ID.
+ * Falls back to `fallback` for any ID not in the list, or when `ids` is empty.
+ */
+export function buildWatershedMatchExpression(
+  ids: number[],
+  fallback: string | readonly unknown[],
+): unknown {
+  if (ids.length === 0) {
+    return fallback
+  }
+  const pairs = ids.flatMap((id, i) => [id, topContributingWatershedColorFills[i]])
+  return ['match', ['get', 'watershed_id'], ...pairs, fallback]
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
