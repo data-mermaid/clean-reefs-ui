@@ -14,3 +14,22 @@
 :global(.maplibregl-ctrl-bottom-right) {
   right: theme.$drawerWidth;
 }
+
+.plume-marker {
+  width: 15px;
+  height: 15px;
+  border: 2px solid theme.$accentBlue;
+  border-radius: 5px;
+  background: transparent;
+  pointer-events: none;
+}
+
+.snackbar-reload-button {
+  background: none;
+  border: none;
+  color: theme.$white;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: theme.$regular;
+  padding-right: theme.$defaultSpacing;
+}
