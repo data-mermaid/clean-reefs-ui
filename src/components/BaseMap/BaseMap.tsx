@@ -49,7 +49,6 @@ import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
-  oceanClickMarkerColor,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
 } from '../../constants'
@@ -653,16 +652,7 @@ export default function BaseMap({
             latitude={clickedPlumePoint.lat}
             anchor="center"
           >
-            <div
-              style={{
-                width: 15,
-                height: 15,
-                border: `2px solid ${oceanClickMarkerColor}`,
-                borderRadius: 5,
-                background: 'transparent',
-                pointerEvents: 'none',
-              }}
-            />
+            <div className={styles['plume-marker']} />
           </Marker>
         )}
         {/* Watershed always rendered first so other layers can reference it via beforeId */}
@@ -771,15 +761,7 @@ export default function BaseMap({
         action={
           <button
             type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontWeight: 'normal',
-              paddingRight: '10px',
-            }}
+            className={styles['snackbar-reload-button']}
             onClick={() => window.location.reload()}
           >
             {t('buttons.reload_page')}
