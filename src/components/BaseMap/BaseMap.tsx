@@ -25,6 +25,7 @@ import maplibregl, {
   LngLatBounds,
   MapGeoJSONFeature,
   LngLat,
+  MapMouseEvent,
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
@@ -62,6 +63,20 @@ const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
 
+const buildBreadcrumb = (
+  featureProperties: Record<string, unknown> | null | undefined,
+  subRegion: RegionOption,
+): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
+  const countryOrRegion = featureProperties?.TERRITORY1 || featureProperties?.REALM
+  const addtlRegion = getRegionByLabel(countryOrRegion)
+  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
+  if (addtlRegion) {
+    breadcrumb.push(addtlRegion)
+  }
+  breadcrumb.push(subRegion)
+  return { breadcrumb, addtlRegion }
+}
+
 const handleSourceData = (
   e: SourceDataEvent,
   setLayerErrors: Dispatch<SetStateAction<Record<string, string>>>,
@@ -95,44 +110,28 @@ const handleError = (
   }))
 }
 
-const handleMapClick = async (
-  e,
-  map,
-  selectedYear: number,
-  setClickedPlumePoint: (point: { lng: number; lat: number } | null) => void,
-  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>,
-) => {
+interface HandleMapClickParamProps {
+  map: maplibregl.Map
+  watershedLayer: LayerInfo
+  selectedYear: number
+  setClickedPlumePoint: (point: { lng: number; lat: number } | null) => void
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+}
+
+const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParamProps) => {
+  const { map, watershedLayer, selectedYear, setClickedPlumePoint, setBreadcrumb } = clickParams
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
   const { clearSelectedFeature } = useSelectedFeatureStore.getState()
 
-  const plumeFeatures = map.queryRenderedFeatures(e.point, { layers: ['plumes'] })
-
-  if (plumeFeatures.length === 0) {
-    return
-  }
-
   clearSelectedFeature()
   setClickedPlumePoint({ lng: e.lngLat.lng, lat: e.lngLat.lat })
-
-  const subRegionWithUpdatedConfig: RegionOption = {
-    id: 'plume',
-    regionType: 'plume',
-    label: 'Plumes',
-    centerCoord: new LngLat(e.lngLat.lng, e.lngLat.lat),
-    zoomLevel: map.getZoom(),
-    grouping: 3,
-  }
-  const updatedRegions: RegionOption[] = [defaultGlobalRegionOption, subRegionWithUpdatedConfig]
-  setBreadcrumb(updatedRegions)
 
   const currentAllYearZonalStats = await getAllYearZonalStats(e.lngLat)
   setSelectedPlumeWatershedStats(currentAllYearZonalStats)
 
   const currentYearZonalStats = currentAllYearZonalStats[selectedYear]
   const topContributingWatershedIds: number[] = []
-  // TODO: example ids used temporarily - actual zonal stats ids are not yet synced with watershed polygon ids
-  const exampleTopWatershedIds = [974529, 977314, 977908]
 
   for (let i = 2; i < 5; i++) {
     const watershedId = currentYearZonalStats[`band_${i}`]?.majority
@@ -141,6 +140,23 @@ const handleMapClick = async (
     }
   }
 
+  // TODO: replace with topContributingWatershedIds when real stats are available
+  const exampleTopWatershedIds = [974529, 977314, 977908]
+
+  const watershedFeatures = map.querySourceFeatures(watershedLayer.sourceId, {
+    sourceLayer: watershedLayer.sourceFileName,
+    filter: ['in', ['get', 'watershed_id'], ['literal', exampleTopWatershedIds]],
+  })
+  const { breadcrumb } = buildBreadcrumb(watershedFeatures[0]?.properties, {
+    id: 'plume',
+    regionType: 'plume',
+    label: 'Plume',
+    centerCoord: new LngLat(e.lngLat.lng, e.lngLat.lat),
+    zoomLevel: map.getZoom(),
+    grouping: 3,
+  })
+
+  setBreadcrumb(breadcrumb)
   setTopPolygonsFill('watershed', exampleTopWatershedIds) //TODO: replace with topContributingWatershedIds when real stats are available
 }
 
@@ -343,28 +359,18 @@ export default function BaseMap({
         const map = mapRef.current?.getMap()
 
         if (map) {
-          // TODO: for plume, use different property lookup
-          const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
-
-          const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
-          const subRegionWithUpdatedConfig: RegionOption = {
+          // Breadcrumb: Global > [Country] > Watershed
+          // Country is omitted if it can't be determined from the feature
+          const { breadcrumb, addtlRegion } = buildBreadcrumb(feature.properties, {
             id: 'watershed',
             regionType: 'watershed',
             label: 'Watershed',
             centerCoord: bounds.getCenter(),
             zoomLevel: map.getZoom(),
             grouping: 3,
-          }
+          })
 
-          // Breadcrumb: Global > [Country] > Watershed
-          // Country is omitted if it can't be determined from the feature
-          const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
-          if (addtlRegion) {
-            updatedRegions.push(addtlRegion)
-          }
-          updatedRegions.push(subRegionWithUpdatedConfig)
-
-          setBreadcrumb(updatedRegions)
+          setBreadcrumb(breadcrumb)
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
@@ -430,6 +436,12 @@ export default function BaseMap({
     }
   }, [])
 
+  const watershedIndex = useMemo(
+    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
+    [mapLayers],
+  )
+  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+
   useEffect(() => {
     const map = mapRef.current?.getMap()
 
@@ -451,27 +463,18 @@ export default function BaseMap({
       return
     }
 
-    const onClick = (e) => handleMapClick(e, map, selectedYear, setClickedPlumePoint, setBreadcrumb)
     const onError = (e) => handleError(e, setLayerErrors)
     const onSourceData = (e) => handleSourceData(e, setLayerErrors)
 
-    map.on('click', onClick)
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
 
     // eslint-disable-next-line consistent-return
     return () => {
-      map.off('click', onClick)
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
     }
-  }, [isMapLoaded, selectedYear, setBreadcrumb])
-
-  const watershedIndex = useMemo(
-    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
-    [mapLayers],
-  )
-  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+  }, [isMapLoaded])
 
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the visual highlight from the map.
@@ -573,17 +576,26 @@ export default function BaseMap({
       polygonClickBoundRef.current = null
     }
 
-    const hoverBound = (e) => {
+    const onWatershedHover = (e) => {
       polygonHoverHandler(map, e, watershedLayer)
     }
-    const clickBound = (e) => {
+    const onWatershedClick = (e) => {
       polygonClickHandler(map, e, watershedLayer)
     }
 
-    polygonHoverBoundRef.current = hoverBound
-    polygonClickBoundRef.current = clickBound
-    map.on('mousemove', 'watershed', hoverBound)
-    map.on('click', 'watershed', clickBound)
+    const onPlumeClick = (e) =>
+      handleMapClick(e, {
+        map,
+        watershedLayer,
+        selectedYear,
+        setClickedPlumePoint,
+        setBreadcrumb,
+      })
+
+    polygonHoverBoundRef.current = onWatershedHover
+    polygonClickBoundRef.current = onWatershedClick
+    map.on('click', 'watershed', onWatershedClick)
+    map.on('mousemove', 'watershed', onWatershedHover)
     map.on('mouseenter', 'watershed', () => {
       map.getCanvas().style.cursor = 'pointer'
     })
@@ -592,6 +604,7 @@ export default function BaseMap({
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
     })
 
+    map.on('click', 'plumes', onPlumeClick)
     map.on('mousemove', 'plumes', () => {
       map.getCanvas().style.cursor = plumeCrosshairCursor
     })
