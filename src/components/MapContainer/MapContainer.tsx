@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react'
-import { useSearchParams } from 'react-router'
+import { useNavigationType, useSearchParams } from 'react-router'
+import { LngLatBounds } from 'maplibre-gl'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
@@ -17,12 +18,16 @@ import {
   getValidWatershed,
   getValidZoom,
 } from '../../utils/routeUtils'
+import { mapFitBoundsDesktopConfig, mapFitBoundsMobileConfig } from '../../constants'
+import useResponsive from '../../hooks/useResponsive'
 import { useMapStore } from '../../stores/mapStore'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 
 export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigationType = useNavigationType()
+  const { isDesktopWidth } = useResponsive()
   const year = searchParams.get('year')
   const selectedYear = getValidYear(year)
   const normalizedYearParam = selectedYear.toString()
@@ -38,9 +43,8 @@ export default function MapContainer() {
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
-  // Captured once at mount — only used for initial restoration on page load.
-  // Clicks update the URL via handleWatershedChange but don't re-trigger restoration.
-  const [initialWatershedId] = useState(() => getValidWatershed(searchParams.get('watershed')))
+  const watershedParam = searchParams.get('watershed')
+  const watershedId = getValidWatershed(watershedParam)
 
   // TODO: Handle dispersal-point URL param (C152)
 
@@ -61,6 +65,7 @@ export default function MapContainer() {
   const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
+  const hasRestoredWatershedRef = useRef(false)
 
   useEffect(() => {
     latestSearchParamsRef.current = new URLSearchParams(searchParams)
@@ -118,8 +123,7 @@ export default function MapContainer() {
     shouldSyncLayersParam,
   ])
 
-  const watershedParam = searchParams.get('watershed')
-
+  // Sync local region/breadcrumb state when URL params change.
   useEffect(() => {
     setSelectedRegion(initialRegion)
     if (!watershedParam) {
@@ -128,6 +132,39 @@ export default function MapContainer() {
       )
     }
   }, [initialRegion, watershedParam])
+
+  // Restore map position on browser back/forward (POP). PUSH/REPLACE are
+  // handled by calling code (fitBounds for polygon clicks, jumpToRegion for
+  // dropdown). On initial page load navigationType is also POP, but
+  // mapReference is null so jumpTo is a no-op — initialViewState handles that.
+  useEffect(() => {
+    if (navigationType !== 'POP') {
+      return
+    }
+
+    const map = useMapStore.getState().mapReference?.getMap()
+    // Read lat/lng/zoom from searchParams at execution time rather than
+    // from render-scope variables — avoids re-running this effect on every
+    // map pan (handleMapMoveEnd writes lat/lng/zoom to the URL continuously).
+    const currentParams = latestSearchParamsRef.current
+    const { lat: popLat, lng: popLng } = getValidLatLng(
+      currentParams.get('lat'),
+      currentParams.get('lng'),
+    )
+    const popZoom = getValidZoom(currentParams.get('zoom'))
+    if (popLat !== null && popLng !== null && popZoom !== null) {
+      map?.jumpTo({ center: [popLng, popLat], zoom: popZoom, bearing: 0 })
+    } else {
+      map?.jumpTo({
+        center: initialRegion.centerCoord,
+        zoom: initialRegion.zoomLevel,
+        bearing: 0,
+      })
+    }
+    if (!watershedParam) {
+      clearSelectedFeature()
+    }
+  }, [initialRegion, watershedParam, navigationType, clearSelectedFeature])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -159,6 +196,33 @@ export default function MapContainer() {
       )
     },
     [updateSearchParams],
+  )
+
+  // Called by BaseMap when the watershed restoration effect finds the
+  // feature in the tile data. Decides whether to animate the map to it.
+  // On initial page load without explicit lat/lng/zoom: fitBounds so the
+  // user sees the watershed. On POP (back/forward) or when the URL already
+  // has a view state: skip, because the map is already positioned.
+  const handleWatershedRestored = useCallback(
+    (bounds: LngLatBounds) => {
+      if (hasRestoredWatershedRef.current || hasExplicitViewState) {
+        return
+      }
+      hasRestoredWatershedRef.current = true
+
+      const map = useMapStore.getState().mapReference?.getMap()
+      if (!map) {
+        return
+      }
+
+      const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+      map.fitBounds(bounds, {
+        padding: config.padding,
+        maxZoom: config.maxZoom,
+        duration: 800,
+      })
+    },
+    [hasExplicitViewState, isDesktopWidth],
   )
 
   // Used by the region dropdown and breadcrumb navigation.
@@ -276,12 +340,11 @@ export default function MapContainer() {
       <BaseMap
         mapLayers={urlSyncedMapLayers}
         sedExportSubLayerValue={subSedLayerValue}
-        selectedRegion={selectedRegion}
         onRegionChange={handleRegionChange}
         onWatershedChange={handleWatershedChange}
-        initialWatershedId={initialWatershedId}
-        hasExplicitViewState={hasExplicitViewState}
+        watershedId={watershedId}
         setBreadcrumb={setBreadcrumb}
+        onWatershedRestored={handleWatershedRestored}
         initialViewState={{
           longitude: lng ?? selectedRegion.centerCoord.lng,
           latitude: lat ?? selectedRegion.centerCoord.lat,

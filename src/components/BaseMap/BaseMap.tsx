@@ -176,12 +176,11 @@ function PmTileLayers({ layer, index }) {
 interface BaseMapProps {
   mapLayers: LayerInfo[]
   sedExportSubLayerValue: 'pixel' | 'watershed'
-  selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
   onWatershedChange: (id: string | null) => void
-  initialWatershedId: string | null
-  hasExplicitViewState: boolean
+  watershedId: string | null
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  onWatershedRestored?: (bounds: LngLatBounds) => void
   initialViewState: {
     longitude: number
     latitude: number
@@ -193,12 +192,11 @@ interface BaseMapProps {
 export default function BaseMap({
   mapLayers,
   sedExportSubLayerValue,
-  selectedRegion,
   onRegionChange,
   onWatershedChange,
-  initialWatershedId,
-  hasExplicitViewState,
+  watershedId,
   setBreadcrumb,
+  onWatershedRestored,
   initialViewState,
   onMapMoveEnd,
 }: BaseMapProps) {
@@ -219,61 +217,63 @@ export default function BaseMap({
 
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
 
+  // Build and set the watershed breadcrumb from a feature's properties.
+  // Shared by both the click path and the restoration path.
+  const applyWatershedBreadcrumb = useCallback(
+    (feature: MapGeoJSONFeature, bounds: LngLatBounds, currentZoom: number) => {
+      // TODO: for plume, use different property lookup
+      const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
+      const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
+      const subRegionWithUpdatedConfig: RegionOption = {
+        id: 'watershed',
+        regionType: 'watershed',
+        label: 'Watershed',
+        centerCoord: bounds.getCenter(),
+        zoomLevel: currentZoom,
+        grouping: 3,
+      }
+
+      // Breadcrumb: Global > [Country] > Watershed
+      // Country is omitted if it can't be determined from the feature
+      const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
+      if (addtlRegion) {
+        updatedRegions.push(addtlRegion)
+      }
+      updatedRegions.push(subRegionWithUpdatedConfig)
+
+      setBreadcrumb(updatedRegions)
+
+      return addtlRegion
+    },
+    [setBreadcrumb],
+  )
+
   const handleFeatureSelect = useCallback(
-    (
-      feature: MapGeoJSONFeature | null,
-      bounds?: LngLatBounds,
-      options?: { skipFitBounds?: boolean },
-    ) => {
+    (feature: MapGeoJSONFeature | null, bounds?: LngLatBounds) => {
       setSelectedFeature(feature)
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
 
         if (map) {
-          // TODO: for plume, use different property lookup
-          const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
+          const addtlRegion = applyWatershedBreadcrumb(feature, bounds, map.getZoom())
 
-          const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
-          const subRegionWithUpdatedConfig: RegionOption = {
-            id: 'watershed',
-            regionType: 'watershed',
-            label: 'Watershed',
-            centerCoord: bounds.getCenter(),
-            zoomLevel: map.getZoom(),
-            grouping: 3,
-          }
-
-          // Breadcrumb: Global > [Country] > Watershed
-          // Country is omitted if it can't be determined from the feature
-          const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
-          if (addtlRegion) {
-            updatedRegions.push(addtlRegion)
-          }
-          updatedRegions.push(subRegionWithUpdatedConfig)
-
-          setBreadcrumb(updatedRegions)
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
-
-          // Sync watershed ID to URL
           const featureWatershedId = feature.id != null ? String(feature.id) : null
           onWatershedChange(featureWatershedId)
 
-          // Skip fitBounds when restoring from URL with explicit lat/lng/zoom
-          if (!options?.skipFitBounds) {
-            const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
-            map.fitBounds(bounds, {
-              padding: config.padding,
-              maxZoom: config.maxZoom,
-              duration: 800,
-            })
-          }
+          const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+          map.fitBounds(bounds, {
+            padding: config.padding,
+            maxZoom: config.maxZoom,
+            duration: 800,
+          })
         }
       }
     },
-    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
+    [isDesktopWidth, applyWatershedBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
@@ -310,17 +310,6 @@ export default function BaseMap({
       maplibregl.removeProtocol('cog')
     }
   }, [])
-
-  useEffect(() => {
-    const map = mapRef.current?.getMap()
-
-    const jumpOptions = {
-      center: selectedRegion.centerCoord,
-      zoom: selectedRegion.zoomLevel,
-      bearing: 0,
-    }
-    map?.jumpTo(jumpOptions)
-  }, [selectedRegion])
 
   useEffect(() => {
     if (!isMapLoaded) {
@@ -363,9 +352,15 @@ export default function BaseMap({
     }
   }, [selectedFeature, isMapLoaded, watershedLayer])
 
-  // Watershed restoration from URL
+  // Restore watershed selection from URL. Runs on initial page load and
+  // when the watershed param changes (e.g. browser back/forward).
+  // Skips when the polygon was just clicked (polygonClickRef already matches).
   useEffect(() => {
-    if (!isMapLoaded || !initialWatershedId || !watershedLayer) {
+    if (!isMapLoaded || !watershedLayer) {
+      return undefined
+    }
+
+    if (!watershedId) {
       return undefined
     }
 
@@ -376,16 +371,28 @@ export default function BaseMap({
 
     // watershed_id is numeric in tile data. Parse to number to match
     // the promoted feature ID used by MapLibre for setFeatureState.
-    const featureId = isNaN(Number(initialWatershedId))
-      ? initialWatershedId
-      : Number(initialWatershedId)
+    const featureId = isNaN(Number(watershedId)) ? watershedId : Number(watershedId)
 
-    return querySourceFeatureWhenReady(
+    // User just clicked this polygon — it's already selected, skip restoration.
+    if (polygonClickRef.current === featureId) {
+      return undefined
+    }
+
+    // Clear the previous selection before restoring the new one.
+    clearPolygonSelect(map, polygonClickRef, watershedLayer)
+
+    let cancelled = false
+
+    const cancelQuery = querySourceFeatureWhenReady(
       map,
       watershedLayer.sourceId,
       watershedLayer.sourceFileName,
-      ['==', ['get', 'watershed_id'], Number(initialWatershedId)],
+      ['==', ['get', 'watershed_id'], Number(watershedId)],
       (feature) => {
+        if (cancelled) {
+          return
+        }
+
         if (!feature) {
           onWatershedChange(null)
           return
@@ -400,15 +407,20 @@ export default function BaseMap({
         setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
 
         const bounds = calculateFeatureBounds(feature)
-        handleFeatureSelect(feature, bounds, {
-          skipFitBounds: hasExplicitViewState,
-        })
+        setSelectedFeature(feature)
+        applyWatershedBreadcrumb(feature, bounds, map.getZoom())
+        onWatershedRestored?.(bounds)
       },
     )
-    // handleFeatureSelect and onWatershedChange intentionally omitted
-    // initialWatershedId is stable (captured once at mount) so this effect only runs once when the map loads.
+
+    return () => {
+      cancelled = true
+      cancelQuery()
+    }
+    // onWatershedChange intentionally omitted — stable callback whose
+    // inclusion would cause unnecessary re-triggers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
+  }, [isMapLoaded, watershedId, watershedLayer, setSelectedFeature, applyWatershedBreadcrumb, onWatershedRestored])
 
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
