@@ -4,6 +4,7 @@ import { layers } from '../../data/mapData'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
 import { defaultGlobalRegionOption } from '../../data/regionData'
+// defaultGlobalRegionOption is still used for initialViewState coordinates
 
 const meta = {
   component: BaseMap,
@@ -17,9 +18,11 @@ export const Primary: Story = {
     sedExportSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
+    onDispersalPointChange: () => {},
     initialWatershedId: null,
+    initialDispersalPoint: null,
+    dispersalPoint: null,
     hasExplicitViewState: false,
-    selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
@@ -48,9 +51,11 @@ export const Loading: Story = {
     mapLayers: layers,
     onRegionChange: () => {},
     onWatershedChange: () => {},
+    onDispersalPointChange: () => {},
     initialWatershedId: null,
+    initialDispersalPoint: null,
+    dispersalPoint: null,
     hasExplicitViewState: false,
-    selectedRegion: defaultGlobalRegionOption,
     setBreadcrumb: () => {},
     sedExportSubLayerValue: 'pixel',
     initialViewState: {
