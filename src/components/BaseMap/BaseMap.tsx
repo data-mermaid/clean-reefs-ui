@@ -603,6 +603,15 @@ export default function BaseMap({
       return
     }
 
+    // Validate the dispersal point falls within the plume layer.
+    // If the param was manually edited or the data changed, clear it.
+    const pixel = map.project([initialDispersalPoint.lng, initialDispersalPoint.lat])
+    const plumeFeatures = map.queryRenderedFeatures(pixel, { layers: ['plumes'] })
+    if (plumeFeatures.length === 0) {
+      onDispersalPointChange(null)
+      return
+    }
+
     void (async () => {
       const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
       applyPlumeStats({
@@ -614,6 +623,9 @@ export default function BaseMap({
         setBreadcrumb,
       })
     })()
+    // onDispersalPointChange intentionally omitted — this effect is for initial restoration only.
+    // initialDispersalPoint is stable (captured once at mount) so this effect only runs once when the map loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, setBreadcrumb, selectedYear])
 
   const handleMapLoad = () => {
