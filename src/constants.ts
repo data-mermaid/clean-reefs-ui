@@ -1,4 +1,5 @@
 const coralAtlasAppId = import.meta.env.VITE_CORAL_ATLAS_APP_ID
+const maptilerApiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
 if (!coralAtlasAppId) {
   throw new Error('VITE_CORAL_ATLAS_APP_ID environment variable is required')
@@ -43,6 +44,12 @@ export const SED_DISPERSAL_PMTILES_URL =
 
 export const SED_DISPERSAL_2000_URL =
   'https://mermaid.prescient.earth/raster/collections/sediment_exposure/items/sediment_exposure_2000/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.41&assets=cog&colormap_name=viridis&asset_bidx=cog|1&expression=where(cog_b1>1.41,1.41,cog_b1)'
+
+/******MAP STYLES******/
+export const BASIC_STYLE = `https://api.maptiler.com/maps/basic/style.json?key=${maptilerApiKey}`
+export const SATELLITE_STYLE = `https://api.maptiler.com/maps/hybrid/style.json?key=${maptilerApiKey}`
+export const LIGHT_STYLE = `https://api.maptiler.com/maps/dataviz-light/style.json?key=${maptilerApiKey}`
+export const DARK_STYLE = `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${maptilerApiKey}`
 
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {

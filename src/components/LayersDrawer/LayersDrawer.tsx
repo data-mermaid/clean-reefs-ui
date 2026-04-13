@@ -11,6 +11,7 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
+import BasemapSwitcher from '../BasemapSwitcher/BasemapSwitcher'
 
 /**
  * Business rule:
@@ -110,6 +111,10 @@ export default function LayersDrawer({
         return boundaryLayers.length > 0
           ? [<BoundaryLegendCard key="boundary-legend" layers={boundaryLayers} />]
           : []
+      }
+
+      if (parentGroup === 'base') {
+        return <BasemapSwitcher />
       }
 
       return mapLayers

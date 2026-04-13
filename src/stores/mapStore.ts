@@ -3,6 +3,8 @@ import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/
 import { MapRef } from 'react-map-gl/maplibre'
 import { getUpdatedBenthicColor } from '../utils/mapUtils'
 
+export type BasemapStyle = 'satellite' | 'light' | 'dark' | 'basic'
+
 type MapState = {
   mapReference: MapRef | null
   benthicMapSubLayerColors: Record<string, string>
