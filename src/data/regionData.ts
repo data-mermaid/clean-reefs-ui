@@ -1,4 +1,4 @@
-import { LngLat } from 'maplibre-gl'
+import { LngLat, LngLatBounds } from 'maplibre-gl'
 import { RegionOption } from '../types/RegionDataTypes'
 
 export const defaultGlobalRegionOption: RegionOption = {
@@ -9,6 +9,9 @@ export const defaultGlobalRegionOption: RegionOption = {
   zoomLevel: 6,
   grouping: 0,
 }
+
+/** Bounding box that frames all current data (Fiji + Solomon Islands). */
+export const GLOBAL_DATA_BOUNDS = new LngLatBounds([152, -23], [182, -1])
 
 /** MVP: Starts with just the two countries & one region */
 export const regionOptions: RegionOption[] = [

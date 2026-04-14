@@ -273,7 +273,13 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, applyWatershedBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
+    [
+      isDesktopWidth,
+      applyWatershedBreadcrumb,
+      setSelectedFeature,
+      onRegionChange,
+      onWatershedChange,
+    ],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
@@ -420,7 +426,14 @@ export default function BaseMap({
     // onWatershedChange intentionally omitted — stable callback whose
     // inclusion would cause unnecessary re-triggers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMapLoaded, watershedId, watershedLayer, setSelectedFeature, applyWatershedBreadcrumb, onWatershedRestored])
+  }, [
+    isMapLoaded,
+    watershedId,
+    watershedLayer,
+    setSelectedFeature,
+    applyWatershedBreadcrumb,
+    onWatershedRestored,
+  ])
 
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const benthicSubLayerFillExpression = useMemo(
