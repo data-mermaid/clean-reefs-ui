@@ -10,6 +10,7 @@ import { layers, urlControlledLayerIds } from '../../data/mapData'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import {
+  getValidLabels,
   getValidLatLng,
   getValidLayers,
   getValidYear,
@@ -37,6 +38,11 @@ export default function MapContainer() {
   const selectedLayers = getValidLayers(layersParam)
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
+
+  const labelsParam = searchParams.get('labels')
+  const showLabels = getValidLabels(labelsParam)
+  const normalizedLabelsParam = showLabels ? 'true' : 'false'
+  const shouldSyncLabelsParam = labelsParam !== normalizedLabelsParam
 
   // Captured once at mount — only used for initial restoration on page load.
   // Clicks update the URL via handleWatershedChange but don't re-trigger restoration.
@@ -94,7 +100,12 @@ export default function MapContainer() {
   )
 
   useEffect(() => {
-    if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
+    if (
+      !shouldSyncYearParam &&
+      !shouldSyncRegionParam &&
+      !shouldSyncLayersParam &&
+      !shouldSyncLabelsParam
+    ) {
       return
     }
 
@@ -104,6 +115,7 @@ export default function MapContainer() {
         nextSearchParams.set('year', normalizedYearParam)
         nextSearchParams.set('region', normalizedRegionParam)
         nextSearchParams.set('layers', normalizedLayersParam)
+        nextSearchParams.set('labels', normalizedLabelsParam)
         return nextSearchParams
       },
       { replace: true },
@@ -113,9 +125,11 @@ export default function MapContainer() {
     normalizedYearParam,
     normalizedRegionParam,
     normalizedLayersParam,
+    normalizedLabelsParam,
     shouldSyncYearParam,
     shouldSyncRegionParam,
     shouldSyncLayersParam,
+    shouldSyncLabelsParam,
   ])
 
   const watershedParam = searchParams.get('watershed')
@@ -128,6 +142,17 @@ export default function MapContainer() {
       )
     }
   }, [initialRegion, watershedParam])
+
+  const handleLabelsChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('labels', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -263,6 +288,8 @@ export default function MapContainer() {
           onLayerToggleChange={handleLayerToggleChange}
           onSedSubLayerChange={handleSedSubLayerChange}
           subSedLayerValue={subSedLayerValue}
+          showLabels={showLabels}
+          onLabelsChange={handleLabelsChange}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -282,6 +309,7 @@ export default function MapContainer() {
         initialWatershedId={initialWatershedId}
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
+        showLabels={showLabels}
         initialViewState={{
           longitude: lng ?? selectedRegion.centerCoord.lng,
           latitude: lat ?? selectedRegion.centerCoord.lat,

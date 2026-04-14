@@ -182,6 +182,7 @@ interface BaseMapProps {
   initialWatershedId: string | null
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  showLabels: boolean
   initialViewState: {
     longitude: number
     latitude: number
@@ -199,6 +200,7 @@ export default function BaseMap({
   initialWatershedId,
   hasExplicitViewState,
   setBreadcrumb,
+  showLabels,
   initialViewState,
   onMapMoveEnd,
 }: BaseMapProps) {
@@ -344,6 +346,34 @@ export default function BaseMap({
       map.off('sourcedata', onSourceData)
     }
   }, [isMapLoaded])
+
+  // Toggle visibility of all symbol (label) layers in the basemap style when showLabels changes.
+  // Re-registers on style.load so the setting survives basemap style switches.
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    const applyLabelVisibility = () => {
+      const visibility = showLabels ? 'visible' : 'none'
+      map
+        .getStyle()
+        ?.layers.filter((l) => l.type === 'symbol')
+        .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
+    }
+
+    applyLabelVisibility()
+    map.on('style.load', applyLabelVisibility)
+    // eslint-disable-next-line consistent-return
+    return () => {
+      map.off('style.load', applyLabelVisibility)
+    }
+  }, [isMapLoaded, showLabels])
 
   const watershedIndex = useMemo(
     () => mapLayers.findIndex((l) => l.layerId === 'watershed'),

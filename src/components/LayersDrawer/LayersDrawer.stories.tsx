@@ -18,6 +18,8 @@ export const Primary: Story = {
     onLayerToggleChange: () => {},
     onSedSubLayerChange: () => {},
     subSedLayerValue: 'pixel',
+    showLabels: true,
+    onLabelsChange: () => {},
   },
 }
 

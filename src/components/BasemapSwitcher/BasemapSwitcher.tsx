@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 import {
   Card,
   FormControl,
@@ -11,15 +10,28 @@ import {
 import styles from './BasemapSwitcher.module.scss'
 import { useTranslation } from 'react-i18next'
 
-export default function BasemapSwitcher() {
+interface BasemapSwitcherProps {
+  showLabels: boolean
+  onLabelsChange: (show: boolean) => void
+}
+
+export default function BasemapSwitcher({ showLabels, onLabelsChange }: BasemapSwitcherProps) {
   const { t } = useTranslation()
+
+  const handleLabelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onLabelsChange(event.target.checked)
+  }
 
   return (
     <>
       <Card className={styles['basemap-card']}>
         <div className={styles['basemap-toggle-header']}>
           <Typography className={styles['basemap-card_title']}>{t('labels')}</Typography>
-          <Switch className={styles['MuiSwitch-root']} checked={true} onChange={() => {}}></Switch>
+          <Switch
+            className={styles['MuiSwitch-root']}
+            checked={showLabels}
+            onChange={handleLabelsChange}
+          />
         </div>
       </Card>
       <Card className={styles['basemap-card']}>

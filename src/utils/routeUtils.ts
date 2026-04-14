@@ -7,6 +7,10 @@ import {
 import { defaultGlobalRegionOption, regionOptions } from '../data/regionData'
 import { RegionOption } from '../types/RegionDataTypes'
 
+export function getValidLabels(labelsFromSearchParam: string | null): boolean {
+  return labelsFromSearchParam !== 'false'
+}
+
 export function getValidRegion(regionFromSearchParam: string | null): RegionOption {
   if (!regionFromSearchParam) {
     return defaultGlobalRegionOption
