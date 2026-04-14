@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
-import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, GLOBAL_DATA_BOUNDS, regionOptions } from '../../data/regionData'
+import { mapFitBoundsDesktopConfig, mapFitBoundsMobileConfig } from '../../constants'
+import useResponsive from '../../hooks/useResponsive'
 import { MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
@@ -26,6 +28,7 @@ export default function RegionSelect({
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const mapRef = useMapStore((s) => s.mapReference)
+  const { isDesktopWidth } = useResponsive()
 
   const prepBreadcrumb = (region: RegionOption) => {
     const selectedOptions = [region]
@@ -35,15 +38,24 @@ export default function RegionSelect({
     setBreadcrumb(selectedOptions)
   }
   const jumpToRegion = (region: RegionOption) => {
-    // no jump on global click
-    if (region.grouping > 0) {
-      if (mapRef && mapRef.getMap) {
-        mapRef.getMap().jumpTo({
-          center: region.centerCoord,
-          zoom: region.zoomLevel,
-          bearing: 0,
-        })
-      }
+    if (!mapRef?.getMap) {
+      return
+    }
+    const map = mapRef.getMap()
+
+    if (region.grouping === 0) {
+      const config = isDesktopWidth ? mapFitBoundsDesktopConfig : mapFitBoundsMobileConfig
+      map.fitBounds(GLOBAL_DATA_BOUNDS, {
+        padding: config.padding,
+        maxZoom: config.maxZoom,
+        duration: 800,
+      })
+    } else {
+      map.jumpTo({
+        center: region.centerCoord,
+        zoom: region.zoomLevel,
+        bearing: 0,
+      })
     }
   }
 
@@ -83,9 +95,7 @@ export default function RegionSelect({
   }
 
   const updateRegion = (region: RegionOption) => {
-    if (region.grouping > 0) {
-      jumpToRegion(region)
-    }
+    jumpToRegion(region)
     onRegionChange(region)
     prepBreadcrumb(region)
   }

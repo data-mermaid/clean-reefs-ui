@@ -17,9 +17,7 @@ export const Primary: Story = {
     sedExportSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
-    initialWatershedId: null,
-    hasExplicitViewState: false,
-    selectedRegion: defaultGlobalRegionOption,
+    watershedId: null,
     setBreadcrumb: () => {},
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
@@ -47,9 +45,7 @@ export const Loading: Story = {
     mapLayers: layers,
     onRegionChange: () => {},
     onWatershedChange: () => {},
-    initialWatershedId: null,
-    hasExplicitViewState: false,
-    selectedRegion: defaultGlobalRegionOption,
+    watershedId: null,
     setBreadcrumb: () => {},
     sedExportSubLayerValue: 'pixel',
     initialViewState: {

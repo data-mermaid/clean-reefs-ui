@@ -31,6 +31,12 @@ export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds
     geometry.coordinates[0].forEach(([lng, lat]) => {
       bounds.extend([lng, lat])
     })
+  } else if (geometry.type === 'MultiPolygon') {
+    geometry.coordinates.forEach((polygon) => {
+      polygon[0].forEach(([lng, lat]) => {
+        bounds.extend([lng, lat])
+      })
+    })
   }
 
   return bounds
