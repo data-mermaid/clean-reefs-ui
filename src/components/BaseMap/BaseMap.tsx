@@ -387,6 +387,7 @@ export default function BaseMap({
     // Clear the previous selection before restoring the new one.
     clearPolygonSelect(map, polygonClickRef, watershedLayer)
 
+    // Prevents cleanup's cancelQuery() from triggering onWatershedChange(null).
     let cancelled = false
 
     const cancelQuery = querySourceFeatureWhenReady(

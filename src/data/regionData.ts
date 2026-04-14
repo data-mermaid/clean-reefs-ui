@@ -10,7 +10,10 @@ export const defaultGlobalRegionOption: RegionOption = {
   grouping: 0,
 }
 
-/** Bounding box that frames all current data (Fiji + Solomon Islands). */
+/**
+ * Bounding box that frames all current data (Fiji + Solomon Islands).
+ * NE longitude > 180 to avoid wrapping the wrong way around the antimeridian.
+ */
 export const GLOBAL_DATA_BOUNDS = new LngLatBounds([152, -23], [182, -1])
 
 /** MVP: Starts with just the two countries & one region */
