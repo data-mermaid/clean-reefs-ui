@@ -40,6 +40,7 @@ import {
   createPolygonClickHandler,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
+  querySourceFeatureAtPointWhenReady,
   setPolygonSelect,
   getAllYearZonalStats,
 } from '../../utils/mapUtils'
@@ -170,7 +171,9 @@ const applyPlumeStats = ({
 
   for (let i = 2; i < 5; i++) {
     const watershedId = currentYearZonalStats[`band_${i}`]?.majority
-    topContributingWatershedIds.push(watershedId)
+    if (typeof watershedId === 'number' && topContributingWatershedIds.indexOf(watershedId) < 0) {
+      topContributingWatershedIds.push(watershedId)
+    }
   }
 
   // TODO: replace with topContributingWatershedIds when real stats are available
@@ -390,6 +393,7 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+  const plumeLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'plumes'), [mapLayers])
   const benthicSubLayerFillExpression = useMemo(
     () => [
       'case',
@@ -594,39 +598,46 @@ export default function BaseMap({
 
   // Plume restoration from URL
   useEffect(() => {
-    if (!isMapLoaded || !initialDispersalPoint || !watershedLayer) {
-      return
+    if (!isMapLoaded || !initialDispersalPoint || !watershedLayer || !plumeLayer) {
+      return undefined
     }
 
     const map = mapRef.current?.getMap()
     if (!map) {
-      return
+      return undefined
     }
 
-    // Validate the dispersal point falls within the plume layer.
-    // If the param was manually edited or the data changed, clear it.
-    const pixel = map.project([initialDispersalPoint.lng, initialDispersalPoint.lat])
-    const plumeFeatures = map.queryRenderedFeatures(pixel, { layers: ['plumes'] })
-    if (plumeFeatures.length === 0) {
-      onDispersalPointChange(null)
-      return
-    }
+    // Validate the dispersal point falls within the plume source, retrying as tiles stream in.
+    // Uses querySourceFeatures (viewport-independent) to avoid clearing valid URL params that
+    // are off-screen at load time, or before PMTiles have finished loading.
+    return querySourceFeatureAtPointWhenReady(
+      map,
+      plumeLayer.sourceId,
+      plumeLayer.sourceFileName,
+      initialDispersalPoint,
+      (feature) => {
+        if (!feature) {
+          onDispersalPointChange(null)
+          return
+        }
 
-    void (async () => {
-      const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-      applyPlumeStats({
-        map,
-        watershedLayer,
-        point: initialDispersalPoint,
-        allYearStats,
-        selectedYear,
-        setBreadcrumb,
-      })
-    })()
-    // onDispersalPointChange intentionally omitted — this effect is for initial restoration only.
+        void (async () => {
+          const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
+          applyPlumeStats({
+            map,
+            watershedLayer,
+            point: initialDispersalPoint,
+            allYearStats,
+            selectedYear,
+            setBreadcrumb,
+          })
+        })()
+      },
+    )
+    // onDispersalPointChange, setBreadcrumb, selectedYear intentionally omitted — this effect is for initial restoration only.
     // initialDispersalPoint is stable (captured once at mount) so this effect only runs once when the map loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMapLoaded, initialDispersalPoint, watershedLayer, setBreadcrumb, selectedYear])
+  }, [isMapLoaded, initialDispersalPoint, watershedLayer, plumeLayer])
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)

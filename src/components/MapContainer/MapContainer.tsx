@@ -49,7 +49,12 @@ export default function MapContainer() {
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
   const watershedParam = searchParams.get('watershed')
-  const dispersalPoint = getValidDispersalPoint(searchParams.get('dispersal-point'))
+  // const dispersalPoint = getValidDispersalPoint(searchParams.get('dispersal-point'))
+  const dispersalPointParam = searchParams.get('dispersal-point')
+  const dispersalPoint = useMemo(
+    () => getValidDispersalPoint(dispersalPointParam),
+    [dispersalPointParam],
+  )
   const { lat, lng } = getValidLatLng(searchParams.get('lat'), searchParams.get('lng'))
   const zoom = getValidZoom(searchParams.get('zoom'))
   const hasExplicitViewState = lat !== null && lng !== null && zoom !== null

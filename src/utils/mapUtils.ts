@@ -1,3 +1,5 @@
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
+import type { Feature, Polygon, MultiPolygon } from 'geojson'
 import { RegionOption } from '../types/RegionDataTypes'
 import { regionOptions } from '../data/regionData'
 import {
@@ -245,6 +247,67 @@ export function querySourceFeatureWhenReady(
     }
     const feature = tryQuery()
     if (feature) {
+      settle(feature)
+    }
+  }
+  map.on('sourcedata', onSourceData)
+
+  const timeoutId = setTimeout(() => settle(null), timeoutMs)
+
+  return () => settle(null)
+}
+
+/**
+ * Queries a vector tile source for a polygon feature spatially containing `point`,
+ * retrying as tiles stream in. Viewport-independent (uses querySourceFeatures).
+ * Calls onResult with the first matching feature, or null if the timeout expires.
+ * Returns a cancel function suitable as useEffect cleanup.
+ */
+export function querySourceFeatureAtPointWhenReady(
+  map: Map,
+  sourceId: string,
+  sourceLayer: string,
+  point: { lng: number; lat: number },
+  onResult: (feature: MapGeoJSONFeature | null) => void,
+  timeoutMs = 10_000,
+): () => void {
+  const findContainingFeature = (): MapGeoJSONFeature | null => {
+    const features = map.querySourceFeatures(sourceId, { sourceLayer })
+    const match = features.find(
+      (f) =>
+        (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') &&
+        booleanPointInPolygon([point.lng, point.lat], f as Feature<Polygon | MultiPolygon>),
+    )
+    return (match as MapGeoJSONFeature | undefined) ?? null
+  }
+
+  // Resolve immediately: either a match was found, or all tiles are loaded with no match.
+  const initial = findContainingFeature()
+  if (initial || map.isSourceLoaded(sourceId)) {
+    onResult(initial)
+    return () => {}
+  }
+
+  // Source is still streaming — retry on each new tile batch.
+  let settled = false
+
+  const settle = (result: MapGeoJSONFeature | null) => {
+    if (settled) {
+      return
+    }
+    settled = true
+    map.off('sourcedata', onSourceData)
+    clearTimeout(timeoutId)
+    onResult(result)
+  }
+
+  const onSourceData = (e: { sourceId?: string; isSourceLoaded?: boolean }) => {
+    if (settled || e.sourceId !== sourceId) {
+      return
+    }
+    const feature = findContainingFeature()
+    // Settle as soon as a match is found, or all tiles are loaded with no match.
+    if (feature || e.isSourceLoaded) {
       settle(feature)
     }
   }
