@@ -24,3 +24,11 @@ export interface SubLayerInfo {
   isLayerOn: boolean
   layerId: string
 }
+
+export interface ZonalStatsBand {
+  [band_id: string]: {
+    majority: number
+    aoi_area: number
+    data_area: number
+  }
+}
