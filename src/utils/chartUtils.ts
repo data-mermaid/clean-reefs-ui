@@ -160,14 +160,14 @@ export const mapChartConfigToPlumeData = (
   return [
     {
       barmode: sedimentConfig.barmode ?? 'group',
-      chartName: i18next.t(sedimentChartName),
+      chartName: sedimentChartName,
       chartSeriesData: sedimentBar,
       xAxisTitle: sedXAxisTitle,
       yAxisTitle: i18next.t(sedimentConfig.yAxisTitle),
     },
     {
       barmode: watershedConfig.barmode ?? 'stack',
-      chartName: i18next.t(watershedsChartName),
+      chartName: watershedsChartName,
       chartSeriesData: watershedBars,
       xAxisTitle: watershedXAxisTitle,
       yAxisTitle: i18next.t(watershedConfig.yAxisTitle),
