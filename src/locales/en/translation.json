@@ -14,13 +14,17 @@
     "sediment_exposure": "Sediment exposure (tonnes)",
     "sediment_load": "Sediment load (tonnes)"
   },
+
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
     "land_use_historical": "Land use",
     "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure",
-    "sediment_load_historical": "Sediment load"
+    "sediment_load_historical": "Sediment load",
+    "w1": "W1",
+    "w2": "W2",
+    "w3": "W3"
   },
   "land_types": {
     "bare_ground": "Bare ground",
@@ -57,7 +61,8 @@
     "no_regions_match": "No regions match your search",
     "region": "Region",
     "select_region": "Select region",
-    "watershed": "Watershed"
+    "watershed": "Watershed",
+    "plume": "Plume"
   },
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -112,5 +117,6 @@
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_year": "Select year",
   "map_layers_did_not_load": "Some map layers didn't load",
-  "basic": "Basic"
+  "basic": "Basic",
+  "ocean_pollution": "Ocean Pollution"
 }

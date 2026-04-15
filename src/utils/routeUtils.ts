@@ -82,3 +82,19 @@ export function getValidLatLng(
 
   return { lat, lng }
 }
+
+export function getValidDispersalPoint(
+  dispersalPointSearchParam: string | null,
+): { lat: number; lng: number } | null {
+  if (!dispersalPointSearchParam) {
+    return null
+  }
+
+  const parts = dispersalPointSearchParam.split(',')
+  if (parts.length !== 2) {
+    return null
+  }
+
+  const { lat, lng } = getValidLatLng(parts[0], parts[1])
+  return lat !== null && lng !== null ? { lat, lng } : null
+}

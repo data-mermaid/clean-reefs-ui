@@ -51,7 +51,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: '',
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.sediment_exposure',
-    width: 3,
+    width: 2,
   },
   'charts.contributing_watersheds': {
     barmode: 'stack',
@@ -65,7 +65,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: '',
     xAxisTitle: 'year',
     yAxisTitle: 'chart_information.pollution_contribution',
-    width: 3,
+    width: 2,
   },
 }
 
