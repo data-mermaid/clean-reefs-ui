@@ -49,7 +49,6 @@ export default function MapContainer() {
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
   const watershedParam = searchParams.get('watershed')
-  // const dispersalPoint = getValidDispersalPoint(searchParams.get('dispersal-point'))
   const dispersalPointParam = searchParams.get('dispersal-point')
   const dispersalPoint = useMemo(
     () => getValidDispersalPoint(dispersalPointParam),
