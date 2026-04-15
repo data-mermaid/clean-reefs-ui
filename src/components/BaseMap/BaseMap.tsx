@@ -415,6 +415,7 @@ export default function BaseMap({
   )
 
   const clearPlumeSelection = useCallback(() => {
+    plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
     clearTopPolygonsFill('watershed')
     clearSelectedPlumeWatershedStats()
     onDispersalPointChange(null)
