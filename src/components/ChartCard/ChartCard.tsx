@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
 import Plot from 'react-plotly.js'
+import Plotly from 'plotly.js-dist'
 import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
@@ -92,10 +93,30 @@ export default function ChartCard({
 
     return {
       ...plotlyTheme.config,
-      toImageButtonOptions: {
-        format: 'png' as const,
-        filename,
-      },
+      // Replace built-in camera button with a custom one that removes
+      // the selected-year opacity highlighting before exporting
+      modeBarButtonsToRemove: ['toImage'] as Plotly.ModeBarDefaultButtons[],
+      modeBarButtonsToAdd: [
+        {
+          name: 'downloadPng',
+          title: 'Download plot as a png',
+          icon: Plotly.Icons.camera,
+          click: async (gd: Plotly.PlotlyHTMLElement) => {
+            // Save per-bar opacity arrays (used to dim non-selected years)
+            const originalOpacities = gd.data.map(
+              (trace) => (trace as Plotly.PlotData).marker?.opacity,
+            )
+
+            // Temporarily set all bars to full opacity for the export
+            await Plotly.restyle(gd, { 'marker.opacity': 1 })
+            await Plotly.downloadImage(gd, { format: 'png', filename })
+            // Restore the original highlighting
+            await Plotly.restyle(gd, {
+              'marker.opacity': originalOpacities as Plotly.Datum[],
+            })
+          },
+        },
+      ],
     }
   }, [regionType, regionLabel, chartConfigData, t])
 
