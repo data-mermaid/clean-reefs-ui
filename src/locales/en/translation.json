@@ -24,7 +24,8 @@
     "sediment_load_historical": "Sediment load",
     "w1": "W1",
     "w2": "W2",
-    "w3": "W3"
+    "w3": "W3",
+    "w4": "W4"
   },
   "land_types": {
     "bare_ground": "Bare ground",
