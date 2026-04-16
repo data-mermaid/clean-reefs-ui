@@ -37,7 +37,7 @@
     "sediment": "Sediment"
   },
   "map_layer_groups": {
-    "base_map": "Base map",
+    "base_map": "Basemap",
     "benthic_layers": "Benthic layers",
     "boundaries": "Boundaries",
     "land_pollution_layers": "Pollution layers",
@@ -116,5 +116,6 @@
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_year": "Select year",
   "map_layers_did_not_load": "Some map layers didn't load",
-  "ocean_pollution": "Ocean Pollution"
+  "ocean_pollution": "Ocean Pollution",
+  "satellite": "Satellite"
 }

@@ -17,6 +17,7 @@ import {
   getValidWatershed,
   getValidZoom,
   getValidDispersalPoint,
+  getValidLabels,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
@@ -47,6 +48,14 @@ export default function MapContainer() {
   const selectedLayers = getValidLayers(layersParam)
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
+
+  const labelsParam = searchParams.get('labels')
+  const showLabels = getValidLabels(labelsParam)
+  const normalizedLabelsParam = showLabels ? 'true' : 'false'
+  // Only sync when labels is explicitly present but non-normalized; absence means the default
+  // (true) applies, so adding labels=true on first load would cause a spurious navigation that
+  // conflicts with handleMapLoad registration timing.
+  const shouldSyncLabelsParam = labelsParam !== null && labelsParam !== normalizedLabelsParam
 
   const watershedParam = searchParams.get('watershed')
   const dispersalPointParam = searchParams.get('dispersal-point')
@@ -106,7 +115,12 @@ export default function MapContainer() {
   }, [searchParams])
 
   useEffect(() => {
-    if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
+    if (
+      !shouldSyncYearParam &&
+      !shouldSyncRegionParam &&
+      !shouldSyncLayersParam &&
+      !shouldSyncLabelsParam
+    ) {
       return
     }
 
@@ -116,6 +130,7 @@ export default function MapContainer() {
         nextSearchParams.set('year', normalizedYearParam)
         nextSearchParams.set('region', normalizedRegionParam)
         nextSearchParams.set('layers', normalizedLayersParam)
+        nextSearchParams.set('labels', normalizedLabelsParam)
         return nextSearchParams
       },
       { replace: true },
@@ -125,9 +140,11 @@ export default function MapContainer() {
     normalizedYearParam,
     normalizedRegionParam,
     normalizedLayersParam,
+    normalizedLabelsParam,
     shouldSyncYearParam,
     shouldSyncRegionParam,
     shouldSyncLayersParam,
+    shouldSyncLabelsParam,
   ])
 
   useEffect(() => {
@@ -298,6 +315,17 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
+  const handleLabelsChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('labels', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
   return (
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
@@ -309,6 +337,8 @@ export default function MapContainer() {
           onLayerToggleChange={handleLayerToggleChange}
           onSedSubLayerChange={handleSedSubLayerChange}
           subSedLayerValue={subSedLayerValue}
+          showLabels={showLabels}
+          onLabelsChange={handleLabelsChange}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -331,6 +361,7 @@ export default function MapContainer() {
         selectedYear={selectedYear}
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
+        showLabels={showLabels}
         initialViewState={{
           longitude: lng ?? selectedRegion.centerCoord.lng,
           latitude: lat ?? selectedRegion.centerCoord.lat,

@@ -94,3 +94,7 @@ export function getValidDispersalPoint(
   const { lat, lng } = getValidLatLng(parts[0], parts[1])
   return lat !== null && lng !== null ? { lat, lng } : null
 }
+
+export function getValidLabels(labelsFromSearchParam: string | null): boolean {
+  return labelsFromSearchParam !== 'false'
+}

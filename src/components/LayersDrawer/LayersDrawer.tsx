@@ -11,6 +11,7 @@ import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
+import BasemapSwitcher from '../BasemapSwitcher/BasemapSwitcher'
 
 /**
  * Business rule:
@@ -24,6 +25,8 @@ interface LayersDrawerProps {
   onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
+  showLabels: boolean
+  onLabelsChange: (show: boolean) => void
 }
 
 interface BoundaryLegendCardProps {
@@ -56,6 +59,8 @@ export default function LayersDrawer({
   onLayerToggleChange,
   onSedSubLayerChange,
   subSedLayerValue,
+  showLabels,
+  onLabelsChange,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -112,6 +117,16 @@ export default function LayersDrawer({
           : []
       }
 
+      if (parentGroup === 'base') {
+        return [
+          <BasemapSwitcher
+            key="basemap-switcher"
+            showLabels={showLabels}
+            onLabelsChange={onLabelsChange}
+          />,
+        ]
+      }
+
       return mapLayers
         .filter(
           (layer) =>
@@ -140,6 +155,8 @@ export default function LayersDrawer({
       mapSubLayers,
       subSedLayerValue,
       onSedSubLayerChange,
+      showLabels,
+      onLabelsChange,
     ],
   )
 
