@@ -33,6 +33,11 @@
   display: block;
   margin: 0 auto;
 
+  // Nudge the custom modebar (camera button) down so it doesn't sit flush with the card top
+  :global(.modebar.modebar--custom) {
+    margin-top: 12px;
+  }
+
   // Override Plotly's pointer cursor on the drag layer when axes are fixed-range
   :global(.plot-container .draglayer .nsewdrag.cursor-pointer) {
     cursor: default;
