@@ -19,6 +19,7 @@ import {
   buildChartDataFromProperties,
   getDrawerTitle,
   getEffectiveRegionType,
+  getRegionLabel,
   updateChartData,
   updatePlumeChartData,
 } from '../../utils/chartUtils'
@@ -130,13 +131,11 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
                   open={open}
                   {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                   regionType={effectiveRegionType}
-                  regionLabel={
-                    effectiveRegionType === 'global'
-                      ? ''
-                      : effectiveRegionType === 'watershed'
-                        ? String(selectedFeature?.id ?? '')
-                        : selectedRegion.label
-                  }
+                  regionLabel={getRegionLabel(
+                    effectiveRegionType,
+                    selectedRegion,
+                    selectedFeature as MapGeoJSONFeature | null,
+                  )}
                   selectedYear={selectedYear}
                   chartConfigData={chart}
                   isChartDataLoading={isChartDataLoading}

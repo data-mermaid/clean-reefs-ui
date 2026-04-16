@@ -5,7 +5,22 @@ import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
 import type { PlotData } from 'plotly.js'
-import { RegionType } from '../types/RegionDataTypes'
+import { RegionOption, RegionType } from '../types/RegionDataTypes'
+
+export function getRegionLabel(
+  regionType: RegionType,
+  selectedRegion: RegionOption,
+  selectedFeature: MapGeoJSONFeature | null,
+): string {
+  switch (regionType) {
+    case 'global':
+      return ''
+    case 'watershed':
+      return String(selectedFeature?.id ?? '')
+    default:
+      return selectedRegion.label
+  }
+}
 
 export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): string {
   if (regionType === 'global') {
