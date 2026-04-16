@@ -1,13 +1,15 @@
 import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
-import Plot from 'react-plotly.js'
-import Plotly from 'plotly.js-dist'
+import createPlotlyComponent from 'react-plotly.js/factory'
+import Plotly from 'plotly.js-basic-dist'
 import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
 import { buildExportFilename } from '../../utils/chartUtils'
+
+const Plot = createPlotlyComponent(Plotly)
 
 interface ChartCardProps {
   open: boolean
@@ -111,11 +113,15 @@ export default function ChartCard({
 
             // Temporarily set all bars to full opacity for the export
             await Plotly.restyle(gd, { 'marker.opacity': 1 })
-            await Plotly.downloadImage(gd, { format: 'png', filename: filenameRef.current })
-            // Restore the original highlighting
-            await Plotly.restyle(gd, {
-              'marker.opacity': originalOpacities as Plotly.Datum[],
+            await Plotly.downloadImage(gd, {
+              format: 'png',
+              width: null,
+              height: null,
+              filename: filenameRef.current,
             })
+            // Restore the original highlighting
+            // restyle distributes array values across traces — not reflected in @types/plotly.js
+            await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
           },
         },
       ],

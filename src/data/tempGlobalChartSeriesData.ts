@@ -4,7 +4,7 @@ import tempContributingWatershedsChartData from './tempContributingWatershedsCha
 import tempEcosystemExtentExposedChartData from './tempEcosystemExtentExposedChartData.json'
 import tempSedimentExposureChartData from './tempSedimentExposureChartData.json'
 import tempLandUseChartData from './tempLandUseChartData.json'
-import { PlotData } from 'plotly.js'
+import type { PlotData } from 'plotly.js'
 
 export const tempGlobalChartSeriesData: ChartProperties[] = [
   {

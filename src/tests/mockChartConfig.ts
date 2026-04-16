@@ -1,6 +1,6 @@
 import { ChartProperties } from '../types/ChartDataTypes'
 import mockChartData from './mockChartData.json'
-import { PlotData } from 'plotly.js'
+import type { PlotData } from 'plotly.js'
 
 export const mockChartConfig: ChartProperties = {
   barmode: 'group',

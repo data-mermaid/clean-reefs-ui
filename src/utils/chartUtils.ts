@@ -4,7 +4,7 @@ import { ZonalStatsBand } from '../types/MapDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
-import { PlotData } from 'plotly.js'
+import type { PlotData } from 'plotly.js'
 import { RegionType } from '../types/RegionDataTypes'
 
 export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): string {
