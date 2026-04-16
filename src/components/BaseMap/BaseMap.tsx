@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  RefObject,
   SetStateAction,
   useCallback,
   useEffect,
@@ -12,6 +13,7 @@ import {
   Layer,
   Map as MapGL,
   MapRef,
+  Marker,
   NavigationControl,
   ScaleControl,
   Source,
@@ -23,6 +25,8 @@ import maplibregl, {
   ErrorEvent as MapErrorEvent,
   LngLatBounds,
   MapGeoJSONFeature,
+  LngLat,
+  MapMouseEvent,
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
@@ -36,7 +40,9 @@ import {
   createPolygonClickHandler,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
+  querySourceFeatureAtPointWhenReady,
   setPolygonSelect,
+  getAllYearZonalStats,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -48,12 +54,71 @@ import {
   polygonOutlineSelectColor,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
-import { LayerInfo } from '../../types/MapDataTypes'
+import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
-const getRegionByLabel = (regionLabel) => regionOptions.find((opt) => opt.label === regionLabel)
+const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
+
+interface ApplyPlumeStatsParams {
+  map: maplibregl.Map
+  watershedLayer: LayerInfo
+  point: { lng: number; lat: number }
+  allYearStats: Record<number, ZonalStatsBand>
+  selectedYear: number
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+}
+
+interface HandleMapClickParamProps {
+  map: maplibregl.Map
+  watershedLayer: LayerInfo
+  selectedYear: number
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  onDispersalPointChange: (point: { lat: number; lng: number } | null) => void
+  clearWatershedSelection: () => void
+  requestIdRef: RefObject<number>
+}
+
+interface BaseMapProps {
+  mapLayers: LayerInfo[]
+  sedExportSubLayerValue: 'pixel' | 'watershed'
+  onRegionChange: (region: RegionOption) => void
+  onWatershedChange: (id: string | null) => void
+  onDispersalPointChange(point: { lat: number; lng: number } | null): void
+  initialWatershedId: string | null
+  initialDispersalPoint: { lat: number; lng: number } | null
+  dispersalPoint: { lat: number; lng: number } | null
+  selectedYear: number
+  hasExplicitViewState: boolean
+  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  initialViewState: {
+    longitude: number
+    latitude: number
+    zoom: number
+  }
+  onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
+}
+
+const getRegionByLabel = (regionLabel: string | undefined) =>
+  regionOptions.find((opt) => opt.label === regionLabel)
+
+const buildBreadcrumb = (
+  featureProperties: Record<string, unknown> | null | undefined,
+  subRegion: RegionOption,
+): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
+  const countryOrRegion = (featureProperties?.TERRITORY1 || featureProperties?.REALM) as
+    | string
+    | undefined
+  const addtlRegion = getRegionByLabel(countryOrRegion)
+  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
+  if (addtlRegion) {
+    breadcrumb.push(addtlRegion)
+  }
+  breadcrumb.push(subRegion)
+  return { breadcrumb, addtlRegion }
+}
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -86,6 +151,80 @@ const handleError = (
     ...prev,
     [e.type]: e.error?.message || 'Failed to load layer',
   }))
+}
+
+const applyPlumeStats = ({
+  map,
+  watershedLayer,
+  point,
+  allYearStats,
+  selectedYear,
+  setBreadcrumb,
+}: ApplyPlumeStatsParams): void => {
+  const { setTopPolygonsFill } = useMapStore.getState()
+  const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
+
+  setSelectedPlumeWatershedStats(allYearStats)
+
+  const currentYearZonalStats = allYearStats[selectedYear]
+  const topContributingWatershedIds: number[] = []
+
+  for (let i = 2; i < 5; i++) {
+    const watershedId = currentYearZonalStats[`band_${i}`]?.majority
+    if (typeof watershedId === 'number' && topContributingWatershedIds.indexOf(watershedId) < 0) {
+      topContributingWatershedIds.push(watershedId)
+    }
+  }
+
+  // TODO: replace with topContributingWatershedIds when real stats are available
+  const exampleTopWatershedIds = [974529, 977314, 977908]
+
+  const watershedFeatures = map.querySourceFeatures(watershedLayer.sourceId, {
+    sourceLayer: watershedLayer.sourceFileName,
+    filter: ['in', ['get', 'watershed_id'], ['literal', exampleTopWatershedIds]],
+  })
+  const { breadcrumb } = buildBreadcrumb(watershedFeatures[0]?.properties, {
+    id: 'plume',
+    regionType: 'plume',
+    label: 'Plume',
+    centerCoord: new LngLat(point.lng, point.lat),
+    zoomLevel: map.getZoom(),
+    grouping: 3,
+  })
+
+  setBreadcrumb(breadcrumb)
+  setTopPolygonsFill('watershed', exampleTopWatershedIds) // TODO: replace with topContributingWatershedIds when real stats are available
+}
+
+const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParamProps) => {
+  const {
+    map,
+    watershedLayer,
+    selectedYear,
+    setBreadcrumb,
+    onDispersalPointChange,
+    clearWatershedSelection,
+    requestIdRef,
+  } = clickParams
+
+  clearWatershedSelection()
+  onDispersalPointChange({ lng: e.lngLat.lng, lat: e.lngLat.lat })
+
+  const requestId = ++requestIdRef.current
+  const allYearStats = await getAllYearZonalStats(e.lngLat)
+
+  if (requestId !== requestIdRef.current) {
+    return
+  }
+
+  applyPlumeStats({
+    map,
+    watershedLayer,
+    point: e.lngLat,
+    allYearStats,
+    selectedYear,
+    setBreadcrumb,
+  })
 }
 
 function WatershedLayers({ layer, index }) {
@@ -173,30 +312,53 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-interface BaseMapProps {
-  mapLayers: LayerInfo[]
-  sedExportSubLayerValue: 'pixel' | 'watershed'
-  selectedRegion: RegionOption
-  onRegionChange: (region: RegionOption) => void
-  onWatershedChange: (id: string | null) => void
-  initialWatershedId: string | null
-  hasExplicitViewState: boolean
-  setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
-  initialViewState: {
-    longitude: number
-    latitude: number
-    zoom: number
-  }
-  onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
+// Transparent fill layer so mousemove/mouseleave fire over the full plume area,
+// not just the outline stroke. Line layer preserves the visual yellow outline.
+function PlumeLayers({ layer, index }) {
+  return (
+    <Source
+      id={layer.sourceId}
+      key={`${layer.sourceId}-source`}
+      type="vector"
+      url={`pmtiles://${layer.link}`}
+    >
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-fill-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceFileName}
+        beforeId="watershed"
+        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        paint={{ 'fill-color': transparent }}
+      />
+      <Layer
+        id={`${layer.layerId}-lines`}
+        type="line"
+        key={`${layer.layerId}-lines-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceFileName}
+        beforeId="watershed"
+        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        paint={{
+          'line-color': layer.outlineColor,
+          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+        }}
+      />
+    </Source>
+  )
 }
 
 export default function BaseMap({
   mapLayers,
   sedExportSubLayerValue,
-  selectedRegion,
   onRegionChange,
   onWatershedChange,
+  onDispersalPointChange,
   initialWatershedId,
+  initialDispersalPoint,
+  dispersalPoint,
+  selectedYear,
   hasExplicitViewState,
   setBreadcrumb,
   initialViewState,
@@ -205,19 +367,64 @@ export default function BaseMap({
   const { t } = useTranslation()
   const { isDesktopWidth } = useResponsive()
 
-  const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const mapRef = useRef<MapRef | null>(useMapStore.getState().mapReference)
-  const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+  const setMapRef = useMapStore((s) => s.setMapRef)
+  const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
+  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
+    (s) => s.clearSelectedPlumeWatershedStats,
+  )
+  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
+  const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
+
+  const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
   const polygonHoverRef = useRef<string | number | null>(null)
   const polygonClickRef = useRef<string | number | null>(null)
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
+  const plumeRequestIdRef = useRef(0) // Tracks the latest plume click fetch so earlier, slower responses don't overwrite newer ones.
 
-  const mapLayersLoadingError = useMemo(() => {
-    return Object.keys(layerErrors).length > 0
-  }, [layerErrors])
+  const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
-  const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
+  const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
+  const watershedIndex = useMemo(
+    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
+    [mapLayers],
+  )
+  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+  const plumeLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'plumes'), [mapLayers])
+  const benthicSubLayerFillExpression = useMemo(
+    () => [
+      'case',
+      ['==', ['get', 'class_name'], 'Coral/Algae'],
+      benthicFillColors['coral_algae'],
+      ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+      benthicFillColors['microalgal_mats'],
+      ['==', ['get', 'class_name'], 'Rock'],
+      benthicFillColors['rock'],
+      ['==', ['get', 'class_name'], 'Rubble'],
+      benthicFillColors['rubble'],
+      ['==', ['get', 'class_name'], 'Sand'],
+      benthicFillColors['sand'],
+      ['==', ['get', 'class_name'], 'Seagrass'],
+      benthicFillColors['seagrass'],
+      transparent, // Default / other
+    ],
+    [benthicFillColors],
+  )
+
+  const clearPlumeSelection = useCallback(() => {
+    plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
+    clearTopPolygonsFill('watershed')
+    clearSelectedPlumeWatershedStats()
+    onDispersalPointChange(null)
+  }, [clearTopPolygonsFill, clearSelectedPlumeWatershedStats, onDispersalPointChange])
+
+  const clearWatershedSelection = useCallback(() => {
+    clearSelectedFeature()
+    onWatershedChange(null)
+  }, [clearSelectedFeature, onWatershedChange])
 
   const handleFeatureSelect = useCallback(
     (
@@ -226,33 +433,24 @@ export default function BaseMap({
       options?: { skipFitBounds?: boolean },
     ) => {
       setSelectedFeature(feature)
+      clearPlumeSelection()
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
 
         if (map) {
-          // TODO: for plume, use different property lookup
-          const countryOrRegion = feature.properties.TERRITORY1 || feature.properties.REALM
-
-          const addtlRegion: RegionOption | undefined = getRegionByLabel(countryOrRegion)
-          const subRegionWithUpdatedConfig: RegionOption = {
+          // Breadcrumb: Global > [Country] > Watershed
+          // Country is omitted if it can't be determined from the feature
+          const { breadcrumb, addtlRegion } = buildBreadcrumb(feature.properties, {
             id: 'watershed',
             regionType: 'watershed',
             label: 'Watershed',
             centerCoord: bounds.getCenter(),
             zoomLevel: map.getZoom(),
             grouping: 3,
-          }
+          })
 
-          // Breadcrumb: Global > [Country] > Watershed
-          // Country is omitted if it can't be determined from the feature
-          const updatedRegions: RegionOption[] = [defaultGlobalRegionOption]
-          if (addtlRegion) {
-            updatedRegions.push(addtlRegion)
-          }
-          updatedRegions.push(subRegionWithUpdatedConfig)
-
-          setBreadcrumb(updatedRegions)
+          setBreadcrumb(breadcrumb)
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
@@ -273,7 +471,14 @@ export default function BaseMap({
         }
       }
     },
-    [isDesktopWidth, setBreadcrumb, setSelectedFeature, onRegionChange, onWatershedChange],
+    [
+      isDesktopWidth,
+      setBreadcrumb,
+      setSelectedFeature,
+      onRegionChange,
+      onWatershedChange,
+      clearPlumeSelection,
+    ],
   )
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
@@ -312,17 +517,6 @@ export default function BaseMap({
   }, [])
 
   useEffect(() => {
-    const map = mapRef.current?.getMap()
-
-    const jumpOptions = {
-      center: selectedRegion.centerCoord,
-      zoom: selectedRegion.zoomLevel,
-      bearing: 0,
-    }
-    map?.jumpTo(jumpOptions)
-  }, [selectedRegion])
-
-  useEffect(() => {
     if (!isMapLoaded) {
       return
     }
@@ -345,15 +539,8 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
-  const watershedIndex = useMemo(
-    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
-    [mapLayers],
-  )
-  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
-
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the visual highlight from the map.
-  const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   useEffect(() => {
     if (!selectedFeature && polygonClickRef.current && isMapLoaded) {
       const map = mapRef.current?.getMap()
@@ -410,32 +597,48 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
-  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
-  const benthicSubLayerFillExpression = useMemo(
-    () => [
-      'case',
-      ['==', ['get', 'class_name'], 'Coral/Algae'],
-      benthicFillColors['coral_algae'],
-      ['==', ['get', 'class_name'], 'Benthic Microalgae'],
-      benthicFillColors['microalgal_mats'],
-      ['==', ['get', 'class_name'], 'Rock'],
-      benthicFillColors['rock'],
-      ['==', ['get', 'class_name'], 'Rubble'],
-      benthicFillColors['rubble'],
-      ['==', ['get', 'class_name'], 'Sand'],
-      benthicFillColors['sand'],
-      ['==', ['get', 'class_name'], 'Seagrass'],
-      benthicFillColors['seagrass'],
-      transparent, // Default / other
-    ],
-    [benthicFillColors],
-  )
-
+  // Plume restoration from URL
   useEffect(() => {
-    if (mapRef.current) {
-      useMapStore.getState().setMapRef(mapRef.current)
+    if (!isMapLoaded || !initialDispersalPoint || !watershedLayer || !plumeLayer) {
+      return undefined
     }
-  }, [isMapLoaded])
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return undefined
+    }
+
+    // Validate the dispersal point falls within the plume source, retrying as tiles stream in.
+    // Uses querySourceFeatures (viewport-independent) to avoid clearing valid URL params that
+    // are off-screen at load time, or before PMTiles have finished loading.
+    return querySourceFeatureAtPointWhenReady(
+      map,
+      plumeLayer.sourceId,
+      plumeLayer.sourceFileName,
+      initialDispersalPoint,
+      (feature) => {
+        if (!feature) {
+          onDispersalPointChange(null)
+          return
+        }
+
+        void (async () => {
+          const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
+          applyPlumeStats({
+            map,
+            watershedLayer,
+            point: initialDispersalPoint,
+            allYearStats,
+            selectedYear,
+            setBreadcrumb,
+          })
+        })()
+      },
+    )
+    // onDispersalPointChange, setBreadcrumb, selectedYear intentionally omitted — this effect is for initial restoration only.
+    // initialDispersalPoint is stable (captured once at mount) so this effect only runs once when the map loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMapLoaded, initialDispersalPoint, watershedLayer, plumeLayer])
 
   const handleMapLoad = () => {
     setIsMapLoaded(true)
@@ -444,6 +647,8 @@ export default function BaseMap({
     if (!map || !watershedLayer) {
       return
     }
+
+    setMapRef(mapRef.current!)
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -455,23 +660,42 @@ export default function BaseMap({
       polygonClickBoundRef.current = null
     }
 
-    const hoverBound = (e) => {
+    const onWatershedHover = (e) => {
       polygonHoverHandler(map, e, watershedLayer)
     }
-    const clickBound = (e) => {
+    const onWatershedClick = (e) => {
       polygonClickHandler(map, e, watershedLayer)
     }
 
-    polygonHoverBoundRef.current = hoverBound
-    polygonClickBoundRef.current = clickBound
-    map.on('mousemove', 'watershed', hoverBound)
-    map.on('click', 'watershed', clickBound)
+    const onPlumeClick = (e) =>
+      handleMapClick(e, {
+        map,
+        watershedLayer,
+        selectedYear,
+        setBreadcrumb,
+        onDispersalPointChange,
+        clearWatershedSelection,
+        requestIdRef: plumeRequestIdRef,
+      })
+
+    polygonHoverBoundRef.current = onWatershedHover
+    polygonClickBoundRef.current = onWatershedClick
+    map.on('click', 'watershed', onWatershedClick)
+    map.on('mousemove', 'watershed', onWatershedHover)
     map.on('mouseenter', 'watershed', () => {
       map.getCanvas().style.cursor = 'pointer'
     })
     map.on('mouseleave', 'watershed', () => {
       map.getCanvas().style.cursor = ''
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
+    })
+
+    map.on('click', 'plumes', onPlumeClick)
+    map.on('mousemove', 'plumes', () => {
+      map.getCanvas().style.cursor = plumeCrosshairCursor
+    })
+    map.on('mouseleave', 'plumes', () => {
+      map.getCanvas().style.cursor = ''
     })
   }
 
@@ -494,6 +718,11 @@ export default function BaseMap({
             <NavigationControl position="bottom-right" showCompass={false} />
           </>
         )}
+        {dispersalPoint && (
+          <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
+            <div className={styles['plume-marker']} />
+          </Marker>
+        )}
         {/* Watershed always rendered first so other layers can reference it via beforeId */}
         {isMapLoaded && watershedLayer && (
           <WatershedLayers
@@ -505,6 +734,8 @@ export default function BaseMap({
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
+          } else if (layer.layerId === 'plumes') {
+            return isMapLoaded && <PlumeLayers key={`layer-${index}`} layer={layer} index={index} />
           } else if (layer.dataType === 'pmtiles') {
             return (
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
@@ -598,15 +829,7 @@ export default function BaseMap({
         action={
           <button
             type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontWeight: 'normal',
-              paddingRight: '10px',
-            }}
+            className={styles['snackbar-reload-button']}
             onClick={() => window.location.reload()}
           >
             {t('buttons.reload_page')}

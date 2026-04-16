@@ -17,7 +17,6 @@ const groupedProperties: LulcAndSedimentSeriesData = {
     high_canopy_forest: { '2010': 3 },
     mixed_forest: { '2015': 4 },
     shrubland_grassland: { '2020': 6 },
-    surface_water: { '2000': 1 },
   },
   sediment_load_historical: {
     sediment: {},
@@ -40,7 +39,6 @@ const emptyChartSeriesData: LulcAndSedimentSeriesData = {
     high_canopy_forest: {},
     mixed_forest: {},
     shrubland_grassland: {},
-    surface_water: {},
   },
   sediment_load_historical: {
     sediment: {},
@@ -93,7 +91,6 @@ describe('chart data utilities', () => {
         HC_Forest_pct_2010: 3,
         M_Forest_pct_2015: 4,
         Shrub_Grass_pct_2020: 6,
-        Water_pct_2000: 1,
         name: 'Test',
         watershed_id: 123,
       }

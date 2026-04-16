@@ -9,7 +9,6 @@ export const chartSeriesConfig: ChartSeriesConfig = {
       shrubland_grassland: '#B0B006',
       mixed_forest: '#609C30',
       high_canopy_forest: '#065106',
-      surface_water: '#0E39D6',
       cropland: '#FF7D00',
       built_up: '#64DCDC',
     },
@@ -35,7 +34,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.sediment_load_historical': {
     barmode: 'group',
     legendColors: {
-      sediment: '#e7cb11',
+      sediment: '#003F5C',
     },
     name: 'charts.sediment_load_historical',
     tracePrefix: '',

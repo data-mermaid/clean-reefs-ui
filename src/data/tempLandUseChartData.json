@@ -64,16 +64,5 @@
     "width": 2,
     "x": ["2000", "2005", "2010", "2015", "2020"],
     "y": [12, 11, 14, 8, 10]
-  },
-  {
-    "type": "bar",
-    "marker": {
-      "color": "#0E39D6"
-    },
-    "hovertemplate": "Year: %{x}<br />Surface water: %{y}%<extra></extra>",
-    "name": "Surface water",
-    "width": 2,
-    "x": ["2000", "2005", "2010", "2015", "2020"],
-    "y": [18, 16, 14, 15, 13]
   }
 ]

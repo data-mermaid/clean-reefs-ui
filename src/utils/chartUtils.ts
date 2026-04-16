@@ -45,7 +45,6 @@ export interface LulcAndSedimentSeriesData {
     high_canopy_forest: object
     mixed_forest: object
     shrubland_grassland: object
-    surface_water: object
   }
   sediment_load_historical: {
     sediment: object
@@ -62,7 +61,6 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
       high_canopy_forest: {},
       mixed_forest: {},
       shrubland_grassland: {},
-      surface_water: {},
     },
     sediment_load_historical: {
       sediment: {},
@@ -103,9 +101,6 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
         case 'Shrub_Grass_pct_':
           chartSeriesData.land_use_historical.shrubland_grassland[year] = val
           break
-        case 'Water_pct_':
-          chartSeriesData.land_use_historical.surface_water[year] = val
-          break
         case 'sed_export_':
           chartSeriesData.sediment_load_historical.sediment[year] = val
           break
@@ -114,7 +109,6 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
   }
   return chartSeriesData
 }
-
 type PlumeStatsEntries = [string, ZonalStatsBand][]
 
 export const mapChartConfigToPlumeData = (

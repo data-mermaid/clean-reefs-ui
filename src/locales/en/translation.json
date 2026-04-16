@@ -15,6 +15,7 @@
     "sediment_exposure": "Sediment exposure (tonnes)",
     "sediment_load": "Sediment load (tonnes)"
   },
+
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
