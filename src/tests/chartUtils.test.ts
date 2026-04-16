@@ -431,35 +431,33 @@ describe('export filename utilities', () => {
   })
 
   describe('buildExportFilename', () => {
-    it('builds global filename without region label', () => {
-      expect(buildExportFilename('global', '', 'Land use', 2000)).toBe('global-land-use-2000')
-    })
-
-    it('includes region type as-is in filename', () => {
-      expect(buildExportFilename('region', 'Central Indo-Pacific', 'Land use', 2000)).toBe(
-        'region-central-indo-pacific-land-use-2000',
-      )
-    })
-
-    it('builds country filename', () => {
-      expect(buildExportFilename('country', 'Fiji', 'Sediment load', 2015)).toBe(
-        'country-fiji-sediment-load-2015',
-      )
-    })
-
-    it('builds watershed filename with numeric ID', () => {
-      expect(buildExportFilename('watershed', '12345', 'Land use', 2000)).toBe(
-        'watershed-12345-land-use-2000',
-      )
-    })
-
-    it('omits year when not provided', () => {
+    it('builds global filename with prefix and no region label', () => {
       expect(buildExportFilename('global', '', 'Land use')).toBe('global-land-use')
     })
 
+    it('builds region filename without prefix', () => {
+      expect(buildExportFilename('region', 'Central Indo-Pacific', 'Land use')).toBe(
+        'central-indo-pacific-land-use',
+      )
+    })
+
+    it('builds country filename without prefix', () => {
+      expect(buildExportFilename('country', 'Fiji', 'Sediment load')).toBe('fiji-sediment-load')
+    })
+
+    it('builds watershed filename with prefix', () => {
+      expect(buildExportFilename('watershed', '12345', 'Land use')).toBe('watershed-12345-land-use')
+    })
+
+    it('builds plume filename with prefix', () => {
+      expect(buildExportFilename('plume', 'abc-123', 'Sediment exposure')).toBe(
+        'plume-abc-123-sediment-exposure',
+      )
+    })
+
     it('handles chart titles with parentheses', () => {
-      expect(buildExportFilename('global', '', 'Ecosystem extent exposed to pollution', 2000)).toBe(
-        'global-ecosystem-extent-exposed-to-pollution-2000',
+      expect(buildExportFilename('global', '', 'Ecosystem extent exposed to pollution')).toBe(
+        'global-ecosystem-extent-exposed-to-pollution',
       )
     })
   })

@@ -87,7 +87,7 @@ export default function ChartCard({
   const plotConfig = useMemo(() => {
     const chartTitle = chartConfigData ? t(`charts.${chartConfigData.chartName}`) : ''
     const filename = chartConfigData
-      ? buildExportFilename(regionType, regionLabel, chartTitle, selectedYear)
+      ? buildExportFilename(regionType, regionLabel, chartTitle)
       : 'chart-export'
 
     return {
@@ -97,7 +97,7 @@ export default function ChartCard({
         filename,
       },
     }
-  }, [regionType, regionLabel, chartConfigData, selectedYear, t])
+  }, [regionType, regionLabel, chartConfigData, t])
 
   const renderChartContent = () => {
     if (isChartDataLoading) {

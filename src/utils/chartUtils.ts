@@ -286,19 +286,19 @@ export const buildExportFilename = (
   regionType: string,
   regionLabel: string,
   chartTitle: string,
-  selectedYear?: number,
 ): string => {
-  const parts = [regionType]
+  const prefixedTypes = ['global', 'watershed', 'plume']
+  const parts: string[] = []
+
+  if (prefixedTypes.includes(regionType)) {
+    parts.push(regionType)
+  }
 
   if (regionType !== 'global' && regionLabel) {
     parts.push(formatForFilename(regionLabel))
   }
 
   parts.push(formatForFilename(chartTitle))
-
-  if (selectedYear !== undefined) {
-    parts.push(String(selectedYear))
-  }
 
   return parts.join('-')
 }
