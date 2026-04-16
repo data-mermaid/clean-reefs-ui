@@ -61,6 +61,7 @@ export default function ChartCard({
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
+  const filenameRef = useRef('chart-export')
   const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
 
   useEffect(() => {
@@ -85,12 +86,13 @@ export default function ChartCard({
     [chartConfigData, selectedYear],
   )
 
-  const plotConfig = useMemo(() => {
-    const chartTitle = chartConfigData ? t(`charts.${chartConfigData.chartName}`) : ''
-    const filename = chartConfigData
-      ? buildExportFilename(regionType, regionLabel, chartTitle)
-      : 'chart-export'
+  // Keep filename in a ref so the modebar click handler always uses the
+  // latest value — react-plotly.js doesn't re-register buttons on config changes.
+  filenameRef.current = chartConfigData
+    ? buildExportFilename(regionType, regionLabel, t(`charts.${chartConfigData.chartName}`))
+    : 'chart-export'
 
+  const plotConfig = useMemo(() => {
     return {
       ...plotlyTheme.config,
       // Replace built-in camera button with a custom one that removes
@@ -99,7 +101,7 @@ export default function ChartCard({
       modeBarButtonsToAdd: [
         {
           name: 'downloadPng',
-          title: 'Download plot as a png',
+          title: t('buttons.download_chart'),
           icon: Plotly.Icons.camera,
           click: async (gd: Plotly.PlotlyHTMLElement) => {
             // Save per-bar opacity arrays (used to dim non-selected years)
@@ -109,7 +111,7 @@ export default function ChartCard({
 
             // Temporarily set all bars to full opacity for the export
             await Plotly.restyle(gd, { 'marker.opacity': 1 })
-            await Plotly.downloadImage(gd, { format: 'png', filename })
+            await Plotly.downloadImage(gd, { format: 'png', filename: filenameRef.current })
             // Restore the original highlighting
             await Plotly.restyle(gd, {
               'marker.opacity': originalOpacities as Plotly.Datum[],
@@ -118,7 +120,7 @@ export default function ChartCard({
         },
       ],
     }
-  }, [regionType, regionLabel, chartConfigData, t])
+  }, [t])
 
   const renderChartContent = () => {
     if (isChartDataLoading) {

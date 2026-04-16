@@ -5,7 +5,8 @@
     "go": "Go",
     "open_menu": "Open menu",
     "share_view": "Share view",
-    "reload_page": "Reload page"
+    "reload_page": "Reload page",
+    "download_chart": "Download plot as a png"
   },
   "chart_information": {
     "area_exposed_ha": "Area exposed (ha)",
