@@ -117,5 +117,6 @@
   "select_year": "Select year",
   "map_layers_did_not_load": "Some map layers didn't load",
   "ocean_pollution": "Ocean Pollution",
-  "satellite": "Satellite"
+  "satellite": "Satellite",
+  "basic": "Basic"
 }

@@ -22,11 +22,13 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
   selectedLayers: string[]
+  selectedBasemap: string
   onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
+  onBasemapChange: (basemap: string) => void
 }
 
 interface BoundaryLegendCardProps {
@@ -56,11 +58,13 @@ export default function LayersDrawer({
   setMapLayers,
   selectedYear,
   selectedLayers,
+  selectedBasemap,
   onLayerToggleChange,
   onSedSubLayerChange,
   subSedLayerValue,
   showLabels,
   onLabelsChange,
+  onBasemapChange,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -122,7 +126,9 @@ export default function LayersDrawer({
           <BasemapSwitcher
             key="basemap-switcher"
             showLabels={showLabels}
+            selectedBasemap={selectedBasemap}
             onLabelsChange={onLabelsChange}
+            onBasemapChange={onBasemapChange}
           />,
         ]
       }

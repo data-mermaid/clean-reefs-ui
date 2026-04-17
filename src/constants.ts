@@ -1,10 +1,17 @@
 const coralAtlasAppId = import.meta.env.VITE_CORAL_ATLAS_APP_ID
+const maptilerApiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
 if (!coralAtlasAppId) {
   throw new Error('VITE_CORAL_ATLAS_APP_ID environment variable is required')
 }
 
 /******MAP LAYERS******/
+/******MAP STYLES******/
+export const BASIC_STYLE = `https://api.maptiler.com/maps/basic/style.json?key=${maptilerApiKey}`
+export const SATELLITE_STYLE = `https://api.maptiler.com/maps/hybrid/style.json?key=${maptilerApiKey}`
+export const LIGHT_STYLE = `https://api.maptiler.com/maps/dataviz-light/style.json?key=${maptilerApiKey}`
+export const DARK_STYLE = `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${maptilerApiKey}`
+
 /* Boundary Layers - always on */
 export const REGIONS_PMTILES_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/regions/regions.pmtiles'

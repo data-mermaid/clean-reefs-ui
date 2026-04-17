@@ -1,3 +1,5 @@
+import { StyleSpecification } from 'maplibre-gl'
+
 export interface LayerInfo {
   dataType: 'pmtiles' | 'cog' | 'rastertiles' | 'vectortiles' | undefined //pmtiles:vector, tiles:raster
   isLayerOn: boolean
@@ -32,3 +34,5 @@ export interface ZonalStatsBand {
     data_area: number
   }
 }
+
+export type BaseMapStyleUrl = string | StyleSpecification
