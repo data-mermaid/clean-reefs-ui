@@ -13,6 +13,11 @@ const groupedProperties: LulcAndSedimentSeriesData = {
     mixed_forest: { '2015': 4 },
     shrubland_grassland: { '2020': 6 },
   },
+  ecosystem_extent_exposed: {
+    reef_extent: {},
+    coral_algae: {},
+    seagrass: {},
+  },
   sediment_load_historical: {
     sediment: {},
   },
@@ -34,6 +39,11 @@ const emptyChartSeriesData: LulcAndSedimentSeriesData = {
     high_canopy_forest: {},
     mixed_forest: {},
     shrubland_grassland: {},
+  },
+  ecosystem_extent_exposed: {
+    reef_extent: {},
+    coral_algae: {},
+    seagrass: {},
   },
   sediment_load_historical: {
     sediment: {},

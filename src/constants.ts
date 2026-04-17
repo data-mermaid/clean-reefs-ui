@@ -7,11 +7,11 @@ if (!coralAtlasAppId) {
 /******MAP LAYERS******/
 /* Boundary Layers - always on */
 export const REGIONS_PMTILES_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/regions/regions.pmtiles'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/meow_realms/meow_realms/visual_regions.pmtiles'
 export const COUNTRIES_PMTILES_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/countries/countries.pmtiles'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/countries/countries/visual_countries.pmtiles'
 export const WATERSHED_PMTILES_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/watersheds/watersheds.pmtiles'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/watersheds/watersheds/visual_watersheds.pmtiles'
 
 /* Land Use Land Cover Layers */
 export const LULC_2000_URL =
