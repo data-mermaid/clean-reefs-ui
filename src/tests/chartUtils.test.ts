@@ -1,5 +1,10 @@
-import { getBoundaryFileChartData, LulcAndSedimentSeriesData } from '../utils/chartUtils'
-import { mapChartConfigToData } from '../utils/chartUtils'
+import {
+  getBoundaryFileChartData,
+  LulcAndSedimentSeriesData,
+  mapChartConfigToData,
+  formatForFilename,
+  buildExportFilename,
+} from '../utils/chartUtils'
 import { ChartData, ChartSeriesName } from '../types/ChartDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import i18next from 'i18next'
@@ -406,6 +411,51 @@ describe('chart data utilities', () => {
         expect(result.chartSeriesData[0].x).toEqual(['2000', '2005', '2015', '2020'])
         expect(result.chartSeriesData[0].y).toEqual([5, 8, 12, 15])
       })
+    })
+  })
+})
+
+describe('export filename utilities', () => {
+  describe('formatForFilename', () => {
+    it('lowercases and replaces spaces with hyphens', () => {
+      expect(formatForFilename('Central Indo-Pacific')).toBe('central-indo-pacific')
+      expect(formatForFilename('Solomon Islands')).toBe('solomon-islands')
+    })
+
+    it('strips non-alphanumeric characters except hyphens', () => {
+      expect(formatForFilename('Sediment load (tonnes)')).toBe('sediment-load-tonnes')
+    })
+  })
+
+  describe('buildExportFilename', () => {
+    it('builds global filename with prefix and no region label', () => {
+      expect(buildExportFilename('global', '', 'Land use')).toBe('global-land-use')
+    })
+
+    it('builds region filename without prefix', () => {
+      expect(buildExportFilename('region', 'Central Indo-Pacific', 'Land use')).toBe(
+        'central-indo-pacific-land-use',
+      )
+    })
+
+    it('builds country filename without prefix', () => {
+      expect(buildExportFilename('country', 'Fiji', 'Sediment load')).toBe('fiji-sediment-load')
+    })
+
+    it('builds watershed filename with prefix', () => {
+      expect(buildExportFilename('watershed', '12345', 'Land use')).toBe('watershed-12345-land-use')
+    })
+
+    it('builds plume filename with prefix', () => {
+      expect(buildExportFilename('plume', 'abc-123', 'Sediment exposure')).toBe(
+        'plume-abc-123-sediment-exposure',
+      )
+    })
+
+    it('handles chart titles with parentheses', () => {
+      expect(buildExportFilename('global', '', 'Ecosystem extent exposed to pollution')).toBe(
+        'global-ecosystem-extent-exposed-to-pollution',
+      )
     })
   })
 })

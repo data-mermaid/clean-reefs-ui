@@ -4,8 +4,23 @@ import { ZonalStatsBand } from '../types/MapDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 import { Dispatch, SetStateAction } from 'react'
-import { PlotData } from 'plotly.js'
-import { RegionType } from '../types/RegionDataTypes'
+import type { PlotData } from 'plotly.js'
+import { RegionOption, RegionType } from '../types/RegionDataTypes'
+
+export function getRegionLabel(
+  regionType: RegionType,
+  selectedRegion: RegionOption,
+  selectedFeature: MapGeoJSONFeature | null,
+): string {
+  switch (regionType) {
+    case 'global':
+      return ''
+    case 'watershed':
+      return String(selectedFeature?.id ?? '')
+    default:
+      return selectedRegion.label
+  }
+}
 
 export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): string {
   if (regionType === 'global') {
@@ -267,4 +282,32 @@ export const updateChartData = (
 
   //3. set data
   setChartData(mappedData)
+}
+
+export const formatForFilename = (value: string): string => {
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+}
+
+export const buildExportFilename = (
+  regionType: string,
+  regionLabel: string,
+  chartTitle: string,
+): string => {
+  const prefixedTypes = ['global', 'watershed', 'plume']
+  const parts: string[] = []
+
+  if (prefixedTypes.includes(regionType)) {
+    parts.push(regionType)
+  }
+
+  if (regionType !== 'global' && regionLabel) {
+    parts.push(formatForFilename(regionLabel))
+  }
+
+  parts.push(formatForFilename(chartTitle))
+
+  return parts.join('-')
 }
