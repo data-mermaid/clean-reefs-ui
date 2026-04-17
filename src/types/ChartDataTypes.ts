@@ -1,4 +1,4 @@
-import { PlotData } from 'plotly.js'
+import type { PlotData } from 'plotly.js'
 
 export interface ChartData {
   [name: string]: Record<string, number>

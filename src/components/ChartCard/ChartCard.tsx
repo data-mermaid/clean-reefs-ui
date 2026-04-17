@@ -1,16 +1,21 @@
 import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
-import Plot from 'react-plotly.js'
+import createPlotlyComponent from 'react-plotly.js/factory'
+import Plotly from 'plotly.js-basic-dist'
 import { Card, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
+import { buildExportFilename } from '../../utils/chartUtils'
+
+const Plot = createPlotlyComponent(Plotly)
 
 interface ChartCardProps {
   open: boolean
   onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
+  regionLabel?: string
   selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
@@ -51,12 +56,14 @@ export default function ChartCard({
   open = true,
   onClick,
   regionType = 'global',
+  regionLabel = '',
   selectedYear,
   chartConfigData,
   isChartDataLoading,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
+  const filenameRef = useRef('chart-export')
   const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
 
   useEffect(() => {
@@ -80,6 +87,46 @@ export default function ChartCard({
     () => getSelectedBarIndex(chartConfigData, selectedYear),
     [chartConfigData, selectedYear],
   )
+
+  // Keep filename in a ref so the modebar click handler always uses the
+  // latest value — react-plotly.js doesn't re-register buttons on config changes.
+  filenameRef.current = chartConfigData
+    ? buildExportFilename(regionType, regionLabel, t(`charts.${chartConfigData.chartName}`))
+    : 'chart-export'
+
+  const plotConfig = useMemo(() => {
+    return {
+      ...plotlyTheme.config,
+      // Replace built-in camera button with a custom one that removes
+      // the selected-year opacity highlighting before exporting
+      modeBarButtonsToRemove: ['toImage'] as Plotly.ModeBarDefaultButtons[],
+      modeBarButtonsToAdd: [
+        {
+          name: 'downloadPng',
+          title: t('buttons.download_chart'),
+          icon: Plotly.Icons.camera,
+          click: async (gd: Plotly.PlotlyHTMLElement) => {
+            // Save per-bar opacity arrays (used to dim non-selected years)
+            const originalOpacities = gd.data.map(
+              (trace) => (trace as Plotly.PlotData).marker?.opacity,
+            )
+
+            // Temporarily set all bars to full opacity for the export
+            await Plotly.restyle(gd, { 'marker.opacity': 1 })
+            await Plotly.downloadImage(gd, {
+              format: 'png',
+              width: null,
+              height: null,
+              filename: filenameRef.current,
+            })
+            // Restore the original highlighting
+            // restyle distributes array values across traces — not reflected in @types/plotly.js
+            await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+          },
+        },
+      ],
+    }
+  }, [t])
 
   const renderChartContent = () => {
     if (isChartDataLoading) {
@@ -109,7 +156,7 @@ export default function ChartCard({
               }
             })}
             className={styles['chart-card__plot']}
-            config={plotlyTheme.config}
+            config={plotConfig}
             layout={{
               ...plotlyTheme.layout,
               barmode: chartConfigData.barmode,
