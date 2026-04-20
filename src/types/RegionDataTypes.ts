@@ -6,6 +6,5 @@ export interface RegionOption {
   label: string
   centerCoord: LngLat
   zoomLevel: number
-  grouping: number //0+, used to denote what level in breadcrumb hierarchy
 }
 export type RegionType = 'global' | 'watershed' | 'country' | 'region' | 'plume'

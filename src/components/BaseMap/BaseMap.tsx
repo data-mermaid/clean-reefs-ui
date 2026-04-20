@@ -189,7 +189,6 @@ const applyPlumeStats = ({
     label: 'Plume',
     centerCoord: new LngLat(point.lng, point.lat),
     zoomLevel: map.getZoom(),
-    grouping: 3,
   })
 
   setBreadcrumb(breadcrumb)
@@ -447,7 +446,6 @@ export default function BaseMap({
             label: 'Watershed',
             centerCoord: bounds.getCenter(),
             zoomLevel: map.getZoom(),
-            grouping: 3,
           })
 
           setBreadcrumb(breadcrumb)

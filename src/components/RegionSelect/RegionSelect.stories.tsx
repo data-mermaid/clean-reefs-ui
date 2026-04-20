@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
-import { expect, userEvent } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 
 const meta: Meta<typeof RegionSelect> = {
@@ -24,6 +24,54 @@ export const ShortBreadcrumb: Story = {
     const input = canvas.getByRole('combobox')
     await expect(input).toBeInTheDocument()
     await userEvent.click(input)
+
+    // Dropdown renders in a portal, so query the document body, not the canvas.
+    const listbox = within(document.body).getByRole('listbox')
+
+    await expect(within(listbox).getByText('All Data')).toBeInTheDocument()
+    await expect(within(listbox).getByText('Regions with Coral Reefs')).toBeInTheDocument()
+    await expect(within(listbox).getByText('Countries with Coral Reefs')).toBeInTheDocument()
+
+    await expect(within(listbox).getByText('Global')).toBeInTheDocument()
+    await expect(within(listbox).getByText('Fiji')).toBeInTheDocument()
+    await expect(within(listbox).getByText('Solomon Islands')).toBeInTheDocument()
+    await expect(within(listbox).getByText('Central Indo-Pacific')).toBeInTheDocument()
+
+    await expect(within(listbox).queryByText('Watershed')).toBeNull()
+    await expect(within(listbox).queryByText('Plume')).toBeNull()
+  },
+}
+
+export const SelectingOptionFiresChange: Story = {
+  args: {
+    breadcrumb: [defaultGlobalRegionOption],
+    setBreadcrumb: fn(),
+    selectedRegion: defaultGlobalRegionOption,
+    onRegionChange: fn(),
+  },
+  play: async ({ canvas, args }) => {
+    await userEvent.click(canvas.getByRole('combobox'))
+    const listbox = within(document.body).getByRole('listbox')
+    await userEvent.click(within(listbox).getByText('Fiji'))
+
+    const fiji = regionOptions.find((r) => r.id === 'fiji')
+    await expect(args.onRegionChange).toHaveBeenCalledWith(fiji)
+  },
+}
+
+export const SubheaderClickIsNoop: Story = {
+  args: {
+    breadcrumb: [defaultGlobalRegionOption],
+    setBreadcrumb: fn(),
+    selectedRegion: defaultGlobalRegionOption,
+    onRegionChange: fn(),
+  },
+  play: async ({ canvas, args }) => {
+    await userEvent.click(canvas.getByRole('combobox'))
+    const listbox = within(document.body).getByRole('listbox')
+    await userEvent.click(within(listbox).getByText('Countries with Coral Reefs'))
+
+    await expect(args.onRegionChange).not.toHaveBeenCalled()
   },
 }
 
