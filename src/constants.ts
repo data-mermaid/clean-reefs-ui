@@ -7,7 +7,6 @@ if (!coralAtlasAppId) {
 
 /******MAP LAYERS******/
 /******MAP STYLES******/
-export const BASIC_STYLE = `https://api.maptiler.com/maps/basic/style.json?key=${maptilerApiKey}`
 export const SATELLITE_STYLE = `https://api.maptiler.com/maps/hybrid/style.json?key=${maptilerApiKey}`
 export const LIGHT_STYLE = `https://api.maptiler.com/maps/dataviz-light/style.json?key=${maptilerApiKey}`
 export const DARK_STYLE = `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${maptilerApiKey}`

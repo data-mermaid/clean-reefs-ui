@@ -14,10 +14,9 @@ import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
-  BASIC_STYLE,
-  DARK_STYLE,
-  LIGHT_STYLE,
   SATELLITE_STYLE,
+  LIGHT_STYLE,
+  DARK_STYLE,
   SEDIMENT_EXPOSURE_2000_URL,
   SEDIMENT_EXPOSURE_2005_URL,
   SEDIMENT_EXPOSURE_2010_URL,
@@ -436,7 +435,6 @@ export async function getAllYearZonalStats(lngLat) {
 }
 
 const basemapOptions = {
-  basic: BASIC_STYLE,
   satellite: SATELLITE_STYLE,
   light: LIGHT_STYLE,
   dark: DARK_STYLE,
@@ -445,5 +443,5 @@ const basemapOptions = {
 export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<keyof typeof basemapOptions>
 
 export function getBasemapStyleUrl(selectedBasemap: string): BaseMapStyleUrl {
-  return (basemapOptions[selectedBasemap] || BASIC_STYLE) as BaseMapStyleUrl
+  return (basemapOptions[selectedBasemap] || SATELLITE_STYLE) as BaseMapStyleUrl
 }

@@ -105,5 +105,5 @@ export function getValidBasemap(basemapFromSearchParam: string | null): string {
     return basemapFromSearchParam
   }
 
-  return 'basic'
+  return 'satellite'
 }
