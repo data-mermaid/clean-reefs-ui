@@ -69,7 +69,9 @@ export default function MapContainer() {
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
-    initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+    initialRegion.regionType !== 'global'
+      ? [defaultGlobalRegionOption, initialRegion]
+      : [initialRegion],
   )
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
@@ -134,7 +136,9 @@ export default function MapContainer() {
     setSelectedRegion(initialRegion)
     if (!watershedParam) {
       setBreadcrumb(
-        initialRegion.grouping > 0 ? [defaultGlobalRegionOption, initialRegion] : [initialRegion],
+        initialRegion.regionType !== 'global'
+          ? [defaultGlobalRegionOption, initialRegion]
+          : [initialRegion],
       )
     }
   }, [initialRegion, watershedParam])

@@ -139,19 +139,8 @@
   @include muiComponents.muiSelectMenuItem;
 }
 
-// To be implemented with regional grouping headers
-//.group-header {
-//  position: sticky;
-//  top: -8px;
-//  font-weight: theme.$semiBold;
-//  padding: theme.$spacingSmall theme.$spacingMedium;
-//  border-bottom: 1px solid theme.$secondary;
-//  font-size: theme.$textSizeSmall;
-//}
-//
-//.group-list {
-//  padding: 0;
-//  margin: 0;
-//  list-style: none;
-//  font-size: theme.$textSizeSmall;
-//}
+.group-header {
+  color: theme.$textColor;
+  font-size: theme.$textSizeMedium;
+  font-weight: theme.$semiBold;
+}

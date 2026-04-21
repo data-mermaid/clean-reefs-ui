@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
-import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
-import { MenuItem, Select } from '@mui/material'
+import { defaultGlobalRegionOption, regionGroups, regionOptions } from '../../data/regionData'
+import { ListSubheader, MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 import { useMapStore } from '../../stores/mapStore'
@@ -29,14 +29,14 @@ export default function RegionSelect({
 
   const prepBreadcrumb = (region: RegionOption) => {
     const selectedOptions = [region]
-    if (region.grouping > 0) {
+    if (region.regionType !== 'global') {
       selectedOptions.unshift(defaultGlobalRegionOption)
     }
     setBreadcrumb(selectedOptions)
   }
   const jumpToRegion = (region: RegionOption) => {
     // no jump on global click
-    if (region.grouping > 0) {
+    if (region.regionType !== 'global') {
       if (mapRef && mapRef.getMap) {
         mapRef.getMap().jumpTo({
           center: region.centerCoord,
@@ -83,7 +83,7 @@ export default function RegionSelect({
   }
 
   const updateRegion = (region: RegionOption) => {
-    if (region.grouping > 0) {
+    if (region.regionType !== 'global') {
       jumpToRegion(region)
     }
     onRegionChange(region)
@@ -111,9 +111,15 @@ export default function RegionSelect({
           select: styles['MuiSelect-select'],
         }}
       >
-        {regionOptions.map((option) => {
-          return (
-            option.grouping <= 2 && (
+        {/* For each group, emit a header followed by its options as menu items.
+            flatMap keeps them as direct children of <Select> (required by MUI). */}
+        {regionGroups.flatMap(({ type, label }) => [
+          <ListSubheader key={`group-${type}`} className={styles['group-header']}>
+            {label}
+          </ListSubheader>,
+          ...regionOptions
+            .filter((opt) => opt.regionType === type)
+            .map((option) => (
               <MenuItem
                 className={styles['MuiMenuItem-root']}
                 key={_.kebabCase(option.label)}
@@ -121,9 +127,8 @@ export default function RegionSelect({
               >
                 {option.label}
               </MenuItem>
-            )
-          )
-        })}
+            )),
+        ])}
       </Select>
     </Box>
   )

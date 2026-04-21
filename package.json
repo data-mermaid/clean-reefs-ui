@@ -9,6 +9,8 @@
     "lint": "tsc && eslint .",
     "preview": "vite preview",
     "test": "jest --setupFilesAfterEnv=./src/tests/setupTests.ts",
+    "test:stories": "vitest --project=storybook --run",
+    "test:all": "yarn test && yarn test:stories",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"
