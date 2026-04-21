@@ -43,6 +43,7 @@ import {
   querySourceFeatureAtPointWhenReady,
   setPolygonSelect,
   getAllYearZonalStats,
+  getBasemapStyleUrl,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -90,6 +91,7 @@ interface BaseMapProps {
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
+  selectedBasemap: string
   selectedYear: number
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
@@ -177,12 +179,9 @@ const applyPlumeStats = ({
     }
   }
 
-  // TODO: replace with topContributingWatershedIds when real stats are available
-  const exampleTopWatershedIds = [974529, 977314, 977908]
-
   const watershedFeatures = map.querySourceFeatures(watershedLayer.sourceId, {
     sourceLayer: watershedLayer.sourceFileName,
-    filter: ['in', ['get', 'watershed_id'], ['literal', exampleTopWatershedIds]],
+    filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
   const { breadcrumb } = buildBreadcrumb(watershedFeatures[0]?.properties, {
     id: 'plume',
@@ -194,7 +193,7 @@ const applyPlumeStats = ({
   })
 
   setBreadcrumb(breadcrumb)
-  setTopPolygonsFill('watershed', exampleTopWatershedIds) // TODO: replace with topContributingWatershedIds when real stats are available
+  setTopPolygonsFill('watershed', topContributingWatershedIds)
 }
 
 const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParamProps) => {
@@ -228,7 +227,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   })
 }
 
-function WatershedLayers({ layer, index }) {
+function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
   return (
     <Source
       id={layer.sourceId}
@@ -243,7 +242,7 @@ function WatershedLayers({ layer, index }) {
         key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{
           visibility: layer.isLayerOn ? 'visible' : 'none',
         }}
@@ -258,7 +257,7 @@ function WatershedLayers({ layer, index }) {
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{
           visibility: layer.isLayerOn ? 'visible' : 'none',
           'line-sort-key': 5,
@@ -359,6 +358,7 @@ export default function BaseMap({
   initialWatershedId,
   initialDispersalPoint,
   dispersalPoint,
+  selectedBasemap,
   selectedYear,
   hasExplicitViewState,
   setBreadcrumb,
@@ -372,6 +372,9 @@ export default function BaseMap({
   const setMapRef = useMapStore((s) => s.setMapRef)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
+  const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
+  const setWatershedLayer = useSelectedFeatureStore((s) => s.setWatershedLayer)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
     (s) => s.clearSelectedPlumeWatershedStats,
@@ -395,6 +398,23 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
+  useEffect(() => {
+    if (!watershedLayer) {
+      return
+    }
+
+    const { watershedLayer: currentWatershedLayer } = useMapStore.getState()
+
+    const isSameLayer =
+      currentWatershedLayer?.sourceId === watershedLayer.sourceId &&
+      currentWatershedLayer?.sourceFileName === watershedLayer.sourceFileName
+
+    if (isSameLayer) {
+      return
+    }
+
+    setWatershedLayer(watershedLayer)
+  }, [watershedLayer, setWatershedLayer])
   const plumeLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'plumes'), [mapLayers])
   const benthicSubLayerFillExpression = useMemo(
     () => [
@@ -507,6 +527,11 @@ export default function BaseMap({
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
+  const mapStyleUrl = useMemo(
+    () => getBasemapStyleUrl(selectedBasemap, apiKey),
+    [selectedBasemap, apiKey],
+  )
+
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
@@ -541,32 +566,24 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
-  // Toggle visibility of all symbol (label) layers in the basemap style when showLabels changes.
-  // Re-registers on style.load so the setting survives basemap style switches.
+  // Apply label visibility when the showLabels toggle changes.
+  // Basemap-switch restoration is handled in handleBasemapChange in MapContainer.
   useEffect(() => {
     if (!isMapLoaded) {
       return
     }
 
     const map = mapRef.current?.getMap()
-    if (!map) {
+    if (!map || !map.isStyleLoaded()) {
       return
     }
 
-    const applyLabelVisibility = () => {
-      const visibility = showLabels ? 'visible' : 'none'
-      map
-        .getStyle()
-        ?.layers.filter((l) => l.type === 'symbol')
-        .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
-    }
+    const visibility = showLabels ? 'visible' : 'none'
 
-    applyLabelVisibility()
-    map.on('style.load', applyLabelVisibility)
-    // eslint-disable-next-line consistent-return
-    return () => {
-      map.off('style.load', applyLabelVisibility)
-    }
+    map
+      .getStyle()
+      ?.layers.filter((l) => l.type === 'symbol')
+      .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
   }, [isMapLoaded, showLabels])
 
   // When selectedFeature is cleared externally (e.g., dropdown region change),
@@ -671,9 +688,21 @@ export default function BaseMap({
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, plumeLayer])
 
   const handleMapLoad = () => {
+    const map = mapRef.current?.getMap()
+
+    // Resolve beforeId BEFORE setIsMapLoaded so the Zustand store is already populated
+    // when React re-renders with isMapLoaded = true. This ensures WatershedLayers mounts
+    // with the correct beforeId on its very first render (labels above data layers).
+    // Subsequent basemap changes are handled in handleBasemapChange.
+    if (map) {
+      const firstSymbolId = map.getStyle()?.layers.find((l) => l.type === 'symbol')?.id
+      if (firstSymbolId) {
+        setBasemapBeforeId(firstSymbolId)
+      }
+    }
+
     setIsMapLoaded(true)
 
-    const map = mapRef.current?.getMap()
     if (!map || !watershedLayer) {
       return
     }
@@ -737,7 +766,7 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
-        mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
+        mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
@@ -756,9 +785,10 @@ export default function BaseMap({
         {/* Watershed always rendered first so other layers can reference it via beforeId */}
         {isMapLoaded && watershedLayer && (
           <WatershedLayers
-            key={`layer-${watershedIndex}`}
+            key={`watershed-${basemapBeforeId}`}
             layer={watershedLayer}
             index={watershedIndex}
+            beforeId={basemapBeforeId}
           />
         )}
         {mapLayers.map((layer: LayerInfo, index) => {

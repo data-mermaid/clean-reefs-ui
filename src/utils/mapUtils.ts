@@ -442,6 +442,8 @@ const basemapOptions = {
 
 export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<keyof typeof basemapOptions>
 
-export function getBasemapStyleUrl(selectedBasemap: string): BaseMapStyleUrl {
-  return (basemapOptions[selectedBasemap] || SATELLITE_STYLE) as BaseMapStyleUrl
+export function getBasemapStyleUrl(selectedBasemap: string, apiKey: string): BaseMapStyleUrl {
+  const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
+
+  return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
 }

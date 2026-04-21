@@ -6,17 +6,24 @@ import {
   buildWatershedMatchExpression,
   getUpdatedBenthicColor,
 } from '../utils/mapUtils'
+import { LayerInfo } from '../types/MapDataTypes'
+import { useSelectedFeatureStore } from './selectedFeatureStore'
 
 type MapState = {
   mapReference: MapRef | null
+  basemapBeforeId: string | undefined
+  watershedLayer: LayerInfo | null
   benthicMapSubLayerColors: Record<string, string>
   sedExportMapSubLayerColors: Record<string, string>
-  topWatershedIds: number[]
   sedExportMode: 'pixel' | 'watershed' | null
   sedExportYear: number
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
+  setBasemapBeforeId: (id: string | undefined) => void
+  setWatershedLayer: (layer: LayerInfo) => void
+  prepareBasemapChange: (showLabels: boolean) => void
+  restoreActiveSelection: () => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
@@ -26,16 +33,82 @@ type MapActions = {
   ) => void
   turnOffSedExportSubLayerFills: () => void
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
-  setTopWatershedIds: (polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
   mapReference: null,
   setMapRef: (mapRef) => set({ mapReference: mapRef }),
+  basemapBeforeId: undefined,
+  setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
+  watershedLayer: null,
+  setWatershedLayer: (layer) => set({ watershedLayer: layer }),
+  // Register a once style.load listener before the URL update triggers react-map-gl's setStyle.
+  // This ensures beforeId and label visibility are resolved on the new style's first load,
+  // with no dep-array race condition.
+  prepareBasemapChange: (showLabels) => {
+    const map = get().mapReference?.getMap()
+    if (!map) {
+      return
+    }
+
+    map.once('style.load', () => {
+      const layers = map.getStyle()?.layers ?? []
+      const symbolLayers = layers.filter((layer) => layer.type === 'symbol')
+
+      if (symbolLayers.length === 0) {
+        return
+      }
+
+      set({ basemapBeforeId: symbolLayers[0].id })
+
+      const visibility = showLabels ? 'visible' : 'none'
+      for (const layer of symbolLayers) {
+        map.setLayoutProperty(layer.id, 'visibility', visibility)
+      }
+    })
+  },
+
+  // Restore whichever active state is present (selected polygon OR top contributing fills)
+  // after a basemap change. Uses map.once('idle') so it fires after the new style is fully
+  // settled and React has re-added the watershed source/layer.
+  restoreActiveSelection: () => {
+    const state = get()
+    const map = state.mapReference?.getMap()
+
+    if (!map) {
+      return
+    }
+
+    map.once('idle', () => {
+      const { selectedFeature, topWatershedIds, watershedLayer } =
+        useSelectedFeatureStore.getState()
+
+      const canRestoreSelectedFeature =
+        selectedFeature?.id != null &&
+        watershedLayer != null &&
+        map.getSource(watershedLayer.sourceId) != null
+
+      if (canRestoreSelectedFeature) {
+        map.setFeatureState(
+          {
+            source: watershedLayer.sourceId,
+            sourceLayer: watershedLayer.sourceFileName,
+            id: selectedFeature.id,
+          },
+          { select: true },
+        )
+        return
+      }
+
+      if (topWatershedIds.length > 0) {
+        state.setTopPolygonsFill('watershed', topWatershedIds)
+      }
+    })
+  },
+
   benthicMapSubLayerColors: atlasBenthicColors,
   sedExportMapSubLayerColors: sedExportColorMapping,
-  topWatershedIds: [],
   sedExportMode: null,
   sedExportYear: 0,
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
@@ -59,6 +132,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   ) => {
     const state = get()
     const map = state.mapReference?.getMap()
+
     if (!map) {
       return
     }
@@ -66,6 +140,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     set({ sedExportMode: subLayerToggledOn, sedExportYear: selectedYear })
 
     const pixelLayer = map.getLayer('sed_export')
+
     if (pixelLayer) {
       map.setLayoutProperty(
         'sed_export',
@@ -74,6 +149,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       )
     }
 
+    const { topWatershedIds } = useSelectedFeatureStore.getState()
     const baseFillExpression =
       subLayerToggledOn === 'watershed'
         ? buildSedExportWatershedExpression(selectedYear)
@@ -82,7 +158,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     map.setPaintProperty(
       'watershed',
       'fill-color',
-      buildWatershedMatchExpression(state.topWatershedIds, baseFillExpression),
+      buildWatershedMatchExpression(topWatershedIds, baseFillExpression),
     )
   },
   turnOffSedExportSubLayerFills: () => {
@@ -95,22 +171,22 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     set({ sedExportMode: null })
 
     const pixelLayer = map.getLayer('sed_export')
+
     if (pixelLayer) {
       map.setLayoutProperty('sed_export', 'visibility', 'none')
     }
 
+    const { topWatershedIds } = useSelectedFeatureStore.getState()
     map.setPaintProperty(
       'watershed',
       'fill-color',
-      buildWatershedMatchExpression(state.topWatershedIds, transparent),
+      buildWatershedMatchExpression(topWatershedIds, transparent),
     )
-  },
-  setTopWatershedIds: (polygonIds) => {
-    set({ topWatershedIds: polygonIds })
   },
   clearTopPolygonsFill: (layerId) => {
     const state = get()
     const map = state.mapReference?.getMap()
+    const { setTopWatershedIds } = useSelectedFeatureStore.getState()
 
     if (!map) {
       return
@@ -123,12 +199,13 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
         ? buildSedExportWatershedExpression(state.sedExportYear)
         : transparent
 
-    set({ topWatershedIds: [] })
+    setTopWatershedIds([])
     map.setPaintProperty(layerId, 'fill-color', baseFillExpression)
   },
   setTopPolygonsFill: (layerId, polygonIds) => {
     const state = get()
     const map = state.mapReference?.getMap()
+    const { topWatershedIds, setTopWatershedIds } = useSelectedFeatureStore.getState()
 
     if (!map) {
       return
@@ -141,7 +218,14 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
         ? buildSedExportWatershedExpression(state.sedExportYear)
         : transparent
 
-    set({ topWatershedIds: polygonIds })
+    const hasSameIds =
+      topWatershedIds.length === polygonIds.length &&
+      topWatershedIds.every((id, index) => id === polygonIds[index])
+
+    if (!hasSameIds) {
+      setTopWatershedIds(polygonIds)
+    }
+
     map.setPaintProperty(
       layerId,
       'fill-color',

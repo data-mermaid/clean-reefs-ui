@@ -6,10 +6,11 @@ import {
   RadioGroup,
   Switch,
   Typography,
-} from "@mui/material"
-import styles from "./BasemapSwitcher.module.scss"
-import { useTranslation } from "react-i18next"
-import { VALID_BASEMAPS } from "../../utils/mapUtils"
+} from '@mui/material'
+import styles from './BasemapSwitcher.module.scss'
+import { useTranslation } from 'react-i18next'
+import { VALID_BASEMAPS } from '../../utils/mapUtils'
+import { useMapStore } from '../../stores/mapStore'
 
 interface BasemapSwitcherProps {
   showLabels: boolean
@@ -32,28 +33,31 @@ export default function BasemapSwitcher({
 
   const handleBasemapChange = (event: React.SyntheticEvent) => {
     const value = (event.target as HTMLInputElement).value
+    const { restoreActiveSelection } = useMapStore.getState()
+
+    restoreActiveSelection()
     onBasemapChange(value)
   }
 
   return (
     <>
-      <Card className={styles["basemap-card"]}>
-        <div className={styles["basemap-toggle-header"]}>
-          <Typography className={styles["basemap-card_title"]}>{t("labels")}</Typography>
+      <Card className={styles['basemap-card']}>
+        <div className={styles['basemap-toggle-header']}>
+          <Typography className={styles['basemap-card_title']}>{t('labels')}</Typography>
           <Switch
-            className={styles["MuiSwitch-root"]}
+            className={styles['MuiSwitch-root']}
             checked={showLabels}
             onChange={handleLabelsChange}
           />
         </div>
       </Card>
-      <Card className={styles["basemap-card"]}>
-        <FormControl classes={{ root: styles["MuiFormControl-root"] }}>
+      <Card className={styles['basemap-card']}>
+        <FormControl classes={{ root: styles['MuiFormControl-root'] }}>
           <RadioGroup>
             {VALID_BASEMAPS.map((basemap) => (
               <FormControlLabel
                 key={basemap}
-                classes={{ root: styles["MuiFormControlLabel-root"] }}
+                classes={{ root: styles['MuiFormControlLabel-root'] }}
                 label={t(basemap)}
                 onChange={handleBasemapChange}
                 control={<Radio />}
