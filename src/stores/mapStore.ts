@@ -5,8 +5,8 @@ import {
   buildSedExportWatershedExpression,
   buildWatershedMatchExpression,
   getUpdatedBenthicColor,
+  resolveBasemapBeforeId,
 } from '../utils/mapUtils'
-import { LayerInfo } from '../types/MapDataTypes'
 import { useSelectedFeatureStore } from './selectedFeatureStore'
 
 type MapState = {
@@ -48,15 +48,13 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    map.once('style.load', () => {
+    map.once('styledata', () => {
       const layers = map.getStyle()?.layers ?? []
       const symbolLayers = layers.filter((layer) => layer.type === 'symbol')
+      const nextBeforeId = resolveBasemapBeforeId(layers)
+      console.log('nextBeforeId ', nextBeforeId)
 
-      if (symbolLayers.length === 0) {
-        return
-      }
-
-      set({ basemapBeforeId: symbolLayers[0].id })
+      set({ basemapBeforeId: nextBeforeId })
 
       const visibility = showLabels ? 'visible' : 'none'
       for (const layer of symbolLayers) {

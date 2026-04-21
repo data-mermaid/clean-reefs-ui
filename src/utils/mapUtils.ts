@@ -9,6 +9,10 @@ import {
   MapGeoJSONFeature,
   MapLayerMouseEvent,
 } from 'maplibre-gl'
+type LayerWithIdAndType = {
+  id: string
+  type?: string
+}
 import { RefObject } from 'react'
 import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
@@ -441,6 +445,36 @@ const basemapOptions = {
 }
 
 export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<keyof typeof basemapOptions>
+
+export const resolveBasemapBeforeId = (layers: LayerWithIdAndType[]): string | undefined => {
+  // Some basemap styles (e.g. MapTiler Light) insert symbol layers early in the stack and then
+  // continue adding opaque fill/hillshade layers afterwards. Inserting our overlay layers before
+  // the *first* symbol would place them underneath those later fills. Instead, find the first
+  // symbol that appears after the last blocking layer (fill, fill-extrusion, hillshade, raster).
+  const BLOCKING_TYPES = new Set(['fill', 'fill-extrusion', 'hillshade', 'raster'])
+
+  let lastBlockingIndex = -1
+  for (let i = 0; i < layers.length; i++) {
+    if (layers[i].type && BLOCKING_TYPES.has(layers[i].type as string)) {
+      lastBlockingIndex = i
+    }
+  }
+
+  for (let i = lastBlockingIndex + 1; i < layers.length; i++) {
+    if (layers[i].type === 'symbol') {
+      return layers[i].id
+    }
+  }
+
+  // Fallback: first symbol anywhere in the stack
+  const firstSymbol = layers.find((layer) => layer.type === 'symbol')
+  if (firstSymbol) {
+    return firstSymbol.id
+  }
+
+  // Last resort: first non-background layer
+  return layers.find((layer) => layer.type !== 'background')?.id
+}
 
 export function getBasemapStyleUrl(selectedBasemap: string, apiKey: string): BaseMapStyleUrl {
   const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE

@@ -334,7 +334,6 @@ export default function MapContainer() {
 
   const handleBasemapChange = useCallback(
     (basemap: string) => {
-      console.log('handleBasemapChange showLabels ', showLabels)
       useMapStore.getState().prepareBasemapChange(showLabels)
 
       updateSearchParams((prevSearchParams) => {
