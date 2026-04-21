@@ -403,16 +403,6 @@ export default function BaseMap({
       return
     }
 
-    const { watershedLayer: currentWatershedLayer } = useMapStore.getState()
-
-    const isSameLayer =
-      currentWatershedLayer?.sourceId === watershedLayer.sourceId &&
-      currentWatershedLayer?.sourceFileName === watershedLayer.sourceFileName
-
-    if (isSameLayer) {
-      return
-    }
-
     setWatershedLayer(watershedLayer)
   }, [watershedLayer, setWatershedLayer])
   const plumeLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'plumes'), [mapLayers])

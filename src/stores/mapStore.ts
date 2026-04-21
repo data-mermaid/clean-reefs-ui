@@ -12,7 +12,6 @@ import { useSelectedFeatureStore } from './selectedFeatureStore'
 type MapState = {
   mapReference: MapRef | null
   basemapBeforeId: string | undefined
-  watershedLayer: LayerInfo | null
   benthicMapSubLayerColors: Record<string, string>
   sedExportMapSubLayerColors: Record<string, string>
   sedExportMode: 'pixel' | 'watershed' | null
@@ -21,7 +20,6 @@ type MapState = {
 type MapActions = {
   setMapRef: (map: MapRef) => void
   setBasemapBeforeId: (id: string | undefined) => void
-  setWatershedLayer: (layer: LayerInfo) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
@@ -41,8 +39,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setMapRef: (mapRef) => set({ mapReference: mapRef }),
   basemapBeforeId: undefined,
   setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
-  watershedLayer: null,
-  setWatershedLayer: (layer) => set({ watershedLayer: layer }),
   // Register a once style.load listener before the URL update triggers react-map-gl's setStyle.
   // This ensures beforeId and label visibility are resolved on the new style's first load,
   // with no dep-array race condition.
