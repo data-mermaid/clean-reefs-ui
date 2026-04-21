@@ -23,13 +23,15 @@ export const Primary: Story = {
     initialDispersalPoint: null,
     dispersalPoint: null,
     hasExplicitViewState: false,
+    selectedBasemap: 'satellite',
+    selectedYear: 2000,
     setBreadcrumb: () => {},
+    showLabels: true,
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
-    selectedYear: 2000,
     onMapMoveEnd: () => {},
   },
   play: async ({ canvas }) => {
@@ -56,6 +58,8 @@ export const Loading: Story = {
     initialDispersalPoint: null,
     dispersalPoint: null,
     hasExplicitViewState: false,
+    selectedBasemap: 'satellite',
+    selectedYear: 2000,
     setBreadcrumb: () => {},
     sedExportSubLayerValue: 'pixel',
     initialViewState: {
@@ -63,7 +67,7 @@ export const Loading: Story = {
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
-    selectedYear: 2000,
+    showLabels: true,
     onMapMoveEnd: () => {},
   },
   // play: async ({ canvasElement }) => {

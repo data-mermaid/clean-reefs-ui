@@ -163,6 +163,8 @@ export default function LayersDrawer({
       onSedSubLayerChange,
       showLabels,
       onLabelsChange,
+      selectedBasemap,
+      onBasemapChange,
     ],
   )
 
