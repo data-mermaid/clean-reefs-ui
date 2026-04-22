@@ -72,7 +72,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     set({ isBasemapChanging: true })
-    map.once('idle', () => {
+    map.once('styledata', () => {
       const layers = map.getStyle()?.layers ?? []
       const nextBeforeId = resolveBasemapBeforeId(layers)
 
