@@ -61,6 +61,11 @@ export interface LulcAndSedimentSeriesData {
     mixed_forest: object
     shrubland_grassland: object
   }
+  ecosystem_extent_exposed: {
+    reef_extent: object
+    coral_algae: object
+    seagrass: object
+  }
   sediment_load_historical: {
     sediment: object
   }
@@ -76,6 +81,11 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
       high_canopy_forest: {},
       mixed_forest: {},
       shrubland_grassland: {},
+    },
+    ecosystem_extent_exposed: {
+      reef_extent: {},
+      coral_algae: {},
+      seagrass: {},
     },
     sediment_load_historical: {
       sediment: {},
@@ -116,7 +126,17 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
         case 'Shrub_Grass_pct_':
           chartSeriesData.land_use_historical.shrubland_grassland[year] = val
           break
+        case 'reef_exposed_':
+          chartSeriesData.ecosystem_extent_exposed.reef_extent[year] = val
+          break
+        case 'coralg_exposed_':
+          chartSeriesData.ecosystem_extent_exposed.coral_algae[year] = val
+          break
+        case 'seag_exposed_':
+          chartSeriesData.ecosystem_extent_exposed.seagrass[year] = val
+          break
         case 'sed_export_':
+        case 'total_sed_load_':
           chartSeriesData.sediment_load_historical.sediment[year] = val
           break
       }
@@ -215,10 +235,12 @@ export const mapChartConfigToData = (
       ? `${chartProperties.tracePrefix}.${category}`
       : `${category}`
     const traceName: string = i18next.t(prefixedTrace)
-    const hoverTemplate =
-      chartName === 'sediment_load_historical'
-        ? `${xAxisTitle}: %{x}<br />${traceName}: %{y:.2f}T<extra></extra>`
-        : `${xAxisTitle}: %{x}<br />${traceName}: %{y}%<extra></extra>`
+    const unitSuffix: Record<string, string> = {
+      sediment_load_historical: ':.2f}T',
+      ecosystem_extent_exposed: '}ha',
+    }
+    const yFormat = unitSuffix[chartName] ?? '}%'
+    const hoverTemplate = `${xAxisTitle}: %{x}<br />${traceName}: %{y${yFormat}<extra></extra>`
 
     chartSeriesData.push({
       type: 'bar',
@@ -249,17 +271,17 @@ export const buildChartDataFromProperties = (
 ): ChartProperties[] | null => {
   const chartSeriesData = getBoundaryFileChartData(properties)
 
-  const hasData = Object.values(chartSeriesData).some((series) =>
+  const seriesWithData = Object.entries(chartSeriesData).filter(([, series]) =>
     Object.values(series as Record<string, object>).some(
       (yearData) => Object.keys(yearData).length > 0,
     ),
   )
-  if (!hasData) {
+  if (!seriesWithData.length) {
     return null
   }
 
-  return Object.entries(chartSeriesData).map((dataSet) =>
-    mapChartConfigToData(dataSet[1] as ChartData, dataSet[0] as ChartSeriesName),
+  return seriesWithData.map(([name, data]) =>
+    mapChartConfigToData(data as ChartData, name as ChartSeriesName),
   )
 }
 

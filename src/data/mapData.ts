@@ -284,7 +284,7 @@ export const layers: LayerInfo[] = [
     outlineStyle: false,
     parentLayerType: 'boundaries',
     sourceId: 'regions_src',
-    sourceFileName: 'regions',
+    sourceFileName: 'data',
     title: 'boundary_map_layers.regional_boundaries',
   },
   {
@@ -295,7 +295,7 @@ export const layers: LayerInfo[] = [
     outlineColor: '#FF0000',
     parentLayerType: 'boundaries',
     sourceId: 'countries_src',
-    sourceFileName: 'countries',
+    sourceFileName: 'data',
     title: 'boundary_map_layers.country_boundaries',
   },
   {
@@ -367,7 +367,7 @@ export const layers: LayerInfo[] = [
     outlineColor: '#000',
     parentLayerType: 'boundaries',
     sourceId: 'watershed_src',
-    sourceFileName: 'watersheds',
+    sourceFileName: 'data',
     title: 'boundary_map_layers.watershed_boundaries',
   },
 ]
