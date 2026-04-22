@@ -44,6 +44,7 @@ import {
   setPolygonSelect,
   getAllYearZonalStats,
   getBasemapStyleUrl,
+  resolveBasemapBeforeId,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -556,26 +557,6 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
-  // Apply label visibility when the showLabels toggle changes.
-  // Basemap-switch restoration is handled in handleBasemapChange in MapContainer.
-  useEffect(() => {
-    if (!isMapLoaded) {
-      return
-    }
-
-    const map = mapRef.current?.getMap()
-    if (!map || !map.isStyleLoaded()) {
-      return
-    }
-
-    const visibility = showLabels ? 'visible' : 'none'
-
-    map
-      .getStyle()
-      ?.layers.filter((l) => l.type === 'symbol')
-      .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
-  }, [isMapLoaded, showLabels])
-
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the visual highlight from the map.
   useEffect(() => {
@@ -685,10 +666,16 @@ export default function BaseMap({
     // with the correct beforeId on its very first render (labels above data layers).
     // Subsequent basemap changes are handled in handleBasemapChange.
     if (map) {
-      const firstSymbolId = map.getStyle()?.layers.find((l) => l.type === 'symbol')?.id
-      if (firstSymbolId) {
-        setBasemapBeforeId(firstSymbolId)
-      }
+      const layers = map.getStyle()?.layers ?? []
+      const beforeId = resolveBasemapBeforeId(layers)
+      setBasemapBeforeId(beforeId)
+
+      // Light and dark styles default symbol layers to visibility: none, unlike satellite.
+      // Apply showLabels here directly so initial load is consistent with prepareBasemapChange.
+      const visibility = showLabels ? 'visible' : 'none'
+      layers
+        .filter((l) => l.type === 'symbol')
+        .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
     }
 
     setIsMapLoaded(true)

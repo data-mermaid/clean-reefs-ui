@@ -12,6 +12,8 @@ import { useSelectedFeatureStore } from './selectedFeatureStore'
 type MapState = {
   mapReference: MapRef | null
   basemapBeforeId: string | undefined
+  isBasemapChanging: boolean
+  isLabelChanging: boolean
   benthicMapSubLayerColors: Record<string, string>
   sedExportMapSubLayerColors: Record<string, string>
   sedExportMode: 'pixel' | 'watershed' | null
@@ -20,6 +22,8 @@ type MapState = {
 type MapActions = {
   setMapRef: (map: MapRef) => void
   setBasemapBeforeId: (id: string | undefined) => void
+
+  applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
@@ -39,22 +43,41 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setMapRef: (mapRef) => set({ mapReference: mapRef }),
   basemapBeforeId: undefined,
   setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
+  isBasemapChanging: false,
+  isLabelChanging: false,
+
   // Register a once style.load listener before the URL update triggers react-map-gl's setStyle.
   // This ensures beforeId and label visibility are resolved on the new style's first load,
   // with no dep-array race condition.
+  applyLabelVisibility: (show) => {
+    const map = get().mapReference?.getMap()
+    if (!map) {
+      return
+    }
+
+    set({ isLabelChanging: true })
+
+    const visibility = show ? 'visible' : 'none'
+    map
+      .getStyle()
+      ?.layers.filter((layer) => layer.type === 'symbol')
+      .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
+
+    map.once('idle', () => set({ isLabelChanging: false }))
+  },
   prepareBasemapChange: (showLabels) => {
     const map = get().mapReference?.getMap()
     if (!map) {
       return
     }
 
+    set({ isBasemapChanging: true })
     map.once('styledata', () => {
       const layers = map.getStyle()?.layers ?? []
       const symbolLayers = layers.filter((layer) => layer.type === 'symbol')
       const nextBeforeId = resolveBasemapBeforeId(layers)
-      console.log('nextBeforeId ', nextBeforeId)
 
-      set({ basemapBeforeId: nextBeforeId })
+      set({ basemapBeforeId: nextBeforeId, isBasemapChanging: false })
 
       const visibility = showLabels ? 'visible' : 'none'
       for (const layer of symbolLayers) {
