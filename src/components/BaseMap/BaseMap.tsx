@@ -176,12 +176,9 @@ const applyPlumeStats = ({
     }
   }
 
-  // TODO: replace with topContributingWatershedIds when real stats are available
-  const exampleTopWatershedIds = [974529, 977314, 977908]
-
   const watershedFeatures = map.querySourceFeatures(watershedLayer.sourceId, {
     sourceLayer: watershedLayer.sourceFileName,
-    filter: ['in', ['get', 'watershed_id'], ['literal', exampleTopWatershedIds]],
+    filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
   const { breadcrumb } = buildBreadcrumb(watershedFeatures[0]?.properties, {
     id: 'plume',
@@ -192,7 +189,7 @@ const applyPlumeStats = ({
   })
 
   setBreadcrumb(breadcrumb)
-  setTopPolygonsFill('watershed', exampleTopWatershedIds) // TODO: replace with topContributingWatershedIds when real stats are available
+  setTopPolygonsFill('watershed', topContributingWatershedIds)
 }
 
 const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParamProps) => {
