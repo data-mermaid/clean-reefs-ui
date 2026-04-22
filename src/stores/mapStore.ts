@@ -72,17 +72,19 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     set({ isBasemapChanging: true })
-    map.once('styledata', () => {
+    map.once('idle', () => {
       const layers = map.getStyle()?.layers ?? []
       const symbolLayers = layers.filter((layer) => layer.type === 'symbol')
       const nextBeforeId = resolveBasemapBeforeId(layers)
 
-      set({ basemapBeforeId: nextBeforeId, isBasemapChanging: false })
+      set({ basemapBeforeId: nextBeforeId })
 
       const visibility = showLabels ? 'visible' : 'none'
       for (const layer of symbolLayers) {
         map.setLayoutProperty(layer.id, 'visibility', visibility)
       }
+
+      set({ isBasemapChanging: false })
     })
   },
 
