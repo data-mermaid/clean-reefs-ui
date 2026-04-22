@@ -43,25 +43,51 @@ export const SED_EXPORT_2020_URL =
   'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
 
 /* Ocean Sediment Dispersal Layers */
-export const SED_DISPERSAL_PMTILES_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2000/visual_solomons_plumeshape_2000.pmtiles'
+export const SED_DISPERSAL_2000_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2000/visual_sediment_exposure_plumes_2000.pmtiles'
+export const SED_DISPERSAL_2005_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2005/visual_sediment_exposure_plumes_2005.pmtiles'
+export const SED_DISPERSAL_2010_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2010/visual_sediment_exposure_plumes_2010.pmtiles'
+export const SED_DISPERSAL_2015_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2015/visual_sediment_exposure_plumes_2015.pmtiles'
+export const SED_DISPERSAL_2020_PMTILES_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/visual_sediment_exposure_plumes_2020.pmtiles'
+
 export const SED_DISPERSAL_2000_URL =
-  'https://mermaid.prescient.earth/raster/collections/sediment_exposure/items/sediment_exposure_2000/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.41&assets=cog&colormap_name=viridis&asset_bidx=cog|1&expression=where(cog_b1>1.41,1.41,cog_b1)'
+  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2000/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
+export const SED_DISPERSAL_2005_URL =
+  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2005/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
+export const SED_DISPERSAL_2010_URL =
+  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2010/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
+export const SED_DISPERSAL_2015_URL =
+  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2015/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
+export const SED_DISPERSAL_2020_URL =
+  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
 
 /* Ocean Sediment Dispersal point stats / Zonal Stats data API */
 export const BASE_ZONAL_STATS_API =
   'https://api.zonalstats.datamermaid.org/api/v1/zonal-stats/raster'
 export const SEDIMENT_EXPOSURE_2000_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2000/data_solomons_sed_exposure_2000.tif'
-/* These below ocean tif not yet available */
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2000/data_sediment_exposure_2000.tif'
 export const SEDIMENT_EXPOSURE_2005_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2005/data_solomons_sed_exposure_2005.tif'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2005/data_sediment_exposure_2005.tif'
 export const SEDIMENT_EXPOSURE_2010_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2010/data_solomons_sed_exposure_2010.tif'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2010/data_sediment_exposure_2010.tif'
 export const SEDIMENT_EXPOSURE_2015_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2015/data_solomons_sed_exposure_2015.tif'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2015/data_sediment_exposure_2015.tif'
 export const SEDIMENT_EXPOSURE_2020_URL =
-  'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2020/data_solomons_sed_exposure_2020.tif'
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/data_sediment_exposure_2020.tif'
+// export const SEDIMENT_EXPOSURE_2000_URL =
+//   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2000/data_solomons_sed_exposure_2000.tif'
+// export const SEDIMENT_EXPOSURE_2005_URL =
+//   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2005/data_solomons_sed_exposure_2005.tif'
+// export const SEDIMENT_EXPOSURE_2010_URL =
+//   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2010/data_solomons_sed_exposure_2010.tif'
+// export const SEDIMENT_EXPOSURE_2015_URL =
+//   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2015/data_solomons_sed_exposure_2015.tif'
+// export const SEDIMENT_EXPOSURE_2020_URL =
+//   'https://d2uu99zl9amnvy.cloudfront.net/assets/sediment_exposure/sediment_exposure_2020/data_solomons_sed_exposure_2020.tif'
 
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {

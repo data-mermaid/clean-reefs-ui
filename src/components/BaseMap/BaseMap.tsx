@@ -379,6 +379,12 @@ export default function BaseMap({
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
   const plumeRequestIdRef = useRef(0) // Tracks the latest plume click fetch so earlier, slower responses don't overwrite newer ones.
+  // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onPlumeClick)
+  // always read the current value without needing to re-register the listener.
+  const selectedYearRef = useRef(selectedYear)
+  selectedYearRef.current = selectedYear
+  const dispersalPointRef = useRef(dispersalPoint)
+  dispersalPointRef.current = dispersalPoint
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
@@ -389,7 +395,12 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
-  const plumeLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'plumes'), [mapLayers])
+  const plumeLayerIndex = useMemo(() => {
+    const activeIdx = mapLayers.findIndex((l) => l.layerId === 'plumes' && l.isLayerOn)
+    return activeIdx >= 0 ? activeIdx : mapLayers.findIndex((l) => l.layerId === 'plumes')
+  }, [mapLayers])
+
+  const plumeLayer = plumeLayerIndex >= 0 ? mapLayers[plumeLayerIndex] : undefined
   const benthicSubLayerFillExpression = useMemo(
     () => [
       'case',
@@ -510,6 +521,36 @@ export default function BaseMap({
       maplibregl.removeProtocol('cog')
     }
   }, [])
+
+  // Re-apply plume watershed highlights when the year changes while a plume is active.
+  // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store
+  // so this effect only fires on year changes, not on every plume click.
+  useEffect(() => {
+    if (!isMapLoaded || !watershedLayer) {
+      return
+    }
+    const currentDispersalPoint = dispersalPointRef.current
+    if (!currentDispersalPoint) {
+      return
+    }
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+    const plumeStats = useSelectedFeatureStore.getState().selectedPlumeWatershedStats
+    if (!plumeStats) {
+      return
+    }
+
+    applyPlumeStats({
+      map,
+      watershedLayer,
+      point: currentDispersalPoint,
+      allYearStats: plumeStats,
+      selectedYear,
+      setBreadcrumb,
+    })
+  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
 
   useEffect(() => {
     if (!isMapLoaded) {
@@ -666,7 +707,7 @@ export default function BaseMap({
       handleMapClick(e, {
         map,
         watershedLayer,
-        selectedYear,
+        selectedYear: selectedYearRef.current,
         setBreadcrumb,
         onDispersalPointChange,
         clearWatershedSelection,
@@ -726,11 +767,16 @@ export default function BaseMap({
             index={watershedIndex}
           />
         )}
+        {/* Plumes rendered before rastertiles so sed_dispersal can use "plumes" as beforeId,
+            ensuring the ocean raster always sits below the plume outlines on remount */}
+        {isMapLoaded && plumeLayer && (
+          <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
+        )}
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
           } else if (layer.layerId === 'plumes') {
-            return isMapLoaded && <PlumeLayers key={`layer-${index}`} layer={layer} index={index} />
+            return null // rendered above, always present
           } else if (layer.dataType === 'pmtiles') {
             return (
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
@@ -764,7 +810,8 @@ export default function BaseMap({
             )
           } else if (layer.dataType === 'rastertiles') {
             return (
-              isMapLoaded && (
+              isMapLoaded &&
+              layer.isLayerOn && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -779,8 +826,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="watershed"
-                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+                    beforeId="plumes"
                   />
                 </Source>
               )

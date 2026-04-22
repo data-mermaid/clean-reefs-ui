@@ -106,7 +106,9 @@ export default function LayersDrawer({
   const renderLayerGroup = useCallback(
     (parentGroup: string): React.ReactNode[] => {
       if (parentGroup === 'boundaries') {
-        const boundaryLayers = mapLayers.filter((layer) => layer.parentLayerType === 'boundaries')
+        const boundaryLayers = mapLayers.filter(
+          (layer) => layer.parentLayerType === 'boundaries' && layer.isLayerOn,
+        )
         return boundaryLayers.length > 0
           ? [<BoundaryLegendCard key="boundary-legend" layers={boundaryLayers} />]
           : []

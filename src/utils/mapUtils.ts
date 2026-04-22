@@ -413,12 +413,8 @@ export async function prepareZonalStatsCall(lngLat, year) {
 
 export async function getAllYearZonalStats(lngLat) {
   const years = [2000, 2005, 2010, 2015, 2020]
-  const availableYears = [2000]
 
   const zonalStatsPromises = years.map(async (year) => {
-    if (!availableYears.includes(year)) {
-      return { [year]: {} }
-    }
     try {
       const stats = await prepareZonalStatsCall(lngLat, year)
       return { [year]: stats }
