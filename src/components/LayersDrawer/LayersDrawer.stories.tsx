@@ -15,7 +15,7 @@ export const Primary: Story = {
     setMapLayers: () => {},
     selectedYear: 2020,
     selectedLayers: defaultLayersToShow,
-    selectedBasemap: 'satisfies',
+    selectedBasemap: 'satellite',
     onLayerToggleChange: () => {},
     onSedSubLayerChange: () => {},
     subSedLayerValue: 'pixel',
