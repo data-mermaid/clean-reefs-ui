@@ -660,7 +660,6 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
-
     // Resolve beforeId BEFORE setIsMapLoaded so the Zustand store is already populated
     // when React re-renders with isMapLoaded = true. This ensures WatershedLayers mounts
     // with the correct beforeId on its very first render (labels above data layers).
@@ -674,8 +673,8 @@ export default function BaseMap({
       // Apply showLabels here directly so initial load is consistent with prepareBasemapChange.
       const visibility = showLabels ? 'visible' : 'none'
       layers
-        .filter((l) => l.type === 'symbol')
-        .forEach((l) => map.setLayoutProperty(l.id, 'visibility', visibility))
+        .filter((layer) => layer.type === 'symbol')
+        .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
     }
 
     setIsMapLoaded(true)
