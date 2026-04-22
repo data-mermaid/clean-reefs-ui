@@ -18,8 +18,8 @@ function getPMTiles(url: string): PMTiles {
 export const boundarySourceConfig: Partial<
   Record<RegionType, { url: string; sourceLayer: string; filterProp: string }>
 > = {
-  region: { url: REGIONS_PMTILES_URL, sourceLayer: 'regions', filterProp: 'name' },
-  country: { url: COUNTRIES_PMTILES_URL, sourceLayer: 'countries', filterProp: 'TERRITORY1' },
+  region: { url: REGIONS_PMTILES_URL, sourceLayer: 'data', filterProp: 'REALM' },
+  country: { url: COUNTRIES_PMTILES_URL, sourceLayer: 'data', filterProp: 'TERRITORY1' },
 }
 
 /**
