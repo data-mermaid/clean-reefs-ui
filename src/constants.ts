@@ -7,7 +7,7 @@ if (!coralAtlasAppId) {
 /******MAP LAYERS******/
 /******Map Styles******/
 export const SATELLITE_STYLE = `https://api.maptiler.com/maps/hybrid/style.json`
-export const LIGHT_STYLE = ` https://api.maptiler.com/maps/019d9cac-cbb2-7829-aa43-f6660494bdc3/style.json`
+export const LIGHT_STYLE = `https://api.maptiler.com/maps/019d9cac-cbb2-7829-aa43-f6660494bdc3/style.json`
 export const DARK_STYLE = `https://api.maptiler.com/maps/019d9cab-f4ae-7b1e-a994-00224f21dd54/style.json`
 // export const LIGHT_STYLE = `https://api.maptiler.com/maps/019dac5c-0ec3-7abd-85b2-9122b7fd10c8/style.json`
 // export const DARK_STYLE = `https://api.maptiler.com/maps/019dac4d-00b8-7ec0-9f51-e0a4fecccc01/style.json`
