@@ -10,6 +10,11 @@
   margin-bottom: theme.$defaultSpacing;
 }
 
+.drawer-header__title {
+  display: flex;
+  align-items: center;
+}
+
 .charts-container--open {
   display: flex;
   flex-direction: column;

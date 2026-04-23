@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
+import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
@@ -110,7 +111,16 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
       swipeAreaWidth={100}
     >
       <div className={styles['drawer-header']}>
-        {open && <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>}
+        {open && (
+          <div className={styles['drawer-header__title']}>
+            {effectiveRegionType !== 'global' && (
+              <IconButton aria-label={t('buttons.up_one_level')}>
+                <img src={UpOneLevelIcon} alt="" />
+              </IconButton>
+            )}
+            <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>
+          </div>
+        )}
         {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
