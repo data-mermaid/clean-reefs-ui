@@ -11,8 +11,8 @@ export const defaultGlobalRegionOption: RegionOption = {
   id: 'global',
   regionType: 'global',
   label: 'Global',
-  centerCoord: new LngLat(160.414413, -9.64571),
-  zoomLevel: 6,
+  centerCoord: new LngLat(178.25, -17.5),
+  zoomLevel: 8,
 }
 
 /** MVP: Starts with just the two countries & one region */
