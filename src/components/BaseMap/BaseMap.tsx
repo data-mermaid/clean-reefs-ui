@@ -61,6 +61,7 @@ import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
+const plumeOutlineSelectedColor = '#005BFF'
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
@@ -78,6 +79,7 @@ interface HandleMapClickParamProps {
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onDispersalPointChange: (point: { lat: number; lng: number } | null) => void
   clearWatershedSelection: () => void
+  setSelectedPlumeWatershedId: Dispatch<SetStateAction<string | null>>
   requestIdRef: RefObject<number>
 }
 
@@ -200,10 +202,18 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     setBreadcrumb,
     onDispersalPointChange,
     clearWatershedSelection,
+    setSelectedPlumeWatershedId,
     requestIdRef,
   } = clickParams
 
   clearWatershedSelection()
+  const clickedPlumeFeature = (e as MapMouseEvent & { features?: MapGeoJSONFeature[] })
+    .features?.[0]
+  const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
+
+  setSelectedPlumeWatershedId(
+    clickedPlumeWatershedId != null ? String(clickedPlumeWatershedId) : null,
+  )
   onDispersalPointChange({ lng: e.lngLat.lng, lat: e.lngLat.lat })
 
   const requestId = ++requestIdRef.current
@@ -310,7 +320,7 @@ function PmTileLayers({ layer, index }) {
 
 // Transparent fill layer so mousemove/mouseleave fire over the full plume area,
 // not just the outline stroke. Line layer preserves the visual yellow outline.
-function PlumeLayers({ layer, index }) {
+function PlumeLayers({ layer, index, selectedPlumeWatershedId }) {
   return (
     <Source
       id={layer.sourceId}
@@ -337,7 +347,18 @@ function PlumeLayers({ layer, index }) {
         beforeId="watershed"
         layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
-          'line-color': layer.outlineColor,
+          'line-color': [
+            'case',
+            ['==', ['to-string', ['get', 'watershed_id']], selectedPlumeWatershedId ?? ''],
+            plumeOutlineSelectedColor,
+            layer.outlineColor,
+          ],
+          'line-width': [
+            'case',
+            ['==', ['to-string', ['get', 'watershed_id']], selectedPlumeWatershedId ?? ''],
+            3,
+            1,
+          ],
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
         }}
       />
@@ -387,6 +408,7 @@ export default function BaseMap({
   dispersalPointRef.current = dispersalPoint
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [selectedPlumeWatershedId, setSelectedPlumeWatershedId] = useState<string | null>(null)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
@@ -423,6 +445,7 @@ export default function BaseMap({
 
   const clearPlumeSelection = useCallback(() => {
     plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
+    setSelectedPlumeWatershedId(null)
     clearTopPolygonsFill('watershed')
     clearSelectedPlumeWatershedStats()
     onDispersalPointChange(null)
@@ -575,6 +598,36 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+
+    // Keep plume boundary above thematic overlays after layer updates
+    // (e.g. year switches/toggles can reinsert layers and shift stack order).
+    const enforcePlumeLayerOrder = () => {
+      const plumeFillId = 'plumes'
+      const plumeLineId = 'plumes-lines'
+
+      if (!map.getLayer(plumeLineId)) {
+        return
+      }
+
+      if (map.getLayer(plumeFillId)) {
+        map.moveLayer(plumeFillId, plumeLineId)
+      }
+
+      map.moveLayer(plumeLineId)
+    }
+
+    enforcePlumeLayerOrder()
+  }, [isMapLoaded, mapLayers])
+
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the visual highlight from the map.
   useEffect(() => {
@@ -711,6 +764,7 @@ export default function BaseMap({
         setBreadcrumb,
         onDispersalPointChange,
         clearWatershedSelection,
+        setSelectedPlumeWatershedId,
         requestIdRef: plumeRequestIdRef,
       })
 
@@ -770,7 +824,12 @@ export default function BaseMap({
         {/* Plumes rendered before rastertiles so sed_dispersal can use "plumes" as beforeId,
             ensuring the ocean raster always sits below the plume outlines on remount */}
         {isMapLoaded && plumeLayer && (
-          <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
+          <PlumeLayers
+            key={plumeLayer.sourceId}
+            layer={plumeLayer}
+            index={plumeLayerIndex}
+            selectedPlumeWatershedId={selectedPlumeWatershedId}
+          />
         )}
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
@@ -826,7 +885,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="plumes"
+                    beforeId="benthic"
                   />
                 </Source>
               )
