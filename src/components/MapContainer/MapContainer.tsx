@@ -44,7 +44,7 @@ export default function MapContainer() {
   const shouldSyncRegionParam = regionParam !== normalizedRegionParam
 
   const layersParam = searchParams.get('layers')
-  const selectedLayers = getValidLayers(layersParam)
+  const selectedLayers = useMemo(() => getValidLayers(layersParam), [layersParam])
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
 
