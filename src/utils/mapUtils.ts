@@ -8,6 +8,7 @@ import {
   Map,
   MapGeoJSONFeature,
   MapLayerMouseEvent,
+  MapSourceDataEvent,
 } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
@@ -297,11 +298,12 @@ export function querySourceFeatureAtPointWhenReady(
     }
     settled = true
     map.off('sourcedata', onSourceData)
+    map.off('sourcedataabort', onSourceDataAbort)
     clearTimeout(timeoutId)
     onResult(result)
   }
 
-  const onSourceData = (e: { sourceId?: string; isSourceLoaded?: boolean }) => {
+  const onSourceData = (e: MapSourceDataEvent) => {
     if (settled || e.sourceId !== sourceId) {
       return
     }
@@ -311,7 +313,16 @@ export function querySourceFeatureAtPointWhenReady(
       settle(feature)
     }
   }
+
+  // Fired when tile requests for this source are aborted (e.g. network drop, source removed).
+  const onSourceDataAbort = (e: MapSourceDataEvent) => {
+    if (e.sourceId === sourceId) {
+      settle(null)
+    }
+  }
+
   map.on('sourcedata', onSourceData)
+  map.on('sourcedataabort', onSourceDataAbort)
 
   const timeoutId = setTimeout(() => settle(null), timeoutMs)
 
