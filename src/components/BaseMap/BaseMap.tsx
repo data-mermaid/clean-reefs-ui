@@ -324,22 +324,12 @@ function PlumeLayers({ layer, index }) {
       url={`pmtiles://${layer.link}`}
     >
       <Layer
-        id={layer.layerId}
-        type="fill"
-        key={`${layer.layerId}-fill-${index}`}
-        source={layer.sourceId}
-        source-layer={layer.sourceFileName}
-        beforeId="watershed"
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
-        paint={{ 'fill-color': transparent }}
-      />
-      <Layer
         id={`${layer.layerId}-lines`}
         type="line"
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="watershed"
+        beforeId="label_airport"
         layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
           'line-color': [
@@ -350,6 +340,16 @@ function PlumeLayers({ layer, index }) {
           ],
           'line-width': ['case', ['boolean', ['feature-state', 'select'], false], 3, 1],
         }}
+      />
+      <Layer
+        id={layer.layerId}
+        type="fill"
+        key={`${layer.layerId}-fill-${index}`}
+        source={layer.sourceId}
+        source-layer={layer.sourceFileName}
+        beforeId={`${layer.layerId}-lines`}
+        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        paint={{ 'fill-color': transparent }}
       />
     </Source>
   )
@@ -397,23 +397,25 @@ export default function BaseMap({
   dispersalPointRef.current = dispersalPoint
   const plumeClickRef = useRef<string | number | null>(null)
   const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
+  const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
 
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
-  const watershedIndex = useMemo(
-    () => mapLayers.findIndex((l) => l.layerId === 'watershed'),
+  const watershedLayer = useMemo(
+    () => mapLayers.find((l) => l.layerId === 'watershed'),
     [mapLayers],
   )
-  const watershedLayer = watershedIndex >= 0 ? mapLayers[watershedIndex] : undefined
-  const plumeLayerIndex = useMemo(() => {
-    const activeIdx = mapLayers.findIndex((l) => l.layerId === 'plumes' && l.isLayerOn)
-    return activeIdx >= 0 ? activeIdx : mapLayers.findIndex((l) => l.layerId === 'plumes')
-  }, [mapLayers])
-
-  const plumeLayer = plumeLayerIndex >= 0 ? mapLayers[plumeLayerIndex] : undefined
+  const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
+  const plumeLayer = useMemo(
+    () =>
+      mapLayers.find((l) => l.layerId === 'plumes' && l.isLayerOn) ??
+      mapLayers.find((l) => l.layerId === 'plumes'),
+    [mapLayers],
+  )
+  const plumeLayerIndex = plumeLayer ? mapLayers.indexOf(plumeLayer) : -1
   plumeLayerRef.current = plumeLayer
   const previousPlumeLayer = usePrevious(plumeLayer)
   const benthicSubLayerFillExpression = useMemo(
@@ -620,36 +622,6 @@ export default function BaseMap({
     }
   }, [isMapLoaded])
 
-  useEffect(() => {
-    if (!isMapLoaded) {
-      return
-    }
-
-    const map = mapRef.current?.getMap()
-    if (!map) {
-      return
-    }
-
-    // Keep plume boundary above thematic overlays after layer updates
-    // (e.g. year switches/toggles can reinsert layers and shift stack order).
-    const enforcePlumeLayerOrder = () => {
-      const plumeFillId = 'plumes'
-      const plumeLineId = 'plumes-lines'
-
-      if (!map.getLayer(plumeLineId)) {
-        return
-      }
-
-      if (map.getLayer(plumeFillId)) {
-        map.moveLayer(plumeFillId, plumeLineId)
-      }
-
-      map.moveLayer(plumeLineId)
-    }
-
-    enforcePlumeLayerOrder()
-  }, [isMapLoaded, mapLayers])
-
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the watershed visual highlight from the map.
   useEffect(() => {
@@ -724,9 +696,17 @@ export default function BaseMap({
 
   // Plume restoration from URL
   useEffect(() => {
-    if (!isMapLoaded || !initialDispersalPoint || !watershedLayer || !plumeLayer) {
+    if (
+      plumeRestorationRanRef.current ||
+      !isMapLoaded ||
+      !initialDispersalPoint ||
+      !watershedLayer ||
+      !plumeLayer
+    ) {
       return undefined
     }
+
+    plumeRestorationRanRef.current = true
 
     const map = mapRef.current?.getMap()
     if (!map) {
@@ -745,6 +725,16 @@ export default function BaseMap({
         if (!feature) {
           onDispersalPointChange(null)
           return
+        }
+
+        // Guard against race condition: skip if the user already clicked a new plume
+        if (plumeClickRef.current == null) {
+          const currentPlumeLayer = plumeLayerRef.current
+          const restoredId = feature.id
+          if (currentPlumeLayer && restoredId != null) {
+            const featureId = isNaN(Number(restoredId)) ? restoredId : Number(restoredId)
+            setPolygonSelect(map, plumeClickRef, currentPlumeLayer, featureId)
+          }
         }
 
         void (async () => {
