@@ -27,6 +27,7 @@ import maplibregl, {
   MapGeoJSONFeature,
   LngLat,
   MapMouseEvent,
+  MapLayerMouseEvent,
 } from 'maplibre-gl'
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
@@ -320,12 +321,13 @@ function PmTileLayers({ layer, index }) {
 
 // Transparent fill layer so mousemove/mouseleave fire over the full plume area,
 // not just the outline stroke. Line layer preserves the visual yellow outline.
-function PlumeLayers({ layer, index, selectedPlumeWatershedId }) {
+function PlumeLayers({ layer, index }) {
   return (
     <Source
       id={layer.sourceId}
       key={`${layer.sourceId}-source`}
       type="vector"
+      promoteId="watershed_id"
       url={`pmtiles://${layer.link}`}
     >
       <Layer
@@ -349,17 +351,11 @@ function PlumeLayers({ layer, index, selectedPlumeWatershedId }) {
         paint={{
           'line-color': [
             'case',
-            ['==', ['to-string', ['get', 'watershed_id']], selectedPlumeWatershedId ?? ''],
+            ['boolean', ['feature-state', 'select'], false],
             plumeOutlineSelectedColor,
             layer.outlineColor,
           ],
-          'line-width': [
-            'case',
-            ['==', ['to-string', ['get', 'watershed_id']], selectedPlumeWatershedId ?? ''],
-            3,
-            1,
-          ],
-          'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+          'line-width': ['case', ['boolean', ['feature-state', 'select'], false], 3, 1],
         }}
       />
     </Source>
@@ -402,13 +398,14 @@ export default function BaseMap({
   const plumeRequestIdRef = useRef(0) // Tracks the latest plume click fetch so earlier, slower responses don't overwrite newer ones.
   // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onPlumeClick)
   // always read the current value without needing to re-register the listener.
-  const selectedYearRef = useRef(selectedYear)
+  const selectedYearRef = useRef<number>(selectedYear)
   selectedYearRef.current = selectedYear
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
+  const plumeClickRef = useRef<string | number | null>(null)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [selectedPlumeWatershedId, setSelectedPlumeWatershedId] = useState<string | null>(null)
+  const [, setSelectedPlumeWatershedId] = useState<string | null>(null)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
@@ -445,11 +442,17 @@ export default function BaseMap({
 
   const clearPlumeSelection = useCallback(() => {
     plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
+
+    const map = mapRef.current?.getMap()
+    if (map && plumeLayer) {
+      clearPolygonSelect(map, plumeClickRef, plumeLayer)
+    }
+
     setSelectedPlumeWatershedId(null)
     clearTopPolygonsFill('watershed')
     clearSelectedPlumeWatershedStats()
     onDispersalPointChange(null)
-  }, [clearTopPolygonsFill, clearSelectedPlumeWatershedStats, onDispersalPointChange])
+  }, [clearTopPolygonsFill, clearSelectedPlumeWatershedStats, onDispersalPointChange, plumeLayer])
 
   const clearWatershedSelection = useCallback(() => {
     clearSelectedFeature()
@@ -545,7 +548,7 @@ export default function BaseMap({
     }
   }, [])
 
-  // Re-apply plume watershed highlights when the year changes while a plume is active.
+  // Re-apply plume watershed stats when the year changes while a plume is active.
   // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store
   // so this effect only fires on year changes, not on every plume click.
   useEffect(() => {
@@ -574,6 +577,25 @@ export default function BaseMap({
       setBreadcrumb,
     })
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
+
+  // Re-apply plume outline selection when plume layer/source is (re)available.
+  useEffect(() => {
+    if (!isMapLoaded || !plumeLayer) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    const selectedPlumeId = plumeClickRef.current
+    if (!map || selectedPlumeId == null) {
+      return
+    }
+
+    const plumeFeatureId = isNaN(Number(selectedPlumeId))
+      ? selectedPlumeId
+      : Number(selectedPlumeId)
+
+    setPolygonSelect(map, plumeClickRef, plumeLayer, plumeFeatureId)
+  }, [isMapLoaded, plumeLayer, mapLayers])
 
   useEffect(() => {
     if (!isMapLoaded) {
@@ -629,7 +651,7 @@ export default function BaseMap({
   }, [isMapLoaded, mapLayers])
 
   // When selectedFeature is cleared externally (e.g., dropdown region change),
-  // remove the visual highlight from the map.
+  // remove the watershed visual highlight from the map.
   useEffect(() => {
     if (!selectedFeature && polygonClickRef.current && isMapLoaded) {
       const map = mapRef.current?.getMap()
@@ -638,6 +660,21 @@ export default function BaseMap({
       }
     }
   }, [selectedFeature, isMapLoaded, watershedLayer])
+
+  // Clear plume outline selection when plume context is cleared (e.g., region change).
+  useEffect(() => {
+    if (!isMapLoaded || dispersalPoint) {
+      return
+    }
+
+    const map = mapRef.current?.getMap()
+    if (!map || !plumeLayer || !plumeClickRef.current) {
+      return
+    }
+
+    clearPolygonSelect(map, plumeClickRef, plumeLayer)
+    setSelectedPlumeWatershedId(null)
+  }, [dispersalPoint, isMapLoaded, plumeLayer])
 
   // Watershed restoration from URL
   useEffect(() => {
@@ -749,14 +786,30 @@ export default function BaseMap({
       polygonClickBoundRef.current = null
     }
 
-    const onWatershedHover = (e) => {
+    const onWatershedHover = (e: MapLayerMouseEvent) => {
       polygonHoverHandler(map, e, watershedLayer)
     }
-    const onWatershedClick = (e) => {
+    const onWatershedClick = (e: MapLayerMouseEvent) => {
       polygonClickHandler(map, e, watershedLayer)
     }
 
-    const onPlumeClick = (e) =>
+    const onPlumeClick = (e: MapLayerMouseEvent) => {
+      const clickedPlumeFeature = e.features?.[0]
+      console.log('clickedPlumeFeature ', clickedPlumeFeature)
+      const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
+
+      if (plumeLayer && clickedPlumeWatershedId != null) {
+        const currentFeatureId = isNaN(Number(clickedPlumeWatershedId))
+          ? clickedPlumeWatershedId
+          : Number(clickedPlumeWatershedId)
+        console.log('plumeLayer ', plumeLayer)
+        console.log('onPlumeClick currentFeatureId ', currentFeatureId)
+        console.log('onPlumeClick plumeClickRef ', plumeClickRef)
+
+        clearPolygonSelect(map, plumeClickRef, plumeLayer)
+        setPolygonSelect(map, plumeClickRef, plumeLayer, currentFeatureId)
+      }
+
       handleMapClick(e, {
         map,
         watershedLayer,
@@ -767,6 +820,7 @@ export default function BaseMap({
         setSelectedPlumeWatershedId,
         requestIdRef: plumeRequestIdRef,
       })
+    }
 
     polygonHoverBoundRef.current = onWatershedHover
     polygonClickBoundRef.current = onWatershedClick
@@ -824,12 +878,7 @@ export default function BaseMap({
         {/* Plumes rendered before rastertiles so sed_dispersal can use "plumes" as beforeId,
             ensuring the ocean raster always sits below the plume outlines on remount */}
         {isMapLoaded && plumeLayer && (
-          <PlumeLayers
-            key={plumeLayer.sourceId}
-            layer={plumeLayer}
-            index={plumeLayerIndex}
-            selectedPlumeWatershedId={selectedPlumeWatershedId}
-          />
+          <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
         )}
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
