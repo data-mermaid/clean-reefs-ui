@@ -52,6 +52,7 @@ import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
+  polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
 } from '../../constants'
@@ -63,7 +64,6 @@ import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
-const plumeOutlineSelectedColor = '#005BFF'
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
@@ -266,9 +266,9 @@ function WatershedLayers({ layer, index }) {
           'line-width': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            4,
+            polygonHighlightWidth,
             ['boolean', ['feature-state', 'select'], false],
-            4,
+            polygonHighlightWidth,
             1,
           ],
           'line-color': [
@@ -335,10 +335,15 @@ function PlumeLayers({ layer, index }) {
           'line-color': [
             'case',
             ['boolean', ['feature-state', 'select'], false],
-            plumeOutlineSelectedColor,
+            polygonOutlineSelectColor,
             layer.outlineColor,
           ],
-          'line-width': ['case', ['boolean', ['feature-state', 'select'], false], 3, 1],
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'select'], false],
+            polygonHighlightWidth,
+            1,
+          ],
         }}
       />
       <Layer
