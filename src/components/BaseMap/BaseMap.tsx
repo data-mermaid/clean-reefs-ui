@@ -887,7 +887,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.layerId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="sediment_exposure_2000"
+                    beforeId="sed_dispersal"
                   />
                 </Source>
               )
