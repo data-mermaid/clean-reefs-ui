@@ -32,6 +32,7 @@ import maplibregl, {
 import * as pmtiles from 'pmtiles'
 import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
+import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
@@ -80,7 +81,7 @@ interface HandleMapClickParamProps {
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onDispersalPointChange: (point: { lat: number; lng: number } | null) => void
   clearWatershedSelection: () => void
-  setSelectedPlumeWatershedId: Dispatch<SetStateAction<string | null>>
+
   requestIdRef: RefObject<number>
 }
 
@@ -203,18 +204,10 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     setBreadcrumb,
     onDispersalPointChange,
     clearWatershedSelection,
-    setSelectedPlumeWatershedId,
     requestIdRef,
   } = clickParams
 
   clearWatershedSelection()
-  const clickedPlumeFeature = (e as MapMouseEvent & { features?: MapGeoJSONFeature[] })
-    .features?.[0]
-  const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
-
-  setSelectedPlumeWatershedId(
-    clickedPlumeWatershedId != null ? String(clickedPlumeWatershedId) : null,
-  )
   onDispersalPointChange({ lng: e.lngLat.lng, lat: e.lngLat.lat })
 
   const requestId = ++requestIdRef.current
@@ -403,9 +396,10 @@ export default function BaseMap({
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const plumeClickRef = useRef<string | number | null>(null)
+  const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [, setSelectedPlumeWatershedId] = useState<string | null>(null)
+
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
@@ -420,6 +414,8 @@ export default function BaseMap({
   }, [mapLayers])
 
   const plumeLayer = plumeLayerIndex >= 0 ? mapLayers[plumeLayerIndex] : undefined
+  plumeLayerRef.current = plumeLayer
+  const previousPlumeLayer = usePrevious(plumeLayer)
   const benthicSubLayerFillExpression = useMemo(
     () => [
       'case',
@@ -448,7 +444,6 @@ export default function BaseMap({
       clearPolygonSelect(map, plumeClickRef, plumeLayer)
     }
 
-    setSelectedPlumeWatershedId(null)
     clearTopPolygonsFill('watershed')
     clearSelectedPlumeWatershedStats()
     onDispersalPointChange(null)
@@ -590,12 +585,17 @@ export default function BaseMap({
       return
     }
 
+    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one
+    if (previousPlumeLayer && previousPlumeLayer.sourceId !== plumeLayer.sourceId) {
+      clearPolygonSelect(map, plumeClickRef, previousPlumeLayer)
+    }
+
     const plumeFeatureId = isNaN(Number(selectedPlumeId))
       ? selectedPlumeId
       : Number(selectedPlumeId)
 
     setPolygonSelect(map, plumeClickRef, plumeLayer, plumeFeatureId)
-  }, [isMapLoaded, plumeLayer, mapLayers])
+  }, [isMapLoaded, plumeLayer, mapLayers, previousPlumeLayer])
 
   useEffect(() => {
     if (!isMapLoaded) {
@@ -673,7 +673,6 @@ export default function BaseMap({
     }
 
     clearPolygonSelect(map, plumeClickRef, plumeLayer)
-    setSelectedPlumeWatershedId(null)
   }, [dispersalPoint, isMapLoaded, plumeLayer])
 
   // Watershed restoration from URL
@@ -795,19 +794,16 @@ export default function BaseMap({
 
     const onPlumeClick = (e: MapLayerMouseEvent) => {
       const clickedPlumeFeature = e.features?.[0]
-      console.log('clickedPlumeFeature ', clickedPlumeFeature)
       const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
+      const currentPlumeLayer = plumeLayerRef.current
 
-      if (plumeLayer && clickedPlumeWatershedId != null) {
+      if (currentPlumeLayer && clickedPlumeWatershedId != null) {
         const currentFeatureId = isNaN(Number(clickedPlumeWatershedId))
           ? clickedPlumeWatershedId
           : Number(clickedPlumeWatershedId)
-        console.log('plumeLayer ', plumeLayer)
-        console.log('onPlumeClick currentFeatureId ', currentFeatureId)
-        console.log('onPlumeClick plumeClickRef ', plumeClickRef)
 
-        clearPolygonSelect(map, plumeClickRef, plumeLayer)
-        setPolygonSelect(map, plumeClickRef, plumeLayer, currentFeatureId)
+        clearPolygonSelect(map, plumeClickRef, currentPlumeLayer)
+        setPolygonSelect(map, plumeClickRef, currentPlumeLayer, currentFeatureId)
       }
 
       handleMapClick(e, {
@@ -817,7 +813,6 @@ export default function BaseMap({
         setBreadcrumb,
         onDispersalPointChange,
         clearWatershedSelection,
-        setSelectedPlumeWatershedId,
         requestIdRef: plumeRequestIdRef,
       })
     }
