@@ -319,6 +319,28 @@ export function querySourceFeatureAtPointWhenReady(
 }
 
 /**
+ * Builds a MapLibre `case` expression that maps benthic class_name values to fill colours.
+ */
+export function buildBenthicFillExpression(colors: Record<string, string>): unknown[] {
+  return [
+    'case',
+    ['==', ['get', 'class_name'], 'Coral/Algae'],
+    colors['coral_algae'],
+    ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+    colors['microalgal_mats'],
+    ['==', ['get', 'class_name'], 'Rock'],
+    colors['rock'],
+    ['==', ['get', 'class_name'], 'Rubble'],
+    colors['rubble'],
+    ['==', ['get', 'class_name'], 'Sand'],
+    colors['sand'],
+    ['==', ['get', 'class_name'], 'Seagrass'],
+    colors['seagrass'],
+    transparent,
+  ]
+}
+
+/**
  * Builds a MapLibre `match` expression that assigns a colour to each watershed ID.
  * Falls back to `fallback` for any ID not in the list, or when `ids` is empty.
  */

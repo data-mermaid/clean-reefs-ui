@@ -45,6 +45,7 @@ import {
   querySourceFeatureAtPointWhenReady,
   setPolygonSelect,
   getAllYearZonalStats,
+  buildBenthicFillExpression,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { Snackbar } from '@mui/material'
@@ -424,22 +425,7 @@ export default function BaseMap({
   plumeLayerRef.current = plumeLayer
   const previousPlumeLayer = usePrevious(plumeLayer)
   const benthicSubLayerFillExpression = useMemo(
-    () => [
-      'case',
-      ['==', ['get', 'class_name'], 'Coral/Algae'],
-      benthicFillColors['coral_algae'],
-      ['==', ['get', 'class_name'], 'Benthic Microalgae'],
-      benthicFillColors['microalgal_mats'],
-      ['==', ['get', 'class_name'], 'Rock'],
-      benthicFillColors['rock'],
-      ['==', ['get', 'class_name'], 'Rubble'],
-      benthicFillColors['rubble'],
-      ['==', ['get', 'class_name'], 'Sand'],
-      benthicFillColors['sand'],
-      ['==', ['get', 'class_name'], 'Seagrass'],
-      benthicFillColors['seagrass'],
-      transparent, // Default / other
-    ],
+    () => buildBenthicFillExpression(benthicFillColors),
     [benthicFillColors],
   )
 
