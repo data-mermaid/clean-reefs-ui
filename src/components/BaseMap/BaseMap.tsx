@@ -347,7 +347,7 @@ function PlumeLayers({ layer, index }) {
         key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId={`${layer.layerId}-lines`}
+        beforeId="label_airport"
         layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{ 'fill-color': transparent }}
       />
@@ -860,8 +860,8 @@ export default function BaseMap({
             index={watershedIndex}
           />
         )}
-        {/* Plumes rendered before rastertiles so sed_dispersal can use "plumes" as beforeId,
-            ensuring the ocean raster always sits below the plume outlines on remount */}
+        {/* Plumes rendered outside the main loop so "plumes" and "plumes-lines" are stable
+            layer ID anchors; beforeId="label_airport" places them above watershed but below map labels */}
         {isMapLoaded && plumeLayer && (
           <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
         )}
