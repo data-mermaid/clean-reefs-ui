@@ -8,6 +8,7 @@ import {
   Map,
   MapGeoJSONFeature,
   MapLayerMouseEvent,
+  MapSourceDataEvent,
 } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
@@ -297,11 +298,12 @@ export function querySourceFeatureAtPointWhenReady(
     }
     settled = true
     map.off('sourcedata', onSourceData)
+    map.off('sourcedataabort', onSourceDataAbort)
     clearTimeout(timeoutId)
     onResult(result)
   }
 
-  const onSourceData = (e: { sourceId?: string; isSourceLoaded?: boolean }) => {
+  const onSourceData = (e: MapSourceDataEvent) => {
     if (settled || e.sourceId !== sourceId) {
       return
     }
@@ -311,11 +313,42 @@ export function querySourceFeatureAtPointWhenReady(
       settle(feature)
     }
   }
+
+  // Fired when tile requests for this source are aborted (e.g. network drop, source removed).
+  const onSourceDataAbort = (e: MapSourceDataEvent) => {
+    if (e.sourceId === sourceId) {
+      settle(null)
+    }
+  }
+
   map.on('sourcedata', onSourceData)
+  map.on('sourcedataabort', onSourceDataAbort)
 
   const timeoutId = setTimeout(() => settle(null), timeoutMs)
 
   return () => settle(null)
+}
+
+/**
+ * Builds a MapLibre `case` expression that maps benthic class_name values to fill colours.
+ */
+export function buildBenthicFillExpression(colors: Record<string, string>): unknown[] {
+  return [
+    'case',
+    ['==', ['get', 'class_name'], 'Coral/Algae'],
+    colors['coral_algae'],
+    ['==', ['get', 'class_name'], 'Benthic Microalgae'],
+    colors['microalgal_mats'],
+    ['==', ['get', 'class_name'], 'Rock'],
+    colors['rock'],
+    ['==', ['get', 'class_name'], 'Rubble'],
+    colors['rubble'],
+    ['==', ['get', 'class_name'], 'Sand'],
+    colors['sand'],
+    ['==', ['get', 'class_name'], 'Seagrass'],
+    colors['seagrass'],
+    transparent,
+  ]
 }
 
 /**
