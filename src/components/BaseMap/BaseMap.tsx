@@ -870,9 +870,7 @@ export default function BaseMap({
               layer.layerId !== 'sed_export' || sedExportSubLayerValue === 'pixel'
 
             return (
-              isMapLoaded &&
-              layer.isLayerOn &&
-              shouldRenderSedExportRaster && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -883,11 +881,15 @@ export default function BaseMap({
                   minzoom={6}
                 >
                   <Layer
-                    id={layer.layerId}
+                    id={layer.sourceId}
                     type="raster"
-                    key={`${layer.layerId}-${index}`}
+                    key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="sediment_exposure_2000"
+                    layout={{
+                      visibility:
+                        layer.isLayerOn && shouldRenderSedExportRaster ? 'visible' : 'none',
+                    }}
                   />
                 </Source>
               )
