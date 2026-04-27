@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
 import { Card, Typography } from '@mui/material'
@@ -24,6 +24,8 @@ interface LayersDrawerProps {
   onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 interface BoundaryLegendCardProps {
@@ -56,12 +58,13 @@ export default function LayersDrawer({
   onLayerToggleChange,
   onSedSubLayerChange,
   subSedLayerValue,
+  open,
+  onOpenChange,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
 
   const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen)
+    onOpenChange(newOpen)
   }
 
   const mapSubLayers = useMemo(

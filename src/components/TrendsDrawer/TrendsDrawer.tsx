@@ -14,6 +14,7 @@ import { MapGeoJSONFeature } from 'maplibre-gl'
 
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
+import { TRENDS_DRAWER_PEEK_HEIGHT } from '../../constants'
 import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
 import {
   buildChartDataFromProperties,
@@ -27,14 +28,20 @@ import {
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDrawerProps) {
+export default function TrendsDrawer({
+  selectedRegion,
+  selectedYear,
+  open,
+  onOpenChange,
+}: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
-  const [open, setOpen] = useState(!isMobileWidth)
-  const openDrawer = () => setOpen(true)
-  const closeDrawer = () => setOpen(false)
+  const openDrawer = () => onOpenChange(true)
+  const closeDrawer = () => onOpenChange(false)
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )
@@ -107,7 +114,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
       open={open}
       onOpen={openDrawer}
       onClose={closeDrawer}
-      swipeAreaWidth={100}
+      swipeAreaWidth={TRENDS_DRAWER_PEEK_HEIGHT}
     >
       <div className={styles['drawer-header']}>
         {open && <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>}
