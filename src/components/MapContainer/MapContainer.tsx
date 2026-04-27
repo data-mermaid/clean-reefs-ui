@@ -345,7 +345,6 @@ export default function MapContainer() {
       <BaseMap
         mapLayers={urlSyncedMapLayers}
         sedExportSubLayerValue={subSedLayerValue}
-        dispersalPoint={dispersalPoint}
         onRegionChange={handleRegionChange}
         onWatershedChange={handleWatershedChange}
         onWatershedSelectionClear={handleWatershedSelectionClear}
@@ -353,6 +352,7 @@ export default function MapContainer() {
         onPlumeSelectionClear={handlePlumeSelectionClear}
         initialWatershedId={initialWatershedId}
         initialDispersalPoint={initialDispersalPoint}
+        dispersalPoint={dispersalPoint}
         selectedYear={selectedYear}
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}

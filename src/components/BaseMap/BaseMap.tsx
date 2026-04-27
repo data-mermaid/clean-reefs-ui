@@ -412,7 +412,6 @@ export default function BaseMap({
   const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
@@ -452,8 +451,8 @@ export default function BaseMap({
       bounds?: LngLatBounds,
       options?: { skipFitBounds?: boolean },
     ) => {
-      setSelectedFeature(feature)
       clearPlumeSelection()
+      setSelectedFeature(feature)
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
