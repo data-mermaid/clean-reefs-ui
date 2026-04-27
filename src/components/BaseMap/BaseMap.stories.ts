@@ -18,10 +18,13 @@ export const Primary: Story = {
     sedExportSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
+    onWatershedSelectionClear: () => {},
     onDispersalPointChange: () => {},
+    onPlumeSelectionClear: () => {},
     initialWatershedId: null,
     initialDispersalPoint: null,
     dispersalPoint: null,
+    selectedYear: 2000,
     hasExplicitViewState: false,
     setBreadcrumb: () => {},
     initialViewState: {
@@ -29,7 +32,6 @@ export const Primary: Story = {
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
-    selectedYear: 2000,
     onMapMoveEnd: () => {},
   },
   play: async ({ canvas }) => {
@@ -49,21 +51,23 @@ export const Primary: Story = {
 export const Loading: Story = {
   args: {
     mapLayers: layers,
+    sedExportSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
+    onWatershedSelectionClear: () => {},
     onDispersalPointChange: () => {},
+    onPlumeSelectionClear: () => {},
     initialWatershedId: null,
     initialDispersalPoint: null,
     dispersalPoint: null,
+    selectedYear: 2000,
     hasExplicitViewState: false,
     setBreadcrumb: () => {},
-    sedExportSubLayerValue: 'pixel',
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
       latitude: defaultGlobalRegionOption.centerCoord.lat,
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
-    selectedYear: 2000,
     onMapMoveEnd: () => {},
   },
   // play: async ({ canvasElement }) => {

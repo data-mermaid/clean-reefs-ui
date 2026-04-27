@@ -13,6 +13,9 @@ export const Primary: Story = {
   args: {
     selectedRegion: defaultGlobalRegionOption,
     selectedYear: 2020,
+    onWatershedSelectionClear: () => {},
+    onPlumeSelectionClear: () => {},
+    onRegionChange: () => {},
   },
 }
 
