@@ -7,7 +7,7 @@ import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
-import { RegionOption } from '../../types/RegionDataTypes'
+import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
@@ -25,16 +25,13 @@ import {
   updateChartData,
   updatePlumeChartData,
 } from '../../utils/chartUtils'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
   onOpenChange: (open: boolean) => void
-  onWatershedSelectionClear: () => void
-  onPlumeSelectionClear: () => void
-  onRegionChange: (region: RegionOption) => void
+  onUpOneLevelChange: (regionType: RegionType) => void
 }
 
 export default function TrendsDrawer({
@@ -42,9 +39,7 @@ export default function TrendsDrawer({
   selectedYear,
   open,
   onOpenChange,
-  onWatershedSelectionClear,
-  onPlumeSelectionClear,
-  onRegionChange,
+  onUpOneLevelChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
@@ -116,21 +111,6 @@ export default function TrendsDrawer({
     allowedCharts.includes(chart.chartName as ChartSeriesName),
   )
 
-  const handleUpOneLevel = () => {
-    switch (effectiveRegionType) {
-      case 'watershed':
-        onWatershedSelectionClear()
-        break
-      case 'country':
-      case 'region':
-        onRegionChange(defaultGlobalRegionOption)
-        break
-      case 'plume':
-        onPlumeSelectionClear()
-        break
-    }
-  }
-
   return (
     <StyledSwipeableDrawer
       anchor={isMobileWidth ? 'bottom' : 'right'}
@@ -143,7 +123,10 @@ export default function TrendsDrawer({
         {open && (
           <div className={styles['drawer-header__title']}>
             {effectiveRegionType !== 'global' && (
-              <IconButton aria-label={t('buttons.up_one_level')} onClick={handleUpOneLevel}>
+              <IconButton
+                aria-label={t('buttons.up_one_level')}
+                onClick={() => onUpOneLevelChange(effectiveRegionType)}
+              >
                 <img src={UpOneLevelIcon} alt="" />
               </IconButton>
             )}

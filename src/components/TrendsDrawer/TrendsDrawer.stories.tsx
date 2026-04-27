@@ -16,9 +16,7 @@ export const Primary: Story = {
     selectedYear: 2020,
     open: true,
     onOpenChange: () => {},
-    onWatershedSelectionClear: () => {},
-    onPlumeSelectionClear: () => {},
-    onRegionChange: () => {},
+    onUpOneLevelChange: () => {},
   },
   render: (args) => {
     const [open, setOpen] = useState(args.open)

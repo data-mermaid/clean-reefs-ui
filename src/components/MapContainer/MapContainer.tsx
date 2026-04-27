@@ -8,7 +8,7 @@ import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds, sedExportAndLandUseLayers } from '../../data/mapData'
 import { LAT_LNG_PRECISION, ZOOM_PRECISION } from '../../constants'
-import { RegionOption } from '../../types/RegionDataTypes'
+import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import {
   getValidLatLng,
@@ -319,6 +319,21 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
+  const handleUpOneLevelChange = (regionType: RegionType) => {
+    switch (regionType) {
+      case 'watershed':
+        handleWatershedSelectionClear()
+        break
+      case 'country':
+      case 'region':
+        handleRegionDropdownChange(defaultGlobalRegionOption)
+        break
+      case 'plume':
+        handlePlumeSelectionClear()
+        break
+    }
+  }
+
   return (
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
@@ -345,9 +360,7 @@ export default function MapContainer() {
           selectedYear={selectedYear}
           open={trendsDrawerOpen}
           onOpenChange={setTrendsDrawerOpen}
-          onWatershedSelectionClear={handleWatershedSelectionClear}
-          onPlumeSelectionClear={handlePlumeSelectionClear}
-          onRegionChange={handleRegionChange}
+          onUpOneLevelChange={handleUpOneLevelChange}
         />
       </div>
       <BaseMap

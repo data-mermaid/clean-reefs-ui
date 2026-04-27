@@ -201,6 +201,8 @@ const applyPlumeStats = ({
   })
 
   setBreadcrumb(breadcrumb)
+  // Sync the parent region (e.g. country) to the URL so the up-one-level button
+  // has a valid target to fall back to once the plume/watershed is cleared.
   if (addtlRegion) {
     onRegionChange(addtlRegion)
   }
@@ -478,6 +480,8 @@ export default function BaseMap({
           })
 
           setBreadcrumb(breadcrumb)
+          // Sync the parent region (e.g. country) to the URL so the up-one-level button
+          // has a valid target to fall back to once the plume/watershed is cleared.
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
@@ -613,10 +617,11 @@ export default function BaseMap({
       return
     }
 
-    const onError = (e) => handleError(e, setLayerErrors)
-    const onSourceData = (e: SourceDataEvent) => handleSourceData(e, setLayerErrors)
-    const onSourceDataLoading = () => setIsLoadingTiles(true)
-    const onIdle = () => setIsLoadingTiles(false)
+    const onError = (e) => setTimeout(() => handleError(e, setLayerErrors), 0)
+    const onSourceData = (e: SourceDataEvent) =>
+      setTimeout(() => handleSourceData(e, setLayerErrors), 0)
+    const onSourceDataLoading = () => setTimeout(() => setIsLoadingTiles(true), 0)
+    const onIdle = () => setTimeout(() => setIsLoadingTiles(false), 0)
 
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
