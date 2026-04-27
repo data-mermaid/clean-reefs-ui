@@ -579,8 +579,13 @@ export default function BaseMap({
       return
     }
 
-    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one
-    if (previousPlumeLayer && previousPlumeLayer.sourceId !== plumeLayer.sourceId) {
+    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one.
+    // Guard with getSource so we don't throw if the previous source was already unmounted (e.g. on year change).
+    if (
+      previousPlumeLayer &&
+      previousPlumeLayer.sourceId !== plumeLayer.sourceId &&
+      map.getSource(previousPlumeLayer.sourceId)
+    ) {
       clearPolygonSelect(map, plumeClickRef, previousPlumeLayer)
     }
 
