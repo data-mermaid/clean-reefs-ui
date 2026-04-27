@@ -134,14 +134,14 @@ export default function MapContainer() {
 
   useEffect(() => {
     setSelectedRegion(initialRegion)
-    if (!watershedParam) {
+    if (!watershedParam && !dispersalPointParam) {
       setBreadcrumb(
         initialRegion.regionType !== 'global'
           ? [defaultGlobalRegionOption, initialRegion]
           : [initialRegion],
       )
     }
-  }, [initialRegion, watershedParam])
+  }, [initialRegion, watershedParam, dispersalPointParam])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -175,6 +175,11 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
+  const handleWatershedSelectionClear = useCallback(() => {
+    clearSelectedFeature()
+    handleWatershedChange(null)
+  }, [clearSelectedFeature, handleWatershedChange])
+
   const handleDispersalPointChange = useCallback(
     (newDispersalPoint: { lat: number; lng: number } | null) => {
       updateSearchParams(
@@ -195,6 +200,12 @@ export default function MapContainer() {
     },
     [updateSearchParams],
   )
+
+  const handlePlumeSelectionClear = useCallback(() => {
+    clearSelectedPlumeWatershedStats()
+    clearTopPolygonsFill('watershed')
+    handleDispersalPointChange(null)
+  }, [clearSelectedPlumeWatershedStats, clearTopPolygonsFill, handleDispersalPointChange])
 
   // Used by the region dropdown and breadcrumb navigation.
   // Clears watershed and plume state since the user is navigating to a different scope.
@@ -321,7 +332,13 @@ export default function MapContainer() {
           setBreadcrumb={setBreadcrumb}
         />
         <YearSelect selectedYear={selectedYear} onChange={handleYearChange} />
-        <TrendsDrawer selectedRegion={selectedRegion} selectedYear={selectedYear} />
+        <TrendsDrawer
+          selectedRegion={selectedRegion}
+          selectedYear={selectedYear}
+          onWatershedSelectionClear={handleWatershedSelectionClear}
+          onPlumeSelectionClear={handlePlumeSelectionClear}
+          onRegionChange={handleRegionChange}
+        />
       </div>
       <BaseMap
         mapLayers={urlSyncedMapLayers}
@@ -329,7 +346,9 @@ export default function MapContainer() {
         dispersalPoint={dispersalPoint}
         onRegionChange={handleRegionChange}
         onWatershedChange={handleWatershedChange}
+        onWatershedSelectionClear={handleWatershedSelectionClear}
         onDispersalPointChange={handleDispersalPointChange}
+        onPlumeSelectionClear={handlePlumeSelectionClear}
         initialWatershedId={initialWatershedId}
         initialDispersalPoint={initialDispersalPoint}
         selectedYear={selectedYear}

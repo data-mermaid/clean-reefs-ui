@@ -24,13 +24,23 @@ import {
   updateChartData,
   updatePlumeChartData,
 } from '../../utils/chartUtils'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
+  onWatershedSelectionClear: () => void
+  onPlumeSelectionClear: () => void
+  onRegionChange: (region: RegionOption) => void
 }
 
-export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDrawerProps) {
+export default function TrendsDrawer({
+  selectedRegion,
+  selectedYear,
+  onWatershedSelectionClear,
+  onPlumeSelectionClear,
+  onRegionChange,
+}: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [open, setOpen] = useState(!isMobileWidth)
@@ -102,6 +112,20 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
     allowedCharts.includes(chart.chartName as ChartSeriesName),
   )
 
+  const handleUpOneLevel = () => {
+    if (effectiveRegionType === 'watershed') {
+      onWatershedSelectionClear()
+    }
+
+    if (effectiveRegionType === 'country' || effectiveRegionType === 'region') {
+      onRegionChange(defaultGlobalRegionOption)
+    }
+
+    if (effectiveRegionType === 'plume') {
+      onPlumeSelectionClear()
+    }
+  }
+
   return (
     <StyledSwipeableDrawer
       anchor={isMobileWidth ? 'bottom' : 'right'}
@@ -114,7 +138,7 @@ export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDra
         {open && (
           <div className={styles['drawer-header__title']}>
             {effectiveRegionType !== 'global' && (
-              <IconButton aria-label={t('buttons.up_one_level')}>
+              <IconButton aria-label={t('buttons.up_one_level')} onClick={handleUpOneLevel}>
                 <img src={UpOneLevelIcon} alt="" />
               </IconButton>
             )}
