@@ -67,15 +67,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     set({ sedExportMode: subLayerToggledOn, sedExportYear: selectedYear })
 
-    const pixelLayer = map.getLayer('sed_export')
-    if (pixelLayer) {
-      map.setLayoutProperty(
-        'sed_export',
-        'visibility',
-        subLayerToggledOn === 'pixel' ? 'visible' : 'none',
-      )
-    }
-
     const baseFillExpression =
       subLayerToggledOn === 'watershed'
         ? buildSedExportWatershedExpression(selectedYear)
@@ -95,11 +86,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     set({ sedExportMode: null })
-
-    const pixelLayer = map.getLayer('sed_export')
-    if (pixelLayer) {
-      map.setLayoutProperty('sed_export', 'visibility', 'none')
-    }
 
     map.setPaintProperty(
       'watershed',

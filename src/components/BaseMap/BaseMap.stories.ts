@@ -33,6 +33,7 @@ export const Primary: Story = {
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
     onMapMoveEnd: () => {},
+    isAnyDrawerOpen: false,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -69,6 +70,7 @@ export const Loading: Story = {
       zoom: defaultGlobalRegionOption.zoomLevel,
     },
     onMapMoveEnd: () => {},
+    isAnyDrawerOpen: false,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

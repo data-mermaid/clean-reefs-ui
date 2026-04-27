@@ -48,7 +48,7 @@ import {
   buildBenthicFillExpression,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
-import { Snackbar } from '@mui/material'
+import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
@@ -56,6 +56,8 @@ import {
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
+  SNACKBAR_BOTTOM_GAP,
+  TRENDS_DRAWER_PEEK_HEIGHT,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
@@ -107,6 +109,7 @@ interface BaseMapProps {
     zoom: number
   }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
+  isAnyDrawerOpen: boolean
 }
 
 const getRegionByLabel = (regionLabel: string | undefined) =>
@@ -386,9 +389,10 @@ export default function BaseMap({
   setBreadcrumb,
   initialViewState,
   onMapMoveEnd,
+  isAnyDrawerOpen,
 }: BaseMapProps) {
   const { t } = useTranslation()
-  const { isDesktopWidth } = useResponsive()
+  const { isDesktopWidth, isMobileWidth } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
@@ -413,8 +417,12 @@ export default function BaseMap({
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+  const [isLoadingTiles, setIsLoadingTiles] = useState(false)
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
+  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyDrawerOpen)
+
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),
     [mapLayers],
@@ -428,6 +436,7 @@ export default function BaseMap({
   )
   const plumeLayerIndex = plumeLayer ? mapLayers.indexOf(plumeLayer) : -1
   plumeLayerRef.current = plumeLayer
+  const benthicLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'benthic'), [mapLayers])
   const previousPlumeLayer = usePrevious(plumeLayer)
   const benthicSubLayerFillExpression = useMemo(
     () => buildBenthicFillExpression(benthicFillColors),
@@ -577,8 +586,13 @@ export default function BaseMap({
       return
     }
 
-    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one
-    if (previousPlumeLayer && previousPlumeLayer.sourceId !== plumeLayer.sourceId) {
+    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one.
+    // Guard with getSource so we don't throw if the previous source was already unmounted (e.g. on year change).
+    if (
+      previousPlumeLayer &&
+      previousPlumeLayer.sourceId !== plumeLayer.sourceId &&
+      map.getSource(previousPlumeLayer.sourceId)
+    ) {
       clearPolygonSelect(map, plumeClickRef, previousPlumeLayer)
     }
 
@@ -600,17 +614,33 @@ export default function BaseMap({
     }
 
     const onError = (e) => handleError(e, setLayerErrors)
-    const onSourceData = (e) => handleSourceData(e, setLayerErrors)
+    const onSourceData = (e: SourceDataEvent) => handleSourceData(e, setLayerErrors)
+    const onSourceDataLoading = () => setIsLoadingTiles(true)
+    const onIdle = () => setIsLoadingTiles(false)
 
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
+    map.on('sourcedataloading', onSourceDataLoading)
+    map.on('idle', onIdle)
 
     // eslint-disable-next-line consistent-return
     return () => {
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
+      map.off('sourcedataloading', onSourceDataLoading)
+      map.off('idle', onIdle)
     }
   }, [isMapLoaded])
+
+  // 1s debounce: avoid flashing the indicator on fast loads.
+  useEffect(() => {
+    if (!isLoadingTiles) {
+      setShowLoadingIndicator(false)
+      return undefined
+    }
+    const timer = setTimeout(() => setShowLoadingIndicator(true), 1000)
+    return () => clearTimeout(timer)
+  }, [isLoadingTiles])
 
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the watershed visual highlight from the map.
@@ -844,7 +874,10 @@ export default function BaseMap({
             <div className={styles['plume-marker']} />
           </Marker>
         )}
-        {/* Watershed always rendered first so other layers can reference it via beforeId */}
+        {/* Layer visual stack (bottom → top):
+            base style → COG (lulc/sed_export) → rastertiles (sed_dispersal/reef_extent)
+            → benthic → regions/countries → watershed → plumes → map labels
+            Watershed rendered first so it exists as a beforeId anchor for all layers below it */}
         {isMapLoaded && watershedLayer && (
           <WatershedLayers
             key={`layer-${watershedIndex}`}
@@ -853,15 +886,43 @@ export default function BaseMap({
           />
         )}
         {/* Plumes rendered outside the main loop so "plumes" and "plumes-lines" are stable
-            layer ID anchors; beforeId="label_airport" places them above watershed but below map labels */}
+            layer ID anchors; beforeId="label_airport" places them above watershed but below map labels.
+            JSX order within PlumeLayers: lines first (lower), fill second (higher) */}
         {isMapLoaded && plumeLayer && (
           <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
+        )}
+        {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
+            beforeId="watershed" places it as the lowest app layer, just below regions/countries */}
+        {isMapLoaded && benthicLayer && (
+          <Source
+            id={benthicLayer.sourceId}
+            key={`${benthicLayer.sourceId}-source`}
+            type="vector"
+            tiles={[benthicLayer.link]}
+            maxzoom={22}
+            minzoom={0}
+          >
+            <Layer
+              id={benthicLayer.layerId}
+              type="fill"
+              source={benthicLayer.sourceId}
+              source-layer={benthicLayer.sourceFileName}
+              beforeId="watershed"
+              layout={{ visibility: benthicLayer.isLayerOn ? 'visible' : 'none' }}
+              paint={{
+                // @ts-expect-error - doesn't like fill-color being a string?
+                'fill-color': benthicSubLayerFillExpression,
+              }}
+            />
+          </Source>
         )}
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
           } else if (layer.layerId === 'plumes') {
             return null // rendered above, always present
+          } else if (layer.layerId === 'benthic') {
+            return null // rendered above the loop so it exists as a beforeId anchor for rastertiles
           } else if (layer.dataType === 'pmtiles') {
             return (
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
@@ -871,9 +932,7 @@ export default function BaseMap({
               layer.layerId !== 'sed_export' || sedExportSubLayerValue === 'pixel'
 
             return (
-              isMapLoaded &&
-              layer.isLayerOn &&
-              shouldRenderSedExportRaster && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -884,19 +943,24 @@ export default function BaseMap({
                   minzoom={6}
                 >
                   <Layer
-                    id={layer.layerId}
+                    id={layer.sourceId}
                     type="raster"
-                    key={`${layer.layerId}-${index}`}
+                    key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="sed_dispersal"
+                    beforeId="sediment_exposure_2000"
+                    layout={{
+                      visibility:
+                        layer.isLayerOn && shouldRenderSedExportRaster ? 'visible' : 'none',
+                    }}
                   />
                 </Source>
               )
             )
           } else if (layer.dataType === 'rastertiles') {
+            // Rastertiles sit just below benthic (beforeId="benthic"). All years are always mounted
+            // so tiles stay cached; visibility is toggled instead of mounting/unmounting on year change.
             return (
-              isMapLoaded &&
-              layer.isLayerOn && (
+              isMapLoaded && (
                 <Source
                   id={layer.sourceId}
                   key={`${layer.sourceId}-${index}`}
@@ -907,17 +971,18 @@ export default function BaseMap({
                   minzoom={6}
                 >
                   <Layer
-                    id={layer.layerId}
+                    id={layer.sourceId}
                     type="raster"
-                    key={`${layer.layerId}-${index}`}
+                    key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
+                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                   />
                 </Source>
               )
             )
           } else {
-            //other should just be 'vectortiles'
+            // Fallback for any non-benthic vectortile layers; beforeId="watershed" places them below watershed
             return (
               isMapLoaded && (
                 <Source
@@ -937,8 +1002,7 @@ export default function BaseMap({
                     beforeId="watershed"
                     layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
                     paint={{
-                      // @ts-expect-error - doesn't like fill-color being a string?
-                      'fill-color': benthicSubLayerFillExpression,
+                      'fill-color': transparent,
                     }}
                   />
                 </Source>
@@ -949,19 +1013,48 @@ export default function BaseMap({
       </MapGL>
 
       <Snackbar
-        open={mapLayersLoadingError}
+        open={showLoading || mapLayersLoadingError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        message={t('map_layers_did_not_load')}
-        action={
-          <button
-            type="button"
-            className={styles['snackbar-reload-button']}
-            onClick={() => window.location.reload()}
-          >
-            {t('buttons.reload_page')}
-          </button>
-        }
-      />
+        // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
+        sx={{
+          '&.MuiSnackbar-root': {
+            bottom: isMobileWidth
+              ? `${TRENDS_DRAWER_PEEK_HEIGHT + SNACKBAR_BOTTOM_GAP}px`
+              : undefined,
+          },
+        }}
+      >
+        <div className={styles['snackbar-stack']}>
+          {showLoading && (
+            <SnackbarContent
+              message={
+                <span
+                  className={styles['loading-snackbar-message']}
+                  role="status"
+                  aria-live="polite"
+                >
+                  <CircularProgress size={16} color="inherit" aria-hidden />
+                  {t('map_layers_loading')}
+                </span>
+              }
+            />
+          )}
+          {mapLayersLoadingError && (
+            <SnackbarContent
+              message={t('map_layers_did_not_load')}
+              action={
+                <button
+                  type="button"
+                  className={styles['snackbar-reload-button']}
+                  onClick={() => window.location.reload()}
+                >
+                  {t('buttons.reload_page')}
+                </button>
+              }
+            />
+          )}
+        </div>
+      </Snackbar>
     </div>
   )
 }

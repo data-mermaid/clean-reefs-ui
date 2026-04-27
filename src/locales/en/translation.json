@@ -118,5 +118,6 @@
   "toggle_navigation_menu": "Toggle navigation menu",
   "select_year": "Select year",
   "map_layers_did_not_load": "Some map layers didn't load",
+  "map_layers_loading": "Loading map layers...",
   "ocean_pollution": "Ocean Pollution"
 }

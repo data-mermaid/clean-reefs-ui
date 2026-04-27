@@ -33,3 +33,17 @@
   font-weight: theme.$regular;
   padding-right: theme.$defaultSpacing;
 }
+
+.loading-snackbar-message {
+  display: inline-flex;
+  align-items: center;
+  gap: theme.$spacingSmall;
+}
+
+// `align-items: stretch` keeps the loading and error pills the same width.
+.snackbar-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: theme.$spacingSmall;
+}

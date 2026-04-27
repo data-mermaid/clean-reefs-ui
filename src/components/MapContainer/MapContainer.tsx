@@ -22,6 +22,7 @@ import {
 import { useMapStore } from '../../stores/mapStore'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
+import useResponsive from '../../hooks/useResponsive'
 
 export default function MapContainer() {
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
@@ -67,9 +68,12 @@ export default function MapContainer() {
     getValidDispersalPoint(searchParams.get('dispersal-point')),
   )
 
+  const { isMobileWidth } = useResponsive()
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
+  const [layersDrawerOpen, setLayersDrawerOpen] = useState(false)
+  const [trendsDrawerOpen, setTrendsDrawerOpen] = useState(!isMobileWidth)
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
     initialRegion.regionType !== 'global'
       ? [defaultGlobalRegionOption, initialRegion]
@@ -326,6 +330,8 @@ export default function MapContainer() {
           onLayerToggleChange={handleLayerToggleChange}
           onSedSubLayerChange={handleSedSubLayerChange}
           subSedLayerValue={subSedLayerValue}
+          open={layersDrawerOpen}
+          onOpenChange={setLayersDrawerOpen}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -337,6 +343,8 @@ export default function MapContainer() {
         <TrendsDrawer
           selectedRegion={selectedRegion}
           selectedYear={selectedYear}
+          open={trendsDrawerOpen}
+          onOpenChange={setTrendsDrawerOpen}
           onWatershedSelectionClear={handleWatershedSelectionClear}
           onPlumeSelectionClear={handlePlumeSelectionClear}
           onRegionChange={handleRegionChange}
@@ -362,6 +370,7 @@ export default function MapContainer() {
           zoom: zoom ?? selectedRegion.zoomLevel,
         }}
         onMapMoveEnd={handleMapMoveEnd}
+        isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
       />
     </div>
   )
