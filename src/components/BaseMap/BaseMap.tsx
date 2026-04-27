@@ -56,6 +56,8 @@ import {
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
+  SNACKBAR_BOTTOM_GAP,
+  TRENDS_DRAWER_PEEK_HEIGHT,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
@@ -65,9 +67,6 @@ import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
-
-const trendsDrawerPeekHeight = 100
-const snackbarBottomGap = 36
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
@@ -978,7 +977,9 @@ export default function BaseMap({
         // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
         sx={{
           '&.MuiSnackbar-root': {
-            bottom: isMobileWidth ? `${trendsDrawerPeekHeight + snackbarBottomGap}px` : undefined,
+            bottom: isMobileWidth
+              ? `${TRENDS_DRAWER_PEEK_HEIGHT + SNACKBAR_BOTTOM_GAP}px`
+              : undefined,
           },
         }}
       >
