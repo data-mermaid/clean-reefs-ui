@@ -6,7 +6,8 @@ import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import { layers, urlControlledLayerIds } from '../../data/mapData'
+import { layers, urlControlledLayerIds, sedExportAndLandUseLayers } from '../../data/mapData'
+import { LAT_LNG_PRECISION, ZOOM_PRECISION } from '../../constants'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import {
@@ -26,6 +27,7 @@ export default function MapContainer() {
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
   const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
     (s) => s.clearSelectedPlumeWatershedStats,
@@ -188,7 +190,7 @@ export default function MapContainer() {
           if (newDispersalPoint) {
             nextSearchParams.set(
               'dispersal-point',
-              `${newDispersalPoint.lat.toFixed(6)},${newDispersalPoint.lng.toFixed(6)}`,
+              `${newDispersalPoint.lat.toFixed(LAT_LNG_PRECISION)},${newDispersalPoint.lng.toFixed(LAT_LNG_PRECISION)}`,
             )
           } else {
             nextSearchParams.delete('dispersal-point')
@@ -211,25 +213,25 @@ export default function MapContainer() {
   // Clears watershed and plume state since the user is navigating to a different scope.
   const handleRegionDropdownChange = useCallback(
     (region: RegionOption) => {
-      handleRegionChange(region)
-      handleWatershedChange(null)
-      handleDispersalPointChange(null)
+      setSelectedRegion(region)
+      updateSearchParams((prev) => {
+        const nextSearchParams = new URLSearchParams(prev)
+        nextSearchParams.set('region', region.id)
+        nextSearchParams.delete('watershed')
+        nextSearchParams.delete('dispersal-point')
+        return nextSearchParams
+      })
       clearSelectedFeature()
       clearSelectedPlumeWatershedStats()
       clearTopPolygonsFill('watershed')
-      useMapStore.getState().mapReference?.getMap()?.jumpTo({
-        center: region.centerCoord,
-        zoom: region.zoomLevel,
-        bearing: 0,
-      })
+      jumpToRegion(region)
     },
     [
-      handleRegionChange,
-      handleWatershedChange,
-      handleDispersalPointChange,
+      updateSearchParams,
       clearSelectedFeature,
       clearSelectedPlumeWatershedStats,
       clearTopPolygonsFill,
+      jumpToRegion,
     ],
   )
 
@@ -250,7 +252,6 @@ export default function MapContainer() {
 
   const handleLayerToggleChange = useCallback(
     (toggledLayerId: string | null, isChecked: boolean) => {
-      const sedExportAndLandUseLayers = ['sed_export', 'lulc']
       if (!toggledLayerId) {
         return
       }
@@ -274,12 +275,13 @@ export default function MapContainer() {
         return nextSearchParams
       })
 
-      if (toggledLayerId === 'sed_export' && isChecked) {
-        toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
-        return
-      }
-
-      if (toggledLayerId === 'sed_export' || (toggledLayerId === 'lulc' && isChecked)) {
+      if (toggledLayerId === 'sed_export') {
+        if (isChecked) {
+          toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
+        } else {
+          turnOffSedExportSubLayerFills()
+        }
+      } else if (toggledLayerId === 'lulc' && isChecked) {
         turnOffSedExportSubLayerFills()
       }
     },
@@ -302,9 +304,9 @@ export default function MapContainer() {
       updateSearchParams(
         (prevSearchParams) => {
           const nextSearchParams = new URLSearchParams(prevSearchParams)
-          nextSearchParams.set('lat', viewState.latitude.toFixed(6))
-          nextSearchParams.set('lng', viewState.longitude.toFixed(6))
-          nextSearchParams.set('zoom', viewState.zoom.toFixed(2))
+          nextSearchParams.set('lat', viewState.latitude.toFixed(LAT_LNG_PRECISION))
+          nextSearchParams.set('lng', viewState.longitude.toFixed(LAT_LNG_PRECISION))
+          nextSearchParams.set('zoom', viewState.zoom.toFixed(ZOOM_PRECISION))
           return nextSearchParams
         },
         { replace: true },

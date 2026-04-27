@@ -400,6 +400,8 @@ export const benthicSubLayers: (SubLayerInfo | LayerInfo)[] = [
   },
 ]
 
+export const sedExportAndLandUseLayers = ['sed_export', 'lulc']
+
 export const urlControlledLayerIds = [
   'none',
   'sed_export',

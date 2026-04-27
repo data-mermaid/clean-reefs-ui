@@ -79,6 +79,10 @@ export const SEDIMENT_EXPOSURE_2015_URL =
 export const SEDIMENT_EXPOSURE_2020_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/data_sediment_exposure_2020.tif'
 
+/******MAP URL PARAMS******/
+export const LAT_LNG_PRECISION = 6
+export const ZOOM_PRECISION = 2
+
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {
   padding: { top: 300, bottom: 300, left: 300, right: 300 },
