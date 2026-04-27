@@ -27,14 +27,20 @@ import {
 interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export default function TrendsDrawer({ selectedRegion, selectedYear }: TrendsDrawerProps) {
+export default function TrendsDrawer({
+  selectedRegion,
+  selectedYear,
+  open,
+  onOpenChange,
+}: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
-  const [open, setOpen] = useState(!isMobileWidth)
-  const openDrawer = () => setOpen(true)
-  const closeDrawer = () => setOpen(false)
+  const openDrawer = () => onOpenChange(true)
+  const closeDrawer = () => onOpenChange(false)
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )

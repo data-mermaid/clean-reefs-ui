@@ -48,7 +48,7 @@ import {
   buildBenthicFillExpression,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
-import { Snackbar } from '@mui/material'
+import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
@@ -65,6 +65,9 @@ import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
+
+const trendsDrawerPeekHeight = 100
+const snackbarBottomGap = 36
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
@@ -104,6 +107,7 @@ interface BaseMapProps {
     zoom: number
   }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
+  isAnyDrawerOpen: boolean
 }
 
 const getRegionByLabel = (regionLabel: string | undefined) =>
@@ -375,9 +379,10 @@ export default function BaseMap({
   setBreadcrumb,
   initialViewState,
   onMapMoveEnd,
+  isAnyDrawerOpen,
 }: BaseMapProps) {
   const { t } = useTranslation()
-  const { isDesktopWidth } = useResponsive()
+  const { isDesktopWidth, isMobileWidth } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
@@ -408,8 +413,12 @@ export default function BaseMap({
   const [isMapLoaded, setIsMapLoaded] = useState(false)
 
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
+  const [isLoadingTiles, setIsLoadingTiles] = useState(false)
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
+  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyDrawerOpen)
+
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),
     [mapLayers],
@@ -601,17 +610,33 @@ export default function BaseMap({
     }
 
     const onError = (e) => handleError(e, setLayerErrors)
-    const onSourceData = (e) => handleSourceData(e, setLayerErrors)
+    const onSourceData = (e: SourceDataEvent) => handleSourceData(e, setLayerErrors)
+    const onSourceDataLoading = () => setIsLoadingTiles(true)
+    const onIdle = () => setIsLoadingTiles(false)
 
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
+    map.on('sourcedataloading', onSourceDataLoading)
+    map.on('idle', onIdle)
 
     // eslint-disable-next-line consistent-return
     return () => {
       map.off('error', onError)
       map.off('sourcedata', onSourceData)
+      map.off('sourcedataloading', onSourceDataLoading)
+      map.off('idle', onIdle)
     }
   }, [isMapLoaded])
+
+  // 1s debounce: avoid flashing the indicator on fast loads.
+  useEffect(() => {
+    if (!isLoadingTiles) {
+      setShowLoadingIndicator(false)
+      return undefined
+    }
+    const timer = setTimeout(() => setShowLoadingIndicator(true), 1000)
+    return () => clearTimeout(timer)
+  }, [isLoadingTiles])
 
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the watershed visual highlight from the map.
@@ -948,19 +973,46 @@ export default function BaseMap({
       </MapGL>
 
       <Snackbar
-        open={mapLayersLoadingError}
+        open={showLoading || mapLayersLoadingError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        message={t('map_layers_did_not_load')}
-        action={
-          <button
-            type="button"
-            className={styles['snackbar-reload-button']}
-            onClick={() => window.location.reload()}
-          >
-            {t('buttons.reload_page')}
-          </button>
-        }
-      />
+        // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
+        sx={{
+          '&.MuiSnackbar-root': {
+            bottom: isMobileWidth ? `${trendsDrawerPeekHeight + snackbarBottomGap}px` : undefined,
+          },
+        }}
+      >
+        <div className={styles['snackbar-stack']}>
+          {showLoading && (
+            <SnackbarContent
+              message={
+                <span
+                  className={styles['loading-snackbar-message']}
+                  role="status"
+                  aria-live="polite"
+                >
+                  <CircularProgress size={16} color="inherit" aria-hidden />
+                  {t('map_layers_loading')}
+                </span>
+              }
+            />
+          )}
+          {mapLayersLoadingError && (
+            <SnackbarContent
+              message={t('map_layers_did_not_load')}
+              action={
+                <button
+                  type="button"
+                  className={styles['snackbar-reload-button']}
+                  onClick={() => window.location.reload()}
+                >
+                  {t('buttons.reload_page')}
+                </button>
+              }
+            />
+          )}
+        </div>
+      </Snackbar>
     </div>
   )
 }

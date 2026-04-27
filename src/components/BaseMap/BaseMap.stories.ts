@@ -31,6 +31,7 @@ export const Primary: Story = {
     },
     selectedYear: 2000,
     onMapMoveEnd: () => {},
+    isAnyDrawerOpen: false,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -65,6 +66,7 @@ export const Loading: Story = {
     },
     selectedYear: 2000,
     onMapMoveEnd: () => {},
+    isAnyDrawerOpen: false,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')
