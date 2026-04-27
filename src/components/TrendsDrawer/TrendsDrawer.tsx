@@ -113,16 +113,17 @@ export default function TrendsDrawer({
   )
 
   const handleUpOneLevel = () => {
-    if (effectiveRegionType === 'watershed') {
-      onWatershedSelectionClear()
-    }
-
-    if (effectiveRegionType === 'country' || effectiveRegionType === 'region') {
-      onRegionChange(defaultGlobalRegionOption)
-    }
-
-    if (effectiveRegionType === 'plume') {
-      onPlumeSelectionClear()
+    switch (effectiveRegionType) {
+      case 'watershed':
+        onWatershedSelectionClear()
+        break
+      case 'country':
+      case 'region':
+        onRegionChange(defaultGlobalRegionOption)
+        break
+      case 'plume':
+        onPlumeSelectionClear()
+        break
     }
   }
 
