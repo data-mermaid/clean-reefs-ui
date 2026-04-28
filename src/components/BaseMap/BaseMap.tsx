@@ -519,7 +519,10 @@ export default function BaseMap({
 
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
-    () => createPolygonClickHandler(polygonClickRef, handleFeatureSelect),
+    () =>
+      createPolygonClickHandler(polygonClickRef, (feature, bounds) =>
+        handleFeatureSelect(feature, bounds, { skipFitBounds: true }),
+      ),
     [handleFeatureSelect],
   )
 

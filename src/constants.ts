@@ -86,7 +86,7 @@ export const ZOOM_PRECISION = 2
 /******MAP FIT BOUNDS******/
 export const mapFitBoundsDesktopConfig = {
   padding: { top: 300, bottom: 300, left: 300, right: 300 },
-  maxZoom: 14,
+  maxZoom: 10,
 }
 
 export const mapFitBoundsMobileConfig = {
