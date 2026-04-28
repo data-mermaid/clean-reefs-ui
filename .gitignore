@@ -30,3 +30,5 @@ tsconfig.tsbuildinfo
 
 *storybook.log
 storybook-static
+
+.claude/
