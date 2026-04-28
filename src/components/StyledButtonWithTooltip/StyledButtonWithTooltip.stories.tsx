@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import StyledButtonWithTooltip from './StyledButtonWithTooltip'
 import LayersIcon from '@mui/icons-material/Layers'
-import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import layerStyles from '../LayersDrawer/LayersDrawer.module.scss'
 
 const meta: Meta<typeof StyledButtonWithTooltip> = {
@@ -37,24 +36,13 @@ export const LayerToggleButton: Story = {
   },
 }
 
-export const IconButtonWithTooltip: Story = {
+export const DisabledButtonWithTooltip: Story = {
   args: {
-    isIconButton: true,
-    'aria-label': 'Go up one level',
-    tooltipText: 'Go up one level',
-    tooltipPlacement: 'top',
-    children: <img src={UpOneLevelIcon} alt="" />,
+    'aria-label': 'Action button',
+    tooltipText: 'Tooltip still shows when disabled',
+    children: <LayersIcon />,
     onClick: () => {},
-  },
-}
-
-export const IconButtonWithoutTooltip: Story = {
-  args: {
-    isIconButton: true,
-    'aria-label': 'Go up one level',
-    tooltipPlacement: 'top',
-    children: <img src={UpOneLevelIcon} alt="" />,
-    onClick: () => {},
+    disabled: true,
   },
 }
 

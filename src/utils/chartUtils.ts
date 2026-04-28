@@ -49,6 +49,12 @@ export function getEffectiveRegionType(
   return regionType
 }
 
+export function getUpOneLevelLabel(regionType: RegionType, selectedRegion: RegionOption): string {
+  return regionType === 'plume' || regionType === 'watershed'
+    ? selectedRegion.label
+    : i18next.t('regions.global')
+}
+
 //'Built_pct_2000': val --> 'built_up': {{"2015": val}, {"2005": val}, ...}
 const areaRegex = new RegExp(/.*(area_ha)_\d{4}/, 'gm')
 
