@@ -459,3 +459,37 @@ export async function getAllYearZonalStats(lngLat) {
   const results = await Promise.all(zonalStatsPromises)
   return Object.assign({}, ...results)
 }
+
+type LayerWithIdAndType = {
+  id: string
+  type?: string
+}
+
+// Find the first symbol (label) layer that sits above the last opaque/blocking layer.
+// Some basemaps insert symbol layers early in the stack and continue adding fills/hillshade
+// afterwards; anchoring overlays to the *first* symbol would bury them under those later fills.
+export const resolveBasemapBeforeId = (layers: LayerWithIdAndType[]): string | undefined => {
+  const BLOCKING_TYPES = new Set(['fill', 'fill-extrusion', 'hillshade', 'raster'])
+
+  let lastBlockingIndex = -1
+  for (let i = 0; i < layers.length; i++) {
+    if (layers[i].type && BLOCKING_TYPES.has(layers[i].type as string)) {
+      lastBlockingIndex = i
+    }
+  }
+
+  for (let i = lastBlockingIndex + 1; i < layers.length; i++) {
+    if (layers[i].type === 'symbol') {
+      return layers[i].id
+    }
+  }
+
+  // Fallback: first symbol anywhere in the stack
+  const firstSymbol = layers.find((layer) => layer.type === 'symbol')
+  if (firstSymbol) {
+    return firstSymbol.id
+  }
+
+  // Last resort: first non-background layer
+  return layers.find((layer) => layer.type !== 'background')?.id
+}
