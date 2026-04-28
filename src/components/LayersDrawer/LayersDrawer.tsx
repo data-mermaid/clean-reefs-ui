@@ -3,7 +3,7 @@ import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
 import { Card, Typography } from '@mui/material'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
-import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
+import StyledButtonWithTooltip from '../StyledButtonWithTooltip/StyledButtonWithTooltip'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
@@ -151,13 +151,14 @@ export default function LayersDrawer({
   return (
     <div className={styles['LayersDrawer-root']}>
       {!open && (
-        <StyledIconButtonWithTooltip
+        <StyledButtonWithTooltip
+          aria-label={t('buttons.open_menu')}
           tooltipText={t('buttons.open_menu')}
           handleOnClick={toggleDrawer(true)}
           className={styles['layer-toggle-button']}
         >
           <LayersIcon />
-        </StyledIconButtonWithTooltip>
+        </StyledButtonWithTooltip>
       )}
       <StyledSwipeableDrawer
         open={open}

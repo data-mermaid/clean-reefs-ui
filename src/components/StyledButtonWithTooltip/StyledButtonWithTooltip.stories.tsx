@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import StyledIconButtonWithTooltip from './StyledIconButtonWithTooltip'
+import StyledButtonWithTooltip from './StyledButtonWithTooltip'
 import LayersIcon from '@mui/icons-material/Layers'
 import layerStyles from '../LayersDrawer/LayersDrawer.module.scss'
 
-const meta: Meta<typeof StyledIconButtonWithTooltip> = {
-  component: StyledIconButtonWithTooltip,
+const meta: Meta<typeof StyledButtonWithTooltip> = {
+  component: StyledButtonWithTooltip,
 }
 
-type Story = StoryObj<typeof StyledIconButtonWithTooltip>
+type Story = StoryObj<typeof StyledButtonWithTooltip>
 
 export const ButtonWithTooltipText: Story = {
   args: {
