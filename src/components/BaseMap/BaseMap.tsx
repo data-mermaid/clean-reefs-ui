@@ -46,6 +46,7 @@ import {
   setPolygonSelect,
   getAllYearZonalStats,
   buildBenthicFillExpression,
+  resolveBasemapBeforeId,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
@@ -242,7 +243,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   })
 }
 
-function WatershedLayers({ layer, index }) {
+function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
   return (
     <Source
       id={layer.sourceId}
@@ -257,7 +258,7 @@ function WatershedLayers({ layer, index }) {
         key={`${layer.layerId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{
           visibility: layer.isLayerOn ? 'visible' : 'none',
         }}
@@ -272,7 +273,7 @@ function WatershedLayers({ layer, index }) {
         key={`${layer.layerId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{
           visibility: layer.isLayerOn ? 'visible' : 'none',
           'line-sort-key': 5,
@@ -329,7 +330,7 @@ function PmTileLayers({ layer, index }) {
 
 // Transparent fill layer so mousemove/mouseleave fire over the full plume area,
 // not just the outline stroke. Line layer preserves the visual yellow outline.
-function PlumeLayers({ layer, index }) {
+function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
   return (
     <Source
       id={layer.sourceId}
@@ -344,7 +345,7 @@ function PlumeLayers({ layer, index }) {
         key={`${layer.sourceId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
           'line-color': [
@@ -367,7 +368,7 @@ function PlumeLayers({ layer, index }) {
         key={`${layer.sourceId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
-        beforeId="label_airport"
+        beforeId={beforeId}
         layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{ 'fill-color': transparent }}
       />
@@ -418,6 +419,7 @@ export default function BaseMap({
   const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [basemapBeforeId, setBasemapBeforeId] = useState<string | undefined>(undefined)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
@@ -785,9 +787,18 @@ export default function BaseMap({
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, plumeLayer])
 
   const handleMapLoad = () => {
+    const map = mapRef.current?.getMap()
+    // Resolve basemapBeforeId BEFORE setIsMapLoaded so the shoreline layer mounts with the
+    // correct anchor on its first render. Shoreline anchors to the lowest label so it sits
+    // beneath every basemap label; overlays anchor to "shoreline-emphasis" so they always
+    // land just below the shoreline.
+    if (map) {
+      const layers = map.getStyle()?.layers ?? []
+      setBasemapBeforeId(resolveBasemapBeforeId(layers))
+    }
+
     setIsMapLoaded(true)
 
-    const map = mapRef.current?.getMap()
     if (!map || !watershedLayer) {
       return
     }
@@ -873,7 +884,7 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
-        mapStyle={`https://api.maptiler.com/maps/basic/style.json?key=${apiKey}`}
+        mapStyle={`https://api.maptiler.com/maps/hybrid/style.json?key=${apiKey}`}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
@@ -891,21 +902,39 @@ export default function BaseMap({
         )}
         {/* Layer visual stack (bottom → top):
             base style → COG (lulc/sed_export) → rastertiles (sed_dispersal/reef_extent)
-            → benthic → regions/countries → watershed → plumes → map labels
-            Watershed rendered first so it exists as a beforeId anchor for all layers below it */}
+            → benthic → regions/countries → watershed → plumes → shoreline → map labels
+            Shoreline mounts first so it exists as the beforeId anchor for the overlays below. */}
+        {isMapLoaded && (
+          <Layer
+            id="shoreline-emphasis"
+            type="line"
+            source="maptiler_planet"
+            source-layer="water"
+            beforeId={basemapBeforeId}
+            filter={['==', ['get', 'class'], 'ocean']}
+            paint={{
+              'line-color': '#000',
+              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 5, 1, 10, 1.75, 15, 2.5],
+            }}
+          />
+        )}
         {isMapLoaded && watershedLayer && (
           <WatershedLayers
             key={`layer-${watershedIndex}`}
             layer={watershedLayer}
             index={watershedIndex}
+            beforeId="shoreline-emphasis"
           />
         )}
         {/* Plumes always rendered so tiles stay cached across year switches; visibility toggled
-            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years. */}
+            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
+            beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
         {isMapLoaded &&
           mapLayers
             .filter((l) => l.layerId === 'plumes')
-            .map((l, i) => <PlumeLayers key={l.sourceId} layer={l} index={i} />)}
+            .map((l, i) => (
+              <PlumeLayers key={l.sourceId} layer={l} index={i} beforeId="shoreline-emphasis" />
+            ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
             beforeId="watershed" places it as the lowest app layer, just below regions/countries */}
         {isMapLoaded && benthicLayer && (
