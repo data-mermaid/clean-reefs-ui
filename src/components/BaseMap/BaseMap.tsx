@@ -340,9 +340,9 @@ function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: stri
       url={`pmtiles://${layer.link}`}
     >
       <Layer
-        id={`${layer.layerId}-lines`}
+        id={`${layer.sourceId}-lines`}
         type="line"
-        key={`${layer.layerId}-lines-${index}`}
+        key={`${layer.sourceId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
@@ -363,9 +363,9 @@ function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: stri
         }}
       />
       <Layer
-        id={layer.layerId}
+        id={layer.sourceId}
         type="fill"
-        key={`${layer.layerId}-fill-${index}`}
+        key={`${layer.sourceId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
@@ -438,7 +438,7 @@ export default function BaseMap({
       mapLayers.find((l) => l.layerId === 'plumes'),
     [mapLayers],
   )
-  const plumeLayerIndex = plumeLayer ? mapLayers.indexOf(plumeLayer) : -1
+
   plumeLayerRef.current = plumeLayer
   const benthicLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'benthic'), [mapLayers])
   const previousPlumeLayer = usePrevious(plumeLayer)
@@ -451,12 +451,15 @@ export default function BaseMap({
     plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
 
     const map = mapRef.current?.getMap()
-    if (map && plumeLayer) {
-      clearPolygonSelect(map, plumeClickRef, plumeLayer)
+    // Read from ref so this callback never goes stale when plumeLayer changes (e.g. on year switch).
+    // onWatershedClick in handleMapLoad captures polygonClickHandler once; without the ref the
+    // clearPolygonSelect call would target the wrong year's source after a year change.
+    if (map && plumeLayerRef.current) {
+      clearPolygonSelect(map, plumeClickRef, plumeLayerRef.current)
     }
 
     onPlumeSelectionClear()
-  }, [onPlumeSelectionClear, plumeLayer])
+  }, [onPlumeSelectionClear])
 
   const handleFeatureSelect = useCallback(
     (
@@ -821,7 +824,8 @@ export default function BaseMap({
 
     const onPlumeClick = (e: MapLayerMouseEvent) => {
       const clickedPlumeFeature = e.features?.[0]
-      const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
+      // feature.id is promoted from properties.watershed_id via promoteId="watershed_id" on the Source
+      const clickedPlumeWatershedId = clickedPlumeFeature?.id
       const currentPlumeLayer = plumeLayerRef.current
 
       if (currentPlumeLayer && clickedPlumeWatershedId != null) {
@@ -857,13 +861,19 @@ export default function BaseMap({
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
     })
 
-    map.on('click', 'plumes', onPlumeClick)
-    map.on('mousemove', 'plumes', () => {
-      map.getCanvas().style.cursor = plumeCrosshairCursor
-    })
-    map.on('mouseleave', 'plumes', () => {
-      map.getCanvas().style.cursor = ''
-    })
+    // Register click/hover handlers on every plume year's fill layer (sourceId-based IDs).
+    // Hidden layers (visibility:'none') do not fire mouse events so only the active year responds.
+    mapLayers
+      .filter((l) => l.layerId === 'plumes')
+      .forEach((pl) => {
+        map.on('click', pl.sourceId, onPlumeClick)
+        map.on('mousemove', pl.sourceId, () => {
+          map.getCanvas().style.cursor = plumeCrosshairCursor
+        })
+        map.on('mouseleave', pl.sourceId, () => {
+          map.getCanvas().style.cursor = ''
+        })
+      })
   }
 
   return (
@@ -916,16 +926,15 @@ export default function BaseMap({
             beforeId="shoreline-emphasis"
           />
         )}
-        {/* Plumes rendered outside the main loop so "plumes" and "plumes-lines" are stable
-            layer ID anchors. JSX order within PlumeLayers: lines first (lower), fill second (higher) */}
-        {isMapLoaded && plumeLayer && (
-          <PlumeLayers
-            key={plumeLayer.sourceId}
-            layer={plumeLayer}
-            index={plumeLayerIndex}
-            beforeId="shoreline-emphasis"
-          />
-        )}
+        {/* Plumes always rendered so tiles stay cached across year switches; visibility toggled
+            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
+            beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
+        {isMapLoaded &&
+          mapLayers
+            .filter((l) => l.layerId === 'plumes')
+            .map((l, i) => (
+              <PlumeLayers key={l.sourceId} layer={l} index={i} beforeId="shoreline-emphasis" />
+            ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
             beforeId="watershed" places it as the lowest app layer, just below regions/countries */}
         {isMapLoaded && benthicLayer && (
