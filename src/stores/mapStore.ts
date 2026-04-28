@@ -6,6 +6,7 @@ import {
   buildWatershedMatchExpression,
   getUpdatedBenthicColor,
 } from '../utils/mapUtils'
+import { RegionOption } from '../types/RegionDataTypes'
 
 type MapState = {
   mapReference: MapRef | null
@@ -28,6 +29,7 @@ type MapActions = {
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   setTopWatershedIds: (polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
+  jumpToRegion: (region: RegionOption) => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -111,6 +113,17 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     set({ topWatershedIds: [] })
     map.setPaintProperty(layerId, 'fill-color', baseFillExpression)
+  },
+  jumpToRegion: (region) => {
+    const map = get().mapReference?.getMap()
+    if (!map) {
+      return
+    }
+    map.jumpTo({
+      center: region.centerCoord,
+      zoom: region.zoomLevel,
+      bearing: 0,
+    })
   },
   setTopPolygonsFill: (layerId, polygonIds) => {
     const state = get()

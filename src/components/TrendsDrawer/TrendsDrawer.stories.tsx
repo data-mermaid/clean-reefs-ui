@@ -16,6 +16,7 @@ export const Primary: Story = {
     selectedYear: 2020,
     open: true,
     onOpenChange: () => {},
+    onUpOneLevelChange: () => {},
   },
   render: (args) => {
     const [open, setOpen] = useState(args.open)

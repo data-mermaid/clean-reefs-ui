@@ -75,6 +75,7 @@ interface ApplyPlumeStatsParams {
   allYearStats: Record<number, ZonalStatsBand>
   selectedYear: number
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  onRegionChange: (region: RegionOption) => void
 }
 
 interface HandleMapClickParamProps {
@@ -83,9 +84,9 @@ interface HandleMapClickParamProps {
   selectedYear: number
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onDispersalPointChange: (point: { lat: number; lng: number } | null) => void
-  clearWatershedSelection: () => void
-
+  onWatershedSelectionClear: () => void
   requestIdRef: RefObject<number>
+  onRegionChange: (region: RegionOption) => void
 }
 
 interface BaseMapProps {
@@ -93,7 +94,9 @@ interface BaseMapProps {
   sedExportSubLayerValue: 'pixel' | 'watershed'
   onRegionChange: (region: RegionOption) => void
   onWatershedChange: (id: string | null) => void
+  onWatershedSelectionClear: () => void
   onDispersalPointChange(point: { lat: number; lng: number } | null): void
+  onPlumeSelectionClear: () => void
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
@@ -168,6 +171,7 @@ const applyPlumeStats = ({
   allYearStats,
   selectedYear,
   setBreadcrumb,
+  onRegionChange,
 }: ApplyPlumeStatsParams): void => {
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
@@ -188,7 +192,7 @@ const applyPlumeStats = ({
     sourceLayer: watershedLayer.sourceFileName,
     filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
-  const { breadcrumb } = buildBreadcrumb(watershedFeatures[0]?.properties, {
+  const { breadcrumb, addtlRegion } = buildBreadcrumb(watershedFeatures[0]?.properties, {
     id: 'plume',
     regionType: 'plume',
     label: 'Plume',
@@ -197,6 +201,11 @@ const applyPlumeStats = ({
   })
 
   setBreadcrumb(breadcrumb)
+  // Sync the parent region (e.g. country) to the URL so the up-one-level button
+  // has a valid target to fall back to once the plume/watershed is cleared.
+  if (addtlRegion) {
+    onRegionChange(addtlRegion)
+  }
   setTopPolygonsFill('watershed', topContributingWatershedIds)
 }
 
@@ -207,11 +216,12 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     selectedYear,
     setBreadcrumb,
     onDispersalPointChange,
-    clearWatershedSelection,
+    onWatershedSelectionClear,
     requestIdRef,
+    onRegionChange,
   } = clickParams
 
-  clearWatershedSelection()
+  onWatershedSelectionClear()
   onDispersalPointChange({ lng: e.lngLat.lng, lat: e.lngLat.lat })
 
   const requestId = ++requestIdRef.current
@@ -228,6 +238,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     allYearStats,
     selectedYear,
     setBreadcrumb,
+    onRegionChange,
   })
 }
 
@@ -369,7 +380,9 @@ export default function BaseMap({
   sedExportSubLayerValue,
   onRegionChange,
   onWatershedChange,
+  onWatershedSelectionClear,
   onDispersalPointChange,
+  onPlumeSelectionClear,
   initialWatershedId,
   initialDispersalPoint,
   dispersalPoint,
@@ -384,12 +397,7 @@ export default function BaseMap({
   const { isDesktopWidth, isMobileWidth } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
-  const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
-  const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
-  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
-    (s) => s.clearSelectedPlumeWatershedStats,
-  )
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
@@ -410,7 +418,6 @@ export default function BaseMap({
   const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
@@ -446,15 +453,8 @@ export default function BaseMap({
       clearPolygonSelect(map, plumeClickRef, plumeLayer)
     }
 
-    clearTopPolygonsFill('watershed')
-    clearSelectedPlumeWatershedStats()
-    onDispersalPointChange(null)
-  }, [clearTopPolygonsFill, clearSelectedPlumeWatershedStats, onDispersalPointChange, plumeLayer])
-
-  const clearWatershedSelection = useCallback(() => {
-    clearSelectedFeature()
-    onWatershedChange(null)
-  }, [clearSelectedFeature, onWatershedChange])
+    onPlumeSelectionClear()
+  }, [onPlumeSelectionClear, plumeLayer])
 
   const handleFeatureSelect = useCallback(
     (
@@ -462,8 +462,8 @@ export default function BaseMap({
       bounds?: LngLatBounds,
       options?: { skipFitBounds?: boolean },
     ) => {
-      setSelectedFeature(feature)
       clearPlumeSelection()
+      setSelectedFeature(feature)
 
       if (feature && bounds) {
         const map = mapRef.current?.getMap()
@@ -480,6 +480,8 @@ export default function BaseMap({
           })
 
           setBreadcrumb(breadcrumb)
+          // Sync the parent region (e.g. country) to the URL so the up-one-level button
+          // has a valid target to fall back to once the plume/watershed is cleared.
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
@@ -572,8 +574,9 @@ export default function BaseMap({
       allYearStats: plumeStats,
       selectedYear,
       setBreadcrumb,
+      onRegionChange,
     })
-  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
+  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, onRegionChange])
 
   // Re-apply plume outline selection when plume layer/source is (re)available.
   useEffect(() => {
@@ -614,10 +617,11 @@ export default function BaseMap({
       return
     }
 
-    const onError = (e) => handleError(e, setLayerErrors)
-    const onSourceData = (e: SourceDataEvent) => handleSourceData(e, setLayerErrors)
-    const onSourceDataLoading = () => setIsLoadingTiles(true)
-    const onIdle = () => setIsLoadingTiles(false)
+    const onError = (e) => setTimeout(() => handleError(e, setLayerErrors), 0)
+    const onSourceData = (e: SourceDataEvent) =>
+      setTimeout(() => handleSourceData(e, setLayerErrors), 0)
+    const onSourceDataLoading = () => setTimeout(() => setIsLoadingTiles(true), 0)
+    const onIdle = () => setTimeout(() => setIsLoadingTiles(false), 0)
 
     map.on('error', onError)
     map.on('sourcedata', onSourceData)
@@ -767,6 +771,7 @@ export default function BaseMap({
             allYearStats,
             selectedYear,
             setBreadcrumb,
+            onRegionChange,
           })
         })()
       },
@@ -823,8 +828,9 @@ export default function BaseMap({
         selectedYear: selectedYearRef.current,
         setBreadcrumb,
         onDispersalPointChange,
-        clearWatershedSelection,
+        onWatershedSelectionClear,
         requestIdRef: plumeRequestIdRef,
+        onRegionChange,
       })
     }
 

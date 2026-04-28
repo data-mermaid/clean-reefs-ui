@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
+import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import styles from './TrendsDrawer.module.scss'
 import useResponsive from '../../hooks/useResponsive'
 import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
-import { RegionOption } from '../../types/RegionDataTypes'
+import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
@@ -30,6 +31,7 @@ interface TrendsDrawerProps {
   selectedYear: number
   open: boolean
   onOpenChange: (open: boolean) => void
+  onUpOneLevelChange: (regionType: RegionType) => void
 }
 
 export default function TrendsDrawer({
@@ -37,6 +39,7 @@ export default function TrendsDrawer({
   selectedYear,
   open,
   onOpenChange,
+  onUpOneLevelChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
@@ -117,7 +120,19 @@ export default function TrendsDrawer({
       swipeAreaWidth={TRENDS_DRAWER_PEEK_HEIGHT}
     >
       <div className={styles['drawer-header']}>
-        {open && <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>}
+        {open && (
+          <div className={styles['drawer-header__title']}>
+            {effectiveRegionType !== 'global' && (
+              <IconButton
+                aria-label={t('buttons.up_one_level')}
+                onClick={() => onUpOneLevelChange(effectiveRegionType)}
+              >
+                <img src={UpOneLevelIcon} alt="" />
+              </IconButton>
+            )}
+            <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>
+          </div>
+        )}
         {open && isMobileWidth && (
           <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
             <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
