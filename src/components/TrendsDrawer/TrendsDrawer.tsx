@@ -133,7 +133,7 @@ export default function TrendsDrawer({
                     : t('regions.global')
                 }
                 tooltipPlacement="top"
-                handleOnClick={() => onUpOneLevelChange(effectiveRegionType)}
+                onClick={() => onUpOneLevelChange(effectiveRegionType)}
               >
                 <img src={UpOneLevelIcon} alt="" />
               </StyledButtonWithTooltip>

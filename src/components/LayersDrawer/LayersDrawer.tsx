@@ -154,7 +154,7 @@ export default function LayersDrawer({
         <StyledButtonWithTooltip
           aria-label={t('buttons.open_menu')}
           tooltipText={t('buttons.open_menu')}
-          handleOnClick={toggleDrawer(true)}
+          onClick={toggleDrawer(true)}
           className={styles['layer-toggle-button']}
         >
           <LayersIcon />

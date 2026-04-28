@@ -6,29 +6,24 @@ interface StyledButtonWithTooltipProps extends ButtonProps {
   tooltipText?: string
   tooltipPlacement?: React.ComponentProps<typeof Tooltip>['placement']
   children: React.ReactElement
-  handleOnClick?: () => void
   isIconButton?: boolean
 }
 
 export default function StyledButtonWithTooltip({
   tooltipText,
   children,
-  handleOnClick,
   className,
   isIconButton = false,
   tooltipPlacement = 'bottom',
-  ...props
+  onClick,
+  ...rest
 }: StyledButtonWithTooltipProps) {
   const buttonContent = isIconButton ? (
-    <IconButton
-      onClick={handleOnClick}
-      className={clsx(styles['icon-button'], className)}
-      {...props}
-    >
+    <IconButton onClick={onClick} className={clsx(styles['icon-button'], className)} {...rest}>
       {children}
     </IconButton>
   ) : (
-    <Button onClick={handleOnClick} className={clsx(styles['button'], className)} {...props}>
+    <Button onClick={onClick} className={clsx(styles['button'], className)} {...rest}>
       {children}
     </Button>
   )

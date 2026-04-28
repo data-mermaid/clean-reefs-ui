@@ -15,7 +15,7 @@ export const ButtonWithTooltip: Story = {
     'aria-label': 'Action button',
     tooltipText: 'Tooltip Text',
     children: <LayersIcon />,
-    handleOnClick: () => {},
+    onClick: () => {},
   },
 }
 
@@ -23,7 +23,7 @@ export const ButtonWithoutTooltip: Story = {
   args: {
     'aria-label': 'Action button',
     children: <LayersIcon />,
-    handleOnClick: () => {},
+    onClick: () => {},
   },
 }
 
@@ -32,7 +32,7 @@ export const LayerToggleButton: Story = {
     'aria-label': 'Open menu',
     tooltipText: 'Open menu',
     children: <LayersIcon />,
-    handleOnClick: () => {},
+    onClick: () => {},
     className: layerStyles['layer-toggle-button'],
   },
 }
@@ -44,7 +44,7 @@ export const IconButtonWithTooltip: Story = {
     tooltipText: 'Go up one level',
     tooltipPlacement: 'top',
     children: <img src={UpOneLevelIcon} alt="" />,
-    handleOnClick: () => {},
+    onClick: () => {},
   },
 }
 
@@ -54,7 +54,7 @@ export const IconButtonWithoutTooltip: Story = {
     'aria-label': 'Go up one level',
     tooltipPlacement: 'top',
     children: <img src={UpOneLevelIcon} alt="" />,
-    handleOnClick: () => {},
+    onClick: () => {},
   },
 }
 
