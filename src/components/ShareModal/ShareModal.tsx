@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Box, Button, TextField, Typography } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -18,19 +18,19 @@ const COPIED_FEEDBACK_DURATION_MS = 2000
 
 export default function ShareModal({ open, onClose }: ShareModalProps) {
   const { t } = useTranslation()
-  const [url, setUrl] = React.useState('')
-  const [status, setStatus] = React.useState<CopyStatus>('idle')
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const timerRef = React.useRef<number | undefined>(undefined)
+  const [url, setUrl] = useState('')
+  const [status, setStatus] = useState<CopyStatus>('idle')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const timerRef = useRef<number | undefined>(undefined)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setUrl(window.location.href)
       setStatus('idle')
     }
   }, [open])
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (timerRef.current !== undefined) {
         window.clearTimeout(timerRef.current)
@@ -80,7 +80,10 @@ export default function ShareModal({ open, onClose }: ShareModalProps) {
           value={url}
           fullWidth
           inputRef={inputRef}
-          slotProps={{ input: { readOnly: true } }}
+          slotProps={{
+            input: { readOnly: true },
+            htmlInput: { 'aria-label': t('share_view.url_label') },
+          }}
         />
         <Button onClick={handleCopy} variant="contained" startIcon={<ContentCopyIcon />}>
           {status === 'copied' ? t('share_view.copied') : t('buttons.copy')}

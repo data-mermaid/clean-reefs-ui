@@ -59,7 +59,8 @@
   "share_view": {
     "title": "Share this view of GPW",
     "copied": "Copied!",
-    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy."
+    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
+    "url_label": "Shareable URL"
   },
   "regions": {
     "coral_reef_regions": "Coral reef regions",
