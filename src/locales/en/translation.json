@@ -2,6 +2,8 @@
   "buttons": {
     "cancel": "Cancel",
     "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied!",
     "go": "Go",
     "open_menu": "Open menu",
     "share_view": "Share view",
@@ -55,6 +57,7 @@
     "sediment_dispersal": "Ocean sediment dispersal",
     "sediment_export": "Sediment export"
   },
+  "share_view_title": "Share this view of GPW",
   "regions": {
     "coral_reef_regions": "Coral reef regions",
     "countries_with_coral": "Countries with coral reefs",

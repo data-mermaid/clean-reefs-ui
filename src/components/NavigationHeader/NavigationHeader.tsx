@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 
 import styles from './NavigationHeader.module.scss'
 import useResponsive from '../../hooks/useResponsive'
+import ShareModal from '../ShareModal/ShareModal'
 
 const menuOriginConfig: {
   anchorOrigin: PopoverOrigin
@@ -33,6 +34,7 @@ export default function Header() {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
+  const [shareOpen, setShareOpen] = React.useState(false)
 
   const navItems = [
     { label: t('science_and_methods'), href: '#' },
@@ -52,9 +54,10 @@ export default function Header() {
       <Toolbar className={styles['MuiToolbar-root']}>
         <Typography className={styles['logo']}>GPW</Typography>
         <div className={styles['navigation-container']}>
-          <IconButton aria-label={t('buttons.share_view')}>
+          <IconButton aria-label={t('buttons.share_view')} onClick={() => setShareOpen(true)}>
             <ShareIcon className={styles['header-icon']} />
           </IconButton>
+          <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
           {!isMobileWidth && (
             <Box className={styles['navigation-desktop-menu-box']}>
               {navItems.map((item) => (

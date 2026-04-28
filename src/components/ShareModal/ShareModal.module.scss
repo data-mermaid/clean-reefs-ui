@@ -1,0 +1,11 @@
+@use '../../styles/theme';
+
+.url-row {
+  display: flex;
+  gap: theme.$spacingSmall;
+  align-items: stretch;
+
+  @include theme.mobileDownBreakPoint {
+    flex-direction: column;
+  }
+}
