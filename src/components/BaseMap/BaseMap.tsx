@@ -816,6 +816,7 @@ export default function BaseMap({
     }
 
     const onWatershedHover = (e: MapLayerMouseEvent) => {
+      map.getCanvas().style.cursor = 'pointer'
       polygonHoverHandler(map, e, watershedLayer)
     }
     const onWatershedClick = (e: MapLayerMouseEvent) => {
@@ -853,9 +854,6 @@ export default function BaseMap({
     polygonClickBoundRef.current = onWatershedClick
     map.on('click', 'watershed', onWatershedClick)
     map.on('mousemove', 'watershed', onWatershedHover)
-    map.on('mouseenter', 'watershed', () => {
-      map.getCanvas().style.cursor = 'pointer'
-    })
     map.on('mouseleave', 'watershed', () => {
       map.getCanvas().style.cursor = ''
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
