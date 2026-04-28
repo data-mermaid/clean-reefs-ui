@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { type MouseEvent, useState } from 'react'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -33,15 +33,15 @@ const menuOriginConfig: {
 export default function Header() {
   const { t } = useTranslation()
   const { isMobileWidth } = useResponsive()
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
-  const [shareOpen, setShareOpen] = React.useState(false)
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const navItems = [
     { label: t('science_and_methods'), href: '#' },
     { label: t('contact'), href: '#' },
   ]
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
   }
 

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { type ReactNode, useId } from 'react'
 
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 import type { DialogProps } from '@mui/material'
@@ -6,9 +6,9 @@ import type { DialogProps } from '@mui/material'
 interface StyledDialogProps {
   open: boolean
   onClose: () => void
-  title: React.ReactNode
-  children: React.ReactNode
-  actions?: React.ReactNode
+  title: ReactNode
+  children: ReactNode
+  actions?: ReactNode
   maxWidth?: DialogProps['maxWidth']
   fullWidth?: boolean
 }
@@ -22,7 +22,7 @@ export default function StyledDialog({
   maxWidth = 'sm',
   fullWidth = true,
 }: StyledDialogProps) {
-  const titleId = React.useId()
+  const titleId = useId()
 
   return (
     <Dialog
