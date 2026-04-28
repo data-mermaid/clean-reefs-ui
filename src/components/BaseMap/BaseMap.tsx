@@ -813,6 +813,7 @@ export default function BaseMap({
 
     const onPlumeClick = (e: MapLayerMouseEvent) => {
       const clickedPlumeFeature = e.features?.[0]
+      // feature.id is promoted from properties.watershed_id via promoteId="watershed_id" on the Source
       const clickedPlumeWatershedId = clickedPlumeFeature?.id
       const currentPlumeLayer = plumeLayerRef.current
 
