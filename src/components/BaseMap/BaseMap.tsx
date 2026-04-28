@@ -813,7 +813,7 @@ export default function BaseMap({
 
     const onPlumeClick = (e: MapLayerMouseEvent) => {
       const clickedPlumeFeature = e.features?.[0]
-      const clickedPlumeWatershedId = clickedPlumeFeature?.properties?.watershed_id
+      const clickedPlumeWatershedId = clickedPlumeFeature?.id
       const currentPlumeLayer = plumeLayerRef.current
 
       if (currentPlumeLayer && clickedPlumeWatershedId != null) {
