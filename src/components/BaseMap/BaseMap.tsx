@@ -449,12 +449,15 @@ export default function BaseMap({
     plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
 
     const map = mapRef.current?.getMap()
-    if (map && plumeLayer) {
-      clearPolygonSelect(map, plumeClickRef, plumeLayer)
+    // Read from ref so this callback never goes stale when plumeLayer changes (e.g. on year switch).
+    // onWatershedClick in handleMapLoad captures polygonClickHandler once; without the ref the
+    // clearPolygonSelect call would target the wrong year's source after a year change.
+    if (map && plumeLayerRef.current) {
+      clearPolygonSelect(map, plumeClickRef, plumeLayerRef.current)
     }
 
     onPlumeSelectionClear()
-  }, [onPlumeSelectionClear, plumeLayer])
+  }, [onPlumeSelectionClear])
 
   const handleFeatureSelect = useCallback(
     (
