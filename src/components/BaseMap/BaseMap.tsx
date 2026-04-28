@@ -328,9 +328,9 @@ function PlumeLayers({ layer, index }) {
       url={`pmtiles://${layer.link}`}
     >
       <Layer
-        id={`${layer.layerId}-lines`}
+        id={`${layer.sourceId}-lines`}
         type="line"
-        key={`${layer.layerId}-lines-${index}`}
+        key={`${layer.sourceId}-lines-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="label_airport"
@@ -351,9 +351,9 @@ function PlumeLayers({ layer, index }) {
         }}
       />
       <Layer
-        id={layer.layerId}
+        id={layer.sourceId}
         type="fill"
-        key={`${layer.layerId}-fill-${index}`}
+        key={`${layer.sourceId}-fill-${index}`}
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="label_airport"
@@ -429,7 +429,7 @@ export default function BaseMap({
       mapLayers.find((l) => l.layerId === 'plumes'),
     [mapLayers],
   )
-  const plumeLayerIndex = plumeLayer ? mapLayers.indexOf(plumeLayer) : -1
+
   plumeLayerRef.current = plumeLayer
   const benthicLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'benthic'), [mapLayers])
   const previousPlumeLayer = usePrevious(plumeLayer)
@@ -840,13 +840,19 @@ export default function BaseMap({
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
     })
 
-    map.on('click', 'plumes', onPlumeClick)
-    map.on('mousemove', 'plumes', () => {
-      map.getCanvas().style.cursor = plumeCrosshairCursor
-    })
-    map.on('mouseleave', 'plumes', () => {
-      map.getCanvas().style.cursor = ''
-    })
+    // Register click/hover handlers on every plume year's fill layer (sourceId-based IDs).
+    // Hidden layers (visibility:'none') do not fire mouse events so only the active year responds.
+    mapLayers
+      .filter((l) => l.layerId === 'plumes')
+      .forEach((pl) => {
+        map.on('click', pl.sourceId, onPlumeClick)
+        map.on('mousemove', pl.sourceId, () => {
+          map.getCanvas().style.cursor = plumeCrosshairCursor
+        })
+        map.on('mouseleave', pl.sourceId, () => {
+          map.getCanvas().style.cursor = ''
+        })
+      })
   }
 
   return (
@@ -884,12 +890,12 @@ export default function BaseMap({
             index={watershedIndex}
           />
         )}
-        {/* Plumes rendered outside the main loop so "plumes" and "plumes-lines" are stable
-            layer ID anchors; beforeId="label_airport" places them above watershed but below map labels.
-            JSX order within PlumeLayers: lines first (lower), fill second (higher) */}
-        {isMapLoaded && plumeLayer && (
-          <PlumeLayers key={plumeLayer.sourceId} layer={plumeLayer} index={plumeLayerIndex} />
-        )}
+        {/* Plumes always rendered so tiles stay cached across year switches; visibility toggled
+            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years. */}
+        {isMapLoaded &&
+          mapLayers
+            .filter((l) => l.layerId === 'plumes')
+            .map((l, i) => <PlumeLayers key={l.sourceId} layer={l} index={i} />)}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
             beforeId="watershed" places it as the lowest app layer, just below regions/countries */}
         {isMapLoaded && benthicLayer && (
