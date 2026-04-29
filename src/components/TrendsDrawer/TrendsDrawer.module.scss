@@ -13,12 +13,13 @@
 .drawer-header__title {
   display: flex;
   align-items: center;
+  gap: theme.$spacingXSmall;
 }
 
 .charts-container--open {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: theme.$defaultSpacing;
 }
 
 .charts-container--closed {
@@ -28,5 +29,5 @@
   overflow-x: auto;
   display: flex;
   flex-wrap: nowrap;
-  gap: 10px;
+  gap: theme.$defaultSpacing;
 }

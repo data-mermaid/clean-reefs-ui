@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { IconButton, Typography } from '@mui/material'
+import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
+import { getUpOneLevelLabel } from '../../utils/chartUtils'
 import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
 import UpOneLevelIcon from '../../assets/up-one-level.svg'
@@ -123,14 +125,16 @@ export default function TrendsDrawer({
         {open && (
           <div className={styles['drawer-header__title']}>
             {effectiveRegionType !== 'global' && (
-              <IconButton
+              <StyledIconButtonWithTooltip
                 aria-label={t('buttons.up_one_level')}
+                tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
+                tooltipPlacement="top"
                 onClick={() => onUpOneLevelChange(effectiveRegionType)}
               >
                 <img src={UpOneLevelIcon} alt="" />
-              </IconButton>
+              </StyledIconButtonWithTooltip>
             )}
-            <h2 style={{ marginTop: '4px' }}>{t(drawerTitle)}</h2>
+            <h2>{t(drawerTitle)}</h2>
           </div>
         )}
         {open && isMobileWidth && (

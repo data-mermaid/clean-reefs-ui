@@ -1,25 +1,25 @@
-import { IconButton, Tooltip, IconButtonProps } from '@mui/material'
+import { Button, Tooltip, ButtonProps } from '@mui/material'
 import clsx from 'clsx'
-import styles from './StyledIconButtonWithTooltip.module.scss'
+import styles from './StyledButtonWithTooltip.module.scss'
 
-interface StyledIconButtonWithTooltipProps extends IconButtonProps {
+interface StyledButtonWithTooltipProps extends ButtonProps {
   tooltipText?: string
   tooltipPlacement?: React.ComponentProps<typeof Tooltip>['placement']
   children: React.ReactElement
 }
 
-export default function StyledIconButtonWithTooltip({
+export default function StyledButtonWithTooltip({
   tooltipText,
   children,
   className,
   tooltipPlacement = 'bottom',
   onClick,
   ...rest
-}: StyledIconButtonWithTooltipProps) {
+}: StyledButtonWithTooltipProps) {
   const buttonContent = (
-    <IconButton onClick={onClick} className={clsx(styles['icon-button'], className)} {...rest}>
+    <Button onClick={onClick} className={clsx(styles['button'], className)} {...rest}>
       {children}
-    </IconButton>
+    </Button>
   )
 
   return tooltipText ? (

@@ -1,16 +1,10 @@
 @use '../../styles/theme';
 
-.icon-button {
-  min-width: unset;
-  width: theme.$iconButtonWidthHeight;
-  height: theme.$iconButtonWidthHeight;
-  border-radius: 100px;
-  background-color: transparent;
-  padding: 0;
-
-  &:hover {
-    background-color: theme.$hoverGrey;
-  }
+.button {
+  background-color: theme.$greyWhite;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tooltip {
