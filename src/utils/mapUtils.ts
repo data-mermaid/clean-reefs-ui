@@ -27,7 +27,7 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export const getUpdatedBenthicColor = (layerId, currentColors) => {
+export const getUpdatedBenthicColor = (layerId: string, currentColors: Record<string, string>) => {
   if (currentColors[layerId] === transparent) {
     return atlasBenthicColors[layerId]
   } else {
@@ -426,7 +426,6 @@ export async function postZonalStats(payload) {
 
 export async function prepareZonalStatsCall(lngLat, year) {
   const { lat, lng } = lngLat
-  //todo: check if selected year has available exposure url
   const exposureUrls = {
     2000: SEDIMENT_EXPOSURE_2000_URL,
     2005: SEDIMENT_EXPOSURE_2005_URL,
@@ -437,7 +436,7 @@ export async function prepareZonalStatsCall(lngLat, year) {
 
   const basePayload = {
     aoi: { type: 'Point', coordinates: [lng, lat] },
-    url: exposureUrls[year], //todo: use year as parameter
+    url: exposureUrls[year],
     bands: [1, 2, 3, 4, 5, 6, 7],
     stats: ['majority'],
   }
