@@ -568,6 +568,12 @@ describe('map utilities', () => {
       const body = JSON.parse(options!.body as string)
       expect(body.url).toBe(SEDIMENT_EXPOSURE_2000_URL)
     })
+
+    it('throws with a descriptive error for an unmapped year', async () => {
+      await expect(prepareZonalStatsCall({ lng: 179.0, lat: -18.0 }, 1999)).rejects.toThrow(
+        'No sediment exposure URL available for year: 1999',
+      )
+    })
   })
 
   describe('getAllYearZonalStats', () => {

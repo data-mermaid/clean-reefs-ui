@@ -426,7 +426,7 @@ export async function postZonalStats(payload) {
 
 export async function prepareZonalStatsCall(lngLat, year) {
   const { lat, lng } = lngLat
-  const exposureUrls = {
+  const exposureUrls: Record<number, string> = {
     2000: SEDIMENT_EXPOSURE_2000_URL,
     2005: SEDIMENT_EXPOSURE_2005_URL,
     2010: SEDIMENT_EXPOSURE_2010_URL,
@@ -434,9 +434,14 @@ export async function prepareZonalStatsCall(lngLat, year) {
     2020: SEDIMENT_EXPOSURE_2020_URL,
   }
 
+  const resolvedUrl = exposureUrls[year]
+  if (!resolvedUrl) {
+    throw new Error(`No sediment exposure URL available for year: ${year}`)
+  }
+
   const basePayload = {
     aoi: { type: 'Point', coordinates: [lng, lat] },
-    url: exposureUrls[year],
+    url: resolvedUrl,
     bands: [1, 2, 3, 4, 5, 6, 7],
     stats: ['majority'],
   }

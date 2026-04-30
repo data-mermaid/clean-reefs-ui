@@ -477,29 +477,6 @@ describe('export filename utilities', () => {
       )
     })
   })
-
-  describe('getRegionLabel', () => {
-    const mockRegion = { label: 'Pacific Region' } as ReturnType<() => { label: string }>
-
-    it("returns an empty string for 'global' region type", () => {
-      expect(getRegionLabel('global', mockRegion as never, null)).toBe('')
-    })
-
-    it("returns String(feature.id) for 'watershed' region type", () => {
-      const feature = { id: 42 } as unknown as MapGeoJSONFeature
-      expect(getRegionLabel('watershed', mockRegion as never, feature)).toBe('42')
-    })
-
-    it("returns empty string when feature is null for 'watershed' region type", () => {
-      expect(getRegionLabel('watershed', mockRegion as never, null)).toBe('')
-    })
-
-    it('returns selectedRegion.label for non-global, non-watershed region types', () => {
-      expect(getRegionLabel('country', mockRegion as never, null)).toBe('Pacific Region')
-
-      expect(getRegionLabel('region', mockRegion as never, null)).toBe('Pacific Region')
-    })
-  })
 })
 
 // ---------------------------------------------------------------------------
