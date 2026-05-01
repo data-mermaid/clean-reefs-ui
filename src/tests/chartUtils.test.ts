@@ -4,10 +4,19 @@ import {
   mapChartConfigToData,
   formatForFilename,
   buildExportFilename,
+  getRegionLabel,
+  getDrawerTitle,
+  getEffectiveRegionType,
+  getUpOneLevelLabel,
+  buildChartDataFromProperties,
+  updateChartData,
+  mapChartConfigToPlumeData,
+  updatePlumeChartData,
 } from '../utils/chartUtils'
 import { ChartData, ChartSeriesName } from '../types/ChartDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
 import i18next from 'i18next'
+import { MapGeoJSONFeature } from 'maplibre-gl'
 
 const groupedProperties: LulcAndSedimentSeriesData = {
   land_use_historical: {
@@ -198,8 +207,6 @@ describe('chart data utilities', () => {
     }
 
     beforeEach(() => {
-      jest.clearAllMocks()
-
       Object.assign(chartSeriesConfig, mockChartSeriesConfig)
 
       const mockTranslate = jest.fn((key: string) => {
@@ -467,5 +474,246 @@ describe('export filename utilities', () => {
         'global-ecosystem-extent-exposed-to-pollution',
       )
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Shared mock config used by the new test suites below
+// ---------------------------------------------------------------------------
+const sharedLandUseMockConfig = {
+  'charts.land_use_historical': {
+    xAxisTitle: 'chart_information.year',
+    yAxisTitle: 'chart_information.land_cover',
+    legendColors: {
+      bare_ground: '#D4A373',
+      cropland: '#FFD700',
+    },
+    width: 0.8,
+    barmode: 'stack',
+    tracePrefix: 'land_use',
+  },
+  'charts.sediment_load_historical': {
+    xAxisTitle: 'chart_information.year',
+    yAxisTitle: 'chart_information.sediment_export',
+    legendColors: { sediment: '#8B4513' },
+    width: 0.6,
+    barmode: 'group',
+  },
+  'charts.ecosystem_extent_exposed': {
+    xAxisTitle: 'chart_information.year',
+    yAxisTitle: 'chart_information.ecosystem_extent',
+    legendColors: { reef_extent: '#0077B6', coral_algae: '#48CAE4', seagrass: '#90E0EF' },
+    width: 0.8,
+    barmode: 'stack',
+  },
+}
+
+const sharedPlumeMockConfig = {
+  'charts.sediment_exposure_historical': {
+    xAxisTitle: 'chart_information.year',
+    yAxisTitle: 'chart_information.sediment_exposure',
+    legendColors: { sediment: '#8B4513' },
+    width: 0.6,
+    barmode: 'group',
+  },
+  'charts.contributing_watersheds': {
+    xAxisTitle: 'chart_information.year',
+    yAxisTitle: 'chart_information.watersheds',
+    legendColors: { w1: '#aabbcc', w2: '#bbccdd', w3: '#ccddee' },
+    width: 0.8,
+    barmode: 'stack',
+  },
+}
+
+describe('getRegionLabel', () => {
+  const mockRegion = { label: 'Pacific Region' } as never
+
+  it.each([
+    { regionType: 'global', feature: null, expected: '' },
+    { regionType: 'watershed', feature: { id: 42 }, expected: '42' },
+    { regionType: 'watershed', feature: null, expected: '' },
+    { regionType: 'country', feature: null, expected: 'Pacific Region' },
+    { regionType: 'region', feature: null, expected: 'Pacific Region' },
+  ])('$regionType → "$expected"', ({ regionType, feature, expected }) => {
+    expect(getRegionLabel(regionType as never, mockRegion, feature as never)).toBe(expected)
+  })
+})
+
+describe('getDrawerTitle', () => {
+  it.each([
+    ['global', 'fallback', 'global_trends'],
+    ['watershed', 'fallback', 'watershed_information'],
+    ['plume', 'fallback', 'ocean_pollution'],
+    ['country', 'country_details', 'country_details'],
+    ['region', 'region_overview', 'region_overview'],
+  ] as const)('(%s, %s) → %s', (regionType, fallback, expected) => {
+    expect(getDrawerTitle(regionType, fallback)).toBe(expected)
+  })
+})
+
+describe('getEffectiveRegionType', () => {
+  const stats = { 1: { band_1: { majority: 5, aoi_area: 0, data_area: 0 } } }
+
+  it.each([
+    { plumeStats: stats, source: undefined, regionType: 'region', expected: 'plume' },
+    { plumeStats: null, source: 'watershed_src', regionType: 'region', expected: 'watershed' },
+    { plumeStats: null, source: 'countries_src', regionType: 'region', expected: 'region' },
+    { plumeStats: null, source: undefined, regionType: 'global', expected: 'global' },
+  ])(
+    '(source=$source, type=$regionType) → $expected',
+    ({ plumeStats, source, regionType, expected }) => {
+      expect(getEffectiveRegionType(plumeStats as never, source, regionType as never)).toBe(
+        expected,
+      )
+    },
+  )
+})
+
+describe('getUpOneLevelLabel', () => {
+  const mockRegion = { label: 'Solomon Islands' } as never
+
+  beforeEach(() => {
+    // @ts-expect-error mocking i18next.t
+    i18next.t = (key: string) => key
+  })
+
+  it.each([
+    ['plume', 'Solomon Islands'],
+    ['watershed', 'Solomon Islands'],
+    ['global', 'regions.global'],
+    ['country', 'regions.global'],
+  ] as const)('%s → "%s"', (regionType, expected) => {
+    expect(getUpOneLevelLabel(regionType, mockRegion)).toBe(expected)
+  })
+})
+
+describe('buildChartDataFromProperties', () => {
+  beforeEach(() => {
+    Object.assign(chartSeriesConfig, sharedLandUseMockConfig)
+    // @ts-expect-error mocking i18next.t
+    i18next.t = (key: string) => key
+  })
+
+  it('returns a ChartProperties array when properties contain recognisable LULC data', () => {
+    const result = buildChartDataFromProperties({ Bare_Gr_pct_2000: 5, Bare_Gr_pct_2005: 8 })
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).not.toBeNull()
+    expect(result!.length).toBeGreaterThan(0)
+    expect(result![0].chartName).toBe('land_use_historical')
+  })
+
+  it('returns null when no recognisable properties are present', () => {
+    const result = buildChartDataFromProperties({ name: 'Test', watershed_id: 99 })
+
+    expect(result).toBeNull()
+  })
+})
+
+describe('updateChartData', () => {
+  beforeEach(() => {
+    Object.assign(chartSeriesConfig, sharedLandUseMockConfig)
+    // @ts-expect-error mocking i18next.t
+    i18next.t = (key: string) => key
+  })
+
+  it('calls setChartData with chart data for a recognised source', () => {
+    const feature = {
+      source: 'countries_src',
+      properties: { Bare_Gr_pct_2000: 5 },
+    } as unknown as MapGeoJSONFeature
+
+    const setChartData = jest.fn()
+    updateChartData(feature, setChartData)
+
+    expect(setChartData).toHaveBeenCalledTimes(1)
+    const arg = setChartData.mock.calls[0][0]
+    expect(Array.isArray(arg)).toBe(true)
+  })
+
+  it('calls setChartData with null for an unrecognised source', () => {
+    const feature = {
+      source: 'unknown_src',
+      properties: { Bare_Gr_pct_2000: 5 },
+    } as unknown as MapGeoJSONFeature
+
+    const setChartData = jest.fn()
+    updateChartData(feature, setChartData)
+
+    expect(setChartData).toHaveBeenCalledWith(null)
+  })
+})
+
+describe('mapChartConfigToPlumeData', () => {
+  const plumeStats = {
+    '2020': {
+      band_1: { majority: 5, aoi_area: 0, data_area: 0 },
+      band_5: { majority: 10, aoi_area: 0, data_area: 0 },
+      band_6: { majority: 20, aoi_area: 0, data_area: 0 },
+      band_7: { majority: 30, aoi_area: 0, data_area: 0 },
+    },
+  }
+
+  beforeEach(() => {
+    Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
+    // @ts-expect-error mocking i18next.t
+    i18next.t = (key: string) => key
+  })
+
+  it('returns exactly two ChartProperties entries', () => {
+    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('first entry is sediment_exposure_historical with correct structure', () => {
+    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+    const sedChart = result[0]
+
+    expect(sedChart.chartName).toBe('sediment_exposure_historical')
+    expect(sedChart.chartSeriesData).toHaveLength(1)
+    expect(sedChart.chartSeriesData[0].x).toEqual(['2020'])
+    expect(sedChart.chartSeriesData[0].y).toEqual([5])
+  })
+
+  it('second entry is contributing_watersheds with three reversed watershed bars', () => {
+    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+    const watershedChart = result[1]
+
+    expect(watershedChart.chartName).toBe('contributing_watersheds')
+    // bands are reversed: w3 (band_7=30), w2 (band_6=20), w1 (band_5=10)
+    expect(watershedChart.chartSeriesData).toHaveLength(3)
+    expect(watershedChart.chartSeriesData[0].y).toEqual([30])
+    expect(watershedChart.chartSeriesData[1].y).toEqual([20])
+    expect(watershedChart.chartSeriesData[2].y).toEqual([10])
+  })
+})
+
+describe('updatePlumeChartData', () => {
+  const plumeStats = {
+    '2020': {
+      band_1: { majority: 5, aoi_area: 0, data_area: 0 },
+      band_5: { majority: 10, aoi_area: 0, data_area: 0 },
+      band_6: { majority: 20, aoi_area: 0, data_area: 0 },
+      band_7: { majority: 30, aoi_area: 0, data_area: 0 },
+    },
+  }
+
+  beforeEach(() => {
+    Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
+    // @ts-expect-error mocking i18next.t
+    i18next.t = (key: string) => key
+  })
+
+  it('calls setChartData with the two mapped ChartProperties', () => {
+    const setChartData = jest.fn()
+    updatePlumeChartData(plumeStats, setChartData)
+
+    expect(setChartData).toHaveBeenCalledTimes(1)
+    const arg = setChartData.mock.calls[0][0]
+    expect(Array.isArray(arg)).toBe(true)
+    expect(arg).toHaveLength(2)
+    expect(arg[0].chartName).toBe('sediment_exposure_historical')
+    expect(arg[1].chartName).toBe('contributing_watersheds')
   })
 })
