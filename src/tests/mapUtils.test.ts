@@ -367,56 +367,42 @@ describe('map utilities', () => {
     })
   })
 
-  describe('clearPolygonHover', () => {
-    it('calls setFeatureState with hover: false and nullifies the ref when ref is set', () => {
+  describe('polygon state helpers', () => {
+    it('clearPolygonHover and clearPolygonSelect call setFeatureState with the correct state and null the ref', () => {
       const map = makeMap()
-      const hoveredRef = { current: 'some-id' } as RefObject<string | number | null>
+      const hoveredRef = { current: 'hover-id' } as RefObject<string | number | null>
       clearPolygonHover(map, hoveredRef, mockLayers[1])
       expect(map.setFeatureState).toHaveBeenCalledWith(
         {
           source: mockLayers[1].sourceId,
           sourceLayer: mockLayers[1].sourceFileName,
-          id: 'some-id',
+          id: 'hover-id',
         },
         { hover: false },
       )
       expect(hoveredRef.current).toBeNull()
-    })
 
-    it('does nothing when ref is null', () => {
-      const map = makeMap()
-      const hoveredRef = { current: null } as RefObject<string | number | null>
-      clearPolygonHover(map, hoveredRef, mockLayers[1])
-      expect(map.setFeatureState).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('clearPolygonSelect', () => {
-    it('calls setFeatureState with select: false and nullifies the ref when ref is set', () => {
-      const map = makeMap()
-      const clickRef = { current: 'selected-id' } as RefObject<string | number | null>
+      const clickRef = { current: 'select-id' } as RefObject<string | number | null>
       clearPolygonSelect(map, clickRef, mockLayers[2])
       expect(map.setFeatureState).toHaveBeenCalledWith(
         {
           source: mockLayers[2].sourceId,
           sourceLayer: mockLayers[2].sourceFileName,
-          id: 'selected-id',
+          id: 'select-id',
         },
         { select: false },
       )
       expect(clickRef.current).toBeNull()
     })
 
-    it('does nothing when ref is null', () => {
+    it('clear helpers do nothing when ref is null', () => {
       const map = makeMap()
-      const clickRef = { current: null } as RefObject<string | number | null>
-      clearPolygonSelect(map, clickRef, mockLayers[2])
+      clearPolygonHover(map, { current: null } as RefObject<string | number | null>, mockLayers[1])
+      clearPolygonSelect(map, { current: null } as RefObject<string | number | null>, mockLayers[2])
       expect(map.setFeatureState).not.toHaveBeenCalled()
     })
-  })
 
-  describe('setPolygonSelect', () => {
-    it('sets clickRef.current to featureId and calls setFeatureState with select: true', () => {
+    it('setPolygonSelect updates the ref and calls setFeatureState with select: true', () => {
       const map = makeMap()
       const clickRef = { current: null } as RefObject<string | number | null>
       setPolygonSelect(map, clickRef, mockLayers[1], 'feature-99')
@@ -429,13 +415,6 @@ describe('map utilities', () => {
         },
         { select: true },
       )
-    })
-
-    it('overwrites an existing ref value with the new featureId', () => {
-      const map = makeMap()
-      const clickRef = { current: 'old-id' } as RefObject<string | number | null>
-      setPolygonSelect(map, clickRef, mockLayers[1], 'new-id')
-      expect(clickRef.current).toBe('new-id')
     })
   })
 

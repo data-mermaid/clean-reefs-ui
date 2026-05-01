@@ -207,8 +207,6 @@ describe('chart data utilities', () => {
     }
 
     beforeEach(() => {
-      jest.clearAllMocks()
-
       Object.assign(chartSeriesConfig, mockChartSeriesConfig)
 
       const mockTranslate = jest.fn((key: string) => {
@@ -527,76 +525,50 @@ const sharedPlumeMockConfig = {
   },
 }
 
-// ---------------------------------------------------------------------------
-// getRegionLabel
-// ---------------------------------------------------------------------------
 describe('getRegionLabel', () => {
-  const mockRegion = { label: 'Pacific Region' } as ReturnType<() => { label: string }>
+  const mockRegion = { label: 'Pacific Region' } as never
 
-  it("returns an empty string for 'global' region type", () => {
-    expect(getRegionLabel('global', mockRegion as never, null)).toBe('')
-  })
-
-  it("returns String(feature.id) for 'watershed' region type", () => {
-    const feature = { id: 42 } as unknown as MapGeoJSONFeature
-    expect(getRegionLabel('watershed', mockRegion as never, feature)).toBe('42')
-  })
-
-  it("returns empty string when feature is null for 'watershed' region type", () => {
-    expect(getRegionLabel('watershed', mockRegion as never, null)).toBe('')
-  })
-
-  it('returns selectedRegion.label for non-global, non-watershed region types', () => {
-    expect(getRegionLabel('country', mockRegion as never, null)).toBe('Pacific Region')
-
-    expect(getRegionLabel('region', mockRegion as never, null)).toBe('Pacific Region')
+  it.each([
+    { regionType: 'global', feature: null, expected: '' },
+    { regionType: 'watershed', feature: { id: 42 }, expected: '42' },
+    { regionType: 'watershed', feature: null, expected: '' },
+    { regionType: 'country', feature: null, expected: 'Pacific Region' },
+    { regionType: 'region', feature: null, expected: 'Pacific Region' },
+  ])('$regionType → "$expected"', ({ regionType, feature, expected }) => {
+    expect(getRegionLabel(regionType as never, mockRegion, feature as never)).toBe(expected)
   })
 })
 
-// ---------------------------------------------------------------------------
-// getDrawerTitle
-// ---------------------------------------------------------------------------
 describe('getDrawerTitle', () => {
-  it("returns 'global_trends' for 'global'", () => {
-    expect(getDrawerTitle('global', 'fallback')).toBe('global_trends')
-  })
-
-  it("returns 'watershed_information' for 'watershed'", () => {
-    expect(getDrawerTitle('watershed', 'fallback')).toBe('watershed_information')
-  })
-
-  it("returns 'ocean_pollution' for 'plume'", () => {
-    expect(getDrawerTitle('plume', 'fallback')).toBe('ocean_pollution')
-  })
-
-  it('returns fallbackLabel for any other region type', () => {
-    expect(getDrawerTitle('country', 'country_details')).toBe('country_details')
-    expect(getDrawerTitle('region', 'region_overview')).toBe('region_overview')
+  it.each([
+    ['global', 'fallback', 'global_trends'],
+    ['watershed', 'fallback', 'watershed_information'],
+    ['plume', 'fallback', 'ocean_pollution'],
+    ['country', 'country_details', 'country_details'],
+    ['region', 'region_overview', 'region_overview'],
+  ] as const)('(%s, %s) → %s', (regionType, fallback, expected) => {
+    expect(getDrawerTitle(regionType, fallback)).toBe(expected)
   })
 })
 
-// ---------------------------------------------------------------------------
-// getEffectiveRegionType
-// ---------------------------------------------------------------------------
 describe('getEffectiveRegionType', () => {
-  it("returns 'plume' when plumeWatershedStats are present", () => {
-    const stats = { 1: { band_1: { majority: 5, aoi_area: 0, data_area: 0 } } }
-    expect(getEffectiveRegionType(stats, undefined, 'region')).toBe('plume')
-  })
+  const stats = { 1: { band_1: { majority: 5, aoi_area: 0, data_area: 0 } } }
 
-  it("returns 'watershed' when stats are absent but source is 'watershed_src'", () => {
-    expect(getEffectiveRegionType(null, 'watershed_src', 'region')).toBe('watershed')
-  })
-
-  it('returns the passed regionType when neither condition matches', () => {
-    expect(getEffectiveRegionType(null, 'countries_src', 'region')).toBe('region')
-    expect(getEffectiveRegionType(null, undefined, 'global')).toBe('global')
-  })
+  it.each([
+    { plumeStats: stats, source: undefined, regionType: 'region', expected: 'plume' },
+    { plumeStats: null, source: 'watershed_src', regionType: 'region', expected: 'watershed' },
+    { plumeStats: null, source: 'countries_src', regionType: 'region', expected: 'region' },
+    { plumeStats: null, source: undefined, regionType: 'global', expected: 'global' },
+  ])(
+    '(source=$source, type=$regionType) → $expected',
+    ({ plumeStats, source, regionType, expected }) => {
+      expect(getEffectiveRegionType(plumeStats as never, source, regionType as never)).toBe(
+        expected,
+      )
+    },
+  )
 })
 
-// ---------------------------------------------------------------------------
-// getUpOneLevelLabel
-// ---------------------------------------------------------------------------
 describe('getUpOneLevelLabel', () => {
   const mockRegion = { label: 'Solomon Islands' } as never
 
@@ -605,26 +577,18 @@ describe('getUpOneLevelLabel', () => {
     i18next.t = (key: string) => key
   })
 
-  it("returns selectedRegion.label for 'plume'", () => {
-    expect(getUpOneLevelLabel('plume', mockRegion)).toBe('Solomon Islands')
-  })
-
-  it("returns selectedRegion.label for 'watershed'", () => {
-    expect(getUpOneLevelLabel('watershed', mockRegion)).toBe('Solomon Islands')
-  })
-
-  it("returns the i18next key 'regions.global' for non-plume / non-watershed types", () => {
-    expect(getUpOneLevelLabel('global', mockRegion)).toBe('regions.global')
-    expect(getUpOneLevelLabel('country', mockRegion)).toBe('regions.global')
+  it.each([
+    ['plume', 'Solomon Islands'],
+    ['watershed', 'Solomon Islands'],
+    ['global', 'regions.global'],
+    ['country', 'regions.global'],
+  ] as const)('%s → "%s"', (regionType, expected) => {
+    expect(getUpOneLevelLabel(regionType, mockRegion)).toBe(expected)
   })
 })
 
-// ---------------------------------------------------------------------------
-// buildChartDataFromProperties
-// ---------------------------------------------------------------------------
 describe('buildChartDataFromProperties', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
     Object.assign(chartSeriesConfig, sharedLandUseMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key
@@ -646,12 +610,8 @@ describe('buildChartDataFromProperties', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// updateChartData
-// ---------------------------------------------------------------------------
 describe('updateChartData', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
     Object.assign(chartSeriesConfig, sharedLandUseMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key
@@ -684,9 +644,6 @@ describe('updateChartData', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// mapChartConfigToPlumeData
-// ---------------------------------------------------------------------------
 describe('mapChartConfigToPlumeData', () => {
   const plumeStats = {
     '2020': {
@@ -698,7 +655,6 @@ describe('mapChartConfigToPlumeData', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
     Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key
@@ -733,9 +689,6 @@ describe('mapChartConfigToPlumeData', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// updatePlumeChartData
-// ---------------------------------------------------------------------------
 describe('updatePlumeChartData', () => {
   const plumeStats = {
     '2020': {
@@ -747,7 +700,6 @@ describe('updatePlumeChartData', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
     Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key

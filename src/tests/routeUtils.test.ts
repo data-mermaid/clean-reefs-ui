@@ -66,32 +66,19 @@ describe('route parameter utilities', () => {
   })
 
   describe('getValidYear', () => {
-    it('returns defaultYear (2020) for null input', () => {
-      expect(getValidYear(null)).toBe(2020)
-    })
+    it.each([null, 'not-a-year', '1999', '2025'] as const)(
+      'returns defaultYear (2020) for invalid input (%s)',
+      (input) => {
+        expect(getValidYear(input)).toBe(2020)
+      },
+    )
 
-    it('returns defaultYear for non-numeric string', () => {
-      expect(getValidYear('not-a-year')).toBe(2020)
-    })
-
-    it('returns defaultYear for a number not in availableYears', () => {
-      expect(getValidYear('1999')).toBe(2020)
-    })
-
-    it('returns defaultYear for a number outside the available range', () => {
-      expect(getValidYear('2025')).toBe(2020)
-    })
-
-    it('returns parsed year when it is in availableYears', () => {
-      expect(getValidYear('2020')).toBe(2020)
-    })
-
-    it('returns parsed year for each available year', () => {
-      expect(getValidYear('2015')).toBe(2015)
-      expect(getValidYear('2010')).toBe(2010)
-      expect(getValidYear('2005')).toBe(2005)
-      expect(getValidYear('2000')).toBe(2000)
-    })
+    it.each(['2020', '2015', '2010', '2005', '2000'] as const)(
+      'returns parsed year for each available year (%s)',
+      (year) => {
+        expect(getValidYear(year)).toBe(Number(year))
+      },
+    )
   })
 
   describe('getValidLayers', () => {
@@ -163,105 +150,49 @@ describe('route parameter utilities', () => {
   })
 
   describe('getValidLatLng', () => {
-    it('returns { lat: null, lng: null } when both are null', () => {
-      expect(getValidLatLng(null, null)).toEqual({ lat: null, lng: null })
+    it.each([
+      [null, null],
+      [null, '100'],
+      ['45', null],
+      ['not-a-number', '100'],
+      ['45', 'not-a-number'],
+      ['-91', '100'],
+      ['91', '100'],
+      ['45', '-181'],
+      ['45', '181'],
+    ] as const)('returns null/null for invalid input (%s, %s)', (lat, lng) => {
+      expect(getValidLatLng(lat, lng)).toEqual({ lat: null, lng: null })
     })
 
-    it('returns { lat: null, lng: null } when lat is null', () => {
-      expect(getValidLatLng(null, '100')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lng is null', () => {
-      expect(getValidLatLng('45', null)).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lat is NaN', () => {
-      expect(getValidLatLng('not-a-number', '100')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lng is NaN', () => {
-      expect(getValidLatLng('45', 'not-a-number')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lat is below -90', () => {
-      expect(getValidLatLng('-91', '100')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lat is above 90', () => {
-      expect(getValidLatLng('91', '100')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lng is below -180', () => {
-      expect(getValidLatLng('45', '-181')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns { lat: null, lng: null } when lng is above 180', () => {
-      expect(getValidLatLng('45', '181')).toEqual({ lat: null, lng: null })
-    })
-
-    it('returns parsed floats when both lat and lng are valid', () => {
-      expect(getValidLatLng('45.5', '100.25')).toEqual({ lat: 45.5, lng: 100.25 })
-    })
-
-    it('accepts boundary lat values (-90 and 90)', () => {
-      expect(getValidLatLng('-90', '0')).toEqual({ lat: -90, lng: 0 })
-      expect(getValidLatLng('90', '0')).toEqual({ lat: 90, lng: 0 })
-    })
-
-    it('accepts boundary lng values (-180 and 180)', () => {
-      expect(getValidLatLng('0', '-180')).toEqual({ lat: 0, lng: -180 })
-      expect(getValidLatLng('0', '180')).toEqual({ lat: 0, lng: 180 })
-    })
-
-    it('accepts negative valid coordinates', () => {
-      expect(getValidLatLng('-17.5', '-178.5')).toEqual({ lat: -17.5, lng: -178.5 })
-    })
+    it.each([
+      ['45.5', '100.25', 45.5, 100.25],
+      ['-90', '0', -90, 0],
+      ['90', '0', 90, 0],
+      ['0', '-180', 0, -180],
+      ['0', '180', 0, 180],
+      ['-17.5', '-178.5', -17.5, -178.5],
+    ] as const)(
+      'returns parsed floats for valid input (%s, %s)',
+      (lat, lng, expectedLat, expectedLng) => {
+        expect(getValidLatLng(lat, lng)).toEqual({ lat: expectedLat, lng: expectedLng })
+      },
+    )
   })
 
   describe('getValidDispersalPoint', () => {
-    it('returns null for null input', () => {
-      expect(getValidDispersalPoint(null)).toBeNull()
+    it.each([null, '', '   '] as const)('returns null for falsy input (%s)', (input) => {
+      expect(getValidDispersalPoint(input)).toBeNull()
     })
 
-    it('returns null for empty string', () => {
-      expect(getValidDispersalPoint('')).toBeNull()
-    })
+    it.each(['45', '45,100,200'] as const)(
+      'returns null for wrong number of parts (%s)',
+      (input) => {
+        expect(getValidDispersalPoint(input)).toBeNull()
+      },
+    )
 
-    it('returns null if not two comma-separated values', () => {
-      expect(getValidDispersalPoint('45')).toBeNull()
-    })
-
-    it('returns null for more than two comma-separated values', () => {
-      expect(getValidDispersalPoint('45,100,200')).toBeNull()
-    })
-
-    it('returns null if lat is invalid', () => {
-      expect(getValidDispersalPoint('not-a-number,100')).toBeNull()
-    })
-
-    it('returns null if lng is invalid', () => {
-      expect(getValidDispersalPoint('45,not-a-number')).toBeNull()
-    })
-
-    it('returns null if lat is out of range', () => {
-      expect(getValidDispersalPoint('91,100')).toBeNull()
-    })
-
-    it('returns null if lng is out of range', () => {
-      expect(getValidDispersalPoint('45,181')).toBeNull()
-    })
-
-    it('returns { lat, lng } for valid "lat,lng" input', () => {
+    it('returns { lat, lng } for a valid comma-separated pair', () => {
       expect(getValidDispersalPoint('45.5,100.25')).toEqual({ lat: 45.5, lng: 100.25 })
-    })
-
-    it('returns { lat, lng } for negative valid coordinates', () => {
-      expect(getValidDispersalPoint('-17.5,-178.5')).toEqual({ lat: -17.5, lng: -178.5 })
-    })
-
-    it('returns { lat, lng } for boundary coordinate values', () => {
-      expect(getValidDispersalPoint('90,180')).toEqual({ lat: 90, lng: 180 })
-      expect(getValidDispersalPoint('-90,-180')).toEqual({ lat: -90, lng: -180 })
     })
   })
 })
