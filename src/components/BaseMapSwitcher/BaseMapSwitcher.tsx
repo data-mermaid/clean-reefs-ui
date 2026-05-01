@@ -7,7 +7,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import styles from './BasemapSwitcher.module.scss'
+import styles from './BaseMapSwitcher.module.scss'
 import { useTranslation } from 'react-i18next'
 import { VALID_BASEMAPS } from '../../utils/mapUtils'
 import { useMapStore } from '../../stores/mapStore'
