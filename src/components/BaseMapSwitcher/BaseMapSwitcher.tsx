@@ -38,20 +38,23 @@ export default function BasemapSwitcher({
     const value = (event.target as HTMLInputElement).value
     const { restoreActiveSelection } = useMapStore.getState()
 
-    restoreActiveSelection()
     onBasemapChange(value)
+    restoreActiveSelection()
   }
 
   return (
     <>
       <Card className={styles['basemap-card']}>
         <div className={styles['basemap-toggle-header']}>
-          <Typography className={styles['basemap-card_title']}>{t('labels')}</Typography>
+          <Typography id="basemapLabelsTitle" className={styles['basemap-card_title']}>
+            {t('labels')}
+          </Typography>
           <Switch
             className={styles['MuiSwitch-root']}
             checked={showLabels}
             onChange={handleLabelsChange}
             disabled={isChanging}
+            aria-labelledby="basemapLabelsTitle"
           />
         </div>
       </Card>

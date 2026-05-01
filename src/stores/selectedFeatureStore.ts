@@ -34,13 +34,13 @@ export const useSelectedFeatureStore = create<SelectedFeatureState>((set) => ({
       set({ selectedFeature: null })
       return
     }
-    
+
     const minimal: MinimalFeature = {
       id: feature.id as string | number,
       source: feature.source,
       properties: feature.properties as Record<string, unknown>,
     }
-    
+
     set({ selectedFeature: minimal })
   },
   setTopWatershedIds: (polygonIds) => {

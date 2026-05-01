@@ -3,7 +3,7 @@
   display: block;
   width: 100%;
 
-  .MuiRadioGroup-root {
+  :global(.MuiRadioGroup-root) {
     .MuiFormControlLabel-root {
       margin-left: theme.$defaultSpacing;
       justify-content: space-between;
