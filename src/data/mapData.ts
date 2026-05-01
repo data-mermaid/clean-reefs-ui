@@ -58,7 +58,7 @@ export const parentLayerTitles = {
   landcover: 'map_layer_groups.land_use_cover',
   benthic: 'map_layer_groups.benthic_layers',
   boundaries: 'map_layer_groups.boundaries',
-  // base: 'map_layer_groups.base_map',
+  base: 'map_layer_groups.base_map',
 }
 
 export const reefExtentSubLayer: LayerInfo = {

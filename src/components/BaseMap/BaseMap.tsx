@@ -47,6 +47,7 @@ import {
   getAllYearZonalStats,
   buildBenthicFillExpression,
   resolveBasemapBeforeId,
+  getBasemapStyleUrl,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
@@ -101,9 +102,11 @@ interface BaseMapProps {
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
+  selectedBasemap: string
   selectedYear: number
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  showLabels: boolean
   initialViewState: {
     longitude: number
     latitude: number
@@ -387,9 +390,11 @@ export default function BaseMap({
   initialWatershedId,
   initialDispersalPoint,
   dispersalPoint,
+  selectedBasemap,
   selectedYear,
   hasExplicitViewState,
   setBreadcrumb,
+  showLabels,
   initialViewState,
   onMapMoveEnd,
   isAnyDrawerOpen,
@@ -419,7 +424,9 @@ export default function BaseMap({
   const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [basemapBeforeId, setBasemapBeforeId] = useState<string | undefined>(undefined)
+  const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
+  const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
+  const setWatershedLayer = useSelectedFeatureStore((s) => s.setWatershedLayer)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
@@ -432,6 +439,13 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
+  useEffect(() => {
+    if (!watershedLayer) {
+      return
+    }
+
+    setWatershedLayer(watershedLayer)
+  }, [watershedLayer, setWatershedLayer])
   const plumeLayer = useMemo(
     () =>
       mapLayers.find((l) => l.layerId === 'plumes' && l.isLayerOn) ??
@@ -543,6 +557,11 @@ export default function BaseMap({
   }
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
+
+  const mapStyleUrl = useMemo(
+    () => getBasemapStyleUrl(selectedBasemap, apiKey),
+    [selectedBasemap, apiKey],
+  )
 
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
@@ -791,13 +810,21 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
-    // Resolve basemapBeforeId BEFORE setIsMapLoaded so the shoreline layer mounts with the
-    // correct anchor on its first render. Shoreline anchors to the lowest label so it sits
-    // beneath every basemap label; overlays anchor to "shoreline-emphasis" so they always
-    // land just below the shoreline.
+    // Resolve beforeId BEFORE setIsMapLoaded so the Zustand store is already populated
+    // when React re-renders with isMapLoaded = true. This ensures WatershedLayers mounts
+    // with the correct beforeId on its very first render (labels above data layers).
+    // Subsequent basemap changes are handled in handleBasemapChange.
     if (map) {
       const layers = map.getStyle()?.layers ?? []
-      setBasemapBeforeId(resolveBasemapBeforeId(layers))
+      const beforeId = resolveBasemapBeforeId(layers)
+      setBasemapBeforeId(beforeId)
+
+      // Light and dark styles default symbol layers to visibility: none, unlike satellite.
+      // Apply showLabels here directly so initial load is consistent with prepareBasemapChange.
+      const visibility = showLabels ? 'visible' : 'none'
+      layers
+        .filter((layer) => layer.type === 'symbol')
+        .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
     }
 
     setIsMapLoaded(true)
@@ -885,7 +912,7 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
-        mapStyle={`https://api.maptiler.com/maps/hybrid/style.json?key=${apiKey}`}
+        mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
@@ -909,7 +936,10 @@ export default function BaseMap({
           <Layer
             id="shoreline-emphasis"
             type="line"
-            source="maptiler_planet"
+            // Satellite (hybrid) style registers the source as 'maptiler_planet' (v3 tiles);
+            // light/dark styles register it as 'maptiler_planet_v4' (v4 tiles). Using the wrong
+            // name causes a source-not-found error at runtime.
+            source={selectedBasemap === 'satellite' ? 'maptiler_planet' : 'maptiler_planet_v4'}
             source-layer="water"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'ocean']}

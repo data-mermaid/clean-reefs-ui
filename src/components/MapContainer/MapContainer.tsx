@@ -18,6 +18,8 @@ import {
   getValidWatershed,
   getValidZoom,
   getValidDispersalPoint,
+  getValidLabels,
+  getValidBasemap,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
@@ -50,6 +52,15 @@ export default function MapContainer() {
   const selectedLayers = useMemo(() => getValidLayers(layersParam), [layersParam])
   const normalizedLayersParam = selectedLayers.length > 0 ? selectedLayers.join(',') : 'none'
   const shouldSyncLayersParam = layersParam !== normalizedLayersParam
+
+  const labelsParam = searchParams.get('labels')
+  const showLabels = getValidLabels(labelsParam)
+  const normalizedLabelsParam = showLabels ? 'true' : 'false'
+  const shouldSyncLabelsParam = labelsParam !== null && labelsParam !== normalizedLabelsParam
+
+  const basemapParam = searchParams.get('basemap')
+  const selectedBasemap = getValidBasemap(basemapParam)
+  const shouldSyncBasemapParam = basemapParam !== selectedBasemap
 
   const watershedParam = searchParams.get('watershed')
   const dispersalPointParam = searchParams.get('dispersal-point')
@@ -114,7 +125,13 @@ export default function MapContainer() {
   }, [searchParams])
 
   useEffect(() => {
-    if (!shouldSyncYearParam && !shouldSyncRegionParam && !shouldSyncLayersParam) {
+    if (
+      !shouldSyncYearParam &&
+      !shouldSyncRegionParam &&
+      !shouldSyncLayersParam &&
+      !shouldSyncLabelsParam &&
+      !shouldSyncBasemapParam
+    ) {
       return
     }
 
@@ -124,6 +141,8 @@ export default function MapContainer() {
         nextSearchParams.set('year', normalizedYearParam)
         nextSearchParams.set('region', normalizedRegionParam)
         nextSearchParams.set('layers', normalizedLayersParam)
+        nextSearchParams.set('labels', normalizedLabelsParam)
+        nextSearchParams.set('basemap', selectedBasemap)
         return nextSearchParams
       },
       { replace: true },
@@ -133,9 +152,13 @@ export default function MapContainer() {
     normalizedYearParam,
     normalizedRegionParam,
     normalizedLayersParam,
+    normalizedLabelsParam,
+    selectedBasemap,
     shouldSyncYearParam,
     shouldSyncRegionParam,
     shouldSyncLayersParam,
+    shouldSyncLabelsParam,
+    shouldSyncBasemapParam,
   ])
 
   useEffect(() => {
@@ -334,6 +357,32 @@ export default function MapContainer() {
     }
   }
 
+  const handleLabelsChange = useCallback(
+    (show: boolean) => {
+      useMapStore.getState().applyLabelVisibility(show)
+
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('labels', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
+  const handleBasemapChange = useCallback(
+    (basemap: string) => {
+      useMapStore.getState().prepareBasemapChange(showLabels)
+
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('basemap', basemap)
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams, showLabels],
+  )
+
   return (
     <div className={styles['MapContainer-root']}>
       <div className={styles['layer-controls']}>
@@ -342,11 +391,15 @@ export default function MapContainer() {
           setMapLayers={setMapLayers}
           selectedYear={selectedYear}
           selectedLayers={selectedLayers}
+          selectedBasemap={selectedBasemap}
           onLayerToggleChange={handleLayerToggleChange}
           onSedSubLayerChange={handleSedSubLayerChange}
           subSedLayerValue={subSedLayerValue}
           open={layersDrawerOpen}
           onOpenChange={setLayersDrawerOpen}
+          showLabels={showLabels}
+          onLabelsChange={handleLabelsChange}
+          onBasemapChange={handleBasemapChange}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -375,8 +428,10 @@ export default function MapContainer() {
         initialDispersalPoint={initialDispersalPoint}
         dispersalPoint={dispersalPoint}
         selectedYear={selectedYear}
+        selectedBasemap={selectedBasemap}
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
+        showLabels={showLabels}
         initialViewState={{
           longitude: lng ?? selectedRegion.centerCoord.lng,
           latitude: lat ?? selectedRegion.centerCoord.lat,

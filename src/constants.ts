@@ -5,6 +5,11 @@ if (!coralAtlasAppId) {
 }
 
 /******MAP LAYERS******/
+/* Map Styles */
+export const SATELLITE_STYLE = `https://api.maptiler.com/maps/hybrid/style.json`
+export const LIGHT_STYLE = `https://api.maptiler.com/maps/019d9cac-cbb2-7829-aa43-f6660494bdc3/style.json`
+export const DARK_STYLE = `https://api.maptiler.com/maps/019d9cab-f4ae-7b1e-a994-00224f21dd54/style.json`
+
 /* Boundary Layers - always on */
 export const REGIONS_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_meow_realms/gpw_meow_realms/visual_regions.pmtiles'

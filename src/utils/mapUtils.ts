@@ -11,7 +11,7 @@ import {
   MapSourceDataEvent,
 } from 'maplibre-gl'
 import { RefObject } from 'react'
-import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
+import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
@@ -20,6 +20,9 @@ import {
   SEDIMENT_EXPOSURE_2010_URL,
   SEDIMENT_EXPOSURE_2015_URL,
   SEDIMENT_EXPOSURE_2020_URL,
+  SATELLITE_STYLE,
+  LIGHT_STYLE,
+  DARK_STYLE,
   topContributingWatershedColorFills,
 } from '../constants'
 
@@ -465,6 +468,14 @@ type LayerWithIdAndType = {
   type?: string
 }
 
+const basemapOptions = {
+  satellite: SATELLITE_STYLE,
+  light: LIGHT_STYLE,
+  dark: DARK_STYLE,
+}
+
+export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<keyof typeof basemapOptions>
+
 // Find the first symbol (label) layer that sits above the last opaque/blocking layer.
 // Some basemaps insert symbol layers early in the stack and continue adding fills/hillshade
 // afterwards; anchoring overlays to the *first* symbol would bury them under those later fills.
@@ -492,4 +503,10 @@ export const resolveBasemapBeforeId = (layers: LayerWithIdAndType[]): string | u
 
   // Last resort: first non-background layer
   return layers.find((layer) => layer.type !== 'background')?.id
+}
+
+export function getBasemapStyleUrl(selectedBasemap: string, apiKey: string): BaseMapStyleUrl {
+  const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
+
+  return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
 }
