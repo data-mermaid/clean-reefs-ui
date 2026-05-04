@@ -68,8 +68,6 @@ import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
-const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
-
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
   watershedLayer: LayerInfo
@@ -115,6 +113,8 @@ interface BaseMapProps {
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
   isAnyDrawerOpen: boolean
 }
+
+const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 const getRegionByLabel = (regionLabel: string | undefined) =>
   regionOptions.find((opt) => opt.label === regionLabel)
@@ -404,8 +404,11 @@ export default function BaseMap({
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
+  const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
+  const setWatershedLayer = useSelectedFeatureStore((s) => s.setWatershedLayer)
 
   const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -424,9 +427,6 @@ export default function BaseMap({
   const plumeRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
-  const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
-  const setWatershedLayer = useSelectedFeatureStore((s) => s.setWatershedLayer)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
@@ -439,13 +439,6 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
-  useEffect(() => {
-    if (!watershedLayer) {
-      return
-    }
-
-    setWatershedLayer(watershedLayer)
-  }, [watershedLayer, setWatershedLayer])
   const plumeLayer = useMemo(
     () =>
       mapLayers.find((l) => l.layerId === 'plumes' && l.isLayerOn) ??
@@ -573,6 +566,14 @@ export default function BaseMap({
       maplibregl.removeProtocol('cog')
     }
   }, [])
+
+  useEffect(() => {
+    if (!watershedLayer) {
+      return
+    }
+
+    setWatershedLayer(watershedLayer)
+  }, [watershedLayer, setWatershedLayer])
 
   // Re-apply plume watershed stats when the year changes while a plume is active.
   // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store
