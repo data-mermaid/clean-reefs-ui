@@ -9,7 +9,7 @@ import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
-import { mapToggleChange } from '../../utils/mapUtils'
+import { mapToggleChange, Basemap } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 import BasemapSwitcher from '../BaseMapSwitcher/BaseMapSwitcher'
 
@@ -22,7 +22,7 @@ interface LayersDrawerProps {
   setMapLayers: Dispatch<SetStateAction<LayerInfo[]>>
   selectedYear: number
   selectedLayers: string[]
-  selectedBasemap: string
+  selectedBasemap: Basemap
   onLayerToggleChange: (toggledLayerId: string, isChecked: boolean) => void
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
@@ -30,7 +30,7 @@ interface LayersDrawerProps {
   onOpenChange: (open: boolean) => void
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
-  onBasemapChange: (basemap: string) => void
+  onBasemapChange: (basemap: Basemap) => void
 }
 
 interface BoundaryLegendCardProps {

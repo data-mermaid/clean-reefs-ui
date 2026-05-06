@@ -48,6 +48,7 @@ import {
   buildBenthicFillExpression,
   resolveBasemapBeforeId,
   getBasemapStyleUrl,
+  Basemap,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
@@ -100,7 +101,7 @@ interface BaseMapProps {
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
-  selectedBasemap: string
+  selectedBasemap: Basemap
   selectedYear: number
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
@@ -408,7 +409,6 @@ export default function BaseMap({
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
-  const setWatershedLayer = useSelectedFeatureStore((s) => s.setWatershedLayer)
 
   const mapRef = useRef<MapRef | null>(useMapStore((s) => s.mapReference))
   const polygonHoverRef = useRef<string | number | null>(null)
@@ -566,14 +566,6 @@ export default function BaseMap({
       maplibregl.removeProtocol('cog')
     }
   }, [])
-
-  useEffect(() => {
-    if (!watershedLayer) {
-      return
-    }
-
-    setWatershedLayer(watershedLayer)
-  }, [watershedLayer, setWatershedLayer])
 
   // Re-apply plume watershed stats when the year changes while a plume is active.
   // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store

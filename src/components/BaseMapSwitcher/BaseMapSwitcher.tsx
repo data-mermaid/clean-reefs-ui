@@ -9,14 +9,14 @@ import {
 } from '@mui/material'
 import styles from './BaseMapSwitcher.module.scss'
 import { useTranslation } from 'react-i18next'
-import { VALID_BASEMAPS } from '../../utils/mapUtils'
+import { VALID_BASEMAPS, Basemap } from '../../utils/mapUtils'
 import { useMapStore } from '../../stores/mapStore'
 
 interface BasemapSwitcherProps {
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
-  selectedBasemap: string
-  onBasemapChange: (basemap: string) => void
+  selectedBasemap: Basemap
+  onBasemapChange: (basemap: Basemap) => void
 }
 
 export default function BasemapSwitcher({
@@ -34,12 +34,8 @@ export default function BasemapSwitcher({
     onLabelsChange(event.target.checked)
   }
 
-  const handleBasemapChange = (event: React.SyntheticEvent) => {
-    const value = (event.target as HTMLInputElement).value
-    const { restoreActiveSelection } = useMapStore.getState()
-
-    onBasemapChange(value)
-    restoreActiveSelection()
+  const handleBasemapChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onBasemapChange(event.target.value as Basemap)
   }
 
   return (
@@ -66,8 +62,7 @@ export default function BasemapSwitcher({
                 key={basemap}
                 classes={{ root: styles['MuiFormControlLabel-root'] }}
                 label={t(basemap)}
-                onChange={handleBasemapChange}
-                control={<Radio />}
+                control={<Radio onChange={handleBasemapChange} />}
                 value={basemap}
                 labelPlacement="start"
                 checked={selectedBasemap === basemap}

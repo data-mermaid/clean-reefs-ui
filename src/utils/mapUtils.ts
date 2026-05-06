@@ -472,13 +472,14 @@ type LayerWithIdAndType = {
   type?: string
 }
 
-const basemapOptions = {
+export const basemapOptions = {
   satellite: SATELLITE_STYLE,
   light: LIGHT_STYLE,
   dark: DARK_STYLE,
 }
 
-export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<keyof typeof basemapOptions>
+export type Basemap = keyof typeof basemapOptions
+export const VALID_BASEMAPS = Object.keys(basemapOptions) as Array<Basemap>
 
 // Find the first symbol (label) layer that sits above the last opaque/blocking layer.
 // Some basemaps insert symbol layers early in the stack and continue adding fills/hillshade
@@ -509,7 +510,10 @@ export const resolveBasemapBeforeId = (layers: LayerWithIdAndType[]): string | u
   return layers.find((layer) => layer.type !== 'background')?.id
 }
 
-export function getBasemapStyleUrl(selectedBasemap: string, apiKey: string): BaseMapStyleUrl {
+export function getBasemapStyleUrl(
+  selectedBasemap: Basemap,
+  apiKey: string,
+): BaseMapStyleUrl {
   const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
 
   return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl

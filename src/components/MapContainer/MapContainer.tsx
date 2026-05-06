@@ -10,6 +10,7 @@ import { layers, urlControlledLayerIds, sedExportAndLandUseLayers } from '../../
 import { LAT_LNG_PRECISION, ZOOM_PRECISION } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
+import { Basemap } from '../../utils/mapUtils'
 import {
   getValidLatLng,
   getValidLayers,
@@ -371,8 +372,9 @@ export default function MapContainer() {
   )
 
   const handleBasemapChange = useCallback(
-    (basemap: string) => {
-      useMapStore.getState().prepareBasemapChange(showLabels)
+    (basemap: Basemap) => {
+      const watershedLayer = urlSyncedMapLayers.find((l) => l.layerId === 'watershed') ?? null
+      useMapStore.getState().changeBasemap(showLabels, watershedLayer)
 
       updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
@@ -380,7 +382,7 @@ export default function MapContainer() {
         return nextSearchParams
       })
     },
-    [updateSearchParams, showLabels],
+    [updateSearchParams, showLabels, urlSyncedMapLayers],
   )
 
   return (
