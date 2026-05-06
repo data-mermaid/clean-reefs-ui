@@ -27,7 +27,6 @@ type MapActions = {
   setBasemapBeforeId: (id: string | undefined) => void
   setTopWatershedIds: (polygonIds: number[]) => void
   applyLabelVisibility: (show: boolean) => void
-  changeBasemap: (showLabels: boolean, watershedLayer: LayerInfo | null) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: (watershedLayer: LayerInfo | null) => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
@@ -67,10 +66,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
 
     map.once('idle', () => set({ isLabelChanging: false }))
-  },
-  changeBasemap: (showLabels, watershedLayer) => {
-    get().prepareBasemapChange(showLabels)
-    get().restoreActiveSelection(watershedLayer)
   },
   prepareBasemapChange: (showLabels) => {
     const map = get().mapReference?.getMap()

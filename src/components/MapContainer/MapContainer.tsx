@@ -374,7 +374,8 @@ export default function MapContainer() {
   const handleBasemapChange = useCallback(
     (basemap: Basemap) => {
       const watershedLayer = urlSyncedMapLayers.find((l) => l.layerId === 'watershed') ?? null
-      useMapStore.getState().changeBasemap(showLabels, watershedLayer)
+      useMapStore.getState().prepareBasemapChange(showLabels)
+      useMapStore.getState().restoreActiveSelection(watershedLayer)
 
       updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
