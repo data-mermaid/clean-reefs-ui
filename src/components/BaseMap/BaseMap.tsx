@@ -568,8 +568,6 @@ export default function BaseMap({
   }, [])
 
   // Re-apply plume watershed stats when the year changes while a plume is active.
-  // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store
-  // so this effect only fires on year changes, not on every plume click.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -596,7 +594,10 @@ export default function BaseMap({
       setBreadcrumb,
       onRegionChange,
     })
-  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, onRegionChange])
+    // dispersalPoint, selectedPlumeWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
+    // this effect only fires on year changes (only selectedYear should trigger a re-apply)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
 
   // Re-apply plume outline selection when plume layer/source is (re)available.
   useEffect(() => {

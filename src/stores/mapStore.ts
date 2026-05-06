@@ -93,6 +93,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   // after a basemap change. Uses map.once('idle') so it fires after the new style is fully
   // settled and React has re-added the watershed source/layer.
   restoreActiveSelection: (watershedLayer) => {
+    console.log('restoreActiveSelection')
     const state = get()
     const map = state.mapReference?.getMap()
 
@@ -102,7 +103,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     map.once('idle', () => {
       const { selectedFeature } = useSelectedFeatureStore.getState()
-      const { topWatershedIds } = get()
+      const { topWatershedIds, setTopPolygonsFill } = get()
 
       const canRestoreSelectedFeature =
         selectedFeature?.id != null &&
@@ -122,7 +123,13 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       }
 
       if (topWatershedIds.length > 0) {
-        state.setTopPolygonsFill('watershed', topWatershedIds)
+        // setFeatureState (used for selectedFeature above) survives layer re-mounts, but
+        // setPaintProperty (used inside setTopPolygonsFill) gets overwritten when react-map-gl
+        // re-applies the Layer's paint prop after the basemap style change triggers a re-render.
+        // A second idle ensures we apply after that re-render has settled.
+        map.once('idle', () => {
+          setTopPolygonsFill('watershed', topWatershedIds)
+        })
       }
     })
   },
