@@ -10,10 +10,12 @@ import {
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../types/MapDataTypes'
 import { useSelectedFeatureStore } from './selectedFeatureStore'
+import { L } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 
 type MapState = {
   mapReference: MapRef | null
   basemapBeforeId: string | undefined
+  watershedLayer: LayerInfo | null
   isBasemapChanging: boolean
   isLabelChanging: boolean
   topWatershedIds: number[]
@@ -26,9 +28,10 @@ type MapActions = {
   setMapRef: (map: MapRef) => void
   setBasemapBeforeId: (id: string | undefined) => void
   setTopWatershedIds: (polygonIds: number[]) => void
+  setWatershedLayer: (layer: LayerInfo | null) => void
   applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
-  restoreActiveSelection: (watershedLayer: LayerInfo | null) => void
+  restoreActiveSelection: () => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
@@ -47,6 +50,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setMapRef: (mapRef) => set({ mapReference: mapRef }),
   basemapBeforeId: undefined,
   setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
+  watershedLayer: null,
+  setWatershedLayer: (layer) => set({ watershedLayer: layer }),
   isBasemapChanging: false,
   isLabelChanging: false,
   topWatershedIds: [],
@@ -92,7 +97,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   // Restore whichever active state is present (selected polygon OR top contributing fills)
   // after a basemap change. Uses map.once('idle') so it fires after the new style is fully
   // settled and React has re-added the watershed source/layer.
-  restoreActiveSelection: (watershedLayer) => {
+  restoreActiveSelection: () => {
     console.log('restoreActiveSelection')
     const state = get()
     const map = state.mapReference?.getMap()
@@ -103,7 +108,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     map.once('idle', () => {
       const { selectedFeature } = useSelectedFeatureStore.getState()
-      const { topWatershedIds, setTopPolygonsFill } = get()
+      const { topWatershedIds, watershedLayer, setTopPolygonsFill } = get()
 
       const canRestoreSelectedFeature =
         selectedFeature?.id != null &&

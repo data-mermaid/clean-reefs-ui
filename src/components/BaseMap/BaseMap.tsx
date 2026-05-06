@@ -407,6 +407,7 @@ export default function BaseMap({
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
+  const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
@@ -698,6 +699,8 @@ export default function BaseMap({
     if (!isMapLoaded || !initialWatershedId || !watershedLayer) {
       return undefined
     }
+
+    setWatershedLayer(watershedLayer)
 
     const map = mapRef.current?.getMap()
     if (!map) {
