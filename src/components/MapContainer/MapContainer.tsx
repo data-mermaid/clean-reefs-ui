@@ -372,7 +372,7 @@ export default function MapContainer() {
 
   const handleBasemapChange = useCallback(
     (basemap: string) => {
-      useMapStore.getState().prepareBasemapChange(showLabels)
+      useMapStore.getState().changeBasemap(showLabels)
 
       updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)

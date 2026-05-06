@@ -36,10 +36,7 @@ export default function BasemapSwitcher({
 
   const handleBasemapChange = (event: React.SyntheticEvent) => {
     const value = (event.target as HTMLInputElement).value
-    const { restoreActiveSelection } = useMapStore.getState()
-
     onBasemapChange(value)
-    restoreActiveSelection()
   }
 
   return (

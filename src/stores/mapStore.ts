@@ -25,6 +25,7 @@ type MapActions = {
   setBasemapBeforeId: (id: string | undefined) => void
 
   applyLabelVisibility: (show: boolean) => void
+  changeBasemap: (showLabels: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
   setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
@@ -62,6 +63,10 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
 
     map.once('idle', () => set({ isLabelChanging: false }))
+  },
+  changeBasemap: (showLabels) => {
+    get().prepareBasemapChange(showLabels)
+    get().restoreActiveSelection()
   },
   prepareBasemapChange: (showLabels) => {
     const map = get().mapReference?.getMap()
