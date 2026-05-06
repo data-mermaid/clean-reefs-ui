@@ -510,10 +510,7 @@ export const resolveBasemapBeforeId = (layers: LayerWithIdAndType[]): string | u
   return layers.find((layer) => layer.type !== 'background')?.id
 }
 
-export function getBasemapStyleUrl(
-  selectedBasemap: Basemap,
-  apiKey: string,
-): BaseMapStyleUrl {
+export function getBasemapStyleUrl(selectedBasemap: Basemap, apiKey: string): BaseMapStyleUrl {
   const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
 
   return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
