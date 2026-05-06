@@ -27,8 +27,6 @@ export default function BasemapSwitcher({
 }: BasemapSwitcherProps) {
   const { t } = useTranslation()
   const isBasemapChanging = useMapStore((s) => s.isBasemapChanging)
-  const isLabelChanging = useMapStore((s) => s.isLabelChanging)
-  const isChanging = isBasemapChanging || isLabelChanging
 
   const handleLabelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onLabelsChange(event.target.checked)
@@ -49,13 +47,13 @@ export default function BasemapSwitcher({
             className={styles['MuiSwitch-root']}
             checked={showLabels}
             onChange={handleLabelsChange}
-            disabled={isChanging}
+            disabled={isBasemapChanging}
             aria-labelledby="basemapLabelsTitle"
           />
         </div>
       </Card>
       <Card className={styles['basemap-card']}>
-        <FormControl classes={{ root: styles['MuiFormControl-root'] }} disabled={isChanging}>
+        <FormControl classes={{ root: styles['MuiFormControl-root'] }} disabled={isBasemapChanging}>
           <RadioGroup>
             {VALID_BASEMAPS.map((basemap) => (
               <FormControlLabel

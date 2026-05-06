@@ -17,7 +17,6 @@ type MapState = {
   basemapBeforeId: string | undefined
   watershedLayer: LayerInfo | null
   isBasemapChanging: boolean
-  isLabelChanging: boolean
   topWatershedIds: number[]
   benthicMapSubLayerColors: Record<string, string>
   sedExportMapSubLayerColors: Record<string, string>
@@ -53,7 +52,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   watershedLayer: null,
   setWatershedLayer: (layer) => set({ watershedLayer: layer }),
   isBasemapChanging: false,
-  isLabelChanging: false,
   topWatershedIds: [],
   setTopWatershedIds: (polygonIds) => set({ topWatershedIds: polygonIds }),
   applyLabelVisibility: (show) => {
@@ -62,15 +60,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    set({ isLabelChanging: true })
-
     const visibility = show ? 'visible' : 'none'
     map
       .getStyle()
       ?.layers.filter((layer) => layer.type === 'symbol')
       .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
-
-    map.once('idle', () => set({ isLabelChanging: false }))
   },
   prepareBasemapChange: (showLabels) => {
     const map = get().mapReference?.getMap()
