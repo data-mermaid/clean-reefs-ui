@@ -360,8 +360,6 @@ export default function MapContainer() {
 
   const handleLabelsChange = useCallback(
     (show: boolean) => {
-      useMapStore.getState().applyLabelVisibility(show)
-
       updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         nextSearchParams.set('labels', show ? 'true' : 'false')

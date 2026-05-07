@@ -404,6 +404,7 @@ export default function BaseMap({
   const { isDesktopWidth, isMobileWidth } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
+  const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
@@ -599,6 +600,14 @@ export default function BaseMap({
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
+
+  // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+    applyLabelVisibility(showLabels)
+  }, [showLabels, isMapLoaded, applyLabelVisibility])
 
   // Re-apply plume outline selection when plume layer/source is (re)available.
   useEffect(() => {
@@ -807,21 +816,11 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
-    // Resolve beforeId BEFORE setIsMapLoaded so the Zustand store is already populated
-    // when React re-renders with isMapLoaded = true. This ensures WatershedLayers mounts
-    // with the correct beforeId on its very first render (labels above data layers).
-    // Subsequent basemap changes are handled in handleBasemapChange.
+    // Populate store values BEFORE setIsMapLoaded so they're available when
+    // React re-renders with isMapLoaded = true (e.g. WatershedLayers beforeId, applyLabelVisibility).
     if (map) {
-      const layers = map.getStyle()?.layers ?? []
-      const beforeId = resolveBasemapBeforeId(layers)
-      setBasemapBeforeId(beforeId)
-
-      // Light and dark styles default symbol layers to visibility: none, unlike satellite.
-      // Apply showLabels here directly so initial load is consistent with prepareBasemapChange.
-      const visibility = showLabels ? 'visible' : 'none'
-      layers
-        .filter((layer) => layer.type === 'symbol')
-        .forEach((layer) => map.setLayoutProperty(layer.id, 'visibility', visibility))
+      setBasemapBeforeId(resolveBasemapBeforeId(map.getStyle()?.layers ?? []))
+      setMapRef(mapRef.current!)
     }
 
     setIsMapLoaded(true)
@@ -829,8 +828,6 @@ export default function BaseMap({
     if (!map || !watershedLayer) {
       return
     }
-
-    setMapRef(mapRef.current!)
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {

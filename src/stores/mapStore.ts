@@ -10,7 +10,6 @@ import {
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../types/MapDataTypes'
 import { useSelectedFeatureStore } from './selectedFeatureStore'
-import { L } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 
 type MapState = {
   mapReference: MapRef | null
@@ -92,7 +91,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   // after a basemap change. Uses map.once('idle') so it fires after the new style is fully
   // settled and React has re-added the watershed source/layer.
   restoreActiveSelection: () => {
-    console.log('restoreActiveSelection')
     const state = get()
     const map = state.mapReference?.getMap()
 
