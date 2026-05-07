@@ -1,10 +1,10 @@
 @use '../../styles/theme';
-.MuiFormControl-root {
+.formControlRoot {
   display: block;
   width: 100%;
 }
 
-.MuiFormControlLabel-root {
+.formControlLabelRoot {
   margin-left: 0;
   justify-content: space-between;
 }

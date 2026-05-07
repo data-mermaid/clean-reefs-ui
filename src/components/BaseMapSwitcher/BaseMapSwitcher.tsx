@@ -53,12 +53,12 @@ export default function BasemapSwitcher({
         </div>
       </Card>
       <Card className={styles['basemap-card']}>
-        <FormControl classes={{ root: styles['MuiFormControl-root'] }} disabled={isBasemapChanging}>
+        <FormControl classes={{ root: styles['formControlRoot'] }} disabled={isBasemapChanging}>
           <RadioGroup>
             {VALID_BASEMAPS.map((basemap) => (
               <FormControlLabel
                 key={basemap}
-                classes={{ root: styles['MuiFormControlLabel-root'] }}
+                classes={{ root: styles['formControlLabelRoot'] }}
                 label={t(basemap)}
                 control={<Radio onChange={handleBasemapChange} />}
                 value={basemap}
