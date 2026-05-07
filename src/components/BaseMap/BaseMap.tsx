@@ -405,10 +405,10 @@ export default function BaseMap({
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
+  const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
-  const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
@@ -427,6 +427,7 @@ export default function BaseMap({
   const plumeClickRef = useRef<string | number | null>(null)
   const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
   const plumeRestorationRanRef = useRef(false)
+  const watershedRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
@@ -529,10 +530,11 @@ export default function BaseMap({
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
     () =>
-      createPolygonClickHandler(polygonClickRef, (feature, bounds) =>
-        handleFeatureSelect(feature, bounds, { skipFitBounds: true }),
-      ),
-    [handleFeatureSelect],
+      createPolygonClickHandler(polygonClickRef, (feature, bounds) => {
+        setWatershedLayer(watershedLayer ?? null)
+        handleFeatureSelect(feature, bounds, { skipFitBounds: true })
+      }),
+    [handleFeatureSelect, setWatershedLayer, watershedLayer],
   )
 
   const handleMoveEnd = useCallback(
@@ -703,18 +705,25 @@ export default function BaseMap({
     clearPolygonSelect(map, plumeClickRef, plumeLayer)
   }, [dispersalPoint, isMapLoaded, plumeLayer])
 
-  // Watershed restoration from URL
+  // Watershed restoration from URL — runs once on initial load.
+  // watershedRestorationRanRef prevents re-running when watershedLayer gets a new reference
+  // after a basemap swap, which would clear the active watershed selection.
   useEffect(() => {
-    if (!isMapLoaded || !initialWatershedId || !watershedLayer) {
+    if (
+      watershedRestorationRanRef.current ||
+      !isMapLoaded ||
+      !initialWatershedId ||
+      !watershedLayer
+    ) {
       return undefined
     }
-
-    setWatershedLayer(watershedLayer)
 
     const map = mapRef.current?.getMap()
     if (!map) {
       return undefined
     }
+
+    watershedRestorationRanRef.current = true
 
     // watershed_id is numeric in tile data. Parse to number to match
     // the promoted feature ID used by MapLibre for setFeatureState.
@@ -740,6 +749,7 @@ export default function BaseMap({
         }
 
         setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
+        setWatershedLayer(watershedLayer)
 
         const bounds = calculateFeatureBounds(feature)
         handleFeatureSelect(feature, bounds, {
@@ -747,8 +757,7 @@ export default function BaseMap({
         })
       },
     )
-    // handleFeatureSelect and onWatershedChange intentionally omitted
-    // initialWatershedId is stable (captured once at mount) so this effect only runs once when the map loads.
+    // handleFeatureSelect and onWatershedChange intentionally omitted — stable refs not needed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
