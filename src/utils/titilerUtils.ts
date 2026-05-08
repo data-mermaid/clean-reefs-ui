@@ -95,8 +95,6 @@ export async function fetchStatistics(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), TITILER_API_TIMEOUT)
 
-    console.warn('[TiTiler] Fetching statistics:', url.toString())
-
     const response = await fetch(url.toString(), {
       signal: controller.signal,
     })
@@ -104,7 +102,6 @@ export async function fetchStatistics(
     clearTimeout(timeoutId)
 
     if (!response.ok) {
-      console.error(`[TiTiler] Statistics API error: ${response.status} ${response.statusText}`)
       return null
     }
 
@@ -114,7 +111,6 @@ export async function fetchStatistics(
     const statsData = data[resolvedExpression]
 
     if (!statsData || statsData.min === undefined || statsData.max === undefined) {
-      console.error('[TiTiler] Invalid statistics response:', data)
       return null
     }
 
@@ -123,13 +119,10 @@ export async function fetchStatistics(
       max: parseFloat(statsData.max.toFixed(1)),
     }
 
-    console.warn('[TiTiler] Statistics fetched:', minMax)
     return minMax
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error('[TiTiler] Statistics request timeout')
-    } else {
-      console.error('[TiTiler] Statistics fetch error:', error)
+      // request timed out
     }
     return null
   }
