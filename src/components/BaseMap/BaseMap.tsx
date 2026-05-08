@@ -47,6 +47,8 @@ import {
   getAllYearZonalStats,
   buildBenthicFillExpression,
   resolveBasemapBeforeId,
+  getBasemapStyleUrl,
+  Basemap,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
@@ -66,8 +68,6 @@ import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
-
-const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
@@ -101,9 +101,11 @@ interface BaseMapProps {
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
+  selectedBasemap: Basemap
   selectedYear: number
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
+  showLabels: boolean
   initialViewState: {
     longitude: number
     latitude: number
@@ -112,6 +114,8 @@ interface BaseMapProps {
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
   isAnyDrawerOpen: boolean
 }
+
+const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 const getRegionByLabel = (regionLabel: string | undefined) =>
   regionOptions.find((opt) => opt.label === regionLabel)
@@ -387,9 +391,11 @@ export default function BaseMap({
   initialWatershedId,
   initialDispersalPoint,
   dispersalPoint,
+  selectedBasemap,
   selectedYear,
   hasExplicitViewState,
   setBreadcrumb,
+  showLabels,
   initialViewState,
   onMapMoveEnd,
   isAnyDrawerOpen,
@@ -398,7 +404,11 @@ export default function BaseMap({
   const { isDesktopWidth, isMobileWidth } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
+  const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
+  const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
+  const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
 
@@ -417,9 +427,9 @@ export default function BaseMap({
   const plumeClickRef = useRef<string | number | null>(null)
   const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
   const plumeRestorationRanRef = useRef(false)
+  const watershedRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [basemapBeforeId, setBasemapBeforeId] = useState<string | undefined>(undefined)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
@@ -520,10 +530,11 @@ export default function BaseMap({
   const polygonHoverHandler = useMemo(() => createPolygonHoverHandler(polygonHoverRef), [])
   const polygonClickHandler = useMemo(
     () =>
-      createPolygonClickHandler(polygonClickRef, (feature, bounds) =>
-        handleFeatureSelect(feature, bounds, { skipFitBounds: true }),
-      ),
-    [handleFeatureSelect],
+      createPolygonClickHandler(polygonClickRef, (feature, bounds) => {
+        setWatershedLayer(watershedLayer ?? null)
+        handleFeatureSelect(feature, bounds, { skipFitBounds: true })
+      }),
+    [handleFeatureSelect, setWatershedLayer, watershedLayer],
   )
 
   const handleMoveEnd = useCallback(
@@ -544,6 +555,11 @@ export default function BaseMap({
   maptilersdk.config.apiKey = import.meta.env.VITE_MAPTILER_API_KEY
   const apiKey = import.meta.env.VITE_MAPTILER_API_KEY
 
+  const mapStyleUrl = useMemo(
+    () => getBasemapStyleUrl(selectedBasemap, apiKey),
+    [selectedBasemap, apiKey],
+  )
+
   useEffect(() => {
     const protocol = new pmtiles.Protocol()
     maplibregl.addProtocol('pmtiles', protocol.tile)
@@ -556,8 +572,6 @@ export default function BaseMap({
   }, [])
 
   // Re-apply plume watershed stats when the year changes while a plume is active.
-  // dispersalPoint and selectedPlumeWatershedStats are intentionally read via refs/store
-  // so this effect only fires on year changes, not on every plume click.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -584,7 +598,18 @@ export default function BaseMap({
       setBreadcrumb,
       onRegionChange,
     })
-  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, onRegionChange])
+    // dispersalPoint, selectedPlumeWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
+    // this effect only fires on year changes (only selectedYear should trigger a re-apply)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
+
+  // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return
+    }
+    applyLabelVisibility(showLabels)
+  }, [showLabels, isMapLoaded, applyLabelVisibility])
 
   // Re-apply plume outline selection when plume layer/source is (re)available.
   useEffect(() => {
@@ -680,9 +705,16 @@ export default function BaseMap({
     clearPolygonSelect(map, plumeClickRef, plumeLayer)
   }, [dispersalPoint, isMapLoaded, plumeLayer])
 
-  // Watershed restoration from URL
+  // Watershed restoration from URL — runs once on initial load.
+  // watershedRestorationRanRef prevents re-running when watershedLayer gets a new reference
+  // after a basemap swap, which would clear the active watershed selection.
   useEffect(() => {
-    if (!isMapLoaded || !initialWatershedId || !watershedLayer) {
+    if (
+      watershedRestorationRanRef.current ||
+      !isMapLoaded ||
+      !initialWatershedId ||
+      !watershedLayer
+    ) {
       return undefined
     }
 
@@ -690,6 +722,8 @@ export default function BaseMap({
     if (!map) {
       return undefined
     }
+
+    watershedRestorationRanRef.current = true
 
     // watershed_id is numeric in tile data. Parse to number to match
     // the promoted feature ID used by MapLibre for setFeatureState.
@@ -715,6 +749,7 @@ export default function BaseMap({
         }
 
         setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
+        setWatershedLayer(watershedLayer)
 
         const bounds = calculateFeatureBounds(feature)
         handleFeatureSelect(feature, bounds, {
@@ -722,8 +757,7 @@ export default function BaseMap({
         })
       },
     )
-    // handleFeatureSelect and onWatershedChange intentionally omitted
-    // initialWatershedId is stable (captured once at mount) so this effect only runs once when the map loads.
+    // handleFeatureSelect and onWatershedChange intentionally omitted — stable refs not needed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
@@ -791,13 +825,11 @@ export default function BaseMap({
 
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
-    // Resolve basemapBeforeId BEFORE setIsMapLoaded so the shoreline layer mounts with the
-    // correct anchor on its first render. Shoreline anchors to the lowest label so it sits
-    // beneath every basemap label; overlays anchor to "shoreline-emphasis" so they always
-    // land just below the shoreline.
+    // Populate store values BEFORE setIsMapLoaded so they're available when
+    // React re-renders with isMapLoaded = true (e.g. WatershedLayers beforeId, applyLabelVisibility).
     if (map) {
-      const layers = map.getStyle()?.layers ?? []
-      setBasemapBeforeId(resolveBasemapBeforeId(layers))
+      setBasemapBeforeId(resolveBasemapBeforeId(map.getStyle()?.layers ?? []))
+      setMapRef(mapRef.current!)
     }
 
     setIsMapLoaded(true)
@@ -805,8 +837,6 @@ export default function BaseMap({
     if (!map || !watershedLayer) {
       return
     }
-
-    setMapRef(mapRef.current!)
 
     // prevent duplicate firing
     if (polygonHoverBoundRef.current) {
@@ -885,7 +915,7 @@ export default function BaseMap({
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
-        mapStyle={`https://api.maptiler.com/maps/hybrid/style.json?key=${apiKey}`}
+        mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
@@ -909,7 +939,10 @@ export default function BaseMap({
           <Layer
             id="shoreline-emphasis"
             type="line"
-            source="maptiler_planet"
+            // Satellite (hybrid) style registers the source as 'maptiler_planet' (v3 tiles);
+            // light/dark styles register it as 'maptiler_planet_v4' (v4 tiles). Using the wrong
+            // name causes a source-not-found error at runtime.
+            source={selectedBasemap === 'satellite' ? 'maptiler_planet' : 'maptiler_planet_v4'}
             source-layer="water"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'ocean']}

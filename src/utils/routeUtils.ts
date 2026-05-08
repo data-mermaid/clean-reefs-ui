@@ -6,6 +6,7 @@ import {
 } from '../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../data/regionData'
 import { RegionOption } from '../types/RegionDataTypes'
+import { VALID_BASEMAPS, Basemap } from './mapUtils'
 
 export function getValidRegion(regionFromSearchParam: string | null): RegionOption {
   if (!regionFromSearchParam) {
@@ -93,4 +94,16 @@ export function getValidDispersalPoint(
 
   const { lat, lng } = getValidLatLng(parts[0], parts[1])
   return lat !== null && lng !== null ? { lat, lng } : null
+}
+
+export function getValidLabels(labelsFromSearchParam: string | null): boolean {
+  return labelsFromSearchParam !== 'false'
+}
+
+export function getValidBasemap(basemapFromSearchParam: string | null): Basemap {
+  if (basemapFromSearchParam && VALID_BASEMAPS.includes(basemapFromSearchParam as never)) {
+    return basemapFromSearchParam as Basemap
+  }
+
+  return 'satellite'
 }

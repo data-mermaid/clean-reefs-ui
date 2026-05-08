@@ -1,0 +1,26 @@
+@use '../../styles/theme';
+.formControlRoot {
+  display: block;
+  width: 100%;
+}
+
+.formControlLabelRoot {
+  margin-left: 0;
+  justify-content: space-between;
+}
+
+.basemap-card {
+  margin: theme.$defaultSpacing;
+  padding: theme.$defaultSpacing;
+  background-color: theme.$greyWhite;
+}
+
+.basemap-card_title {
+  flex-grow: 1;
+}
+
+.basemap-toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
