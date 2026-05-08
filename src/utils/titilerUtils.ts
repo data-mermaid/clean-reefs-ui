@@ -24,6 +24,23 @@ export function buildItemId(year: number): string {
   return `${SED_DISPERSAL_COLLECTION_ID}_${year}`
 }
 
+/**
+ * Build a MapLibre-compatible tile URL template with dynamic rescale.
+ * Uses {z}/{x}/{y} placeholders that MapLibre fills in when fetching tiles.
+ * The expression clamps values at max so nothing renders out of range.
+ */
+export function buildTileUrlTemplate(collectionId: string, itemId: string, max: number): string {
+  const basePath = `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
+  const params = new URLSearchParams({
+    rescale: `0,${max}`,
+    assets: 'cog',
+    colormap_name: 'viridis',
+    asset_bidx: 'cog|1',
+    expression: `where(cog_b1>${max},${max},cog_b1)`,
+  })
+  return `${basePath}?${params.toString()}`
+}
+
 /** Derive asset_bidx from the expression — only load the bands actually referenced */
 function buildAssetBidx(expression: string | null): string {
   // matches all cog_b{N} references (e.g. cog_b8, cog_b9), captures the band number

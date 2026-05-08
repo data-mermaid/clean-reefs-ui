@@ -31,6 +31,9 @@ interface LayersDrawerProps {
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
   onBasemapChange: (basemap: Basemap) => void
+  sedDispersalMinValue?: number
+  sedDispersalMaxValue?: number
+  sedDispersalLoading?: boolean
 }
 
 interface BoundaryLegendCardProps {
@@ -69,6 +72,9 @@ export default function LayersDrawer({
   showLabels,
   onLabelsChange,
   onBasemapChange,
+  sedDispersalMinValue,
+  sedDispersalMaxValue,
+  sedDispersalLoading,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
 
@@ -155,6 +161,9 @@ export default function LayersDrawer({
             selectedYear={selectedYear}
             subSedLayerValue={subSedLayerValue}
             onSedSubLayerChange={onSedSubLayerChange}
+            sedDispersalMinValue={sedDispersalMinValue}
+            sedDispersalMaxValue={sedDispersalMaxValue}
+            sedDispersalLoading={sedDispersalLoading}
           />
         ))
     },
@@ -170,6 +179,9 @@ export default function LayersDrawer({
       onLabelsChange,
       selectedBasemap,
       onBasemapChange,
+      sedDispersalMinValue,
+      sedDispersalMaxValue,
+      sedDispersalLoading,
     ],
   )
 

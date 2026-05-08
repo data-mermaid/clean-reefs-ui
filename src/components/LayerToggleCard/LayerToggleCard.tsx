@@ -23,6 +23,9 @@ interface LayerToggleCardProps {
   selectedYear: number
   subSedLayerValue: 'pixel' | 'watershed'
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
+  sedDispersalMinValue?: number
+  sedDispersalMaxValue?: number
+  sedDispersalLoading?: boolean
 }
 
 const getLayerToggleDetails = (
@@ -31,6 +34,9 @@ const getLayerToggleDetails = (
   subSedLayerValue: 'pixel' | 'watershed',
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void,
   mapSubLayers?: SubLayerInfo[],
+  sedDispersalMinValue?: number,
+  sedDispersalMaxValue?: number,
+  sedDispersalLoading?: boolean,
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -40,7 +46,13 @@ const getLayerToggleDetails = (
       break
     case 'sed_dispersal':
       toggleCardDetails = layer.isLayerOn && (
-        <GradientLegend variation={layerId} title={layer.legendTitle} />
+        <GradientLegend
+          variation={layerId}
+          title={layer.legendTitle}
+          minValue={sedDispersalMinValue}
+          maxValue={sedDispersalMaxValue}
+          isLoading={sedDispersalLoading}
+        />
       )
       break
     case 'sed_export':
@@ -118,6 +130,9 @@ export default function LayerToggleCard({
   mapSubLayers,
   subSedLayerValue,
   onSedSubLayerChange,
+  sedDispersalMinValue,
+  sedDispersalMaxValue,
+  sedDispersalLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
@@ -143,6 +158,9 @@ export default function LayerToggleCard({
         subSedLayerValue,
         onSedSubLayerChange,
         mapSubLayers,
+        sedDispersalMinValue,
+        sedDispersalMaxValue,
+        sedDispersalLoading,
       )}
     </Card>
   )

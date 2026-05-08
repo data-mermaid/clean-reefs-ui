@@ -1,15 +1,33 @@
-import { Typography } from '@mui/material'
+import { Skeleton, Typography } from '@mui/material'
 import styles from './GradientLegend.module.scss'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 
 interface GradientLegendProps {
-  variation: string //'sed_export' | 'sediment-concentration' | 'reef-ecosystem-exposure' | 'sed_dispersal'
+  variation: string // active: 'sed_export' | 'sed_dispersal' — planned: 'sediment-concentration' | 'reef-ecosystem-exposure'
   title?: string
+  minValue?: number
+  maxValue?: number
+  isLoading?: boolean
 }
 
-export default function GradientLegend({ variation, title }: GradientLegendProps) {
+export default function GradientLegend({
+  variation,
+  title,
+  minValue,
+  maxValue,
+  isLoading,
+}: GradientLegendProps) {
   const { t } = useTranslation()
+  const hasValues = minValue !== undefined && maxValue !== undefined
+
+  const renderValue = (value: number | undefined, fallback: string) => {
+    if (isLoading) {
+      return <Skeleton variant="text" width={36} />
+    }
+    return <Typography>{hasValues ? value : fallback}</Typography>
+  }
+
   return (
     <div className={styles['GradientLegend']}>
       {title && (
@@ -18,8 +36,8 @@ export default function GradientLegend({ variation, title }: GradientLegendProps
         </Typography>
       )}
       <div className={styles['GradientLegend__legend']}>
-        <Typography>{t('scale_low')}</Typography>
-        <Typography>{t('scale_high')}</Typography>
+        {renderValue(minValue, t('scale_low'))}
+        {renderValue(maxValue, t('scale_high'))}
       </div>
       <div className={clsx(styles['GradientLegend__scale'], styles[variation])}></div>
     </div>

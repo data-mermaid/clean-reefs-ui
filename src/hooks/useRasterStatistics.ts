@@ -5,6 +5,7 @@ import { buildExpression, buildItemId, fetchStatistics } from '../utils/titilerU
 interface RasterStatistics {
   minValue: number | null
   maxValue: number | null
+  isLoading: boolean
 }
 
 const useRasterStatistics = (
@@ -14,8 +15,13 @@ const useRasterStatistics = (
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    setMinValue(null)
+    setMaxValue(null)
+    setIsLoading(true)
+
     const expression = buildExpression(selectedRegion)
     const itemId = buildItemId(selectedYear)
 
@@ -23,15 +29,12 @@ const useRasterStatistics = (
       if (result) {
         setMinValue(result.min)
         setMaxValue(result.max)
-      } else {
-        // API failure — fall back to null so the legend shows default labels
-        setMinValue(null)
-        setMaxValue(null)
       }
+      setIsLoading(false)
     })
   }, [collectionId, selectedRegion, selectedYear])
 
-  return { minValue, maxValue }
+  return { minValue, maxValue, isLoading }
 }
 
 export default useRasterStatistics

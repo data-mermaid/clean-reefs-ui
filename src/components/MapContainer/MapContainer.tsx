@@ -7,7 +7,7 @@ import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds, sedExportAndLandUseLayers } from '../../data/mapData'
-import { LAT_LNG_PRECISION, ZOOM_PRECISION } from '../../constants'
+import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_DISPERSAL_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { Basemap } from '../../utils/mapUtils'
@@ -26,6 +26,8 @@ import { useMapStore } from '../../stores/mapStore'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
+import useRasterStatistics from '../../hooks/useRasterStatistics'
+import { buildItemId, buildTileUrlTemplate } from '../../utils/titilerUtils'
 
 export default function MapContainer() {
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
@@ -91,6 +93,34 @@ export default function MapContainer() {
       ? [defaultGlobalRegionOption, initialRegion]
       : [initialRegion],
   )
+
+  const { minValue: sedDispersalMinValue, maxValue: sedDispersalMaxValue, isLoading: sedDispersalLoading } = useRasterStatistics(
+    SED_DISPERSAL_COLLECTION_ID,
+    selectedRegion,
+    selectedYear,
+  )
+
+  // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
+  useEffect(() => {
+    setMapLayers((prevLayers) =>
+      prevLayers.map((layer) => {
+        if (layer.layerId !== 'sed_dispersal' || layer.year !== selectedYear) {
+          return layer
+        }
+        return {
+          ...layer,
+          link:
+            sedDispersalMinValue !== null && sedDispersalMaxValue !== null
+              ? buildTileUrlTemplate(
+                  SED_DISPERSAL_COLLECTION_ID,
+                  buildItemId(selectedYear),
+                  sedDispersalMaxValue,
+                )
+              : '',
+        }
+      }),
+    )
+  }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -400,6 +430,9 @@ export default function MapContainer() {
           showLabels={showLabels}
           onLabelsChange={handleLabelsChange}
           onBasemapChange={handleBasemapChange}
+          sedDispersalMinValue={sedDispersalMinValue ?? undefined}
+          sedDispersalMaxValue={sedDispersalMaxValue ?? undefined}
+          sedDispersalLoading={sedDispersalLoading}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
