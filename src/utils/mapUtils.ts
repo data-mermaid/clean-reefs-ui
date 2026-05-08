@@ -48,22 +48,51 @@ export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds
   return bounds
 }
 
+export type PolygonFeatureStateKey = 'hover' | 'select' | 'linkedHover' | 'linkedSelect'
+
+export function setPolygonFeatureState(
+  map: Map,
+  ref: RefObject<string | number | null>,
+  mapDataLayer: LayerInfo,
+  featureId: string | number,
+  stateKey: PolygonFeatureStateKey,
+) {
+  ref.current = featureId
+  map.setFeatureState(
+    {
+      source: mapDataLayer.sourceId,
+      sourceLayer: mapDataLayer.sourceFileName,
+      id: featureId,
+    },
+    { [stateKey]: true },
+  )
+}
+
+export function clearPolygonFeatureState(
+  map: Map,
+  ref: RefObject<string | number | null>,
+  mapDataLayer: LayerInfo,
+  stateKey: PolygonFeatureStateKey,
+) {
+  if (ref.current) {
+    map.setFeatureState(
+      {
+        source: mapDataLayer.sourceId,
+        sourceLayer: mapDataLayer.sourceFileName,
+        id: ref.current,
+      },
+      { [stateKey]: false },
+    )
+    ref.current = null
+  }
+}
+
 export function clearPolygonHover(
   map: Map,
   hoveredRef: RefObject<string | number | null>,
   mapDataLayer: LayerInfo,
 ) {
-  if (hoveredRef.current) {
-    map.setFeatureState(
-      {
-        source: mapDataLayer.sourceId,
-        sourceLayer: mapDataLayer.sourceFileName,
-        id: hoveredRef.current,
-      },
-      { hover: false },
-    )
-    hoveredRef.current = null
-  }
+  clearPolygonFeatureState(map, hoveredRef, mapDataLayer, 'hover')
 }
 
 export function clearPolygonSelect(
@@ -71,17 +100,7 @@ export function clearPolygonSelect(
   clickRef: RefObject<string | number | null>,
   mapDataLayer: LayerInfo,
 ) {
-  if (clickRef.current) {
-    map.setFeatureState(
-      {
-        source: mapDataLayer.sourceId,
-        sourceLayer: mapDataLayer.sourceFileName,
-        id: clickRef.current,
-      },
-      { select: false },
-    )
-    clickRef.current = null
-  }
+  clearPolygonFeatureState(map, clickRef, mapDataLayer, 'select')
 }
 
 export function setPolygonSelect(
@@ -90,15 +109,7 @@ export function setPolygonSelect(
   mapDataLayer: LayerInfo,
   featureId: string | number,
 ) {
-  clickRef.current = featureId
-  map.setFeatureState(
-    {
-      source: mapDataLayer.sourceId,
-      sourceLayer: mapDataLayer.sourceFileName,
-      id: featureId,
-    },
-    { select: true },
-  )
+  setPolygonFeatureState(map, clickRef, mapDataLayer, featureId, 'select')
 }
 
 export function createPolygonHoverHandler(hoveredRef: RefObject<string | number | null>) {

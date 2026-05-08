@@ -98,6 +98,10 @@ export const mapFitBoundsMobileConfig = {
 export const plumeOutlineColor = '#FFEA46'
 export const polygonOutlineHoverColor = '#00FF01'
 export const polygonOutlineSelectColor = '#0000FF'
+// Muted counterparts used on plume features whose watershed_id matches a hovered/selected
+// watershed - same hue family as the watershed highlight, dimmer to read as secondary.
+export const plumeLinkedHoverColor = '#7FCC7F'
+export const plumeLinkedSelectColor = '#7F7FCC'
 export const polygonHighlightWidth = 3
 export const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
 

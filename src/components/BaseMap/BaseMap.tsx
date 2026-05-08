@@ -37,16 +37,19 @@ import LoadingState from '../LoadingState/LoadingState'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
+  clearPolygonFeatureState,
   clearPolygonHover,
   clearPolygonSelect,
   createPolygonClickHandler,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   querySourceFeatureAtPointWhenReady,
+  setPolygonFeatureState,
   setPolygonSelect,
   getAllYearZonalStats,
   buildBenthicFillExpression,
   resolveBasemapBeforeId,
+  PolygonFeatureStateKey,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
 import { CircularProgress, Snackbar, SnackbarContent } from '@mui/material'
@@ -54,6 +57,8 @@ import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
+  plumeLinkedHoverColor,
+  plumeLinkedSelectColor,
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
@@ -352,11 +357,19 @@ function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: stri
             'case',
             ['boolean', ['feature-state', 'select'], false],
             polygonOutlineSelectColor,
+            ['boolean', ['feature-state', 'linkedSelect'], false],
+            plumeLinkedSelectColor,
+            ['boolean', ['feature-state', 'linkedHover'], false],
+            plumeLinkedHoverColor,
             layer.outlineColor,
           ],
           'line-width': [
             'case',
             ['boolean', ['feature-state', 'select'], false],
+            polygonHighlightWidth,
+            ['boolean', ['feature-state', 'linkedSelect'], false],
+            polygonHighlightWidth,
+            ['boolean', ['feature-state', 'linkedHover'], false],
             polygonHighlightWidth,
             1,
           ],
@@ -415,6 +428,10 @@ export default function BaseMap({
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const plumeClickRef = useRef<string | number | null>(null)
+  // Tracks which plume feature has linkedHover/linkedSelect set, so we can clear it later.
+  // Separate from polygonHoverRef/polygonClickRef so the clear helpers don't fight over null-ing.
+  const plumeLinkedHoverRef = useRef<string | number | null>(null)
+  const plumeLinkedSelectRef = useRef<string | number | null>(null)
   const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
   const plumeRestorationRanRef = useRef(false)
 
@@ -591,28 +608,32 @@ export default function BaseMap({
     if (!isMapLoaded || !plumeLayer) {
       return
     }
-
     const map = mapRef.current?.getMap()
-    const selectedPlumeId = plumeClickRef.current
-    if (!map || selectedPlumeId == null) {
+    if (!map) {
       return
     }
 
-    // Clear the highlighted polygon from the previous plume layer before reselecting on the new one.
-    // Guard with getSource so we don't throw if the previous source was already unmounted (e.g. on year change).
-    if (
+    // getSource guard: previous source may already be unmounted (e.g. on year change).
+    const previousSourceStillMounted =
       previousPlumeLayer &&
       previousPlumeLayer.sourceId !== plumeLayer.sourceId &&
       map.getSource(previousPlumeLayer.sourceId)
-    ) {
-      clearPolygonSelect(map, plumeClickRef, previousPlumeLayer)
+
+    const reapply = (ref: RefObject<string | number | null>, key: PolygonFeatureStateKey) => {
+      // Capture before clearPolygonFeatureState - it nulls ref.current as part of clearing.
+      const current = ref.current
+      if (current == null) {
+        return
+      }
+      if (previousSourceStillMounted) {
+        clearPolygonFeatureState(map, ref, previousPlumeLayer!, key)
+      }
+      const id = isNaN(Number(current)) ? current : Number(current)
+      setPolygonFeatureState(map, ref, plumeLayer, id, key)
     }
 
-    const plumeFeatureId = isNaN(Number(selectedPlumeId))
-      ? selectedPlumeId
-      : Number(selectedPlumeId)
-
-    setPolygonSelect(map, plumeClickRef, plumeLayer, plumeFeatureId)
+    reapply(plumeClickRef, 'select')
+    reapply(plumeLinkedSelectRef, 'linkedSelect')
   }, [isMapLoaded, plumeLayer, mapLayers, previousPlumeLayer])
 
   useEffect(() => {
@@ -658,10 +679,18 @@ export default function BaseMap({
   // When selectedFeature is cleared externally (e.g., dropdown region change),
   // remove the watershed visual highlight from the map.
   useEffect(() => {
-    if (!selectedFeature && polygonClickRef.current && isMapLoaded) {
+    if (!selectedFeature && isMapLoaded) {
       const map = mapRef.current?.getMap()
-      if (map && watershedLayer) {
+      if (!map) {
+        return
+      }
+      if (polygonClickRef.current && watershedLayer) {
         clearPolygonSelect(map, polygonClickRef, watershedLayer)
+      }
+      // Mirror onto the active plume layer so the linked highlight clears in lockstep.
+      const currentPlumeLayer = plumeLayerRef.current
+      if (plumeLinkedSelectRef.current && currentPlumeLayer) {
+        clearPolygonFeatureState(map, plumeLinkedSelectRef, currentPlumeLayer, 'linkedSelect')
       }
     }
   }, [selectedFeature, isMapLoaded, watershedLayer])
@@ -715,6 +744,18 @@ export default function BaseMap({
         }
 
         setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
+
+        // Mirror so a restored URL renders the linked plume highlight too.
+        const currentPlumeLayer = plumeLayerRef.current
+        if (currentPlumeLayer) {
+          setPolygonFeatureState(
+            map,
+            plumeLinkedSelectRef,
+            currentPlumeLayer,
+            featureId,
+            'linkedSelect',
+          )
+        }
 
         const bounds = calculateFeatureBounds(feature)
         handleFeatureSelect(feature, bounds, {
@@ -821,9 +862,42 @@ export default function BaseMap({
     const onWatershedHover = (e: MapLayerMouseEvent) => {
       map.getCanvas().style.cursor = 'pointer'
       polygonHoverHandler(map, e, watershedLayer)
+
+      // Mirror onto plume with same watershed_id.
+      const currentPlumeLayer = plumeLayerRef.current
+      const featureId = e.features?.[0]?.id
+      if (!currentPlumeLayer || featureId == null) {
+        return
+      }
+      if (plumeLinkedHoverRef.current === featureId) {
+        return
+      }
+
+      clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
+      setPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, featureId, 'linkedHover')
     }
     const onWatershedClick = (e: MapLayerMouseEvent) => {
       polygonClickHandler(map, e, watershedLayer)
+
+      const currentPlumeLayer = plumeLayerRef.current
+      const featureId = e.features?.[0]?.id
+      if (!currentPlumeLayer || featureId == null) {
+        return
+      }
+      // Same-watershed reclick is a recenter; nothing to mirror.
+      if (plumeLinkedSelectRef.current === featureId) {
+        return
+      }
+
+      clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
+      clearPolygonFeatureState(map, plumeLinkedSelectRef, currentPlumeLayer, 'linkedSelect')
+      setPolygonFeatureState(
+        map,
+        plumeLinkedSelectRef,
+        currentPlumeLayer,
+        featureId,
+        'linkedSelect',
+      )
     }
 
     const onPlumeClick = (e: MapLayerMouseEvent) => {
@@ -860,6 +934,11 @@ export default function BaseMap({
     map.on('mouseleave', 'watershed', () => {
       map.getCanvas().style.cursor = ''
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
+
+      const currentPlumeLayer = plumeLayerRef.current
+      if (currentPlumeLayer) {
+        clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
+      }
     })
 
     // Register click/hover handlers on every plume year's fill layer (sourceId-based IDs).
