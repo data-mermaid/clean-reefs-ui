@@ -24,8 +24,10 @@ export const Primary: Story = {
     initialWatershedId: null,
     initialDispersalPoint: null,
     dispersalPoint: null,
+    selectedBasemap: 'satellite',
     selectedYear: 2000,
     hasExplicitViewState: false,
+    showLabels: true,
     setBreadcrumb: () => {},
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
@@ -61,8 +63,10 @@ export const Loading: Story = {
     initialWatershedId: null,
     initialDispersalPoint: null,
     dispersalPoint: null,
+    selectedBasemap: 'satellite',
     selectedYear: 2000,
     hasExplicitViewState: false,
+    showLabels: true,
     setBreadcrumb: () => {},
     initialViewState: {
       longitude: defaultGlobalRegionOption.centerCoord.lng,
