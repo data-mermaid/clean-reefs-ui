@@ -84,6 +84,11 @@ export const SEDIMENT_EXPOSURE_2015_URL =
 export const SEDIMENT_EXPOSURE_2020_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/data_sediment_exposure_2020.tif'
 
+/******TITILER API******/
+export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
+export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
+export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
+
 /******MAP URL PARAMS******/
 export const LAT_LNG_PRECISION = 6
 export const ZOOM_PRECISION = 2

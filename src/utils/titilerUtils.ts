@@ -1,5 +1,39 @@
-const API_BASE_URL = 'https://mermaid.prescient.earth'
-const API_TIMEOUT = 10000 // 10 seconds in milliseconds
+import { RegionOption } from '../types/RegionDataTypes'
+import { TITILER_API_BASE_URL, TITILER_API_TIMEOUT, SED_DISPERSAL_COLLECTION_ID } from '../constants'
+/**
+ * Build the TiTiler expression for the selected region.
+ * Returns null for global (no filter) or regions with no data (fallback to global).
+ */
+export function buildExpression(region: RegionOption): string | null {
+  if (!region.bandId) {
+    return null
+  }
+
+  if (region.regionType === 'country') {
+    return `where((cog_b8==${region.bandId}), cog_b1, 0)`
+  }
+  if (region.regionType === 'region') {
+    return `where((cog_b9==${region.bandId}), cog_b1, 0)`
+  }
+
+  return null
+}
+
+/** Build the TiTiler item ID for the selected year */
+export function buildItemId(year: number): string {
+  return `${SED_DISPERSAL_COLLECTION_ID}_${year}`
+}
+
+/** Derive asset_bidx from the expression — only load the bands actually referenced */
+function buildAssetBidx(expression: string | null): string {
+  // matches all cog_b{N} references (e.g. cog_b8, cog_b9), captures the band number
+  const filterBands = [...(expression?.matchAll(/cog_b(\d+)/g) ?? [])]
+    .map((m) => Number(m[1]))
+    .filter((band) => band !== 1) // band 1 is the value band, always included
+  const uniqueBands = [...new Set(filterBands)].sort((a, b) => a - b)
+  return uniqueBands.length ? `cog|1,${uniqueBands.join(',')}` : 'cog|1'
+}
+
 
 interface StatisticsResponse {
   [key: string]: {
@@ -19,28 +53,30 @@ interface MinMaxValues {
 }
 
 /**
- * Fetch statistics for a region from TiTiler
+ * Fetch statistics for a region from TiTiler.
+ * Pass null expression for global (no region filter).
  * @param collectionId - Collection ID (e.g., 'gpw_sediment_exposure')
  * @param itemId - Item ID (e.g., 'gpw_sediment_exposure_2020')
- * @param expression - Expression for filtering (e.g., 'where((cog_b9==2), cog_b1, 0)')
+ * @param expression - Expression for filtering, or null for global
  * @returns MinMaxValues with min and max values
  */
 export async function fetchStatistics(
   collectionId: string,
   itemId: string,
-  expression: string
+  expression: string | null
 ): Promise<MinMaxValues | null> {
+  const resolvedExpression = expression ?? 'cog_b1'
   try {
-    const url = new URL(`${API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`)
+    const url = new URL(`${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`)
 
     // Add query parameters
     url.searchParams.append('assets', 'cog')
-    url.searchParams.append('asset_bidx', 'cog|1,9')
-    url.searchParams.append('expression', expression)
+    url.searchParams.append('asset_bidx', buildAssetBidx(expression))
+    url.searchParams.append('expression', resolvedExpression)
     url.searchParams.append('max_size', '1025')
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
+    const timeoutId = setTimeout(() => controller.abort(), TITILER_API_TIMEOUT)
 
     console.warn('[TiTiler] Fetching statistics:', url.toString())
 
@@ -58,7 +94,7 @@ export async function fetchStatistics(
     const data: StatisticsResponse = await response.json()
 
     // The response key is the expression itself
-    const statsData = data[expression]
+    const statsData = data[resolvedExpression]
 
     if (!statsData || statsData.min === undefined || statsData.max === undefined) {
       console.error('[TiTiler] Invalid statistics response:', data)
@@ -107,7 +143,7 @@ export function buildTileUrl(
   tileMatrixSet: string = 'WebMercatorQuad'
 ): string {
   const url = new URL(
-    `${API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/${tileMatrixSet}/${z}/${x}/${y}`
+    `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/${tileMatrixSet}/${z}/${x}/${y}`
   )
 
   url.searchParams.append('rescale', `${min},${max}`)
