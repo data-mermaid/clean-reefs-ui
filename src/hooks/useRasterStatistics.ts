@@ -18,6 +18,9 @@ const useRasterStatistics = (
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const controller = new AbortController()
+    let cancelled = false
+
     setMinValue(null)
     setMaxValue(null)
     setIsLoading(true)
@@ -25,13 +28,19 @@ const useRasterStatistics = (
     const expression = buildExpression(selectedRegion)
     const itemId = buildItemId(selectedYear)
 
-    fetchStatistics(collectionId, itemId, expression).then((result) => {
+    fetchStatistics(collectionId, itemId, expression, controller.signal).then((result) => {
+      if (cancelled) { return }
       if (result) {
         setMinValue(result.min)
         setMaxValue(result.max)
       }
       setIsLoading(false)
     })
+
+    return () => {
+      cancelled = true
+      controller.abort()
+    }
   }, [collectionId, selectedRegion, selectedYear])
 
   return { minValue, maxValue, isLoading }

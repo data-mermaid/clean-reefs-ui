@@ -80,25 +80,25 @@ interface MinMaxValues {
 export async function fetchStatistics(
   collectionId: string,
   itemId: string,
-  expression: string | null
+  expression: string | null,
+  signal?: AbortSignal
 ): Promise<MinMaxValues | null> {
   const resolvedExpression = expression ?? 'cog_b1'
+  const timeoutController = new AbortController()
+  const timeoutId = setTimeout(() => timeoutController.abort(), TITILER_API_TIMEOUT)
+  const combinedSignal = signal
+    ? AbortSignal.any([timeoutController.signal, signal])
+    : timeoutController.signal
+
   try {
     const url = new URL(`${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`)
 
-    // Add query parameters
     url.searchParams.append('assets', 'cog')
     url.searchParams.append('asset_bidx', buildAssetBidx(expression))
     url.searchParams.append('expression', resolvedExpression)
     url.searchParams.append('max_size', '1025')
 
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), TITILER_API_TIMEOUT)
-
-    const response = await fetch(url.toString(), {
-      signal: controller.signal,
-    })
-
+    const response = await fetch(url.toString(), { signal: combinedSignal })
     clearTimeout(timeoutId)
 
     if (!response.ok) {
@@ -107,22 +107,20 @@ export async function fetchStatistics(
 
     const data: StatisticsResponse = await response.json()
 
-    // The response key is the expression itself
     const statsData = data[resolvedExpression]
 
     if (!statsData || statsData.min === undefined || statsData.max === undefined) {
       return null
     }
 
-    const minMax: MinMaxValues = {
+    return {
       min: parseFloat(statsData.min.toFixed(1)),
       max: parseFloat(statsData.max.toFixed(1)),
     }
-
-    return minMax
   } catch (error) {
+    clearTimeout(timeoutId)
     if (error instanceof Error && error.name === 'AbortError') {
-      // request timed out
+      // request timed out or was cancelled by the caller
     }
     return null
   }
