@@ -163,4 +163,35 @@ describe('fetchStatistics', () => {
     const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null)
     expect(result).toBeNull()
   })
+
+  it('returns null immediately when signal is already aborted', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch')
+    const controller = new AbortController()
+    controller.abort()
+
+    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, controller.signal)
+    expect(result).toBeNull()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('returns null when signal is aborted mid-flight', async () => {
+    const controller = new AbortController()
+    const abortError = new DOMException('AbortError', 'AbortError')
+    jest.spyOn(global, 'fetch').mockRejectedValueOnce(abortError)
+
+    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, controller.signal)
+    expect(result).toBeNull()
+  })
+
+  it('passes the external signal to fetch via internal controller', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockStats('cog_b1'),
+    } as Response)
+    const controller = new AbortController()
+
+    await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, controller.signal)
+    const [, options] = fetchSpy.mock.calls[0]
+    expect((options as RequestInit).signal).toBeInstanceOf(AbortSignal)
+  })
 })

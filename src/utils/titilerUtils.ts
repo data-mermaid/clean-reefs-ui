@@ -75,13 +75,19 @@ interface MinMaxValues {
  * @param collectionId - Collection ID (e.g., 'gpw_sediment_exposure')
  * @param itemId - Item ID (e.g., 'gpw_sediment_exposure_2020')
  * @param expression - Expression for filtering, or null for global
+ * @param signal - Optional AbortSignal to cancel the request (e.g., from a useEffect cleanup)
  * @returns MinMaxValues with min and max values
  */
 export async function fetchStatistics(
   collectionId: string,
   itemId: string,
-  expression: string | null
+  expression: string | null,
+  signal?: AbortSignal
 ): Promise<MinMaxValues | null> {
+  if (signal?.aborted) {
+    return null
+  }
+
   const resolvedExpression = expression ?? 'cog_b1'
   try {
     const url = new URL(`${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`)
@@ -94,6 +100,10 @@ export async function fetchStatistics(
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), TITILER_API_TIMEOUT)
+
+    // Wire the external signal into the internal controller so either the timeout
+    // or the caller can cancel the in-flight request.
+    signal?.addEventListener('abort', () => controller.abort(signal.reason), { once: true })
 
     const response = await fetch(url.toString(), {
       signal: controller.signal,
@@ -122,11 +132,11 @@ export async function fetchStatistics(
     return minMax
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      // request timed out
+      // request timed out or was cancelled by caller
     }
     return null
   }
-}
+
 
 /**
  * Build a tile URL with dynamic rescale values
