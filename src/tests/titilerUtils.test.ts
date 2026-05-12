@@ -27,13 +27,13 @@ describe('buildExpression', () => {
 
   it('returns country expression for country with bandId', () => {
     expect(buildExpression(makeRegion({ regionType: 'country', bandId: 54 }))).toBe(
-      'where((cog_b8==54), cog_b1, 0)'
+      'where((cog_b8==54), cog_b1, 0)',
     )
   })
 
   it('returns region expression for region with bandId', () => {
     expect(buildExpression(makeRegion({ regionType: 'region', bandId: 2 }))).toBe(
-      'where((cog_b9==2), cog_b1, 0)'
+      'where((cog_b9==2), cog_b1, 0)',
     )
   })
 })
@@ -46,12 +46,21 @@ describe('buildItemId', () => {
 
 describe('buildTileUrl', () => {
   const url = new URL(
-    buildTileUrl('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', 5, 10, 20, 0, 260.8, 'cog_b1')
+    buildTileUrl(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      5,
+      10,
+      20,
+      0,
+      260.8,
+      'cog_b1',
+    ),
   )
 
   it('targets the correct tile path', () => {
     expect(url.pathname).toBe(
-      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/5/10/20'
+      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/5/10/20',
     )
   })
 
@@ -69,6 +78,8 @@ describe('buildTileUrl', () => {
 })
 
 describe('fetchStatistics', () => {
+  afterEach(() => jest.restoreAllMocks())
+
   const mockStats = (expression: string) => ({
     [expression]: { min: 0.5, max: 123.456 },
   })
@@ -79,7 +90,11 @@ describe('fetchStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null)
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+    )
     expect(result).toEqual({ min: 0.5, max: 123.5 })
   })
 
@@ -90,7 +105,11 @@ describe('fetchStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', expression)
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      expression,
+    )
     expect(result).toEqual({ min: 0.5, max: 123.5 })
   })
 
@@ -139,13 +158,19 @@ describe('fetchStatistics', () => {
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.origin).toBe(TITILER_API_BASE_URL)
     expect(calledUrl.pathname).toBe(
-      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/statistics'
+      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/statistics',
     )
   })
 
   it('returns null when API response is not ok', async () => {
-    jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Error' } as Response)
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null)
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Error' } as Response)
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+    )
     expect(result).toBeNull()
   })
 
@@ -154,13 +179,21 @@ describe('fetchStatistics', () => {
       ok: true,
       json: async () => ({}),
     } as Response)
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null)
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+    )
     expect(result).toBeNull()
   })
 
   it('returns null on fetch error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null)
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+    )
     expect(result).toBeNull()
   })
 })
