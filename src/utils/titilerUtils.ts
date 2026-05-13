@@ -55,13 +55,15 @@ export function buildTileUrlTemplate(collectionId: string, itemId: string, max: 
 
 interface StatisticsResponse {
   [key: string]: {
-    min: number
-    max: number
+    min?: number
+    max?: number
     mean?: number
     count?: number
     sum?: number
     std?: number
     median?: number
+    percentile_2?: number
+    percentile_98?: number
   }
 }
 
@@ -113,13 +115,17 @@ export async function fetchStatistics(
 
     const statsData = data[resolvedExpression]
 
-    if (!statsData || statsData.min === undefined || statsData.max === undefined) {
+    if (
+      !statsData ||
+      statsData.percentile_2 === undefined ||
+      statsData.percentile_98 === undefined
+    ) {
       return null
     }
 
     return {
-      min: parseFloat(statsData.min.toFixed(1)),
-      max: parseFloat(statsData.max.toFixed(1)),
+      min: parseFloat(statsData.percentile_2.toFixed(1)),
+      max: parseFloat(statsData.percentile_98.toFixed(1)),
     }
   } catch {
     clearTimeout(timeoutId)
