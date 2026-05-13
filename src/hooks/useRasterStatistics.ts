@@ -40,8 +40,8 @@ const useRasterStatistics = (
     const controller = new AbortController()
     let cancelled = false
 
-    setMinValue(null)
-    setMaxValue(null)
+    // Don't reset min/max to null — keep stale values while loading so the layer
+    // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
     fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(

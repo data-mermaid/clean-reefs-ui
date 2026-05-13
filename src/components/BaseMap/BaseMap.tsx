@@ -1051,8 +1051,9 @@ export default function BaseMap({
               )
             )
           } else if (layer.dataType === 'rastertiles') {
-            // Rastertiles sit just below benthic (beforeId="benthic"). All years are always mounted
-            // so tiles stay cached; visibility is toggled instead of mounting/unmounting on year change.
+            // Rastertiles sit just below benthic (beforeId="benthic"). A layer mounts only when its
+            // link is populated (stats resolved); stale values are kept while loading so MapLibre's
+            // tile cache stays warm across year and region switches.
             if (!layer.link) {
               return null
             }
