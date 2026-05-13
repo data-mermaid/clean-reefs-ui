@@ -46,7 +46,9 @@ const useRasterStatistics = (
 
     fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
       (result) => {
-        if (cancelled) { return }
+        if (cancelled) {
+          return
+        }
         if (result) {
           statsCache.set(cacheKey, result)
           setMinValue(result.min)

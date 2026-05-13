@@ -997,8 +997,17 @@ export default function BaseMap({
         {/* Permanent transparent anchor used by COG layers (lulc/sed_export) as a beforeId target.
             Ensures COG layers always render below rastertiles even when rastertile sources aren't mounted. */}
         {isMapLoaded && (
-          <Source id="rastertile-anchor" type="geojson" data={{ type: 'FeatureCollection', features: [] }}>
-            <Layer id="rastertile-anchor" type="fill" beforeId="benthic" layout={{ visibility: 'none' }} />
+          <Source
+            id="rastertile-anchor"
+            type="geojson"
+            data={{ type: 'FeatureCollection', features: [] }}
+          >
+            <Layer
+              id="rastertile-anchor"
+              type="fill"
+              beforeId="benthic"
+              layout={{ visibility: 'none' }}
+            />
           </Source>
         )}
         {mapLayers.map((layer: LayerInfo, index) => {

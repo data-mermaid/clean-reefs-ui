@@ -101,7 +101,12 @@ describe('fetchStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, 'cog|1')
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
     expect(result).toEqual({ min: 0.5, max: 123.5 })
   })
 
@@ -112,7 +117,12 @@ describe('fetchStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', expression, 'cog|1,9')
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      expression,
+      'cog|1,9',
+    )
     expect(result).toEqual({ min: 0.5, max: 123.5 })
   })
 
@@ -134,7 +144,12 @@ describe('fetchStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', expression, 'cog|1,8')
+    await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      expression,
+      'cog|1,8',
+    )
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1,8')
   })
@@ -146,7 +161,12 @@ describe('fetchStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', expression, 'cog|1,9')
+    await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      expression,
+      'cog|1,9',
+    )
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1,9')
   })
@@ -169,7 +189,12 @@ describe('fetchStatistics', () => {
     jest
       .spyOn(global, 'fetch')
       .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Error' } as Response)
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, 'cog|1')
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
     expect(result).toBeNull()
   })
 
@@ -178,13 +203,23 @@ describe('fetchStatistics', () => {
       ok: true,
       json: async () => ({}),
     } as Response)
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, 'cog|1')
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
     expect(result).toBeNull()
   })
 
   it('returns null on fetch error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
-    const result = await fetchStatistics('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', null, 'cog|1')
+    const result = await fetchStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
     expect(result).toBeNull()
   })
 })

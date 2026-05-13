@@ -53,7 +53,6 @@ export function buildTileUrlTemplate(collectionId: string, itemId: string, max: 
   return `${basePath}?${params.toString()}`
 }
 
-
 interface StatisticsResponse {
   [key: string]: {
     min: number
