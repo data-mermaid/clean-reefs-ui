@@ -59,17 +59,6 @@ export const SED_DISPERSAL_2015_PMTILES_URL =
 export const SED_DISPERSAL_2020_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/visual_sediment_exposure_plumes_2020.pmtiles'
 
-export const SED_DISPERSAL_2000_URL =
-  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2000/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
-export const SED_DISPERSAL_2005_URL =
-  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2005/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
-export const SED_DISPERSAL_2010_URL =
-  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2010/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
-export const SED_DISPERSAL_2015_URL =
-  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2015/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
-export const SED_DISPERSAL_2020_URL =
-  'https://mermaid.prescient.earth/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/{z}/{x}/{y}?rescale=0,1.31&assets=cog&colormap_name=viridis&asset_bidx=cog%7C1&expression=where(cog_b1>1.31,1.31,cog_b1)'
-
 /* Ocean Sediment Dispersal point stats / Zonal Stats data API */
 export const BASE_ZONAL_STATS_API =
   'https://api.zonalstats.datamermaid.org/api/v1/zonal-stats/raster'
@@ -83,6 +72,11 @@ export const SEDIMENT_EXPOSURE_2015_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2015/data_sediment_exposure_2015.tif'
 export const SEDIMENT_EXPOSURE_2020_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/data_sediment_exposure_2020.tif'
+
+/******TITILER API******/
+export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
+export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
+export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
 
 /******MAP URL PARAMS******/
 export const LAT_LNG_PRECISION = 6

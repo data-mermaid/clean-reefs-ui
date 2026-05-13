@@ -994,6 +994,22 @@ export default function BaseMap({
             />
           </Source>
         )}
+        {/* Permanent transparent anchor used by COG layers (lulc/sed_export) as a beforeId target.
+            Ensures COG layers always render below rastertiles even when rastertile sources aren't mounted. */}
+        {isMapLoaded && (
+          <Source
+            id="rastertile-anchor"
+            type="geojson"
+            data={{ type: 'FeatureCollection', features: [] }}
+          >
+            <Layer
+              id="rastertile-anchor"
+              type="fill"
+              beforeId="benthic"
+              layout={{ visibility: 'none' }}
+            />
+          </Source>
+        )}
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
@@ -1025,7 +1041,7 @@ export default function BaseMap({
                     type="raster"
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
-                    beforeId="sediment_exposure_2000"
+                    beforeId="rastertile-anchor"
                     layout={{
                       visibility:
                         layer.isLayerOn && shouldRenderSedExportRaster ? 'visible' : 'none',
@@ -1035,8 +1051,12 @@ export default function BaseMap({
               )
             )
           } else if (layer.dataType === 'rastertiles') {
-            // Rastertiles sit just below benthic (beforeId="benthic"). All years are always mounted
-            // so tiles stay cached; visibility is toggled instead of mounting/unmounting on year change.
+            // Rastertiles sit just below benthic (beforeId="benthic"). A layer mounts only when its
+            // link is populated (stats resolved); stale values are kept while loading so MapLibre's
+            // tile cache stays warm across year and region switches.
+            if (!layer.link) {
+              return null
+            }
             return (
               isMapLoaded && (
                 <Source
