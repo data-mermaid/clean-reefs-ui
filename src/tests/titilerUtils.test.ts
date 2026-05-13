@@ -1,5 +1,10 @@
 import { LngLat } from 'maplibre-gl'
-import { buildExpression, buildItemId, buildTileUrl, fetchStatistics } from '../utils/titilerUtils'
+import {
+  buildExpression,
+  buildItemId,
+  buildTileUrlTemplate,
+  fetchStatistics,
+} from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { SED_DISPERSAL_COLLECTION_ID, TITILER_API_BASE_URL } from '../constants'
 
@@ -55,36 +60,32 @@ describe('buildItemId', () => {
   })
 })
 
-describe('buildTileUrl', () => {
-  const url = new URL(
-    buildTileUrl(
-      'gpw_sediment_exposure',
-      'gpw_sediment_exposure_2020',
-      5,
-      10,
-      20,
-      0,
-      260.8,
-      'cog_b1',
-    ),
-  )
+describe('buildTileUrlTemplate', () => {
+  const max = 260.8
+  const template = buildTileUrlTemplate('gpw_sediment_exposure', 'gpw_sediment_exposure_2020', max)
+  const [pathPart, queryPart] = template.split('?')
+  const params = new URLSearchParams(queryPart)
+
+  it('contains MapLibre tile placeholders in path', () => {
+    expect(pathPart).toContain('{z}/{x}/{y}')
+  })
 
   it('targets the correct tile path', () => {
-    expect(url.pathname).toBe(
-      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/5/10/20',
+    expect(pathPart).toContain(
+      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/{z}/{x}/{y}',
     )
   })
 
-  it('sets rescale from min/max', () => {
-    expect(url.searchParams.get('rescale')).toBe('0,260.8')
+  it('sets rescale from 0 to max', () => {
+    expect(params.get('rescale')).toBe(`0,${max}`)
   })
 
   it('uses viridis colormap', () => {
-    expect(url.searchParams.get('colormap_name')).toBe('viridis')
+    expect(params.get('colormap_name')).toBe('viridis')
   })
 
-  it('sets expression', () => {
-    expect(url.searchParams.get('expression')).toBe('cog_b1')
+  it('clamps expression at max', () => {
+    expect(params.get('expression')).toBe(`where(cog_b1>${max},${max},cog_b1)`)
   })
 })
 
