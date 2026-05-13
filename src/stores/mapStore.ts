@@ -215,11 +215,15 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     if (!map) {
       return
     }
-    map.jumpTo({
-      center: region.centerCoord,
-      zoom: region.zoomLevel,
-      bearing: 0,
-    })
+    if (region.extent) {
+      map.fitBounds(region.extent, { bearing: 0, padding: 40 })
+    } else {
+      map.jumpTo({
+        center: region.centerCoord,
+        zoom: region.zoomLevel,
+        bearing: 0,
+      })
+    }
   },
   setTopPolygonsFill: (layerId, polygonIds) => {
     const state = get()

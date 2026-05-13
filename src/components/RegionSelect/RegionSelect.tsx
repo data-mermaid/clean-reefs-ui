@@ -35,14 +35,12 @@ export default function RegionSelect({
     setBreadcrumb(selectedOptions)
   }
   const jumpToRegion = (region: RegionOption) => {
-    // no jump on global click
-    if (region.regionType !== 'global') {
-      if (mapRef && mapRef.getMap) {
-        mapRef.getMap().jumpTo({
-          center: region.centerCoord,
-          zoom: region.zoomLevel,
-          bearing: 0,
-        })
+    if (region.regionType !== 'global' && mapRef && mapRef.getMap) {
+      const map = mapRef.getMap()
+      if (region.extent) {
+        map.fitBounds(region.extent, { bearing: 0, padding: 40 })
+      } else {
+        map.jumpTo({ center: region.centerCoord, zoom: region.zoomLevel, bearing: 0 })
       }
     }
   }
