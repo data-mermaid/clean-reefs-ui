@@ -26,9 +26,7 @@ describe('useRasterStatistics', () => {
 
   it('starts with null values and isLoading true', () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 0, max: 100 })
-    const { result } = renderHook(() =>
-      useRasterStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -36,9 +34,7 @@ describe('useRasterStatistics', () => {
 
   it('returns min/max and clears loading after a successful fetch', async () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 1.5, max: 99.9 })
-    const { result } = renderHook(() =>
-      useRasterStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBe(1.5)
     expect(result.current.maxValue).toBe(99.9)
@@ -46,9 +42,7 @@ describe('useRasterStatistics', () => {
 
   it('sets isLoading false and keeps null values when API returns null', async () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue(null)
-    const { result } = renderHook(() =>
-      useRasterStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -59,9 +53,7 @@ describe('useRasterStatistics', () => {
       .spyOn(titilerUtils, 'fetchStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const region = makeRegion({ regionType: 'country', bandId: 42 })
-    const { result } = renderHook(() =>
-      useRasterStatistics(nextCollection(), region, 2000),
-    )
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), region, 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.any(String),
@@ -87,9 +79,7 @@ describe('useRasterStatistics', () => {
     unmount()
 
     // Second render with same params — should hit cache immediately (isLoading stays false)
-    const { result: r2 } = renderHook(() =>
-      useRasterStatistics(collectionId, region, 2000),
-    )
+    const { result: r2 } = renderHook(() => useRasterStatistics(collectionId, region, 2000))
     expect(r2.current.isLoading).toBe(false)
     expect(r2.current.minValue).toBe(5)
     expect(r2.current.maxValue).toBe(50)
@@ -102,9 +92,7 @@ describe('useRasterStatistics', () => {
     const region = makeRegion()
     let year = 2010
 
-    const { result, rerender } = renderHook(() =>
-      useRasterStatistics(collectionId, region, year),
-    )
+    const { result, rerender } = renderHook(() => useRasterStatistics(collectionId, region, year))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     year = 2015
