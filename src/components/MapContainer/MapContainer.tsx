@@ -110,7 +110,7 @@ export default function MapContainer() {
         return {
           ...layer,
           link:
-            sedDispersalMinValue !== null && sedDispersalMaxValue !== null
+            !sedDispersalLoading && sedDispersalMinValue !== null && sedDispersalMaxValue !== null
               ? buildTileUrlTemplate(
                   SED_DISPERSAL_COLLECTION_ID,
                   buildItemId(selectedYear),
@@ -120,7 +120,7 @@ export default function MapContainer() {
         }
       }),
     )
-  }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear])
+  }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear, sedDispersalLoading])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
