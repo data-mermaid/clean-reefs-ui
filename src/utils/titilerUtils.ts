@@ -121,11 +121,8 @@ export async function fetchStatistics(
       min: parseFloat(statsData.min.toFixed(1)),
       max: parseFloat(statsData.max.toFixed(1)),
     }
-  } catch (error) {
+  } catch {
     clearTimeout(timeoutId)
-    if (error instanceof Error && error.name === 'AbortError') {
-      // request timed out or was cancelled by the caller
-    }
     return null
   }
 }
