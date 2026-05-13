@@ -8,6 +8,13 @@ interface RasterStatistics {
   isLoading: boolean
 }
 
+interface CachedStats {
+  min: number
+  max: number
+}
+
+const statsCache = new Map<string, CachedStats>()
+
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
@@ -18,6 +25,18 @@ const useRasterStatistics = (
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const { expression, assetBidx } = buildExpression(selectedRegion)
+    const itemId = buildItemId(selectedYear)
+    const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
+
+    const cached = statsCache.get(cacheKey)
+    if (cached) {
+      setMinValue(cached.min)
+      setMaxValue(cached.max)
+      setIsLoading(false)
+      return undefined
+    }
+
     const controller = new AbortController()
     let cancelled = false
 
@@ -25,19 +44,17 @@ const useRasterStatistics = (
     setMaxValue(null)
     setIsLoading(true)
 
-    const { expression, assetBidx } = buildExpression(selectedRegion)
-    const itemId = buildItemId(selectedYear)
-
-    fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then((result) => {
-      if (cancelled) {
-        return
-      }
-      if (result) {
-        setMinValue(result.min)
-        setMaxValue(result.max)
-      }
-      setIsLoading(false)
-    })
+    fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
+      (result) => {
+        if (cancelled) { return }
+        if (result) {
+          statsCache.set(cacheKey, result)
+          setMinValue(result.min)
+          setMaxValue(result.max)
+        }
+        setIsLoading(false)
+      },
+    )
 
     return () => {
       cancelled = true
