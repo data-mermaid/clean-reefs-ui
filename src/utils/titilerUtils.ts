@@ -1,22 +1,34 @@
 import { RegionOption } from '../types/RegionDataTypes'
-import { TITILER_API_BASE_URL, TITILER_API_TIMEOUT, SED_DISPERSAL_COLLECTION_ID } from '../constants'
-/**
- * Build the TiTiler expression for the selected region.
- * Returns null for global (no filter) or regions with no data (fallback to global).
- */
-export function buildExpression(region: RegionOption): string | null {
-  if (!region.bandId) {
-    return null
+import {
+  TITILER_API_BASE_URL,
+  TITILER_API_TIMEOUT,
+  SED_DISPERSAL_COLLECTION_ID,
+} from '../constants'
+export interface ExpressionConfig {
+  expression: string | null
+  assetBidx: string
+}
+
+/** Build the TiTiler expression and required asset bands for the selected region. */
+export function buildExpression(region: RegionOption): ExpressionConfig {
+  if (region.bandId == null) {
+    return { expression: null, assetBidx: 'cog|1' }
   }
 
   if (region.regionType === 'country') {
-    return `where((cog_b8==${region.bandId}), cog_b1, 0)`
+    return {
+      expression: `where((cog_b8==${region.bandId}), cog_b1, 0)`,
+      assetBidx: 'cog|1,8',
+    }
   }
   if (region.regionType === 'region') {
-    return `where((cog_b9==${region.bandId}), cog_b1, 0)`
+    return {
+      expression: `where((cog_b9==${region.bandId}), cog_b1, 0)`,
+      assetBidx: 'cog|1,9',
+    }
   }
 
-  return null
+  return { expression: null, assetBidx: 'cog|1' }
 }
 
 /** Build the TiTiler item ID for the selected year */
@@ -39,16 +51,6 @@ export function buildTileUrlTemplate(collectionId: string, itemId: string, max: 
     expression: `where(cog_b1>${max},${max},cog_b1)`,
   })
   return `${basePath}?${params.toString()}`
-}
-
-/** Derive asset_bidx from the expression — only load the bands actually referenced */
-function buildAssetBidx(expression: string | null): string {
-  // matches all cog_b{N} references (e.g. cog_b8, cog_b9), captures the band number
-  const filterBands = [...(expression?.matchAll(/cog_b(\d+)/g) ?? [])]
-    .map((m) => Number(m[1]))
-    .filter((band) => band !== 1) // band 1 is the value band, always included
-  const uniqueBands = [...new Set(filterBands)].sort((a, b) => a - b)
-  return uniqueBands.length ? `cog|1,${uniqueBands.join(',')}` : 'cog|1'
 }
 
 
@@ -81,7 +83,8 @@ export async function fetchStatistics(
   collectionId: string,
   itemId: string,
   expression: string | null,
-  signal?: AbortSignal
+  assetBidx: string,
+  signal?: AbortSignal,
 ): Promise<MinMaxValues | null> {
   const resolvedExpression = expression ?? 'cog_b1'
   const timeoutController = new AbortController()
@@ -91,10 +94,12 @@ export async function fetchStatistics(
     : timeoutController.signal
 
   try {
-    const url = new URL(`${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`)
+    const url = new URL(
+      `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`,
+    )
 
     url.searchParams.append('assets', 'cog')
-    url.searchParams.append('asset_bidx', buildAssetBidx(expression))
+    url.searchParams.append('asset_bidx', assetBidx)
     url.searchParams.append('expression', resolvedExpression)
     url.searchParams.append('max_size', '1025')
 
@@ -148,10 +153,10 @@ export function buildTileUrl(
   min: number,
   max: number,
   expression: string,
-  tileMatrixSet: string = 'WebMercatorQuad'
+  tileMatrixSet: string = 'WebMercatorQuad',
 ): string {
   const url = new URL(
-    `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/${tileMatrixSet}/${z}/${x}/${y}`
+    `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/${tileMatrixSet}/${z}/${x}/${y}`,
   )
 
   url.searchParams.append('rescale', `${min},${max}`)

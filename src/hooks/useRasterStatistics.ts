@@ -11,7 +11,7 @@ interface RasterStatistics {
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
-  selectedYear: number
+  selectedYear: number,
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
@@ -25,11 +25,13 @@ const useRasterStatistics = (
     setMaxValue(null)
     setIsLoading(true)
 
-    const expression = buildExpression(selectedRegion)
+    const { expression, assetBidx } = buildExpression(selectedRegion)
     const itemId = buildItemId(selectedYear)
 
-    fetchStatistics(collectionId, itemId, expression, controller.signal).then((result) => {
-      if (cancelled) { return }
+    fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then((result) => {
+      if (cancelled) {
+        return
+      }
       if (result) {
         setMinValue(result.min)
         setMaxValue(result.max)
