@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
-import { RegionOption } from '../types/RegionDataTypes'
-import {
-  buildSedDispersalExpression,
-  buildSedDispersalItemId,
-  fetchSedDispersalStatistics,
-} from '../utils/titilerUtils'
+import { fetchSedExportStatistics } from '../utils/titilerUtils'
+import { SED_EXPORT_COLLECTION_ID } from '../constants'
 
-interface RasterStatistics {
+interface SedExportStatistics {
   minValue: number | null
   maxValue: number | null
   isLoading: boolean
@@ -19,19 +15,13 @@ interface CachedStats {
 
 const statsCache = new Map<string, CachedStats>()
 
-const useRasterStatistics = (
-  collectionId: string,
-  selectedRegion: RegionOption,
-  latestYear: number,
-): RasterStatistics => {
+const useSedExportStatistics = (selectedYear: number): SedExportStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const { expression, assetBidx } = buildSedDispersalExpression(selectedRegion)
-    const itemId = buildSedDispersalItemId(selectedYear)
-    const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
+    const cacheKey = `${SED_EXPORT_COLLECTION_ID}|${selectedYear}`
 
     const cached = statsCache.get(cacheKey)
     if (cached) {
@@ -44,16 +34,11 @@ const useRasterStatistics = (
     const controller = new AbortController()
     let cancelled = false
 
-    // Keep stale min/max while reloading — avoids unmounting the tile layer and clearing the tile cache
+    // Don't reset min/max to null — keep stale values while loading so the layer
+    // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
-    fetchSedDispersalStatistics(
-      collectionId,
-      itemId,
-      expression,
-      assetBidx,
-      controller.signal,
-    ).then((result) => {
+    fetchSedExportStatistics(selectedYear, controller.signal).then((result) => {
       if (cancelled) {
         return
       }
@@ -69,9 +54,9 @@ const useRasterStatistics = (
       cancelled = true
       controller.abort()
     }
-  }, [collectionId, selectedRegion, latestYear])
+  }, [selectedYear])
 
   return { minValue, maxValue, isLoading }
 }
 
-export default useRasterStatistics
+export default useSedExportStatistics

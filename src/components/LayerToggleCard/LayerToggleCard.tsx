@@ -26,6 +26,9 @@ interface LayerToggleCardProps {
   sedDispersalMinValue?: number
   sedDispersalMaxValue?: number
   sedDispersalLoading?: boolean
+  sedExportMinValue?: number
+  sedExportMaxValue?: number
+  sedExportLoading?: boolean
 }
 
 const getLayerToggleDetails = (
@@ -37,6 +40,9 @@ const getLayerToggleDetails = (
   sedDispersalMinValue?: number,
   sedDispersalMaxValue?: number,
   sedDispersalLoading?: boolean,
+  sedExportMinValue?: number,
+  sedExportMaxValue?: number,
+  sedExportLoading?: boolean,
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -58,7 +64,13 @@ const getLayerToggleDetails = (
     case 'sed_export':
       toggleCardDetails = layer.isLayerOn && (
         <>
-          <GradientLegend variation={layerId} title={layer.legendTitle} />
+          <GradientLegend
+            variation={layerId}
+            title={layer.legendTitle}
+            minValue={sedExportMinValue}
+            maxValue={sedExportMaxValue}
+            isLoading={sedExportLoading}
+          />
           <RadioSelect
             subSedLayerValue={subSedLayerValue}
             onSedSubLayerChange={onSedSubLayerChange}
@@ -133,6 +145,9 @@ export default function LayerToggleCard({
   sedDispersalMinValue,
   sedDispersalMaxValue,
   sedDispersalLoading,
+  sedExportMinValue,
+  sedExportMaxValue,
+  sedExportLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
@@ -161,6 +176,9 @@ export default function LayerToggleCard({
         sedDispersalMinValue,
         sedDispersalMaxValue,
         sedDispersalLoading,
+        sedExportMinValue,
+        sedExportMaxValue,
+        sedExportLoading,
       )}
     </Card>
   )

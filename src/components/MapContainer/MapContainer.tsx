@@ -29,7 +29,12 @@ import useResponsive from '../../hooks/useResponsive'
 import useRasterStatistics from '../../hooks/useRasterStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
-import { buildItemId, buildTileUrlTemplate } from '../../utils/titilerUtils'
+import useSedExportStatistics from '../../hooks/useSedExportStatistics'
+import {
+  buildSedDispersalItemId,
+  buildSedDispersalTileUrl,
+  buildSedExportTileUrl,
+} from '../../utils/titilerUtils'
 
 export default function MapContainer() {
   const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
@@ -105,6 +110,12 @@ export default function MapContainer() {
     isLoading: sedDispersalLoading,
   } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
 
+  const {
+    minValue: sedExportMinValue,
+    maxValue: sedExportMaxValue,
+    isLoading: sedExportLoading,
+  } = useSedExportStatistics(selectedYear)
+
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
     setMapLayers((prevLayers) =>
@@ -116,9 +127,9 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedDispersalLoading && sedDispersalMinValue !== null && sedDispersalMaxValue !== null
-              ? buildTileUrlTemplate(
+              ? buildSedDispersalTileUrl(
                   SED_DISPERSAL_COLLECTION_ID,
-                  buildItemId(selectedYear),
+                  buildSedDispersalItemId(selectedYear),
                   sedDispersalMaxValue,
                 )
               : '',
@@ -126,6 +137,24 @@ export default function MapContainer() {
       }),
     )
   }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear, sedDispersalLoading])
+
+  // Update the active sed_export tile URL when min/max values change; clear link when stats are unavailable
+  useEffect(() => {
+    setMapLayers((prevLayers) =>
+      prevLayers.map((layer) => {
+        if (layer.layerId !== 'sed_export' || layer.year !== selectedYear) {
+          return layer
+        }
+        return {
+          ...layer,
+          link:
+            !sedExportLoading && sedExportMinValue !== null && sedExportMaxValue !== null
+              ? buildSedExportTileUrl(selectedYear, sedExportMinValue, sedExportMaxValue)
+              : '',
+        }
+      }),
+    )
+  }, [sedExportMinValue, sedExportMaxValue, selectedYear, sedExportLoading])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -438,6 +467,9 @@ export default function MapContainer() {
           sedDispersalMinValue={sedDispersalMinValue ?? undefined}
           sedDispersalMaxValue={sedDispersalMaxValue ?? undefined}
           sedDispersalLoading={sedDispersalLoading}
+          sedExportMinValue={sedExportMinValue ?? undefined}
+          sedExportMaxValue={sedExportMaxValue ?? undefined}
+          sedExportLoading={sedExportLoading}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
