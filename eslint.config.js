@@ -10,7 +10,7 @@ import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config(
   [
-    globalIgnores(['dist', 'node_modules', '.storybook']),
+    globalIgnores(['dist', 'node_modules', '.storybook', '.claude']),
     {
       files: ['src/**/*.{js,ts,tsx}'],
       plugins: {

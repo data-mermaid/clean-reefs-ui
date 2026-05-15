@@ -85,7 +85,7 @@ export default function TrendsDrawer({
       const requestId = ++requestIdRef.current
 
       fetchBoundaryProperties(regionType, label).then((properties) => {
-if (requestId !== requestIdRef.current) {
+        if (requestId !== requestIdRef.current) {
           return
         }
         const data = properties ? buildChartDataFromProperties(properties) : null
