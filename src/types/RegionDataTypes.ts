@@ -7,5 +7,6 @@ export interface RegionOption {
   centerCoord: LngLat
   zoomLevel: number
   bandId?: number // numeric raster band ID for TiTiler filtering; omit if no data available
+  extent?: [number, number, number, number] // [west, south, east, north] for fitBounds
 }
 export type RegionType = 'global' | 'watershed' | 'country' | 'region' | 'plume'
