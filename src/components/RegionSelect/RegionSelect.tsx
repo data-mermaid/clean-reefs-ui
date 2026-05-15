@@ -25,7 +25,7 @@ export default function RegionSelect({
   onRegionChange,
 }: RegionSelectProps) {
   const { t } = useTranslation()
-  const mapRef = useMapStore((s) => s.mapReference)
+  const jumpToRegion = useMapStore((s) => s.jumpToRegion)
 
   const prepBreadcrumb = (region: RegionOption) => {
     const selectedOptions = [region]
@@ -33,16 +33,6 @@ export default function RegionSelect({
       selectedOptions.unshift(defaultGlobalRegionOption)
     }
     setBreadcrumb(selectedOptions)
-  }
-  const jumpToRegion = (region: RegionOption) => {
-    if (region.regionType !== 'global' && mapRef && mapRef.getMap) {
-      const map = mapRef.getMap()
-      if (region.extent) {
-        map.fitBounds(region.extent, { bearing: 0, padding: 40 })
-      } else {
-        map.jumpTo({ center: region.centerCoord, zoom: region.zoomLevel, bearing: 0 })
-      }
-    }
   }
 
   const getBreadcrumbs = () => {
