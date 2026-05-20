@@ -25,7 +25,7 @@ describe('useRasterStatistics', () => {
   afterEach(() => jest.restoreAllMocks())
 
   it('starts with null values and isLoading true', () => {
-    jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 0, max: 100 })
+    jest.spyOn(titilerUtils, 'fetchStatistics').mockReturnValue(new Promise(() => {}))
     const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
