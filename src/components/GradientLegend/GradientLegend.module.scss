@@ -16,6 +16,8 @@
 .GradientLegend__legend {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  height: 1.5rem;
 
   p {
     font-weight: theme.$semiBold;
@@ -28,7 +30,8 @@
   border-radius: theme.$borderRadius;
 }
 
-//The below class names are linked to GradientLegendProps.variations and represent the different map layers
+// Class names are linked to GradientLegendProps.variation.
+// Active: sed_export, sed_dispersal — Planned (not yet built): sediment-concentration, reef-ecosystem-exposure
 .sediment-concentration {
   background: #00366d;
   background: linear-gradient(90deg, rgba(0, 54, 109, 1) 0%, rgba(255, 232, 88, 1) 100%);
@@ -40,12 +43,14 @@
 }
 
 .sed_dispersal {
-  background: #00366d;
+  background: #440154;
   background: linear-gradient(
     90deg,
-    #00366d 0%,
-    //rgba(241, 241, 241, 1) 50%,
-    #ffe858 100%
+    #440154 0%,
+    #3a528b 25%,
+    #20908c 50%,
+    #5ec961 75%,
+    #fde724 100%
   );
 }
 
