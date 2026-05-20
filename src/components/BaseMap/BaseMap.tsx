@@ -59,8 +59,6 @@ import { useTranslation } from 'react-i18next'
 import {
   mapFitBoundsDesktopConfig,
   mapFitBoundsMobileConfig,
-  plumeLinkedHoverColor,
-  plumeLinkedSelectColor,
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
@@ -359,18 +357,14 @@ function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: stri
         paint={{
           'line-color': [
             'case',
-            ['boolean', ['feature-state', 'select'], false],
-            polygonOutlineSelectColor,
             ['boolean', ['feature-state', 'linkedSelect'], false],
-            plumeLinkedSelectColor,
+            polygonOutlineSelectColor,
             ['boolean', ['feature-state', 'linkedHover'], false],
-            plumeLinkedHoverColor,
+            polygonOutlineHoverColor,
             layer.outlineColor,
           ],
           'line-width': [
             'case',
-            ['boolean', ['feature-state', 'select'], false],
-            polygonHighlightWidth,
             ['boolean', ['feature-state', 'linkedSelect'], false],
             polygonHighlightWidth,
             ['boolean', ['feature-state', 'linkedHover'], false],
