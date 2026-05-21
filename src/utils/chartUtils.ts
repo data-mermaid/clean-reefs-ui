@@ -251,10 +251,7 @@ export const mapChartConfigToData = (
     chartSeriesData.push({
       type: 'bar',
       x: sortedYears,
-      y:
-        chartName === 'sediment_load_historical'
-          ? sortedYears.map((year) => yearData[year] / 1000000)
-          : sortedYears.map((year) => yearData[year]),
+      y: sortedYears.map((year) => yearData[year]),
       name: i18next.t(prefixedTrace),
       marker: {
         color: chartProperties.legendColors[category],
