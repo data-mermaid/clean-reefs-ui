@@ -889,27 +889,27 @@ export default function BaseMap({
 
       // Mirror onto plume with same watershed_id.
       const currentPlumeLayer = plumeLayerRef.current
-      const featureId = e.features?.[0]?.id
-      if (!currentPlumeLayer || featureId == null) {
+      const hoveredWatershedId = e.features?.[0]?.id
+      if (!currentPlumeLayer || hoveredWatershedId == null) {
         return
       }
-      if (plumeLinkedHoverRef.current === featureId) {
+      if (plumeLinkedHoverRef.current === hoveredWatershedId) {
         return
       }
 
       clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
-      setPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, featureId, 'linkedHover')
+      setPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, hoveredWatershedId, 'linkedHover')
     }
     const onWatershedClick = (e: MapLayerMouseEvent) => {
       polygonClickHandler(map, e, watershedLayer)
 
       const currentPlumeLayer = plumeLayerRef.current
-      const featureId = e.features?.[0]?.id
-      if (!currentPlumeLayer || featureId == null) {
+      const clickedWatershedId = e.features?.[0]?.id
+      if (!currentPlumeLayer || clickedWatershedId == null) {
         return
       }
       // Same-watershed reclick is a recenter; nothing to mirror.
-      if (plumeLinkedSelectRef.current === featureId) {
+      if (plumeLinkedSelectRef.current === clickedWatershedId) {
         return
       }
 
@@ -919,7 +919,7 @@ export default function BaseMap({
         map,
         plumeLinkedSelectRef,
         currentPlumeLayer,
-        featureId,
+        clickedWatershedId,
         'linkedSelect',
       )
     }
