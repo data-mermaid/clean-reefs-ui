@@ -898,7 +898,13 @@ export default function BaseMap({
       }
 
       clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
-      setPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, hoveredWatershedId, 'linkedHover')
+      setPolygonFeatureState(
+        map,
+        plumeLinkedHoverRef,
+        currentPlumeLayer,
+        hoveredWatershedId,
+        'linkedHover',
+      )
     }
     const onWatershedClick = (e: MapLayerMouseEvent) => {
       polygonClickHandler(map, e, watershedLayer)
