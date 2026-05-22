@@ -25,6 +25,7 @@ const useAvailableYears = (): AvailableYears => {
 
   useEffect(() => {
     const controller = new AbortController()
+    let cancelled = true
     const timeoutId = setTimeout(() => controller.abort(), STAC_API_TIMEOUT)
 
     fetch(`${STAC_API_BASE_URL}/collections/${SED_DISPERSAL_COLLECTION_ID}/items`, {
@@ -38,10 +39,23 @@ const useAvailableYears = (): AvailableYears => {
         return res.json() as Promise<StacItemsResponse>
       })
       .then((data) => {
-        const years = data.features
-          .map((feature) => new Date(feature.properties.datetime).getUTCFullYear())
-          .filter((year) => !isNaN(year))
-          .sort((yearA, yearB) => yearB - yearA)
+        if (!cancelled) {
+          return
+        }
+        const years = [
+          ...new Set(
+            data.features
+              .map((feature) => {
+                const datetime = feature.properties?.datetime
+                if (typeof datetime !== 'string' || datetime.trim() === '') {
+                  return null
+                }
+                const year = new Date(datetime).getUTCFullYear()
+                return Number.isFinite(year) ? year : null
+              })
+              .filter((year): year is number => year !== null),
+          ),
+        ].sort((yearA, yearB) => yearB - yearA)
 
         if (years.length > 0) {
           setAvailableYears(years)
@@ -51,10 +65,13 @@ const useAvailableYears = (): AvailableYears => {
       })
       .catch(() => {
         clearTimeout(timeoutId)
-        setIsLoading(false)
+        if (cancelled) {
+          setIsLoading(false)
+        }
       })
 
     return () => {
+      cancelled = false
       controller.abort()
       clearTimeout(timeoutId)
     }
