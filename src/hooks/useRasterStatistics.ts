@@ -40,6 +40,7 @@ const useRasterStatistics = (
     const controller = new AbortController()
     let cancelled = false
 
+    // Keep stale min/max while reloading — avoids unmounting the tile layer and clearing the tile cache
     setIsLoading(true)
 
     fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
