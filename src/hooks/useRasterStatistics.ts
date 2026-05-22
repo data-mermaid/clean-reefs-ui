@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { buildExpression, buildItemId, fetchStatistics } from '../utils/titilerUtils'
+import { SED_DISPERSAL_STATS_YEAR } from '../constants'
 
 interface RasterStatistics {
   minValue: number | null
@@ -18,7 +19,6 @@ const statsCache = new Map<string, CachedStats>()
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
-  selectedYear: number,
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
@@ -26,7 +26,7 @@ const useRasterStatistics = (
 
   useEffect(() => {
     const { expression, assetBidx } = buildExpression(selectedRegion)
-    const itemId = buildItemId(selectedYear)
+    const itemId = buildItemId(SED_DISPERSAL_STATS_YEAR)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
@@ -40,8 +40,6 @@ const useRasterStatistics = (
     const controller = new AbortController()
     let cancelled = false
 
-    // Don't reset min/max to null — keep stale values while loading so the layer
-    // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
     fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
@@ -62,7 +60,7 @@ const useRasterStatistics = (
       cancelled = true
       controller.abort()
     }
-  }, [collectionId, selectedRegion, selectedYear])
+  }, [collectionId, selectedRegion])
 
   return { minValue, maxValue, isLoading }
 }

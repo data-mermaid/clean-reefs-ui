@@ -77,6 +77,7 @@ export const SEDIMENT_EXPOSURE_2020_URL =
 export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
+export const SED_DISPERSAL_STATS_YEAR = 2020
 
 /******MAP URL PARAMS******/
 export const LAT_LNG_PRECISION = 6

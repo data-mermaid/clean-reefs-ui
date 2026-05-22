@@ -98,7 +98,7 @@ export default function MapContainer() {
     minValue: sedDispersalMinValue,
     maxValue: sedDispersalMaxValue,
     isLoading: sedDispersalLoading,
-  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, selectedYear)
+  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion)
 
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
