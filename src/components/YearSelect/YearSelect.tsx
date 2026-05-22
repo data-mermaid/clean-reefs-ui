@@ -5,10 +5,10 @@ import clsx from 'clsx'
 
 import styles from './YearSelect.module.scss'
 import { useTranslation } from 'react-i18next'
-import { availableYears } from '../../data/mapData'
 
 export interface YearSelectProps {
   selectedYear: number
+  availableYears: number[]
   onChange?: (year: number) => void
   className?: string
   disabled?: boolean
@@ -16,6 +16,7 @@ export interface YearSelectProps {
 
 export const YearSelect = ({
   selectedYear,
+  availableYears,
   onChange,
   className,
   disabled = false,

@@ -409,5 +409,9 @@ export const defaultLayersToShow = urlControlledLayerIds.filter(
   (id) => id !== 'lulc' && id !== 'none',
 )
 
-export const availableYears = [2020, 2015, 2010, 2005, 2000]
-export const defaultYear = 2020
+export const FALLBACK_AVAILABLE_YEARS = [2020, 2015, 2010, 2005, 2000]
+export const FALLBACK_DEFAULT_YEAR = 2020
+
+// Re-exports for backward compatibility
+export const availableYears = FALLBACK_AVAILABLE_YEARS
+export const defaultYear = FALLBACK_DEFAULT_YEAR

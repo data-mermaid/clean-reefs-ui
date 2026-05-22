@@ -9,6 +9,8 @@ import {
 } from '../utils/routeUtils'
 
 jest.mock('../data/mapData', () => ({
+  FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
+  FALLBACK_DEFAULT_YEAR: 2020,
   availableYears: [2020, 2015, 2010, 2005, 2000],
   defaultYear: 2020,
   defaultLayersToShow: ['sed_export', 'sed_dispersal', 'plumes'],

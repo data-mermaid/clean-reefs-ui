@@ -79,6 +79,10 @@ export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
 export const SED_DISPERSAL_STATS_YEAR = 2020
 
+/******STAC API******/
+export const STAC_API_BASE_URL = 'https://mermaid.prescient.earth/stac'
+export const STAC_API_TIMEOUT = 3000 // 3 seconds — metadata fetch, fail fast to fallback
+
 /******MAP URL PARAMS******/
 export const LAT_LNG_PRECISION = 6
 export const ZOOM_PRECISION = 2
