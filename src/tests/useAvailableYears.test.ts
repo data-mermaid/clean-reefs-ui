@@ -29,7 +29,7 @@ describe('useAvailableYears', () => {
     const { result } = renderHook(() => useAvailableYears())
     expect(result.current.isLoading).toBe(true)
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.defaultYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
   })
 
   it('returns fetched years sorted descending and sets isLoading false on success', async () => {
@@ -42,7 +42,7 @@ describe('useAvailableYears', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.availableYears).toEqual([2020, 2015, 2010, 2005, 2000])
-    expect(result.current.defaultYear).toBe(2020)
+    expect(result.current.latestYear).toBe(2020)
   })
 
   it('falls back to hardcoded values on network error', async () => {
@@ -52,7 +52,7 @@ describe('useAvailableYears', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.defaultYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
   })
 
   it('falls back to hardcoded values on non-ok response', async () => {
@@ -64,7 +64,7 @@ describe('useAvailableYears', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.defaultYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
   })
 
   it('does not re-fetch when re-rendered without argument changes', async () => {

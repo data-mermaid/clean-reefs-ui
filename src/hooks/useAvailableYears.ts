@@ -4,7 +4,7 @@ import { FALLBACK_AVAILABLE_YEARS, FALLBACK_DEFAULT_YEAR } from '../data/mapData
 
 interface AvailableYears {
   availableYears: number[]
-  defaultYear: number
+  latestYear: number
   isLoading: boolean
 }
 
@@ -20,7 +20,7 @@ interface StacItemsResponse {
 
 const useAvailableYears = (): AvailableYears => {
   const [availableYears, setAvailableYears] = useState<number[]>(FALLBACK_AVAILABLE_YEARS)
-  const [defaultYear, setDefaultYear] = useState<number>(FALLBACK_DEFAULT_YEAR)
+  const [latestYear, setLatestYear] = useState<number>(FALLBACK_DEFAULT_YEAR)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const useAvailableYears = (): AvailableYears => {
 
         if (years.length > 0) {
           setAvailableYears(years)
-          setDefaultYear(years[0])
+          setLatestYear(years[0])
         }
         setIsLoading(false)
       })
@@ -60,7 +60,7 @@ const useAvailableYears = (): AvailableYears => {
     }
   }, [])
 
-  return { availableYears, defaultYear, isLoading }
+  return { availableYears, latestYear, isLoading }
 }
 
 export default useAvailableYears

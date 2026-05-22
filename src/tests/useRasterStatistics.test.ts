@@ -5,7 +5,6 @@ import { renderHook, waitFor } from '@testing-library/react'
 import useRasterStatistics from '../hooks/useRasterStatistics'
 import * as titilerUtils from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
-import { SED_DISPERSAL_STATS_YEAR } from '../constants'
 
 // Avoid importing LngLat directly — maplibre-gl uses browser APIs unavailable in jsdom
 const makeRegion = (overrides: Partial<RegionOption> = {}): RegionOption =>
@@ -27,7 +26,7 @@ describe('useRasterStatistics', () => {
 
   it('starts with null values and isLoading true', () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockReturnValue(new Promise(() => {}))
-    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion()))
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2020))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -35,7 +34,7 @@ describe('useRasterStatistics', () => {
 
   it('returns min/max and clears loading after a successful fetch', async () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 1.5, max: 99.9 })
-    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion()))
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2020))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBe(1.5)
     expect(result.current.maxValue).toBe(99.9)
@@ -43,7 +42,7 @@ describe('useRasterStatistics', () => {
 
   it('sets isLoading false and keeps null values when API returns null', async () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue(null)
-    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion()))
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2020))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -54,7 +53,7 @@ describe('useRasterStatistics', () => {
       .spyOn(titilerUtils, 'fetchStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const region = makeRegion({ regionType: 'country', bandId: 42 })
-    const { result } = renderHook(() => useRasterStatistics(nextCollection(), region))
+    const { result } = renderHook(() => useRasterStatistics(nextCollection(), region, 2020))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.any(String),
@@ -65,14 +64,14 @@ describe('useRasterStatistics', () => {
     )
   })
 
-  it('always fetches stats using the latest stats year regardless of selected year', async () => {
+  it('uses the provided statsYear to build the item ID', async () => {
     const fetchSpy = jest
       .spyOn(titilerUtils, 'fetchStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const collectionId = nextCollection()
-    const { result } = renderHook(() => useRasterStatistics(collectionId, makeRegion()))
+    const { result } = renderHook(() => useRasterStatistics(collectionId, makeRegion(), 2020))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    expect(fetchSpy.mock.calls[0][1]).toBe(`gpw_sediment_exposure_${SED_DISPERSAL_STATS_YEAR}`)
+    expect(fetchSpy.mock.calls[0][1]).toBe('gpw_sediment_exposure_2020')
   })
 
   it('serves a cached result synchronously without re-fetching', async () => {
@@ -83,33 +82,34 @@ describe('useRasterStatistics', () => {
     const region = makeRegion()
 
     // First render — populates cache
-    const { result: r1, unmount } = renderHook(() => useRasterStatistics(collectionId, region))
+    const { result: r1, unmount } = renderHook(() =>
+      useRasterStatistics(collectionId, region, 2020),
+    )
     await waitFor(() => expect(r1.current.isLoading).toBe(false))
     unmount()
 
     // Second render with same params — should hit cache immediately (isLoading stays false)
-    const { result: r2 } = renderHook(() => useRasterStatistics(collectionId, region))
+    const { result: r2 } = renderHook(() => useRasterStatistics(collectionId, region, 2020))
     expect(r2.current.isLoading).toBe(false)
     expect(r2.current.minValue).toBe(5)
     expect(r2.current.maxValue).toBe(50)
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('does not re-fetch when year changes', async () => {
-    const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchStatistics')
-      .mockResolvedValue({ min: 10, max: 200 })
+  it('re-fetches when statsYear changes', async () => {
+    jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 10, max: 200 })
     const collectionId = nextCollection()
     const region = makeRegion()
+    let statsYear = 2020
 
-    // Render hook — year is not a parameter, so we simulate a parent re-render with a new year
-    // by re-rendering with no argument change (hook has no year param)
-    const { result, rerender } = renderHook(() => useRasterStatistics(collectionId, region))
+    const { result, rerender } = renderHook(() =>
+      useRasterStatistics(collectionId, region, statsYear),
+    )
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
+    statsYear = 2015
     rerender()
-    // Still not loading — no re-fetch triggered
-    expect(result.current.isLoading).toBe(false)
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(result.current.isLoading).toBe(true)
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
   })
 })

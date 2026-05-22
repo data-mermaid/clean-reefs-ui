@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { buildExpression, buildItemId, fetchStatistics } from '../utils/titilerUtils'
-import { SED_DISPERSAL_STATS_YEAR } from '../constants'
 
 interface RasterStatistics {
   minValue: number | null
@@ -19,6 +18,7 @@ const statsCache = new Map<string, CachedStats>()
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
+  statsYear: number,
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
@@ -26,7 +26,7 @@ const useRasterStatistics = (
 
   useEffect(() => {
     const { expression, assetBidx } = buildExpression(selectedRegion)
-    const itemId = buildItemId(SED_DISPERSAL_STATS_YEAR)
+    const itemId = buildItemId(statsYear)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
@@ -60,7 +60,7 @@ const useRasterStatistics = (
       cancelled = true
       controller.abort()
     }
-  }, [collectionId, selectedRegion])
+  }, [collectionId, selectedRegion, statsYear])
 
   return { minValue, maxValue, isLoading }
 }

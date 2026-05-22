@@ -42,10 +42,10 @@ export default function MapContainer() {
 
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const { availableYears, defaultYear, isLoading: yearsLoading } = useAvailableYears()
+  const { availableYears, latestYear, isLoading: yearsLoading } = useAvailableYears()
 
   const year = searchParams.get('year')
-  const selectedYear = getValidYear(year, availableYears, defaultYear)
+  const selectedYear = getValidYear(year, availableYears, latestYear)
   const normalizedYearParam = selectedYear.toString()
   const shouldSyncYearParam = year !== normalizedYearParam
 
@@ -101,7 +101,7 @@ export default function MapContainer() {
     minValue: sedDispersalMinValue,
     maxValue: sedDispersalMaxValue,
     isLoading: sedDispersalLoading,
-  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion)
+  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
 
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
