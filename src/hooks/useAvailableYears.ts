@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { STAC_API_BASE_URL, STAC_API_TIMEOUT, SED_DISPERSAL_COLLECTION_ID } from '../constants'
-import { FALLBACK_AVAILABLE_YEARS, FALLBACK_DEFAULT_YEAR } from '../data/mapData'
+import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../data/mapData'
 
 interface AvailableYears {
   availableYears: number[]
@@ -20,7 +20,7 @@ interface StacItemsResponse {
 
 const useAvailableYears = (): AvailableYears => {
   const [availableYears, setAvailableYears] = useState<number[]>(FALLBACK_AVAILABLE_YEARS)
-  const [latestYear, setLatestYear] = useState<number>(FALLBACK_DEFAULT_YEAR)
+  const [latestYear, setLatestYear] = useState<number>(FALLBACK_LATEST_YEAR)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -39,9 +39,9 @@ const useAvailableYears = (): AvailableYears => {
       })
       .then((data) => {
         const years = data.features
-          .map((f) => new Date(f.properties.datetime).getUTCFullYear())
-          .filter((y) => !isNaN(y))
-          .sort((a, b) => b - a)
+          .map((feature) => new Date(feature.properties.datetime).getUTCFullYear())
+          .filter((year) => !isNaN(year))
+          .sort((yearA, yearB) => yearB - yearA)
 
         if (years.length > 0) {
           setAvailableYears(years)

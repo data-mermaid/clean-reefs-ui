@@ -64,7 +64,7 @@ describe('useRasterStatistics', () => {
     )
   })
 
-  it('uses the provided statsYear to build the item ID', async () => {
+  it('uses the provided latestYear to build the item ID', async () => {
     const fetchSpy = jest
       .spyOn(titilerUtils, 'fetchStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
@@ -96,18 +96,18 @@ describe('useRasterStatistics', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('re-fetches when statsYear changes', async () => {
+  it('re-fetches when latestYear changes', async () => {
     jest.spyOn(titilerUtils, 'fetchStatistics').mockResolvedValue({ min: 10, max: 200 })
     const collectionId = nextCollection()
     const region = makeRegion()
-    let statsYear = 2020
+    let latestYear = 2020
 
     const { result, rerender } = renderHook(() =>
-      useRasterStatistics(collectionId, region, statsYear),
+      useRasterStatistics(collectionId, region, latestYear),
     )
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    statsYear = 2015
+    latestYear = 2015
     rerender()
     expect(result.current.isLoading).toBe(true)
     await waitFor(() => expect(result.current.isLoading).toBe(false))

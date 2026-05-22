@@ -3,7 +3,7 @@
  */
 import { renderHook, waitFor } from '@testing-library/react'
 import useAvailableYears from '../hooks/useAvailableYears'
-import { FALLBACK_AVAILABLE_YEARS, FALLBACK_DEFAULT_YEAR } from '../data/mapData'
+import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../data/mapData'
 
 const makeStacResponse = (years: number[]) => ({
   features: years.map((y) => ({
@@ -29,7 +29,7 @@ describe('useAvailableYears', () => {
     const { result } = renderHook(() => useAvailableYears())
     expect(result.current.isLoading).toBe(true)
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_LATEST_YEAR)
   })
 
   it('returns fetched years sorted descending and sets isLoading false on success', async () => {
@@ -52,7 +52,7 @@ describe('useAvailableYears', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_LATEST_YEAR)
   })
 
   it('falls back to hardcoded values on non-ok response', async () => {
@@ -64,7 +64,7 @@ describe('useAvailableYears', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.availableYears).toEqual(FALLBACK_AVAILABLE_YEARS)
-    expect(result.current.latestYear).toBe(FALLBACK_DEFAULT_YEAR)
+    expect(result.current.latestYear).toBe(FALLBACK_LATEST_YEAR)
   })
 
   it('does not re-fetch when re-rendered without argument changes', async () => {

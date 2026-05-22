@@ -1,6 +1,6 @@
 import {
   FALLBACK_AVAILABLE_YEARS,
-  FALLBACK_DEFAULT_YEAR,
+  FALLBACK_LATEST_YEAR,
   defaultLayersToShow,
   urlControlledLayerIds,
 } from '../data/mapData'
@@ -32,7 +32,7 @@ export function getValidWatershed(watershedFromSearchParam: string | null): stri
 export function getValidYear(
   yearFromSearchParam: string | null,
   years: number[] = FALLBACK_AVAILABLE_YEARS,
-  fallback: number = FALLBACK_DEFAULT_YEAR,
+  fallback: number = FALLBACK_LATEST_YEAR,
 ): number {
   const parsedYear = Number(yearFromSearchParam)
   return years.includes(parsedYear) ? parsedYear : fallback

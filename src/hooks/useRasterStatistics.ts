@@ -18,7 +18,7 @@ const statsCache = new Map<string, CachedStats>()
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
-  statsYear: number,
+  latestYear: number,
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
@@ -26,7 +26,7 @@ const useRasterStatistics = (
 
   useEffect(() => {
     const { expression, assetBidx } = buildExpression(selectedRegion)
-    const itemId = buildItemId(statsYear)
+    const itemId = buildItemId(latestYear)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
@@ -61,7 +61,7 @@ const useRasterStatistics = (
       cancelled = true
       controller.abort()
     }
-  }, [collectionId, selectedRegion, statsYear])
+  }, [collectionId, selectedRegion, latestYear])
 
   return { minValue, maxValue, isLoading }
 }

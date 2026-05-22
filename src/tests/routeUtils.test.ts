@@ -10,7 +10,7 @@ import {
 
 jest.mock('../data/mapData', () => ({
   FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
-  FALLBACK_DEFAULT_YEAR: 2020,
+  FALLBACK_LATEST_YEAR: 2020,
   defaultLayersToShow: ['sed_export', 'sed_dispersal', 'plumes'],
   urlControlledLayerIds: ['none', 'sed_export', 'lulc', 'sed_dispersal', 'plumes'],
 }))
@@ -67,7 +67,7 @@ describe('route parameter utilities', () => {
 
   describe('getValidYear', () => {
     it.each([null, 'not-a-year', '1999', '2025'] as const)(
-      'returns defaultYear (2020) for invalid input (%s)',
+      'returns latestYear fallback (2020) for invalid input (%s)',
       (input) => {
         expect(getValidYear(input)).toBe(2020)
       },
