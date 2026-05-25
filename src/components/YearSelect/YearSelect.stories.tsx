@@ -16,7 +16,7 @@ const StoryBookYearSelect = (props: React.ComponentProps<typeof YearSelect>) => 
 
   const handleChange = (year: number) => {
     setSelectedYear(year)
-    onChange?.(year)
+    onChange(year)
   }
 
   return <YearSelect selectedYear={selectedYear} onChange={handleChange} {...rest} />
