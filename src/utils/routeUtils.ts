@@ -1,7 +1,7 @@
 import {
-  availableYears,
+  FALLBACK_AVAILABLE_YEARS,
+  FALLBACK_LATEST_YEAR,
   defaultLayersToShow,
-  defaultYear,
   urlControlledLayerIds,
 } from '../data/mapData'
 import { defaultGlobalRegionOption, regionOptions } from '../data/regionData'
@@ -29,9 +29,13 @@ export function getValidWatershed(watershedFromSearchParam: string | null): stri
   return watershedFromSearchParam.trim()
 }
 
-export function getValidYear(yearFromSearchParam: string | null) {
+export function getValidYear(
+  yearFromSearchParam: string | null,
+  years: number[] = FALLBACK_AVAILABLE_YEARS,
+  fallback: number = FALLBACK_LATEST_YEAR,
+): number {
   const parsedYear = Number(yearFromSearchParam)
-  return availableYears.includes(parsedYear) ? parsedYear : defaultYear
+  return years.includes(parsedYear) ? parsedYear : fallback
 }
 
 export function getValidLayers(layersFromSearchParam: string | null) {

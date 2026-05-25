@@ -290,7 +290,7 @@ describe('chart data utilities', () => {
     })
 
     describe('sediment_load_historical special handling', () => {
-      it('should divide values by 1000000 for sediment data', () => {
+      it('should pass sediment values through without unit conversion', () => {
         const mockData: ChartData = {
           sediment: {
             '2020': 5000000,
@@ -300,7 +300,7 @@ describe('chart data utilities', () => {
 
         const result = mapChartConfigToData(mockData, 'sediment_load_historical')
 
-        expect(result.chartSeriesData[0].y).toEqual([3, 5])
+        expect(result.chartSeriesData[0].y).toEqual([3000000, 5000000])
       })
 
       it('should use tonnage format in hover template for sediment', () => {

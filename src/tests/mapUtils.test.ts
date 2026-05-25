@@ -655,7 +655,7 @@ describe('map utilities', () => {
       const map = makeQueryMap()
       const onResult = jest.fn()
 
-      querySourceFeatureWhenReady(
+      const cancel = querySourceFeatureWhenReady(
         map,
         'src',
         'layer',
@@ -666,6 +666,7 @@ describe('map utilities', () => {
 
       expect(onResult).not.toHaveBeenCalled()
       expect(map.on).toHaveBeenCalledWith('sourcedata', expect.any(Function))
+      cancel()
     })
 
     it('calls onResult with the feature once the sourcedata event fires', () => {

@@ -27,6 +27,7 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
 import useRasterStatistics from '../../hooks/useRasterStatistics'
+import useAvailableYears from '../../hooks/useAvailableYears'
 import { buildItemId, buildTileUrlTemplate } from '../../utils/titilerUtils'
 
 export default function MapContainer() {
@@ -41,8 +42,10 @@ export default function MapContainer() {
 
   const [searchParams, setSearchParams] = useSearchParams()
 
+  const { availableYears, latestYear, isLoading: yearsLoading } = useAvailableYears()
+
   const year = searchParams.get('year')
-  const selectedYear = getValidYear(year)
+  const selectedYear = getValidYear(year, availableYears, latestYear)
   const normalizedYearParam = selectedYear.toString()
   const shouldSyncYearParam = year !== normalizedYearParam
 
@@ -98,7 +101,7 @@ export default function MapContainer() {
     minValue: sedDispersalMinValue,
     maxValue: sedDispersalMaxValue,
     isLoading: sedDispersalLoading,
-  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, selectedYear)
+  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
 
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -440,7 +443,12 @@ export default function MapContainer() {
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
         />
-        <YearSelect selectedYear={selectedYear} onChange={handleYearChange} />
+        <YearSelect
+          selectedYear={selectedYear}
+          onChange={handleYearChange}
+          availableYears={availableYears}
+          disabled={yearsLoading}
+        />
         <TrendsDrawer
           selectedRegion={selectedRegion}
           selectedYear={selectedYear}

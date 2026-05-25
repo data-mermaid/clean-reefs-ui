@@ -18,7 +18,7 @@ const statsCache = new Map<string, CachedStats>()
 const useRasterStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
-  selectedYear: number,
+  latestYear: number,
 ): RasterStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
@@ -26,7 +26,7 @@ const useRasterStatistics = (
 
   useEffect(() => {
     const { expression, assetBidx } = buildExpression(selectedRegion)
-    const itemId = buildItemId(selectedYear)
+    const itemId = buildItemId(latestYear)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
@@ -40,8 +40,7 @@ const useRasterStatistics = (
     const controller = new AbortController()
     let cancelled = false
 
-    // Don't reset min/max to null — keep stale values while loading so the layer
-    // stays mounted in MapLibre and the tile cache stays warm.
+    // Keep stale min/max while reloading — avoids unmounting the tile layer and clearing the tile cache
     setIsLoading(true)
 
     fetchStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
@@ -62,7 +61,7 @@ const useRasterStatistics = (
       cancelled = true
       controller.abort()
     }
-  }, [collectionId, selectedRegion, selectedYear])
+  }, [collectionId, selectedRegion, latestYear])
 
   return { minValue, maxValue, isLoading }
 }
