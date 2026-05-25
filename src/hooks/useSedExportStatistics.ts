@@ -15,13 +15,13 @@ interface CachedStats {
 
 const statsCache = new Map<string, CachedStats>()
 
-const useSedExportStatistics = (selectedYear: number): SedExportStatistics => {
+const useSedExportStatistics = (latestYear: number): SedExportStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const cacheKey = `${SED_EXPORT_COLLECTION_ID}|${selectedYear}`
+    const cacheKey = `${SED_EXPORT_COLLECTION_ID}|${latestYear}`
 
     const cached = statsCache.get(cacheKey)
     if (cached) {
@@ -38,7 +38,7 @@ const useSedExportStatistics = (selectedYear: number): SedExportStatistics => {
     // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
-    fetchSedExportStatistics(selectedYear, controller.signal).then((result) => {
+    fetchSedExportStatistics(latestYear, controller.signal).then((result) => {
       if (cancelled) {
         return
       }
@@ -54,7 +54,7 @@ const useSedExportStatistics = (selectedYear: number): SedExportStatistics => {
       cancelled = true
       controller.abort()
     }
-  }, [selectedYear])
+  }, [latestYear])
 
   return { minValue, maxValue, isLoading }
 }

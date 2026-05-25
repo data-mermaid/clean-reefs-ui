@@ -65,14 +65,14 @@ describe('useSedExportStatistics', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('resets to loading and re-fetches when year changes', async () => {
+  it('re-fetches when latestYear changes', async () => {
     jest.spyOn(titilerUtils, 'fetchSedExportStatistics').mockResolvedValue({ min: 0, max: 7 })
-    let year = nextYear()
+    let latestYear = nextYear()
 
-    const { result, rerender } = renderHook(() => useSedExportStatistics(year))
+    const { result, rerender } = renderHook(() => useSedExportStatistics(latestYear))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    year = nextYear()
+    latestYear = nextYear()
     rerender()
     expect(result.current.isLoading).toBe(true)
     await waitFor(() => expect(result.current.isLoading).toBe(false))

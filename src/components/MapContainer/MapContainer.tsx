@@ -114,7 +114,7 @@ export default function MapContainer() {
     minValue: sedExportMinValue,
     maxValue: sedExportMaxValue,
     isLoading: sedExportLoading,
-  } = useSedExportStatistics(selectedYear)
+  } = useSedExportStatistics(latestYear)
 
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
