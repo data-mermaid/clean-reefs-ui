@@ -70,16 +70,10 @@ const mockLayers: LayerInfo[] = [
 
 const mockGeoFeatures = {
   source: '',
-  state: {
-    loaded: false,
-  },
-  layer: {
-    id: 'countries',
-  },
-  properties: {
-    TERRITORY1: 'Fiji',
-  },
-} as unknown as MapGeoJSONFeature //allows for partial mock
+  state: { loaded: false },
+  layer: { id: 'countries' },
+  properties: { COUNTRY_ID: 54 },
+} as unknown as MapGeoJSONFeature
 
 const makeMap = () => ({ setFeatureState: jest.fn(), getFeatureState: jest.fn() }) as unknown as Map
 

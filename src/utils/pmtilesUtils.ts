@@ -18,8 +18,8 @@ function getPMTiles(url: string): PMTiles {
 export const boundarySourceConfig: Partial<
   Record<RegionType, { url: string; sourceLayer: string; filterProp: string }>
 > = {
-  region: { url: REGIONS_PMTILES_URL, sourceLayer: 'data', filterProp: 'REALM' },
-  country: { url: COUNTRIES_PMTILES_URL, sourceLayer: 'data', filterProp: 'TERRITORY1' },
+  region: { url: REGIONS_PMTILES_URL, sourceLayer: 'data', filterProp: 'REALM_ID' },
+  country: { url: COUNTRIES_PMTILES_URL, sourceLayer: 'data', filterProp: 'COUNTRY_ID' },
 }
 
 /**
@@ -29,7 +29,7 @@ export const boundarySourceConfig: Partial<
  */
 export async function fetchBoundaryProperties(
   regionType: RegionType,
-  label: string,
+  id: number,
 ): Promise<Record<string, unknown> | null> {
   const config = boundarySourceConfig[regionType]
   if (!config) {
@@ -51,7 +51,7 @@ export async function fetchBoundaryProperties(
 
   for (let i = 0; i < layer.length; i++) {
     const feature = layer.feature(i)
-    if (feature.properties[config.filterProp] === label) {
+    if (feature.properties[config.filterProp] === id) {
       return feature.properties as Record<string, unknown>
     }
   }

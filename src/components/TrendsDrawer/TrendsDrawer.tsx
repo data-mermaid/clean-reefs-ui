@@ -59,7 +59,7 @@ export default function TrendsDrawer({
   const requestIdRef = useRef(0)
   useEffect(() => {
     setIsChartDataLoading(true)
-    const { regionType, label } = selectedRegion
+    const { regionType } = selectedRegion
 
     if (selectedPlumeWatershedStats) {
       updatePlumeChartData(selectedPlumeWatershedStats, setChartConfigData)
@@ -82,9 +82,16 @@ export default function TrendsDrawer({
 
     // Region/country: fetch directly from PMTiles
     if (regionType === 'region' || regionType === 'country') {
+      const { bandId } = selectedRegion
+      if (bandId == null) {
+        setChartConfigData(null)
+        setIsChartDataLoading(false)
+        return
+      }
+
       const requestId = ++requestIdRef.current
 
-      fetchBoundaryProperties(regionType, label).then((properties) => {
+      fetchBoundaryProperties(regionType, bandId).then((properties) => {
         if (requestId !== requestIdRef.current) {
           return
         }

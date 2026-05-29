@@ -120,17 +120,16 @@ interface BaseMapProps {
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionByLabel = (regionLabel: string | undefined) =>
-  regionOptions.find((opt) => opt.label === regionLabel)
+const getRegionById = (id: number | undefined) => regionOptions.find((opt) => opt.bandId === id)
 
 const buildBreadcrumb = (
   featureProperties: Record<string, unknown> | null | undefined,
   subRegion: RegionOption,
 ): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegion = (featureProperties?.TERRITORY1 || featureProperties?.REALM) as
-    | string
+  const countryOrRegionId = (featureProperties?.COUNTRY_ID ?? featureProperties?.REALM_ID) as
+    | number
     | undefined
-  const addtlRegion = getRegionByLabel(countryOrRegion)
+  const addtlRegion = getRegionById(countryOrRegionId)
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
   if (addtlRegion) {
     breadcrumb.push(addtlRegion)

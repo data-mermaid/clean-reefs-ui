@@ -410,7 +410,7 @@ export function buildSedExportWatershedExpression(selectedYear: number): unknown
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
   const matchingRegion = regionOptions.find(
-    (region) => region.label === feature.properties.TERRITORY1,
+    (region) => region.bandId === feature.properties.COUNTRY_ID,
   )
   if (matchingRegion && feature.layer.id === 'watershed') {
     return { ...matchingRegion, regionType: 'watershed' }

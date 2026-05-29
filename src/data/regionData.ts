@@ -33,6 +33,7 @@ export const regionOptions: RegionOption[] = [
     id: 'solomon-islands',
     regionType: 'country',
     label: 'Solomon Islands',
+    bandId: 138,
     centerCoord: new LngLat(160.156194, -9.64571),
     zoomLevel: 8,
     extent: COUNTRY_EXTENTS['Solomon Islands'],
