@@ -217,7 +217,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     if (region.extent) {
       map.fitBounds(region.extent, { bearing: 0, padding: 40 })
-    } else {
+    } else if (region.centerCoord) {
       map.jumpTo({
         center: region.centerCoord,
         zoom: region.zoomLevel,

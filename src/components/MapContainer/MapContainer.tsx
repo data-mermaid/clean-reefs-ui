@@ -473,11 +473,14 @@ export default function MapContainer() {
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
         showLabels={showLabels}
-        initialViewState={{
-          longitude: lng ?? selectedRegion.centerCoord.lng,
-          latitude: lat ?? selectedRegion.centerCoord.lat,
-          zoom: zoom ?? selectedRegion.zoomLevel,
-        }}
+        initialViewState={
+          hasExplicitViewState
+            ? { longitude: lng!, latitude: lat!, zoom: zoom! }
+            : {
+                bounds: defaultGlobalRegionOption.extent!,
+                fitBoundsOptions: { padding: 40 },
+              }
+        }
         onMapMoveEnd={handleMapMoveEnd}
         isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
       />

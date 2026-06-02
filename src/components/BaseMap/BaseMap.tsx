@@ -25,7 +25,6 @@ import maplibregl, {
   ErrorEvent as MapErrorEvent,
   LngLatBounds,
   MapGeoJSONFeature,
-  LngLat,
   MapMouseEvent,
   MapLayerMouseEvent,
 } from 'maplibre-gl'
@@ -75,7 +74,6 @@ import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
   watershedLayer: LayerInfo
-  point: { lng: number; lat: number }
   allYearStats: Record<number, ZonalStatsBand>
   selectedYear: number
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
@@ -109,11 +107,9 @@ interface BaseMapProps {
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   showLabels: boolean
-  initialViewState: {
-    longitude: number
-    latitude: number
-    zoom: number
-  }
+  initialViewState:
+    | { longitude: number; latitude: number; zoom: number }
+    | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
   isAnyDrawerOpen: boolean
 }
@@ -174,7 +170,6 @@ const handleError = (
 const applyPlumeStats = ({
   map,
   watershedLayer,
-  point,
   allYearStats,
   selectedYear,
   setBreadcrumb,
@@ -203,8 +198,6 @@ const applyPlumeStats = ({
     id: 'plume',
     regionType: 'plume',
     label: 'Plume',
-    centerCoord: new LngLat(point.lng, point.lat),
-    zoomLevel: map.getZoom(),
   })
 
   setBreadcrumb(breadcrumb)
@@ -241,7 +234,6 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   applyPlumeStats({
     map,
     watershedLayer,
-    point: e.lngLat,
     allYearStats,
     selectedYear,
     setBreadcrumb,
@@ -500,8 +492,6 @@ export default function BaseMap({
             id: 'watershed',
             regionType: 'watershed',
             label: 'Watershed',
-            centerCoord: bounds.getCenter(),
-            zoomLevel: map.getZoom(),
           })
 
           setBreadcrumb(breadcrumb)
@@ -602,7 +592,6 @@ export default function BaseMap({
     applyPlumeStats({
       map,
       watershedLayer,
-      point: currentDispersalPoint,
       allYearStats: plumeStats,
       selectedYear,
       setBreadcrumb,
@@ -843,7 +832,6 @@ export default function BaseMap({
           applyPlumeStats({
             map,
             watershedLayer,
-            point: initialDispersalPoint,
             allYearStats,
             selectedYear,
             setBreadcrumb,
