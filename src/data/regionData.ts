@@ -15,8 +15,7 @@ export const defaultGlobalRegionOption: RegionOption = {
   extent: COUNTRY_EXTENTS['Fiji'],
 }
 
-/** MVP: Starts with just the two countries & one region */
-export const regionOptions: RegionOption[] = [
+export const fallbackRegionOptions: RegionOption[] = [
   defaultGlobalRegionOption,
   {
     id: 'fiji',

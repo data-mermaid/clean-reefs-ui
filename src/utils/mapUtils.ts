@@ -1,7 +1,7 @@
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import type { Feature, Polygon, MultiPolygon } from 'geojson'
 import { RegionOption } from '../types/RegionDataTypes'
-import { regionOptions } from '../data/regionData'
+import { fallbackRegionOptions } from '../data/regionData'
 import {
   FilterSpecification,
   LngLatBounds,
@@ -409,13 +409,13 @@ export function buildSedExportWatershedExpression(selectedYear: number): unknown
 }
 
 export function mapRegionSelected(feature: MapGeoJSONFeature): RegionOption {
-  const matchingRegion = regionOptions.find(
+  const matchingRegion = fallbackRegionOptions.find(
     (region) => region.bandId === feature.properties.COUNTRY_ID,
   )
   if (matchingRegion && feature.layer.id === 'watershed') {
     return { ...matchingRegion, regionType: 'watershed' }
   }
-  return matchingRegion || regionOptions[0]
+  return matchingRegion || fallbackRegionOptions[0]
 }
 
 export async function postZonalStats(payload) {

@@ -21,7 +21,7 @@ import {
 } from '../utils/mapUtils'
 import { FilterSpecification, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
-import { regionOptions } from '../data/regionData'
+import { fallbackRegionOptions } from '../data/regionData'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
@@ -125,7 +125,7 @@ describe('map utilities', () => {
   describe('mapRegionSelected', () => {
     it("returns the updated region info with user's pre-existing coordinates and zoom", () => {
       const result = mapRegionSelected(mockGeoFeatures)
-      expect(result).toEqual(regionOptions[1])
+      expect(result).toEqual(fallbackRegionOptions[1])
     })
   })
 

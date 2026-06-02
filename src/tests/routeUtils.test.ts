@@ -17,7 +17,7 @@ jest.mock('../data/mapData', () => ({
 
 jest.mock('../data/regionData', () => ({
   defaultGlobalRegionOption: { id: 'global', regionType: 'global', label: 'Global' },
-  regionOptions: [
+  fallbackRegionOptions: [
     { id: 'global', regionType: 'global', label: 'Global' },
     { id: 'fiji', regionType: 'country', label: 'Fiji' },
     { id: 'solomon-islands', regionType: 'country', label: 'Solomon Islands' },

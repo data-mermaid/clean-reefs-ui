@@ -68,7 +68,7 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, fallbackRegionOptions } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 interface ApplyPlumeStatsParams {
@@ -116,7 +116,8 @@ interface BaseMapProps {
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionById = (id: number | undefined) => regionOptions.find((opt) => opt.bandId === id)
+const getRegionById = (id: number | undefined) =>
+  fallbackRegionOptions.find((opt) => opt.bandId === id)
 
 const buildBreadcrumb = (
   featureProperties: Record<string, unknown> | null | undefined,
