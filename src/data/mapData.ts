@@ -1,11 +1,6 @@
 import {
   ATLAS_BENTHIC_URL,
   COUNTRIES_PMTILES_URL,
-  LULC_2000_URL,
-  LULC_2005_URL,
-  LULC_2010_URL,
-  LULC_2015_URL,
-  LULC_2020_URL,
   sedExposureBoundaryOutlineColor,
   REEF_EXTENT_URL,
   REGIONS_PMTILES_URL,
@@ -17,6 +12,7 @@ import {
   WATERSHED_PMTILES_URL,
 } from '../constants'
 import { LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
+import { buildLulcTileUrlTemplate } from '../utils/titilerUtils'
 
 export const transparent = 'rgba(0,0,0,0)'
 
@@ -130,11 +126,11 @@ export const layers: LayerInfo[] = [
   },
   reefExtentSubLayer,
   {
-    dataType: 'cog',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
-    link: LULC_2000_URL,
+    link: buildLulcTileUrlTemplate(2000),
     parentLayerType: 'landcover',
     sourceId: 'lulc_2000_visual',
     sourceFileName: '',
@@ -142,11 +138,11 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    dataType: 'cog',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
-    link: LULC_2005_URL,
+    link: buildLulcTileUrlTemplate(2005),
     parentLayerType: 'landcover',
     sourceId: 'lulc_2005_visual',
     sourceFileName: '',
@@ -154,11 +150,11 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    dataType: 'cog',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
-    link: LULC_2010_URL,
+    link: buildLulcTileUrlTemplate(2010),
     parentLayerType: 'landcover',
     sourceId: 'lulc_2010_visual',
     sourceFileName: '',
@@ -166,11 +162,11 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    dataType: 'cog',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
-    link: LULC_2015_URL,
+    link: buildLulcTileUrlTemplate(2015),
     parentLayerType: 'landcover',
     sourceId: 'lulc_2015_visual',
     sourceFileName: '',
@@ -178,11 +174,11 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    dataType: 'cog',
+    dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'lulc',
     legendType: 'lulc',
-    link: LULC_2020_URL,
+    link: buildLulcTileUrlTemplate(2020),
     parentLayerType: 'landcover',
     sourceId: 'lulc_2020_visual',
     sourceFileName: '',
