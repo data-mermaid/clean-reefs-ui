@@ -18,6 +18,8 @@ export const ShortBreadcrumb: Story = {
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: () => {},
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   decorators: [(Story) => <Story />],
   play: async ({ canvas }) => {
@@ -48,6 +50,8 @@ export const SelectingOptionFiresChange: Story = {
     setBreadcrumb: fn(),
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: fn(),
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas, args }) => {
     await userEvent.click(canvas.getByRole('combobox'))
@@ -65,6 +69,8 @@ export const SubheaderClickIsNoop: Story = {
     setBreadcrumb: fn(),
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: fn(),
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas, args }) => {
     await userEvent.click(canvas.getByRole('combobox'))
@@ -81,6 +87,8 @@ export const LongBreadcrumb: Story = {
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: () => {},
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')

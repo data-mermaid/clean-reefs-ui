@@ -20,19 +20,19 @@ const useRegionOptions = (): RegionOptionsResult => {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([fetchAllBoundaryFeatures('region'), fetchAllBoundaryFeatures('country')])
-      .then(([regions, countries]) => {
+    Promise.all([fetchAllBoundaryFeatures('region'), fetchAllBoundaryFeatures('country')]).then(
+      ([regions, countries]) => {
         if (cancelled) {
+          return
+        }
+        if (regions.length === 0 && countries.length === 0) {
+          setLoading(false)
           return
         }
         setRegionOptions([defaultGlobalRegionOption, ...regions, ...countries, ...FIXED_TRAILING])
         setLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      })
+      },
+    )
 
     return () => {
       cancelled = true

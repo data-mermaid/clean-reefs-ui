@@ -57,8 +57,8 @@ describe('useRegionOptions', () => {
     expect(ids[ids.length - 1]).toBe('plume')
   })
 
-  it('keeps fallbackRegionOptions and sets loading false on fetch error', async () => {
-    mockFetch.mockRejectedValue(new Error('network'))
+  it('keeps fallbackRegionOptions and sets loading false when fetch returns empty arrays', async () => {
+    mockFetch.mockResolvedValue([])
 
     const { result } = renderHook(() => useRegionOptions())
     await waitFor(() => expect(result.current.loading).toBe(false))

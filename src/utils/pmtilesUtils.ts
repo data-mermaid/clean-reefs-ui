@@ -98,7 +98,13 @@ export async function fetchAllBoundaryFeatures(
       const bandId = props[idProp] as number
       const extent = extents[label]
       results.push({
-        id: label.toLowerCase().replace(/\s+/g, '-'),
+        // NFD splits accented chars into base + combining mark; strip marks, remove non-alphanumeric, collapse spaces to hyphens for ASCII-safe URL slugs
+        id: label
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-'),
         regionType,
         label,
         bandId,

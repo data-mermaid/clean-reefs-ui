@@ -124,7 +124,7 @@ describe('map utilities', () => {
 
   describe('mapRegionSelected', () => {
     it("returns the updated region info with user's pre-existing coordinates and zoom", () => {
-      const result = mapRegionSelected(mockGeoFeatures)
+      const result = mapRegionSelected(mockGeoFeatures, fallbackRegionOptions)
       expect(result).toEqual(fallbackRegionOptions[1])
     })
   })

@@ -8,11 +8,14 @@ import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/region
 import { RegionOption } from '../types/RegionDataTypes'
 import { VALID_BASEMAPS, Basemap } from './mapUtils'
 
-export function getValidRegion(regionFromSearchParam: string | null): RegionOption {
+export function getValidRegion(
+  regionFromSearchParam: string | null,
+  regionOptions: RegionOption[] = fallbackRegionOptions,
+): RegionOption {
   if (!regionFromSearchParam) {
     return defaultGlobalRegionOption
   }
-  const found = fallbackRegionOptions.find((option) => option.id === regionFromSearchParam)
+  const found = regionOptions.find((option) => option.id === regionFromSearchParam)
 
   return found ?? defaultGlobalRegionOption
 }

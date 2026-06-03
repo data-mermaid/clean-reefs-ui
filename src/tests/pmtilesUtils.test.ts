@@ -123,4 +123,18 @@ describe('fetchAllBoundaryFeatures', () => {
     expect(results[0].id).toBe('central-indo-pacific')
     expect(results[0].extent).toEqual([93.4884, -34.9659, 193.5472, 31.8309])
   })
+
+  it('generates ASCII-safe id slugs for labels with accents and special characters', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([
+        { properties: { COUNTRY_ID: 384, TERRITORY1: "Côte d'Ivoire", reef_exposed_2020: 1 } },
+      ]),
+    )
+
+    const results = await fetchAllBoundaryFeatures('country')
+
+    expect(results[0].id).toBe('cote-divoire')
+    expect(results[0].label).toBe("Côte d'Ivoire")
+  })
 })

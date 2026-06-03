@@ -3,7 +3,7 @@ import BaseMap from './BaseMap'
 import { layers } from '../../data/mapData'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
-import { defaultGlobalRegionOption } from '../../data/regionData'
+import { defaultGlobalRegionOption, fallbackRegionOptions } from '../../data/regionData'
 
 const meta = {
   component: BaseMap,
@@ -34,6 +34,7 @@ export const Primary: Story = {
     },
     onMapMoveEnd: () => {},
     isAnyDrawerOpen: false,
+    regionOptions: fallbackRegionOptions,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -72,6 +73,7 @@ export const Loading: Story = {
     },
     onMapMoveEnd: () => {},
     isAnyDrawerOpen: false,
+    regionOptions: fallbackRegionOptions,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

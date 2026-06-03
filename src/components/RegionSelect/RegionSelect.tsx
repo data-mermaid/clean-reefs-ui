@@ -8,13 +8,14 @@ import { ListSubheader, MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 import { useMapStore } from '../../stores/mapStore'
-import useRegionOptions from '../../hooks/useRegionOptions'
 
 interface RegionSelectProps {
   breadcrumb: RegionOption[]
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
+  regionOptions: RegionOption[]
+  regionOptionsLoading: boolean
 }
 
 export default function RegionSelect({
@@ -22,10 +23,11 @@ export default function RegionSelect({
   setBreadcrumb,
   selectedRegion,
   onRegionChange,
+  regionOptions,
+  regionOptionsLoading,
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
-  const { regionOptions, loading } = useRegionOptions()
 
   const getRegionById = (regionId: string) => regionOptions.find((opt) => opt.id === regionId)
 
@@ -90,7 +92,7 @@ export default function RegionSelect({
         onChange={handleSelect}
         renderValue={() => ''}
         variant="outlined"
-        disabled={loading}
+        disabled={regionOptionsLoading}
         MenuProps={{
           classes: {
             paper: styles['MuiPaper-root'],
