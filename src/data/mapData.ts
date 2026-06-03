@@ -190,7 +190,7 @@ export const layers: LayerInfo[] = [
     year: 2020,
   },
   {
-    sourceId: 'sed_export_load_2000_visual',
+    sourceId: 'sed_load_2000_visual',
     dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_load',
@@ -203,7 +203,7 @@ export const layers: LayerInfo[] = [
     year: 2000,
   },
   {
-    sourceId: 'sed_export_load_2005_visual',
+    sourceId: 'sed_load_2005_visual',
     dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_load',
@@ -216,7 +216,7 @@ export const layers: LayerInfo[] = [
     year: 2005,
   },
   {
-    sourceId: 'sed_export_load_2010_visual',
+    sourceId: 'sed_load_2010_visual',
     dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_load',
@@ -229,7 +229,7 @@ export const layers: LayerInfo[] = [
     year: 2010,
   },
   {
-    sourceId: 'sed_export_load_2015_visual',
+    sourceId: 'sed_load_2015_visual',
     dataType: 'rastertiles',
     isLayerOn: false,
     layerId: 'sed_load',
@@ -242,7 +242,7 @@ export const layers: LayerInfo[] = [
     year: 2015,
   },
   {
-    sourceId: 'sed_export_load_2020_visual',
+    sourceId: 'sed_load_2020_visual',
     dataType: 'rastertiles',
     isLayerOn: true,
     layerId: 'sed_load',
