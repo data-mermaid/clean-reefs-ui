@@ -197,7 +197,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    // Restore the watershed choropleth when in watershed mode so the sed-export
+    // Restore the watershed choropleth when in watershed mode so the sediment load
     // coloring remains visible after the top-polygon highlight is cleared.
     const baseFillExpression =
       state.sedLoadMode === 'watershed'
@@ -232,7 +232,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     // Use the active watershed choropleth as the fallback so non-highlighted
-    // watersheds keep their sed-export colour while the top polygons are shown.
+    // watersheds keep their sediment load colour while the top polygons are shown.
     const baseFillExpression =
       state.sedLoadMode === 'watershed'
         ? buildSedLoadWatershedExpression(state.sedLoadYear)

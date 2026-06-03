@@ -381,7 +381,7 @@ export function buildWatershedMatchExpression(
 
 /**
  * Builds the MapLibre `match` expression for the watershed choropleth
- * (sed-export threshold percentile bands). The region level is currently
+ * (sediment load threshold percentile bands). The region level is currently
  * fixed to 'country' — update when the UI exposes region-level selection.
  */
 export function buildSedLoadWatershedExpression(selectedYear: number): unknown[] {
