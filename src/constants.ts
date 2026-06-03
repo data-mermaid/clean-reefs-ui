@@ -35,18 +35,6 @@ export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/
 export const REEF_EXTENT_URL =
   'https://mermaid.prescient.earth/raster/collections/aca_extent/items/aca_extent/tiles/WebMercatorQuad/{z}/{x}/{y}.png?assets=cog&colormap={"0":[0,0,0,0],"1":[178,8,76,200]}'
 
-/* Sediment Export Layers */
-export const SED_EXPORT_2000_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2000_visual.tif'
-export const SED_EXPORT_2005_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2005_visual.tif'
-export const SED_EXPORT_2010_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2010_visual.tif'
-export const SED_EXPORT_2015_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2015_visual.tif'
-export const SED_EXPORT_2020_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/sediment_load/sed_export_load_2020_visual.tif'
-
 /* Ocean Sediment Dispersal Layers */
 export const SED_DISPERSAL_2000_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2000/visual_sediment_exposure_plumes_2000.pmtiles'
@@ -77,7 +65,7 @@ export const SEDIMENT_EXPOSURE_2020_URL =
 export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
-export const SED_EXPORT_COLLECTION_ID = 'sediment_load'
+export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
 
 /******STAC API******/
 export const STAC_API_BASE_URL = 'https://mermaid.prescient.earth/stac'

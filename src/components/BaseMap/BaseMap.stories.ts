@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>
 export const Primary: Story = {
   args: {
     mapLayers: layers,
-    sedExportSubLayerValue: 'pixel',
+    sedLoadSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
     onWatershedSelectionClear: () => {},
@@ -53,7 +53,7 @@ export const Primary: Story = {
 export const Loading: Story = {
   args: {
     mapLayers: layers,
-    sedExportSubLayerValue: 'pixel',
+    sedLoadSubLayerValue: 'pixel',
     onRegionChange: () => {},
     onWatershedChange: () => {},
     onWatershedSelectionClear: () => {},

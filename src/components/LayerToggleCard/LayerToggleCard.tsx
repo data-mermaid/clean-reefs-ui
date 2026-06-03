@@ -26,9 +26,9 @@ interface LayerToggleCardProps {
   sedDispersalMinValue?: number
   sedDispersalMaxValue?: number
   sedDispersalLoading?: boolean
-  sedExportMinValue?: number
-  sedExportMaxValue?: number
-  sedExportLoading?: boolean
+  sedLoadMinValue?: number
+  sedLoadMaxValue?: number
+  sedLoadLoading?: boolean
 }
 
 const getLayerToggleDetails = (
@@ -40,9 +40,9 @@ const getLayerToggleDetails = (
   sedDispersalMinValue?: number,
   sedDispersalMaxValue?: number,
   sedDispersalLoading?: boolean,
-  sedExportMinValue?: number,
-  sedExportMaxValue?: number,
-  sedExportLoading?: boolean,
+  sedLoadMinValue?: number,
+  sedLoadMaxValue?: number,
+  sedLoadLoading?: boolean,
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -61,15 +61,15 @@ const getLayerToggleDetails = (
         />
       )
       break
-    case 'sed_export':
+    case 'sed_load':
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend
             variation={layerId}
             title={layer.legendTitle}
-            minValue={sedExportMinValue}
-            maxValue={sedExportMaxValue}
-            isLoading={sedExportLoading}
+            minValue={sedLoadMinValue}
+            maxValue={sedLoadMaxValue}
+            isLoading={sedLoadLoading}
           />
           <RadioSelect
             subSedLayerValue={subSedLayerValue}
@@ -145,9 +145,9 @@ export default function LayerToggleCard({
   sedDispersalMinValue,
   sedDispersalMaxValue,
   sedDispersalLoading,
-  sedExportMinValue,
-  sedExportMaxValue,
-  sedExportLoading,
+  sedLoadMinValue,
+  sedLoadMaxValue,
+  sedLoadLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
@@ -176,9 +176,9 @@ export default function LayerToggleCard({
         sedDispersalMinValue,
         sedDispersalMaxValue,
         sedDispersalLoading,
-        sedExportMinValue,
-        sedExportMaxValue,
-        sedExportLoading,
+        sedLoadMinValue,
+        sedLoadMaxValue,
+        sedLoadLoading,
       )}
     </Card>
   )

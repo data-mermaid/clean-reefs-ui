@@ -54,7 +54,7 @@
   "map_layers": {
     "dispersal_plume": "Plume boundaries",
     "sediment_dispersal": "Ocean sediment dispersal",
-    "sediment_export": "Sediment export"
+    "sediment_load": "Sediment load"
   },
   "share_view": {
     "title": "Share this view of GPW",

@@ -3,7 +3,7 @@ import {
   TITILER_API_BASE_URL,
   TITILER_API_TIMEOUT,
   SED_DISPERSAL_COLLECTION_ID,
-  SED_EXPORT_COLLECTION_ID,
+  SED_LOAD_COLLECTION_ID,
 } from '../constants'
 
 export interface ExpressionConfig {
@@ -135,24 +135,17 @@ export function buildSedDispersalTileUrl(
   return `${basePath}?${params.toString()}`
 }
 
-// ─── Sed Export ──────────────────────────────────────────────────────────────
-
-/** Build the TiTiler asset name for a sediment export item — embeds the year. */
-export function buildSedExportAssetName(year: number): string {
-  return `Global Sediment Load ${year} COG`
-}
+// ─── Sed Load ──────────────────────────────────────────────────────────────
 
 /**
- * Fetch statistics for a sediment export item from TiTiler.
- * Uses asset_as_band=true because the asset name is descriptive, not 'cog'.
+ * Fetch statistics for a sediment load item from TiTiler.
  * Clamps percentile_2 to 0 — raw values can be slightly negative due to data artifacts.
  */
-export async function fetchSedExportStatistics(
+export async function fetchSedLoadStatistics(
   year: number,
   signal?: AbortSignal,
 ): Promise<MinMaxValues | null> {
-  const assetName = buildSedExportAssetName(year)
-  const itemId = `${SED_EXPORT_COLLECTION_ID}_${year}`
+  const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const timeoutController = new AbortController()
   const timeoutId = setTimeout(() => timeoutController.abort(), TITILER_API_TIMEOUT)
   const combinedSignal = signal
@@ -161,10 +154,10 @@ export async function fetchSedExportStatistics(
 
   try {
     const url = new URL(
-      `${TITILER_API_BASE_URL}/raster/collections/${SED_EXPORT_COLLECTION_ID}/items/${itemId}/statistics`,
+      `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/statistics`,
     )
-    url.searchParams.append('assets', assetName)
-    url.searchParams.append('asset_as_band', 'true')
+    url.searchParams.append('assets', 'cog')
+    url.searchParams.append('asset_bidx', 'cog|1')
     url.searchParams.append('max_size', '1025')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })
@@ -175,7 +168,7 @@ export async function fetchSedExportStatistics(
     }
 
     const data: StatisticsResponse = await response.json()
-    const statsData = data[assetName]
+    const statsData = data['cog_b1']
 
     if (
       !statsData ||
@@ -195,15 +188,14 @@ export async function fetchSedExportStatistics(
   }
 }
 
-/** Build a MapLibre-compatible tile URL for a sediment export item with dynamic rescale. */
-export function buildSedExportTileUrl(year: number, min: number, max: number): string {
-  const itemId = `${SED_EXPORT_COLLECTION_ID}_${year}`
-  const assetName = buildSedExportAssetName(year)
-  const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_EXPORT_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
+/** Build a MapLibre-compatible tile URL for a sediment load item with dynamic rescale. */
+export function buildSedLoadTileUrl(year: number, min: number, max: number): string {
+  const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
+  const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
   const params = new URLSearchParams({
     rescale: `${min},${max}`,
-    assets: assetName,
-    asset_as_band: 'true',
+    assets: 'cog',
+    asset_bidx: 'cog|1',
     colormap_name: 'brbg_r',
   })
   return `${basePath}?${params.toString()}`

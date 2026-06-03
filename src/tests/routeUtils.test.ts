@@ -11,8 +11,8 @@ import {
 jest.mock('../data/mapData', () => ({
   FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
   FALLBACK_LATEST_YEAR: 2020,
-  defaultLayersToShow: ['sed_export', 'sed_dispersal', 'plumes'],
-  urlControlledLayerIds: ['none', 'sed_export', 'lulc', 'sed_dispersal', 'plumes'],
+  defaultLayersToShow: ['sed_load', 'sed_dispersal', 'plumes'],
+  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_dispersal', 'plumes'],
 }))
 
 jest.mock('../data/regionData', () => ({
@@ -105,7 +105,7 @@ describe('route parameter utilities', () => {
 
   describe('getValidLayers', () => {
     it('returns defaultLayersToShow for null input', () => {
-      expect(getValidLayers(null)).toEqual(['sed_export', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
     })
 
     it('returns empty array for "none"', () => {
@@ -113,7 +113,7 @@ describe('route parameter utilities', () => {
     })
 
     it('returns parsed layer array for valid comma-separated known layer ids', () => {
-      expect(getValidLayers('sed_export,lulc')).toEqual(['sed_export', 'lulc'])
+      expect(getValidLayers('sed_load,lulc')).toEqual(['sed_load', 'lulc'])
     })
 
     it('returns a single valid layer', () => {
@@ -121,19 +121,19 @@ describe('route parameter utilities', () => {
     })
 
     it('returns defaultLayersToShow if any layer id is unknown', () => {
-      expect(getValidLayers('sed_export,unknown_layer')).toEqual([
-        'sed_export',
+      expect(getValidLayers('sed_load,unknown_layer')).toEqual([
+        'sed_load',
         'sed_dispersal',
         'plumes',
       ])
     })
 
     it('returns defaultLayersToShow for empty string', () => {
-      expect(getValidLayers('')).toEqual(['sed_export', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers('')).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
     })
 
     it('returns defaultLayersToShow if all layer ids are unknown', () => {
-      expect(getValidLayers('foo,bar')).toEqual(['sed_export', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
     })
   })
 

@@ -95,7 +95,7 @@ interface HandleMapClickParamProps {
 
 interface BaseMapProps {
   mapLayers: LayerInfo[]
-  sedExportSubLayerValue: 'pixel' | 'watershed'
+  sedLoadSubLayerValue: 'pixel' | 'watershed'
   onRegionChange: (region: RegionOption) => void
   onWatershedChange: (id: string | null) => void
   onWatershedSelectionClear: () => void
@@ -388,7 +388,7 @@ function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: stri
 
 export default function BaseMap({
   mapLayers,
-  sedExportSubLayerValue,
+  sedLoadSubLayerValue,
   onRegionChange,
   onWatershedChange,
   onWatershedSelectionClear,
@@ -1013,7 +1013,7 @@ export default function BaseMap({
           </Marker>
         )}
         {/* Layer visual stack (bottom → top):
-            base style → COG (lulc/sed_export) → rastertiles (sed_dispersal/reef_extent)
+            base style → COG (lulc/sed_load) → rastertiles (sed_dispersal/reef_extent)
             → benthic → regions/countries → watershed → plumes → shoreline → rivers → map labels
             Shoreline mounts first so it exists as the beforeId anchor for the overlays below. */}
         {isMapLoaded && (
@@ -1103,7 +1103,7 @@ export default function BaseMap({
             />
           </Source>
         )}
-        {/* Permanent transparent anchor used by COG layers (lulc/sed_export) as a beforeId target.
+        {/* Permanent transparent anchor used by COG layers (lulc/sed_load) as a beforeId target.
             Ensures COG layers always render below rastertiles even when rastertile sources aren't mounted. */}
         {isMapLoaded && (
           <Source
@@ -1131,8 +1131,8 @@ export default function BaseMap({
               isMapLoaded && <PmTileLayers key={`layer-${index}`} layer={layer} index={index} />
             )
           } else if (layer.dataType === 'cog') {
-            const shouldRenderSedExportRaster =
-              layer.layerId !== 'sed_export' || sedExportSubLayerValue === 'pixel'
+            const shouldRenderSedLoadRaster =
+              layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
 
             return (
               isMapLoaded && (
@@ -1152,8 +1152,7 @@ export default function BaseMap({
                     source={layer.sourceId}
                     beforeId="rastertile-anchor"
                     layout={{
-                      visibility:
-                        layer.isLayerOn && shouldRenderSedExportRaster ? 'visible' : 'none',
+                      visibility: layer.isLayerOn && shouldRenderSedLoadRaster ? 'visible' : 'none',
                     }}
                   />
                 </Source>

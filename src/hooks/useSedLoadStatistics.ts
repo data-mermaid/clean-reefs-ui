@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { fetchSedExportStatistics } from '../utils/titilerUtils'
-import { SED_EXPORT_COLLECTION_ID } from '../constants'
+import { fetchSedLoadStatistics } from '../utils/titilerUtils'
+import { SED_LOAD_COLLECTION_ID } from '../constants'
 
-interface SedExportStatistics {
+interface SedLoadStatistics {
   minValue: number | null
   maxValue: number | null
   isLoading: boolean
@@ -15,13 +15,13 @@ interface CachedStats {
 
 const statsCache = new Map<string, CachedStats>()
 
-const useSedExportStatistics = (latestYear: number): SedExportStatistics => {
+const useSedLoadStatistics = (latestYear: number): SedLoadStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const cacheKey = `${SED_EXPORT_COLLECTION_ID}|${latestYear}`
+    const cacheKey = `${SED_LOAD_COLLECTION_ID}|${latestYear}`
 
     const cached = statsCache.get(cacheKey)
     if (cached) {
@@ -38,7 +38,7 @@ const useSedExportStatistics = (latestYear: number): SedExportStatistics => {
     // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
-    fetchSedExportStatistics(latestYear, controller.signal).then((result) => {
+    fetchSedLoadStatistics(latestYear, controller.signal).then((result) => {
       if (cancelled) {
         return
       }
@@ -59,4 +59,4 @@ const useSedExportStatistics = (latestYear: number): SedExportStatistics => {
   return { minValue, maxValue, isLoading }
 }
 
-export default useSedExportStatistics
+export default useSedLoadStatistics

@@ -4,14 +4,13 @@ import {
   buildSedDispersalItemId,
   buildSedDispersalTileUrl,
   fetchSedDispersalStatistics,
-  buildSedExportAssetName,
-  fetchSedExportStatistics,
-  buildSedExportTileUrl,
+  fetchSedLoadStatistics,
+  buildSedLoadTileUrl,
 } from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import {
   SED_DISPERSAL_COLLECTION_ID,
-  SED_EXPORT_COLLECTION_ID,
+  SED_LOAD_COLLECTION_ID,
   TITILER_API_BASE_URL,
 } from '../constants'
 
@@ -259,51 +258,45 @@ describe('fetchSedDispersalStatistics', () => {
     expect(result).toBeNull()
   })
 
-  it('returns rounded percentile_2/percentile_98 for sediment export collection', async () => {
+  it('returns rounded percentile_2/percentile_98 for sediment load collection', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
     } as Response)
 
     const result = await fetchSedDispersalStatistics(
-      SED_EXPORT_COLLECTION_ID,
-      `${SED_EXPORT_COLLECTION_ID}_2020`,
+      SED_LOAD_COLLECTION_ID,
+      `${SED_LOAD_COLLECTION_ID}_2020`,
       null,
       'cog|1',
     )
     expect(result).toEqual({ min: 1.2, max: 234.6 })
   })
 
-  it('sends correct path for sediment export collection', async () => {
+  it('sends correct path for sediment load collection', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
     } as Response)
 
     await fetchSedDispersalStatistics(
-      SED_EXPORT_COLLECTION_ID,
-      `${SED_EXPORT_COLLECTION_ID}_2020`,
+      SED_LOAD_COLLECTION_ID,
+      `${SED_LOAD_COLLECTION_ID}_2020`,
       null,
       'cog|1',
     )
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.pathname).toBe(
-      `/raster/collections/${SED_EXPORT_COLLECTION_ID}/items/${SED_EXPORT_COLLECTION_ID}_2020/statistics`,
+      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/statistics`,
     )
   })
 })
 
-describe('buildSedExportAssetName', () => {
-  it.each([2000, 2005, 2010, 2015, 2020])('builds asset name for year %i', (year) => {
-    expect(buildSedExportAssetName(year)).toBe(`Global Sediment Load ${year} COG`)
-  })
-})
-
-describe('fetchSedExportStatistics', () => {
+describe('fetchSedLoadStatistics', () => {
   afterEach(() => jest.restoreAllMocks())
 
-  const mockSedExportStats = (year: number) => ({
-    [`Global Sediment Load ${year} COG`]: {
+  const mockSedLoadStats = () => ({
+    cog_b1: {
       min: -1.0,
       max: 50.0,
       percentile_2: -0.23,
@@ -314,65 +307,63 @@ describe('fetchSedExportStatistics', () => {
   it('returns rounded percentile values with min clamped to 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => mockSedExportStats(2020),
+      json: async () => mockSedLoadStats(),
     } as Response)
 
-    const result = await fetchSedExportStatistics(2020)
+    const result = await fetchSedLoadStatistics(2020)
     expect(result).toEqual({ min: 0, max: 8.9 })
   })
 
   it('returns positive min as-is when percentile_2 is above 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        'Global Sediment Load 2020 COG': { percentile_2: 0.4, percentile_98: 34.2 },
-      }),
+      json: async () => ({ cog_b1: { percentile_2: 0.4, percentile_98: 34.2 } }),
     } as Response)
 
-    const result = await fetchSedExportStatistics(2020)
+    const result = await fetchSedLoadStatistics(2020)
     expect(result).toEqual({ min: 0.4, max: 34.2 })
   })
 
   it('sends correct path and params for the given year', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => mockSedExportStats(2015),
+      json: async () => mockSedLoadStats(),
     } as Response)
 
-    await fetchSedExportStatistics(2015)
+    await fetchSedLoadStatistics(2015)
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.pathname).toBe(
-      `/raster/collections/${SED_EXPORT_COLLECTION_ID}/items/${SED_EXPORT_COLLECTION_ID}_2015/statistics`,
+      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2015/statistics`,
     )
-    expect(calledUrl.searchParams.get('assets')).toBe('Global Sediment Load 2015 COG')
-    expect(calledUrl.searchParams.get('asset_as_band')).toBe('true')
+    expect(calledUrl.searchParams.get('assets')).toBe('cog')
+    expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1')
   })
 
   it('returns null when percentiles are missing from response', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ 'Global Sediment Load 2020 COG': { min: 0, max: 50 } }),
+      json: async () => ({ cog_b1: { min: 0, max: 50 } }),
     } as Response)
-    expect(await fetchSedExportStatistics(2020)).toBeNull()
+    expect(await fetchSedLoadStatistics(2020)).toBeNull()
   })
 
   it('returns null when API response is not ok', async () => {
     jest
       .spyOn(global, 'fetch')
       .mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found' } as Response)
-    expect(await fetchSedExportStatistics(2020)).toBeNull()
+    expect(await fetchSedLoadStatistics(2020)).toBeNull()
   })
 
   it('returns null on fetch error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
-    expect(await fetchSedExportStatistics(2020)).toBeNull()
+    expect(await fetchSedLoadStatistics(2020)).toBeNull()
   })
 })
 
-describe('buildSedExportTileUrl', () => {
+describe('buildSedLoadTileUrl', () => {
   const min = 0
   const max = 8.9
-  const template = buildSedExportTileUrl(2020, min, max)
+  const template = buildSedLoadTileUrl(2020, min, max)
   const [pathPart, queryPart] = template.split('?')
   const params = new URLSearchParams(queryPart)
 
@@ -382,7 +373,7 @@ describe('buildSedExportTileUrl', () => {
 
   it('targets the correct collection and item in the path', () => {
     expect(pathPart).toContain(
-      `/raster/collections/${SED_EXPORT_COLLECTION_ID}/items/${SED_EXPORT_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
+      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
     )
   })
 
@@ -394,11 +385,11 @@ describe('buildSedExportTileUrl', () => {
     expect(params.get('colormap_name')).toBe('brbg_r')
   })
 
-  it('uses the year-embedded asset name', () => {
-    expect(params.get('assets')).toBe('Global Sediment Load 2020 COG')
+  it('uses the cog asset key', () => {
+    expect(params.get('assets')).toBe('cog')
   })
 
-  it('sets asset_as_band to true', () => {
-    expect(params.get('asset_as_band')).toBe('true')
+  it('sets asset_bidx to cog|1', () => {
+    expect(params.get('asset_bidx')).toBe('cog|1')
   })
 })
