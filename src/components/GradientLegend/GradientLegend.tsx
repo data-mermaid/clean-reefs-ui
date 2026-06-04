@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 
 interface GradientLegendProps {
-  variation: string // active: 'sed_load' | 'sed_dispersal' — planned: 'sediment-concentration' | 'reef-ecosystem-exposure'
+  variation: string // active: 'sed_load' | 'sed_exposure' — planned: 'sediment-concentration' | 'reef-ecosystem-exposure'
   title?: string
   minValue?: number
   maxValue?: number

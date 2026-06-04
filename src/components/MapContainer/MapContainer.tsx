@@ -7,7 +7,7 @@ import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../data/mapData'
-import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_DISPERSAL_COLLECTION_ID } from '../../constants'
+import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_EXPOSURE_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { Basemap } from '../../utils/mapUtils'
@@ -105,10 +105,10 @@ export default function MapContainer() {
   )
 
   const {
-    minValue: sedDispersalMinValue,
-    maxValue: sedDispersalMaxValue,
-    isLoading: sedDispersalLoading,
-  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
+    minValue: sedExposureMinValue,
+    maxValue: sedExposureMaxValue,
+    isLoading: sedExposureLoading,
+  } = useRasterStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,
@@ -116,27 +116,27 @@ export default function MapContainer() {
     isLoading: sedLoadLoading,
   } = useSedLoadStatistics(latestYear)
 
-  // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
+  // Update the active sed_exposure tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
     setMapLayers((prevLayers) =>
       prevLayers.map((layer) => {
-        if (layer.layerId !== 'sed_dispersal' || layer.year !== selectedYear) {
+        if (layer.layerId !== 'sed_exposure' || layer.year !== selectedYear) {
           return layer
         }
         return {
           ...layer,
           link:
-            !sedDispersalLoading && sedDispersalMinValue !== null && sedDispersalMaxValue !== null
+            !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
               ? buildSedDispersalTileUrl(
-                  SED_DISPERSAL_COLLECTION_ID,
+                  SED_EXPOSURE_COLLECTION_ID,
                   buildSedDispersalItemId(selectedYear),
-                  sedDispersalMaxValue,
+                  sedExposureMaxValue,
                 )
               : '',
         }
       }),
     )
-  }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear, sedDispersalLoading])
+  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading])
 
   // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -464,9 +464,9 @@ export default function MapContainer() {
           showLabels={showLabels}
           onLabelsChange={handleLabelsChange}
           onBasemapChange={handleBasemapChange}
-          sedDispersalMinValue={sedDispersalMinValue ?? undefined}
-          sedDispersalMaxValue={sedDispersalMaxValue ?? undefined}
-          sedDispersalLoading={sedDispersalLoading}
+          sedExposureMinValue={sedExposureMinValue ?? undefined}
+          sedExposureMaxValue={sedExposureMaxValue ?? undefined}
+          sedExposureLoading={sedExposureLoading}
           sedLoadMinValue={sedLoadMinValue ?? undefined}
           sedLoadMaxValue={sedLoadMaxValue ?? undefined}
           sedLoadLoading={sedLoadLoading}

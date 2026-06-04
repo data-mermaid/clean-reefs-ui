@@ -8,11 +8,7 @@ import {
   buildSedLoadTileUrl,
 } from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
-import {
-  SED_DISPERSAL_COLLECTION_ID,
-  SED_LOAD_COLLECTION_ID,
-  TITILER_API_BASE_URL,
-} from '../constants'
+import { SED_EXPOSURE_COLLECTION_ID, SED_LOAD_COLLECTION_ID, TITILER_API_BASE_URL } from '../constants'
 
 const makeRegion = (overrides: Partial<RegionOption>): RegionOption => ({
   id: 'test',
@@ -62,7 +58,7 @@ describe('buildSedDispersalExpression', () => {
 
 describe('buildSedDispersalItemId', () => {
   it.each([2000, 2005, 2010, 2015, 2020])('builds dispersal item ID for year %i', (year) => {
-    expect(buildSedDispersalItemId(year)).toBe(`${SED_DISPERSAL_COLLECTION_ID}_${year}`)
+    expect(buildSedDispersalItemId(year)).toBe(`${SED_EXPOSURE_COLLECTION_ID}_${year}`)
   })
 })
 

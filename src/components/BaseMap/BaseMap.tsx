@@ -1013,7 +1013,7 @@ export default function BaseMap({
           </Marker>
         )}
         {/* Layer visual stack (bottom → top):
-            base style → COG (lulc/sed_load) → rastertiles (sed_dispersal/reef_extent)
+            base style → COG (lulc/sed_load) → rastertiles (sed_exposure/reef_extent)
             → benthic → regions/countries → watershed → plumes → shoreline → rivers → map labels
             Shoreline mounts first so it exists as the beforeId anchor for the overlays below. */}
         {isMapLoaded && (

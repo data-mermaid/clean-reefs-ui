@@ -2,7 +2,7 @@ import { RegionOption } from '../types/RegionDataTypes'
 import {
   TITILER_API_BASE_URL,
   TITILER_API_TIMEOUT,
-  SED_DISPERSAL_COLLECTION_ID,
+  SED_EXPOSURE_COLLECTION_ID,
   SED_LOAD_COLLECTION_ID,
 } from '../constants'
 
@@ -56,7 +56,7 @@ export function buildSedDispersalExpression(region: RegionOption): ExpressionCon
 
 /** Build the TiTiler item ID for the selected year. */
 export function buildSedDispersalItemId(year: number): string {
-  return `${SED_DISPERSAL_COLLECTION_ID}_${year}`
+  return `${SED_EXPOSURE_COLLECTION_ID}_${year}`
 }
 
 /**

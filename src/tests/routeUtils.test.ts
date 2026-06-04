@@ -11,8 +11,8 @@ import {
 jest.mock('../data/mapData', () => ({
   FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
   FALLBACK_LATEST_YEAR: 2020,
-  defaultLayersToShow: ['sed_load', 'sed_dispersal', 'plumes'],
-  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_dispersal', 'plumes'],
+  defaultLayersToShow: ['sed_load', 'sed_exposure', 'plumes'],
+  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_exposure', 'plumes'],
 }))
 
 jest.mock('../data/regionData', () => ({
@@ -105,7 +105,7 @@ describe('route parameter utilities', () => {
 
   describe('getValidLayers', () => {
     it('returns defaultLayersToShow for null input', () => {
-      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_exposure', 'plumes'])
     })
 
     it('returns empty array for "none"', () => {
@@ -123,17 +123,17 @@ describe('route parameter utilities', () => {
     it('returns defaultLayersToShow if any layer id is unknown', () => {
       expect(getValidLayers('sed_load,unknown_layer')).toEqual([
         'sed_load',
-        'sed_dispersal',
+        'sed_exposure',
         'plumes',
       ])
     })
 
     it('returns defaultLayersToShow for empty string', () => {
-      expect(getValidLayers('')).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers('')).toEqual(['sed_load', 'sed_exposure', 'plumes'])
     })
 
     it('returns defaultLayersToShow if all layer ids are unknown', () => {
-      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_dispersal', 'plumes'])
+      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_exposure', 'plumes'])
     })
   })
 

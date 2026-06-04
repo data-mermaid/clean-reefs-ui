@@ -53,7 +53,7 @@
   },
   "map_layers": {
     "dispersal_plume": "Plume boundaries",
-    "sediment_dispersal": "Ocean sediment dispersal",
+    "sediment_exposure": "Sediment exposure",
     "sediment_load": "Sediment load"
   },
   "share_view": {

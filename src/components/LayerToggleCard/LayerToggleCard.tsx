@@ -23,9 +23,9 @@ interface LayerToggleCardProps {
   selectedYear: number
   subSedLayerValue: 'pixel' | 'watershed'
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
-  sedDispersalMinValue?: number
-  sedDispersalMaxValue?: number
-  sedDispersalLoading?: boolean
+  sedExposureMinValue?: number
+  sedExposureMaxValue?: number
+  sedExposureLoading?: boolean
   sedLoadMinValue?: number
   sedLoadMaxValue?: number
   sedLoadLoading?: boolean
@@ -37,9 +37,9 @@ const getLayerToggleDetails = (
   subSedLayerValue: 'pixel' | 'watershed',
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void,
   mapSubLayers?: SubLayerInfo[],
-  sedDispersalMinValue?: number,
-  sedDispersalMaxValue?: number,
-  sedDispersalLoading?: boolean,
+  sedExposureMinValue?: number,
+  sedExposureMaxValue?: number,
+  sedExposureLoading?: boolean,
   sedLoadMinValue?: number,
   sedLoadMaxValue?: number,
   sedLoadLoading?: boolean,
@@ -50,14 +50,14 @@ const getLayerToggleDetails = (
     case 'lulc':
       toggleCardDetails = layer.isLayerOn && <Legend />
       break
-    case 'sed_dispersal':
+    case 'sed_exposure':
       toggleCardDetails = layer.isLayerOn && (
         <GradientLegend
           variation={layerId}
           title={layer.legendTitle}
-          minValue={sedDispersalMinValue}
-          maxValue={sedDispersalMaxValue}
-          isLoading={sedDispersalLoading}
+          minValue={sedExposureMinValue}
+          maxValue={sedExposureMaxValue}
+          isLoading={sedExposureLoading}
         />
       )
       break
@@ -141,9 +141,9 @@ export default function LayerToggleCard({
   mapSubLayers,
   subSedLayerValue,
   onSedSubLayerChange,
-  sedDispersalMinValue,
-  sedDispersalMaxValue,
-  sedDispersalLoading,
+  sedExposureMinValue,
+  sedExposureMaxValue,
+  sedExposureLoading,
   sedLoadMinValue,
   sedLoadMaxValue,
   sedLoadLoading,
@@ -174,9 +174,9 @@ export default function LayerToggleCard({
         subSedLayerValue,
         onSedSubLayerChange,
         mapSubLayers,
-        sedDispersalMinValue,
-        sedDispersalMaxValue,
-        sedDispersalLoading,
+        sedExposureMinValue,
+        sedExposureMaxValue,
+        sedExposureLoading,
         sedLoadMinValue,
         sedLoadMaxValue,
         sedLoadLoading,
