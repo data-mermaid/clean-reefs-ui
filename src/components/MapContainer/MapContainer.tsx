@@ -30,7 +30,6 @@ import useRasterStatistics from '../../hooks/useRasterStatistics'
 import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
-import useSedExportStatistics from '../../hooks/useSedExportStatistics'
 import {
   buildSedDispersalItemId,
   buildSedDispersalTileUrl,

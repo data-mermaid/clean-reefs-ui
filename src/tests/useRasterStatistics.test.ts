@@ -68,7 +68,7 @@ describe('useRasterStatistics', () => {
 
   it('uses the provided latestYear to build the item ID', async () => {
     const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchStatistics')
+      .spyOn(titilerUtils, 'fetchSedDispersalStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const collectionId = nextCollection()
     const { result } = renderHook(() => useRasterStatistics(collectionId, makeRegion(), 2020))

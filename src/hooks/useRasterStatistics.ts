@@ -30,7 +30,7 @@ const useRasterStatistics = (
 
   useEffect(() => {
     const { expression, assetBidx } = buildSedDispersalExpression(selectedRegion)
-    const itemId = buildSedDispersalItemId(selectedYear)
+    const itemId = buildSedDispersalItemId(latestYear)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
