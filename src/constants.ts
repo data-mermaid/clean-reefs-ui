@@ -99,8 +99,9 @@ export const mapFitBoundsMobileConfig = {
 
 /******COLORS******/
 export const plumeOutlineColor = '#FFEA46'
-export const polygonOutlineHoverColor = '#00FF01'
-export const polygonOutlineSelectColor = '#0000FF'
+export const polygonOutlineHoverColor = '#F006'
+//export const polygonOutlineHoverColor = '#ff000066'
+export const polygonOutlineSelectColor = '#f00'
 export const polygonHighlightWidth = 3
 export const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
 
