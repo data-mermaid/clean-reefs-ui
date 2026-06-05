@@ -429,6 +429,8 @@ export default function BaseMap({
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
   selectedYearRef.current = selectedYear
+  const regionOptionsRef = useRef<RegionOption[]>(regionOptions)
+  regionOptionsRef.current = regionOptions
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const plumeClickRef = useRef<string | number | null>(null)
@@ -953,7 +955,7 @@ export default function BaseMap({
         onWatershedSelectionClear,
         requestIdRef: plumeRequestIdRef,
         onRegionChange,
-        regionOptions,
+        regionOptions: regionOptionsRef.current,
       })
     }
 
