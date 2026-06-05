@@ -94,7 +94,10 @@ export async function fetchAllBoundaryFeatures(
       if (props['reef_exposed_2020'] == null) {
         continue
       }
-      const label = props[labelProp] as string
+      const label = props[labelProp]
+      if (typeof label !== 'string' || label.length === 0) {
+        continue
+      }
       const bandId = props[idProp] as number
       const extent = extents[label]
       results.push({
