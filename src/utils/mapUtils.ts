@@ -411,9 +411,11 @@ export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   regionOptions: RegionOption[],
 ): RegionOption {
-  const matchingRegion = regionOptions.find(
-    (region) => region.bandId === feature.properties.COUNTRY_ID,
-  )
+  const countryId = feature.properties.COUNTRY_ID
+  if (countryId == null) {
+    return regionOptions[0]
+  }
+  const matchingRegion = regionOptions.find((region) => region.bandId === countryId)
   if (matchingRegion && feature.layer.id === 'watershed') {
     return { ...matchingRegion, regionType: 'watershed' }
   }

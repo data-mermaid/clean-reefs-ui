@@ -127,6 +127,15 @@ describe('map utilities', () => {
       const result = mapRegionSelected(mockGeoFeatures, fallbackRegionOptions)
       expect(result).toEqual(fallbackRegionOptions[1])
     })
+
+    it('returns the first region option when COUNTRY_ID is missing', () => {
+      const featureWithoutCountryId = {
+        ...mockGeoFeatures,
+        properties: {},
+      } as unknown as MapGeoJSONFeature
+      const result = mapRegionSelected(featureWithoutCountryId, fallbackRegionOptions)
+      expect(result).toEqual(fallbackRegionOptions[0])
+    })
   })
 
   describe('createPolygonHoverHandler', () => {
