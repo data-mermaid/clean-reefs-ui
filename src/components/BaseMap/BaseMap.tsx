@@ -1012,7 +1012,7 @@ export default function BaseMap({
         )}
         {/* Layer visual stack (bottom → top):
             base style → COG (lulc/sed_export) → rastertiles (sed_dispersal/reef_extent)
-            → benthic → regions/countries → watershed → plumes → shoreline → map labels
+            → benthic → regions/countries → watershed → plumes → shoreline → rivers → map labels
             Shoreline mounts first so it exists as the beforeId anchor for the overlays below. */}
         {isMapLoaded && (
           <Layer
@@ -1028,6 +1028,34 @@ export default function BaseMap({
             paint={{
               'line-color': '#000',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 5, 1, 10, 1.75, 15, 2.5],
+            }}
+          />
+        )}
+        {isMapLoaded && (
+          <Layer
+            id="rivers-emphasis-border"
+            type="line"
+            source={selectedBasemap === 'satellite' ? 'maptiler_planet' : 'maptiler_planet_v4'}
+            source-layer="waterway"
+            beforeId={basemapBeforeId}
+            filter={['==', ['get', 'class'], 'river']}
+            paint={{
+              'line-color': 'white',
+              'line-width': 3,
+            }}
+          />
+        )}
+        {isMapLoaded && (
+          <Layer
+            id="rivers-emphasis"
+            type="line"
+            source={selectedBasemap === 'satellite' ? 'maptiler_planet' : 'maptiler_planet_v4'}
+            source-layer="waterway"
+            beforeId={basemapBeforeId}
+            filter={['==', ['get', 'class'], 'river']}
+            paint={{
+              'line-color': 'darkblue',
+              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 6, 2, 11, 2.5, 16, 3],
             }}
           />
         )}
