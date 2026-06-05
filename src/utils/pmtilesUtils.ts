@@ -1,6 +1,6 @@
 import { PMTiles, FetchSource } from 'pmtiles'
 import Pbf from 'pbf'
-import { VectorTile } from '@mapbox/vector-tile'
+import { VectorTile, VectorTileLayer } from '@mapbox/vector-tile'
 import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL } from '../constants'
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from '../data/countryExtents'
@@ -15,6 +15,21 @@ function getPMTiles(url: string): PMTiles {
     pmtilesCache.set(url, instance)
   }
   return instance
+}
+
+async function getParsedLayer(config: {
+  url: string
+  sourceLayer: string
+  filterProp: string
+}): Promise<VectorTileLayer | null> {
+  const pm = getPMTiles(config.url)
+  const tileData = await pm.getZxy(0, 0, 0)
+  if (!tileData?.data) {
+    return null
+  }
+  const pbf = new Pbf(new Uint8Array(tileData.data))
+  const vt = new VectorTile(pbf)
+  return vt.layers[config.sourceLayer] ?? null
 }
 
 export const boundarySourceConfig: Partial<
@@ -38,15 +53,7 @@ export async function fetchBoundaryProperties(
     return null
   }
 
-  const pm = getPMTiles(config.url)
-  const tileData = await pm.getZxy(0, 0, 0)
-  if (!tileData?.data) {
-    return null
-  }
-
-  const pbf = new Pbf(new Uint8Array(tileData.data))
-  const vt = new VectorTile(pbf)
-  const layer = vt.layers[config.sourceLayer]
+  const layer = await getParsedLayer(config)
   if (!layer) {
     return null
   }
@@ -74,15 +81,7 @@ export async function fetchAllBoundaryFeatures(
   const extents = regionType === 'country' ? COUNTRY_EXTENTS : REGION_EXTENTS
 
   try {
-    const pm = getPMTiles(config.url)
-    const tileData = await pm.getZxy(0, 0, 0)
-    if (!tileData?.data) {
-      return []
-    }
-
-    const pbf = new Pbf(new Uint8Array(tileData.data))
-    const vt = new VectorTile(pbf)
-    const layer = vt.layers[config.sourceLayer]
+    const layer = await getParsedLayer(config)
     if (!layer) {
       return []
     }
