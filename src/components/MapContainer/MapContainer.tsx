@@ -28,6 +28,7 @@ import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
 import useRasterStatistics from '../../hooks/useRasterStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
+import useRegionOptions from '../../hooks/useRegionOptions'
 import { buildItemId, buildTileUrlTemplate } from '../../utils/titilerUtils'
 
 export default function MapContainer() {
@@ -43,6 +44,7 @@ export default function MapContainer() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const { availableYears, latestYear, isLoading: yearsLoading } = useAvailableYears()
+  const { regionOptions, loading: regionOptionsLoading } = useRegionOptions()
 
   const year = searchParams.get('year')
   const selectedYear = getValidYear(year, availableYears, latestYear)
@@ -50,9 +52,9 @@ export default function MapContainer() {
   const shouldSyncYearParam = year !== normalizedYearParam
 
   const regionParam = searchParams.get('region')
-  const initialRegion = getValidRegion(regionParam)
+  const initialRegion = getValidRegion(regionParam, regionOptions)
   const normalizedRegionParam = initialRegion.id
-  const shouldSyncRegionParam = regionParam !== normalizedRegionParam
+  const shouldSyncRegionParam = !regionOptionsLoading && regionParam !== normalizedRegionParam
 
   const layersParam = searchParams.get('layers')
   const selectedLayers = useMemo(() => getValidLayers(layersParam), [layersParam])
@@ -442,6 +444,8 @@ export default function MapContainer() {
           onRegionChange={handleRegionDropdownChange}
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
+          regionOptions={regionOptions}
+          regionOptionsLoading={regionOptionsLoading}
         />
         <YearSelect
           selectedYear={selectedYear}
@@ -473,13 +477,17 @@ export default function MapContainer() {
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
         showLabels={showLabels}
-        initialViewState={{
-          longitude: lng ?? selectedRegion.centerCoord.lng,
-          latitude: lat ?? selectedRegion.centerCoord.lat,
-          zoom: zoom ?? selectedRegion.zoomLevel,
-        }}
+        initialViewState={
+          hasExplicitViewState
+            ? { longitude: lng!, latitude: lat!, zoom: zoom! }
+            : {
+                bounds: defaultGlobalRegionOption.extent!,
+                fitBoundsOptions: { padding: 40 },
+              }
+        }
         onMapMoveEnd={handleMapMoveEnd}
         isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
+        regionOptions={regionOptions}
       />
     </div>
   )

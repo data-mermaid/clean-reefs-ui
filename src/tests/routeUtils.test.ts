@@ -17,7 +17,7 @@ jest.mock('../data/mapData', () => ({
 
 jest.mock('../data/regionData', () => ({
   defaultGlobalRegionOption: { id: 'global', regionType: 'global', label: 'Global' },
-  regionOptions: [
+  fallbackRegionOptions: [
     { id: 'global', regionType: 'global', label: 'Global' },
     { id: 'fiji', regionType: 'country', label: 'Fiji' },
     { id: 'solomon-islands', regionType: 'country', label: 'Solomon Islands' },
@@ -44,6 +44,28 @@ describe('route parameter utilities', () => {
 
     it('returns defaultGlobalRegionOption for empty string', () => {
       expect(getValidRegion('')).toEqual({ id: 'global', regionType: 'global', label: 'Global' })
+    })
+
+    it('resolves a dynamic region when passed as regionOptions', () => {
+      const dynamicOption = {
+        id: 'papua-new-guinea',
+        regionType: 'country' as const,
+        label: 'Papua New Guinea',
+        bandId: 598,
+      }
+      expect(getValidRegion('papua-new-guinea', [dynamicOption])).toEqual(dynamicOption)
+    })
+
+    it('falls back to global when param is not in the provided regionOptions', () => {
+      expect(
+        getValidRegion('unknown', [
+          { id: 'fiji', regionType: 'country' as const, label: 'Fiji', bandId: 54 },
+        ]),
+      ).toEqual({
+        id: 'global',
+        regionType: 'global',
+        label: 'Global',
+      })
     })
   })
 

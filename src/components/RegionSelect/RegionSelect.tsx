@@ -3,19 +3,19 @@ import { useTranslation } from 'react-i18next'
 import styles from './RegionSelect.module.scss'
 import { RegionOption } from '../../types/RegionDataTypes'
 import _ from 'lodash'
-import { defaultGlobalRegionOption, regionGroups, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, regionGroups } from '../../data/regionData'
 import { ListSubheader, MenuItem, Select } from '@mui/material'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import Box from '@mui/material/Box'
 import { useMapStore } from '../../stores/mapStore'
-
-const getRegionById = (regionId: string) => regionOptions.find((opt) => opt.id === regionId)
 
 interface RegionSelectProps {
   breadcrumb: RegionOption[]
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   selectedRegion: RegionOption
   onRegionChange: (region: RegionOption) => void
+  regionOptions: RegionOption[]
+  regionOptionsLoading: boolean
 }
 
 export default function RegionSelect({
@@ -23,9 +23,13 @@ export default function RegionSelect({
   setBreadcrumb,
   selectedRegion,
   onRegionChange,
+  regionOptions,
+  regionOptionsLoading,
 }: RegionSelectProps) {
   const { t } = useTranslation()
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
+
+  const getRegionById = (regionId: string) => regionOptions.find((opt) => opt.id === regionId)
 
   const prepBreadcrumb = (region: RegionOption) => {
     const selectedOptions = [region]
@@ -88,6 +92,7 @@ export default function RegionSelect({
         onChange={handleSelect}
         renderValue={() => ''}
         variant="outlined"
+        disabled={regionOptionsLoading}
         MenuProps={{
           classes: {
             paper: styles['MuiPaper-root'],

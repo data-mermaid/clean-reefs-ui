@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import RegionSelect from './RegionSelect'
 import { expect, fn, userEvent, within } from 'storybook/test'
-import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption, fallbackRegionOptions } from '../../data/regionData'
 
 const meta: Meta<typeof RegionSelect> = {
   component: RegionSelect,
@@ -18,6 +18,8 @@ export const ShortBreadcrumb: Story = {
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: () => {},
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   decorators: [(Story) => <Story />],
   play: async ({ canvas }) => {
@@ -48,13 +50,15 @@ export const SelectingOptionFiresChange: Story = {
     setBreadcrumb: fn(),
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: fn(),
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas, args }) => {
     await userEvent.click(canvas.getByRole('combobox'))
     const listbox = within(document.body).getByRole('listbox')
     await userEvent.click(within(listbox).getByText('Fiji'))
 
-    const fiji = regionOptions.find((r) => r.id === 'fiji')
+    const fiji = fallbackRegionOptions.find((r) => r.id === 'fiji')
     await expect(args.onRegionChange).toHaveBeenCalledWith(fiji)
   },
 }
@@ -65,6 +69,8 @@ export const SubheaderClickIsNoop: Story = {
     setBreadcrumb: fn(),
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: fn(),
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas, args }) => {
     await userEvent.click(canvas.getByRole('combobox'))
@@ -77,10 +83,12 @@ export const SubheaderClickIsNoop: Story = {
 
 export const LongBreadcrumb: Story = {
   args: {
-    breadcrumb: [defaultGlobalRegionOption, regionOptions[1], regionOptions[4]],
+    breadcrumb: [defaultGlobalRegionOption, fallbackRegionOptions[1], fallbackRegionOptions[4]],
     setBreadcrumb: () => {},
     selectedRegion: defaultGlobalRegionOption,
     onRegionChange: () => {},
+    regionOptions: fallbackRegionOptions,
+    regionOptionsLoading: false,
   },
   play: async ({ canvas }) => {
     const input = canvas.getByRole('combobox')

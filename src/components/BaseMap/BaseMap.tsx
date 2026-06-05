@@ -25,7 +25,6 @@ import maplibregl, {
   ErrorEvent as MapErrorEvent,
   LngLatBounds,
   MapGeoJSONFeature,
-  LngLat,
   MapMouseEvent,
   MapLayerMouseEvent,
 } from 'maplibre-gl'
@@ -69,17 +68,17 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { defaultGlobalRegionOption, regionOptions } from '../../data/regionData'
+import { defaultGlobalRegionOption } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 interface ApplyPlumeStatsParams {
   map: maplibregl.Map
   watershedLayer: LayerInfo
-  point: { lng: number; lat: number }
   allYearStats: Record<number, ZonalStatsBand>
   selectedYear: number
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onRegionChange: (region: RegionOption) => void
+  regionOptions: RegionOption[]
 }
 
 interface HandleMapClickParamProps {
@@ -91,6 +90,7 @@ interface HandleMapClickParamProps {
   onWatershedSelectionClear: () => void
   requestIdRef: RefObject<number>
   onRegionChange: (region: RegionOption) => void
+  regionOptions: RegionOption[]
 }
 
 interface BaseMapProps {
@@ -109,28 +109,28 @@ interface BaseMapProps {
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   showLabels: boolean
-  initialViewState: {
-    longitude: number
-    latitude: number
-    zoom: number
-  }
+  initialViewState:
+    | { longitude: number; latitude: number; zoom: number }
+    | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
   isAnyDrawerOpen: boolean
+  regionOptions: RegionOption[]
 }
 
 const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionByLabel = (regionLabel: string | undefined) =>
-  regionOptions.find((opt) => opt.label === regionLabel)
+const getRegionById = (id: number | undefined, regionOptions: RegionOption[]) =>
+  regionOptions.find((opt) => opt.bandId === id)
 
 const buildBreadcrumb = (
   featureProperties: Record<string, unknown> | null | undefined,
   subRegion: RegionOption,
+  regionOptions: RegionOption[],
 ): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegion = (featureProperties?.TERRITORY1 || featureProperties?.REALM) as
-    | string
+  const countryOrRegionId = (featureProperties?.COUNTRY_ID ?? featureProperties?.REALM_ID) as
+    | number
     | undefined
-  const addtlRegion = getRegionByLabel(countryOrRegion)
+  const addtlRegion = getRegionById(countryOrRegionId, regionOptions)
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
   if (addtlRegion) {
     breadcrumb.push(addtlRegion)
@@ -175,11 +175,11 @@ const handleError = (
 const applyPlumeStats = ({
   map,
   watershedLayer,
-  point,
   allYearStats,
   selectedYear,
   setBreadcrumb,
   onRegionChange,
+  regionOptions,
 }: ApplyPlumeStatsParams): void => {
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
@@ -200,13 +200,11 @@ const applyPlumeStats = ({
     sourceLayer: watershedLayer.sourceFileName,
     filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
-  const { breadcrumb, addtlRegion } = buildBreadcrumb(watershedFeatures[0]?.properties, {
-    id: 'plume',
-    regionType: 'plume',
-    label: 'Plume',
-    centerCoord: new LngLat(point.lng, point.lat),
-    zoomLevel: map.getZoom(),
-  })
+  const { breadcrumb, addtlRegion } = buildBreadcrumb(
+    watershedFeatures[0]?.properties,
+    { id: 'plume', regionType: 'plume', label: 'Plume' },
+    regionOptions,
+  )
 
   setBreadcrumb(breadcrumb)
   // Sync the parent region (e.g. country) to the URL so the up-one-level button
@@ -227,6 +225,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     onWatershedSelectionClear,
     requestIdRef,
     onRegionChange,
+    regionOptions,
   } = clickParams
 
   onWatershedSelectionClear()
@@ -242,11 +241,11 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   applyPlumeStats({
     map,
     watershedLayer,
-    point: e.lngLat,
     allYearStats,
     selectedYear,
     setBreadcrumb,
     onRegionChange,
+    regionOptions,
   })
 }
 
@@ -406,6 +405,7 @@ export default function BaseMap({
   initialViewState,
   onMapMoveEnd,
   isAnyDrawerOpen,
+  regionOptions,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth, isMobileWidth } = useResponsive()
@@ -429,6 +429,8 @@ export default function BaseMap({
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
   selectedYearRef.current = selectedYear
+  const regionOptionsRef = useRef<RegionOption[]>(regionOptions)
+  regionOptionsRef.current = regionOptions
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const plumeClickRef = useRef<string | number | null>(null)
@@ -497,13 +499,11 @@ export default function BaseMap({
         if (map) {
           // Breadcrumb: Global > [Country] > Watershed
           // Country is omitted if it can't be determined from the feature
-          const { breadcrumb, addtlRegion } = buildBreadcrumb(feature.properties, {
-            id: 'watershed',
-            regionType: 'watershed',
-            label: 'Watershed',
-            centerCoord: bounds.getCenter(),
-            zoomLevel: map.getZoom(),
-          })
+          const { breadcrumb, addtlRegion } = buildBreadcrumb(
+            feature.properties,
+            { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
+            regionOptions,
+          )
 
           setBreadcrumb(breadcrumb)
           // Sync the parent region (e.g. country) to the URL so the up-one-level button
@@ -535,6 +535,7 @@ export default function BaseMap({
       onRegionChange,
       onWatershedChange,
       clearPlumeSelection,
+      regionOptions,
     ],
   )
 
@@ -603,16 +604,16 @@ export default function BaseMap({
     applyPlumeStats({
       map,
       watershedLayer,
-      point: currentDispersalPoint,
       allYearStats: plumeStats,
       selectedYear,
       setBreadcrumb,
       onRegionChange,
+      regionOptions,
     })
     // dispersalPoint, selectedPlumeWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb])
+  }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -844,11 +845,11 @@ export default function BaseMap({
           applyPlumeStats({
             map,
             watershedLayer,
-            point: initialDispersalPoint,
             allYearStats,
             selectedYear,
             setBreadcrumb,
             onRegionChange,
+            regionOptions,
           })
         })()
       },
@@ -954,6 +955,7 @@ export default function BaseMap({
         onWatershedSelectionClear,
         requestIdRef: plumeRequestIdRef,
         onRegionChange,
+        regionOptions: regionOptionsRef.current,
       })
     }
 

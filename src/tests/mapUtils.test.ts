@@ -21,7 +21,7 @@ import {
 } from '../utils/mapUtils'
 import { FilterSpecification, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
-import { regionOptions } from '../data/regionData'
+import { fallbackRegionOptions } from '../data/regionData'
 import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
@@ -70,16 +70,10 @@ const mockLayers: LayerInfo[] = [
 
 const mockGeoFeatures = {
   source: '',
-  state: {
-    loaded: false,
-  },
-  layer: {
-    id: 'countries',
-  },
-  properties: {
-    TERRITORY1: 'Fiji',
-  },
-} as unknown as MapGeoJSONFeature //allows for partial mock
+  state: { loaded: false },
+  layer: { id: 'countries' },
+  properties: { COUNTRY_ID: 54 },
+} as unknown as MapGeoJSONFeature
 
 const makeMap = () => ({ setFeatureState: jest.fn(), getFeatureState: jest.fn() }) as unknown as Map
 
@@ -130,8 +124,17 @@ describe('map utilities', () => {
 
   describe('mapRegionSelected', () => {
     it("returns the updated region info with user's pre-existing coordinates and zoom", () => {
-      const result = mapRegionSelected(mockGeoFeatures)
-      expect(result).toEqual(regionOptions[1])
+      const result = mapRegionSelected(mockGeoFeatures, fallbackRegionOptions)
+      expect(result).toEqual(fallbackRegionOptions[1])
+    })
+
+    it('returns the first region option when COUNTRY_ID is missing', () => {
+      const featureWithoutCountryId = {
+        ...mockGeoFeatures,
+        properties: {},
+      } as unknown as MapGeoJSONFeature
+      const result = mapRegionSelected(featureWithoutCountryId, fallbackRegionOptions)
+      expect(result).toEqual(fallbackRegionOptions[0])
     })
   })
 

@@ -101,9 +101,17 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
   for (const point in pointProperties) {
     const val = pointProperties[point]
     if (
-      ['TERRITORY1', 'UN_TER1', 'total_area_ha', 'area_ha', 'name', 'watershed_id'].includes(
-        point,
-      ) ||
+      [
+        'TERRITORY1',
+        'REALM',
+        'REALM_ID',
+        'COUNTRY_ID',
+        'UN_TER1',
+        'total_area_ha',
+        'area_ha',
+        'name',
+        'watershed_id',
+      ].includes(point) ||
       point.match(areaRegex)
     ) {
       continue

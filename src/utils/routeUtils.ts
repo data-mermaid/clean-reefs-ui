@@ -4,11 +4,14 @@ import {
   defaultLayersToShow,
   urlControlledLayerIds,
 } from '../data/mapData'
-import { defaultGlobalRegionOption, regionOptions } from '../data/regionData'
+import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
 import { RegionOption } from '../types/RegionDataTypes'
 import { VALID_BASEMAPS, Basemap } from './mapUtils'
 
-export function getValidRegion(regionFromSearchParam: string | null): RegionOption {
+export function getValidRegion(
+  regionFromSearchParam: string | null,
+  regionOptions: RegionOption[] = fallbackRegionOptions,
+): RegionOption {
   if (!regionFromSearchParam) {
     return defaultGlobalRegionOption
   }
