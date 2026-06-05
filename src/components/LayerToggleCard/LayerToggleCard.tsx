@@ -66,7 +66,6 @@ const getLayerToggleDetails = (
         <>
           <GradientLegend
             variation={layerId}
-            title={layer.legendTitle}
             minValue={sedLoadMinValue}
             maxValue={sedLoadMaxValue}
             isLoading={sedLoadLoading}
@@ -156,7 +155,9 @@ export default function LayerToggleCard({
       <div className={styles['layer-toggle-header']}>
         {layer.layerId !== 'benthic' && (
           <>
-            <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+            <Typography className={styles['layer-card_title']}>
+              {layer.layerId === 'sed_load' ? t(layer.legendTitle) : t(layer.title)}
+            </Typography>
             {layer.year && <Typography>{selectedYear}</Typography>}
             <Switch
               className={styles['MuiSwitch-root']}
