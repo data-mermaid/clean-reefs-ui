@@ -64,7 +64,7 @@ export function buildSedExposureItemId(year: number): string {
 export function buildLulcTileUrlTemplate(year: number): string {
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/lulc/items/lulc_${year}/tiles/WebMercatorQuad/{z}/{x}/{y}.png`
   const params = new URLSearchParams({
-    assets: 'cog',
+    assets: 'Land Use and Land Cover Collection Cloud Optimized GeoTIFF',
     colormap: JSON.stringify(LULC_COLORMAP),
   })
   return `${basePath}?${params.toString()}`
