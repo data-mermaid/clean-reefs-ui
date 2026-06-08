@@ -6,7 +6,7 @@ import RegionSelect from '../RegionSelect/RegionSelect'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import { layers, urlControlledLayerIds, sedExportAndLandUseLayers } from '../../data/mapData'
+import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../data/mapData'
 import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_DISPERSAL_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
@@ -27,13 +27,18 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
 import useRasterStatistics from '../../hooks/useRasterStatistics'
+import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
-import { buildItemId, buildTileUrlTemplate } from '../../utils/titilerUtils'
+import {
+  buildSedDispersalItemId,
+  buildSedDispersalTileUrl,
+  buildSedLoadTileUrl,
+} from '../../utils/titilerUtils'
 
 export default function MapContainer() {
-  const toggleSedExportSubLayerFills = useMapStore((state) => state.toggleSedExportSubLayerFills)
-  const turnOffSedExportSubLayerFills = useMapStore((state) => state.turnOffSedExportSubLayerFills)
+  const toggleSedLoadSubLayerFills = useMapStore((state) => state.toggleSedLoadSubLayerFills)
+  const turnOffSedLoadSubLayerFills = useMapStore((state) => state.turnOffSedLoadSubLayerFills)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
@@ -105,6 +110,12 @@ export default function MapContainer() {
     isLoading: sedDispersalLoading,
   } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
 
+  const {
+    minValue: sedLoadMinValue,
+    maxValue: sedLoadMaxValue,
+    isLoading: sedLoadLoading,
+  } = useSedLoadStatistics(latestYear)
+
   // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
     setMapLayers((prevLayers) =>
@@ -116,9 +127,9 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedDispersalLoading && sedDispersalMinValue !== null && sedDispersalMaxValue !== null
-              ? buildTileUrlTemplate(
+              ? buildSedDispersalTileUrl(
                   SED_DISPERSAL_COLLECTION_ID,
-                  buildItemId(selectedYear),
+                  buildSedDispersalItemId(selectedYear),
                   sedDispersalMaxValue,
                 )
               : '',
@@ -126,6 +137,24 @@ export default function MapContainer() {
       }),
     )
   }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear, sedDispersalLoading])
+
+  // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
+  useEffect(() => {
+    setMapLayers((prevLayers) =>
+      prevLayers.map((layer) => {
+        if (layer.layerId !== 'sed_load' || layer.year !== selectedYear) {
+          return layer
+        }
+        return {
+          ...layer,
+          link:
+            !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
+              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue)
+              : '',
+        }
+      }),
+    )
+  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -306,11 +335,11 @@ export default function MapContainer() {
         return nextSearchParams
       })
 
-      if (selectedLayers.includes('sed_export')) {
-        toggleSedExportSubLayerFills(subSedLayerValue, year)
+      if (selectedLayers.includes('sed_load')) {
+        toggleSedLoadSubLayerFills(subSedLayerValue, year)
       }
     },
-    [updateSearchParams, selectedLayers, toggleSedExportSubLayerFills, subSedLayerValue],
+    [updateSearchParams, selectedLayers, toggleSedLoadSubLayerFills, subSedLayerValue],
   )
 
   const handleLayerToggleChange = useCallback(
@@ -328,8 +357,8 @@ export default function MapContainer() {
         if (!isChecked) {
           layerSet.delete(toggledLayerId)
         } else {
-          if (sedExportAndLandUseLayers.includes(toggledLayerId)) {
-            sedExportAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
+          if (sedLoadAndLandUseLayers.includes(toggledLayerId)) {
+            sedLoadAndLandUseLayers.forEach((layerId) => layerSet.delete(layerId))
           }
           layerSet.add(toggledLayerId)
         }
@@ -338,28 +367,28 @@ export default function MapContainer() {
         return nextSearchParams
       })
 
-      if (toggledLayerId === 'sed_export') {
+      if (toggledLayerId === 'sed_load') {
         if (isChecked) {
-          toggleSedExportSubLayerFills(subSedLayerValue, selectedYear)
+          toggleSedLoadSubLayerFills(subSedLayerValue, selectedYear)
         } else {
-          turnOffSedExportSubLayerFills()
+          turnOffSedLoadSubLayerFills()
         }
       } else if (toggledLayerId === 'lulc' && isChecked) {
-        turnOffSedExportSubLayerFills()
+        turnOffSedLoadSubLayerFills()
       }
     },
     [
       updateSearchParams,
       subSedLayerValue,
       selectedYear,
-      toggleSedExportSubLayerFills,
-      turnOffSedExportSubLayerFills,
+      toggleSedLoadSubLayerFills,
+      turnOffSedLoadSubLayerFills,
     ],
   )
 
   const handleSedSubLayerChange = (subLayerValue: 'pixel' | 'watershed') => {
     setSubLayerValue(subLayerValue)
-    toggleSedExportSubLayerFills(subLayerValue, selectedYear)
+    toggleSedLoadSubLayerFills(subLayerValue, selectedYear)
   }
 
   const handleMapMoveEnd = useCallback(
@@ -438,6 +467,9 @@ export default function MapContainer() {
           sedDispersalMinValue={sedDispersalMinValue ?? undefined}
           sedDispersalMaxValue={sedDispersalMaxValue ?? undefined}
           sedDispersalLoading={sedDispersalLoading}
+          sedLoadMinValue={sedLoadMinValue ?? undefined}
+          sedLoadMaxValue={sedLoadMaxValue ?? undefined}
+          sedLoadLoading={sedLoadLoading}
         />
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -463,7 +495,7 @@ export default function MapContainer() {
       </div>
       <BaseMap
         mapLayers={urlSyncedMapLayers}
-        sedExportSubLayerValue={subSedLayerValue}
+        sedLoadSubLayerValue={subSedLayerValue}
         onRegionChange={handleRegionChange}
         onWatershedChange={handleWatershedChange}
         onWatershedSelectionClear={handleWatershedSelectionClear}

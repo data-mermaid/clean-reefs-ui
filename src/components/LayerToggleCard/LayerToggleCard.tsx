@@ -26,6 +26,9 @@ interface LayerToggleCardProps {
   sedDispersalMinValue?: number
   sedDispersalMaxValue?: number
   sedDispersalLoading?: boolean
+  sedLoadMinValue?: number
+  sedLoadMaxValue?: number
+  sedLoadLoading?: boolean
 }
 
 const getLayerToggleDetails = (
@@ -37,6 +40,9 @@ const getLayerToggleDetails = (
   sedDispersalMinValue?: number,
   sedDispersalMaxValue?: number,
   sedDispersalLoading?: boolean,
+  sedLoadMinValue?: number,
+  sedLoadMaxValue?: number,
+  sedLoadLoading?: boolean,
 ) => {
   const layerId: string = layer.layerId
   let toggleCardDetails
@@ -55,10 +61,15 @@ const getLayerToggleDetails = (
         />
       )
       break
-    case 'sed_export':
+    case 'sed_load':
       toggleCardDetails = layer.isLayerOn && (
         <>
-          <GradientLegend variation={layerId} title={layer.legendTitle} />
+          <GradientLegend
+            variation={layerId}
+            minValue={sedLoadMinValue}
+            maxValue={sedLoadMaxValue}
+            isLoading={sedLoadLoading}
+          />
           <RadioSelect
             subSedLayerValue={subSedLayerValue}
             onSedSubLayerChange={onSedSubLayerChange}
@@ -133,6 +144,9 @@ export default function LayerToggleCard({
   sedDispersalMinValue,
   sedDispersalMaxValue,
   sedDispersalLoading,
+  sedLoadMinValue,
+  sedLoadMaxValue,
+  sedLoadLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
 
@@ -141,7 +155,9 @@ export default function LayerToggleCard({
       <div className={styles['layer-toggle-header']}>
         {layer.layerId !== 'benthic' && (
           <>
-            <Typography className={styles['layer-card_title']}>{t(layer.title)}</Typography>
+            <Typography className={styles['layer-card_title']}>
+              {layer.layerId === 'sed_load' ? t(layer.legendTitle) : t(layer.title)}
+            </Typography>
             {layer.year && <Typography>{selectedYear}</Typography>}
             <Switch
               className={styles['MuiSwitch-root']}
@@ -161,6 +177,9 @@ export default function LayerToggleCard({
         sedDispersalMinValue,
         sedDispersalMaxValue,
         sedDispersalLoading,
+        sedLoadMinValue,
+        sedLoadMaxValue,
+        sedLoadLoading,
       )}
     </Card>
   )

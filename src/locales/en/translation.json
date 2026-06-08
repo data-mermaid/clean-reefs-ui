@@ -54,7 +54,7 @@
   "map_layers": {
     "dispersal_plume": "Plume boundaries",
     "sediment_dispersal": "Ocean sediment dispersal",
-    "sediment_export": "Sediment export"
+    "sediment_load": "Sediment load"
   },
   "share_view": {
     "title": "Share this view of GPW",
@@ -120,6 +120,7 @@
   "reef_extent_exposure": "Reef ecosystem extent exposure",
   "science_and_methods": "Science and methods",
   "sediment": "Sediment",
+  "sediment_load_unit": "Sediment load (unit)",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
   "year": "Year",

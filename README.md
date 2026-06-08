@@ -15,7 +15,7 @@ Create a `.env` file based off of `.env.example`. [Sign up for Maptiler](https:/
 mapData.ts holds the main configurations.
 The layerId in mapData is used to identify an associated legend and chart, if they exist.
 
-The watersheds data source is used by both a vector layer for outlines and a vector layer for fills. The fills layer updates for sediment export and other layers as needed.
+The watersheds data source is used by both a vector layer for outlines and a vector layer for fills. The fills layer updates for sediment load and other layers as needed.
 
 ## Code contribution styles:
 

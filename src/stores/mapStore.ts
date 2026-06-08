@@ -1,8 +1,8 @@
 import { create } from 'zustand'
-import { atlasBenthicColors, sedExportColorMapping, transparent } from '../data/mapData'
+import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
 import {
-  buildSedExportWatershedExpression,
+  buildSedLoadWatershedExpression,
   buildWatershedMatchExpression,
   getUpdatedBenthicColor,
   resolveBasemapBeforeId,
@@ -18,9 +18,9 @@ type MapState = {
   isBasemapChanging: boolean
   topWatershedIds: number[]
   benthicMapSubLayerColors: Record<string, string>
-  sedExportMapSubLayerColors: Record<string, string>
-  sedExportMode: 'pixel' | 'watershed' | null
-  sedExportYear: number
+  sedLoadMapSubLayerColors: Record<string, string>
+  sedLoadMode: 'pixel' | 'watershed' | null
+  sedLoadYear: number
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -30,14 +30,14 @@ type MapActions = {
   applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
-  setSedExportMapSubLayerColors: (colors: Record<string, string>) => void
+  setSedLoadMapSubLayerColors: (colors: Record<string, string>) => void
   setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSubLayerFillColor: (toggledProperty: string) => void
-  toggleSedExportSubLayerFills: (
+  toggleSedLoadSubLayerFills: (
     subLayerToggledOn: 'pixel' | 'watershed',
     selectedYear: number,
   ) => void
-  turnOffSedExportSubLayerFills: () => void
+  turnOffSedLoadSubLayerFills: () => void
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
   jumpToRegion: (region: RegionOption) => void
@@ -132,11 +132,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   },
 
   benthicMapSubLayerColors: atlasBenthicColors,
-  sedExportMapSubLayerColors: sedExportColorMapping,
-  sedExportMode: null,
-  sedExportYear: 0,
+  sedLoadMapSubLayerColors: sedLoadColorMapping,
+  sedLoadMode: null,
+  sedLoadYear: 0,
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
-  setSedExportMapSubLayerColors: (colors) => set({ sedExportMapSubLayerColors: colors }),
+  setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
   toggleSubLayerFillColor: (toggledProperty) => {
     const state = get()
     const map = state.mapReference?.getMap()
@@ -150,10 +150,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     set({ benthicMapSubLayerColors: updatedFillColors })
   },
-  toggleSedExportSubLayerFills: (
-    subLayerToggledOn: 'pixel' | 'watershed',
-    selectedYear: number,
-  ) => {
+  toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
     const state = get()
     const map = state.mapReference?.getMap()
     const { topWatershedIds } = state
@@ -162,11 +159,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    set({ sedExportMode: subLayerToggledOn, sedExportYear: selectedYear })
+    set({ sedLoadMode: subLayerToggledOn, sedLoadYear: selectedYear })
 
     const baseFillExpression =
       subLayerToggledOn === 'watershed'
-        ? buildSedExportWatershedExpression(selectedYear)
+        ? buildSedLoadWatershedExpression(selectedYear)
         : transparent
 
     map.setPaintProperty(
@@ -175,7 +172,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       buildWatershedMatchExpression(topWatershedIds, baseFillExpression),
     )
   },
-  turnOffSedExportSubLayerFills: () => {
+  turnOffSedLoadSubLayerFills: () => {
     const state = get()
     const map = state.mapReference?.getMap()
     const { topWatershedIds } = state
@@ -184,7 +181,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    set({ sedExportMode: null })
+    set({ sedLoadMode: null })
 
     map.setPaintProperty(
       'watershed',
@@ -200,11 +197,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    // Restore the watershed choropleth when in watershed mode so the sed-export
+    // Restore the watershed choropleth when in watershed mode so the sediment load
     // coloring remains visible after the top-polygon highlight is cleared.
     const baseFillExpression =
-      state.sedExportMode === 'watershed'
-        ? buildSedExportWatershedExpression(state.sedExportYear)
+      state.sedLoadMode === 'watershed'
+        ? buildSedLoadWatershedExpression(state.sedLoadYear)
         : transparent
 
     set({ topWatershedIds: [] })
@@ -235,10 +232,10 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
 
     // Use the active watershed choropleth as the fallback so non-highlighted
-    // watersheds keep their sed-export colour while the top polygons are shown.
+    // watersheds keep their sediment load colour while the top polygons are shown.
     const baseFillExpression =
-      state.sedExportMode === 'watershed'
-        ? buildSedExportWatershedExpression(state.sedExportYear)
+      state.sedLoadMode === 'watershed'
+        ? buildSedLoadWatershedExpression(state.sedLoadYear)
         : transparent
 
     const hasSameIds =

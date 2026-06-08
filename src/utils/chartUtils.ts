@@ -149,7 +149,6 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
         case 'seag_exposed_':
           chartSeriesData.ecosystem_extent_exposed.seagrass[year] = val
           break
-        case 'sed_export_':
         case 'total_sed_load_':
           chartSeriesData.sediment_load_historical.sediment[year] = val
           break

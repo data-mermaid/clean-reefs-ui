@@ -189,7 +189,7 @@ describe('chart data utilities', () => {
       },
       'charts.sediment_load_historical': {
         xAxisTitle: 'chart_information.year',
-        yAxisTitle: 'chart_information.sediment_export',
+        yAxisTitle: 'chart_information.sediment_load',
         legendColors: {
           sediment: '#8B4513',
         },
@@ -213,7 +213,7 @@ describe('chart data utilities', () => {
         const translations: Record<string, string> = {
           'chart_information.year': 'Year',
           'chart_information.land_cover': 'Land cover (%)',
-          'chart_information.sediment_export': 'Sediment export',
+          'chart_information.sediment_load': 'Sediment load',
           'chart_information.test': 'Test',
           'land_use.bare_ground': 'Bare ground',
           'land_use.cropland': 'Cropland',
@@ -494,7 +494,7 @@ const sharedLandUseMockConfig = {
   },
   'charts.sediment_load_historical': {
     xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.sediment_export',
+    yAxisTitle: 'chart_information.sediment_load',
     legendColors: { sediment: '#8B4513' },
     width: 0.6,
     barmode: 'group',

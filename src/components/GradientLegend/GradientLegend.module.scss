@@ -31,7 +31,7 @@
 }
 
 // Class names are linked to GradientLegendProps.variation.
-// Active: sed_export, sed_dispersal — Planned (not yet built): sediment-concentration, reef-ecosystem-exposure
+// Active: sed_load, sed_dispersal — Planned (not yet built): sediment-concentration, reef-ecosystem-exposure
 .sediment-concentration {
   background: #00366d;
   background: linear-gradient(90deg, rgba(0, 54, 109, 1) 0%, rgba(255, 232, 88, 1) 100%);
@@ -54,12 +54,12 @@
   );
 }
 
-.sed_export {
-  background: #48974d;
+.sed_load {
+  background: #003c30;
   background: linear-gradient(
     90deg,
-    rgba(72, 151, 77, 1) 0%,
-    rgba(241, 241, 241, 1) 50%,
-    rgba(161, 99, 38, 1) 100%
+    rgba(0, 60, 48, 1) 0%,
+    rgba(245, 244, 244, 1) 50%,
+    rgba(84, 48, 5, 1) 100%
   );
 }

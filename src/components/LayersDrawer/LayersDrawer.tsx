@@ -34,6 +34,9 @@ interface LayersDrawerProps {
   sedDispersalMinValue?: number
   sedDispersalMaxValue?: number
   sedDispersalLoading?: boolean
+  sedLoadMinValue?: number
+  sedLoadMaxValue?: number
+  sedLoadLoading?: boolean
 }
 
 interface BoundaryLegendCardProps {
@@ -75,6 +78,9 @@ export default function LayersDrawer({
   sedDispersalMinValue,
   sedDispersalMaxValue,
   sedDispersalLoading,
+  sedLoadMinValue,
+  sedLoadMaxValue,
+  sedLoadLoading,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
 
@@ -164,6 +170,9 @@ export default function LayersDrawer({
             sedDispersalMinValue={sedDispersalMinValue}
             sedDispersalMaxValue={sedDispersalMaxValue}
             sedDispersalLoading={sedDispersalLoading}
+            sedLoadMinValue={sedLoadMinValue}
+            sedLoadMaxValue={sedLoadMaxValue}
+            sedLoadLoading={sedLoadLoading}
           />
         ))
     },
@@ -182,6 +191,9 @@ export default function LayersDrawer({
       sedDispersalMinValue,
       sedDispersalMaxValue,
       sedDispersalLoading,
+      sedLoadMinValue,
+      sedLoadMaxValue,
+      sedLoadLoading,
     ],
   )
 

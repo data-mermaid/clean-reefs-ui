@@ -25,9 +25,9 @@ export const Primary: Story = {
   },
 }
 
-export const SedExport: Story = {
+export const SedLoad: Story = {
   args: {
-    layer: getLayerBySourceId('sed_export_load_2000_visual'),
+    layer: getLayerBySourceId('sed_load_2000_visual'),
     toggleLayer: () => {},
     toggleSubLayer: () => {},
     selectedYear: 2000,
