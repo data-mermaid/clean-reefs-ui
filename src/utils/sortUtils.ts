@@ -2,7 +2,7 @@ import { LayerInfo } from '../types/MapDataTypes'
 
 const boundaryLayerRank: Record<string, number> = {
   watershed: 0,
-  plumes: 1,
+  sed_exposure_boundary: 1,
   regions: 2,
   countries: 3,
 }

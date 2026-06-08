@@ -8,21 +8,21 @@ type MinimalFeature = {
   properties?: Record<string, unknown>
 }
 
-type PlumeWatershedStats = Record<number, ZonalStatsBand>
+type DispersalWatershedStats = Record<number, ZonalStatsBand>
 
 type SelectedFeatureState = {
   selectedFeature: MinimalFeature | null
   setSelectedFeature: (feature: MapGeoJSONFeature | null) => void
-  selectedPlumeWatershedStats: PlumeWatershedStats | null
-  setSelectedPlumeWatershedStats: (stats: PlumeWatershedStats | null) => void
+  selectedDispersalWatershedStats: DispersalWatershedStats | null
+  setSelectedDispersalWatershedStats: (stats: DispersalWatershedStats | null) => void
   clearSelectedFeature: () => void
-  clearSelectedPlumeWatershedStats: () => void
+  clearSelectedDispersalWatershedStats: () => void
 }
 
 export const useSelectedFeatureStore = create<SelectedFeatureState>((set) => ({
   selectedFeature: null,
-  selectedPlumeWatershedStats: null,
-  setSelectedPlumeWatershedStats: (stats) => set({ selectedPlumeWatershedStats: stats }),
+  selectedDispersalWatershedStats: null,
+  setSelectedDispersalWatershedStats: (stats) => set({ selectedDispersalWatershedStats: stats }),
   setSelectedFeature: (feature) => {
     if (!feature) {
       set({ selectedFeature: null })
@@ -38,5 +38,5 @@ export const useSelectedFeatureStore = create<SelectedFeatureState>((set) => ({
     set({ selectedFeature: minimal })
   },
   clearSelectedFeature: () => set({ selectedFeature: null }),
-  clearSelectedPlumeWatershedStats: () => set({ selectedPlumeWatershedStats: null }),
+  clearSelectedDispersalWatershedStats: () => set({ selectedDispersalWatershedStats: null }),
 }))

@@ -11,8 +11,8 @@ import {
 jest.mock('../data/mapData', () => ({
   FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
   FALLBACK_LATEST_YEAR: 2020,
-  defaultLayersToShow: ['sed_load', 'sed_exposure', 'plumes'],
-  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_exposure', 'plumes'],
+  defaultLayersToShow: ['sed_load', 'sed_exposure', 'sed_exposure_boundary'],
+  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_exposure', 'sed_exposure_boundary'],
 }))
 
 jest.mock('../data/regionData', () => ({
@@ -105,7 +105,7 @@ describe('route parameter utilities', () => {
 
   describe('getValidLayers', () => {
     it('returns defaultLayersToShow for null input', () => {
-      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_exposure', 'plumes'])
+      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_exposure', 'sed_exposure_boundary'])
     })
 
     it('returns empty array for "none"', () => {
@@ -117,23 +117,27 @@ describe('route parameter utilities', () => {
     })
 
     it('returns a single valid layer', () => {
-      expect(getValidLayers('plumes')).toEqual(['plumes'])
+      expect(getValidLayers('sed_exposure_boundary')).toEqual(['sed_exposure_boundary'])
     })
 
     it('returns defaultLayersToShow if any layer id is unknown', () => {
       expect(getValidLayers('sed_load,unknown_layer')).toEqual([
         'sed_load',
         'sed_exposure',
-        'plumes',
+        'sed_exposure_boundary',
       ])
     })
 
     it('returns defaultLayersToShow for empty string', () => {
-      expect(getValidLayers('')).toEqual(['sed_load', 'sed_exposure', 'plumes'])
+      expect(getValidLayers('')).toEqual(['sed_load', 'sed_exposure', 'sed_exposure_boundary'])
     })
 
     it('returns defaultLayersToShow if all layer ids are unknown', () => {
-      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_exposure', 'plumes'])
+      expect(getValidLayers('foo,bar')).toEqual([
+        'sed_load',
+        'sed_exposure',
+        'sed_exposure_boundary',
+      ])
     })
   })
 

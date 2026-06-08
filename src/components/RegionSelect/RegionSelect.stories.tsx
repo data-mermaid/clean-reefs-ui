@@ -40,7 +40,7 @@ export const ShortBreadcrumb: Story = {
     await expect(within(listbox).getByText('Central Indo-Pacific')).toBeInTheDocument()
 
     await expect(within(listbox).queryByText('Watershed')).toBeNull()
-    await expect(within(listbox).queryByText('Plume')).toBeNull()
+    await expect(within(listbox).queryByText('Dispersal')).toBeNull()
   },
 }
 

@@ -5,7 +5,7 @@ import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/region
 
 const FIXED_TRAILING: RegionOption[] = [
   { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
-  { id: 'plume', regionType: 'plume', label: 'Plume' },
+  { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
 ]
 
 interface RegionOptionsResult {

@@ -54,7 +54,6 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <GradientLegend
           variation={layerId}
-          title={layer.legendTitle}
           minValue={sedExposureMinValue}
           maxValue={sedExposureMaxValue}
           isLoading={sedExposureLoading}
@@ -156,7 +155,7 @@ export default function LayerToggleCard({
         {layer.layerId !== 'benthic' && (
           <>
             <Typography className={styles['layer-card_title']}>
-              {layer.layerId === 'sed_load' ? t(layer.legendTitle) : t(layer.title)}
+              {t(layer.legendTitle ?? layer.title)}
             </Typography>
             {layer.year && <Typography>{selectedYear}</Typography>}
             <Switch

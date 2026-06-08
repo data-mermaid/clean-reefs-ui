@@ -71,7 +71,7 @@ import { transparent } from '../../data/mapData'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
-interface ApplyPlumeStatsParams {
+interface ApplyDispersalStatsParams {
   map: maplibregl.Map
   watershedLayer: LayerInfo
   allYearStats: Record<number, ZonalStatsBand>
@@ -100,7 +100,7 @@ interface BaseMapProps {
   onWatershedChange: (id: string | null) => void
   onWatershedSelectionClear: () => void
   onDispersalPointChange(point: { lat: number; lng: number } | null): void
-  onPlumeSelectionClear: () => void
+  onDispersalSelectionClear: () => void
   initialWatershedId: string | null
   initialDispersalPoint: { lat: number; lng: number } | null
   dispersalPoint: { lat: number; lng: number } | null
@@ -117,7 +117,7 @@ interface BaseMapProps {
   regionOptions: RegionOption[]
 }
 
-const plumeCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
+const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
 const getRegionById = (id: number | undefined, regionOptions: RegionOption[]) =>
   regionOptions.find((opt) => opt.bandId === id)
@@ -172,7 +172,7 @@ const handleError = (
   }))
 }
 
-const applyPlumeStats = ({
+const applyDispersalStats = ({
   map,
   watershedLayer,
   allYearStats,
@@ -180,11 +180,11 @@ const applyPlumeStats = ({
   setBreadcrumb,
   onRegionChange,
   regionOptions,
-}: ApplyPlumeStatsParams): void => {
+}: ApplyDispersalStatsParams): void => {
   const { setTopPolygonsFill } = useMapStore.getState()
-  const { setSelectedPlumeWatershedStats } = useSelectedFeatureStore.getState()
+  const { setSelectedDispersalWatershedStats } = useSelectedFeatureStore.getState()
 
-  setSelectedPlumeWatershedStats(allYearStats)
+  setSelectedDispersalWatershedStats(allYearStats)
 
   const currentYearZonalStats = allYearStats[selectedYear]
   const topContributingWatershedIds: number[] = []
@@ -202,13 +202,13 @@ const applyPlumeStats = ({
   })
   const { breadcrumb, addtlRegion } = buildBreadcrumb(
     watershedFeatures[0]?.properties,
-    { id: 'plume', regionType: 'plume', label: 'Plume' },
+    { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
     regionOptions,
   )
 
   setBreadcrumb(breadcrumb)
   // Sync the parent region (e.g. country) to the URL so the up-one-level button
-  // has a valid target to fall back to once the plume/watershed is cleared.
+  // has a valid target to fall back to once the dispersal/watershed is cleared.
   if (addtlRegion) {
     onRegionChange(addtlRegion)
   }
@@ -238,7 +238,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     return
   }
 
-  applyPlumeStats({
+  applyDispersalStats({
     map,
     watershedLayer,
     allYearStats,
@@ -334,9 +334,17 @@ function PmTileLayers({ layer, index }) {
   )
 }
 
-// Transparent fill layer so mousemove/mouseleave fire over the full plume area,
+// Transparent fill layer so mousemove/mouseleave fire over the full dispersal area,
 // not just the outline stroke. Line layer preserves the visual yellow outline.
-function PlumeLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
+function SedExposureBoundaryLayers({
+  layer,
+  index,
+  beforeId,
+}: {
+  layer
+  index
+  beforeId?: string
+}) {
   return (
     <Source
       id={layer.sourceId}
@@ -393,7 +401,7 @@ export default function BaseMap({
   onWatershedChange,
   onWatershedSelectionClear,
   onDispersalPointChange,
-  onPlumeSelectionClear,
+  onDispersalSelectionClear,
   initialWatershedId,
   initialDispersalPoint,
   dispersalPoint,
@@ -424,8 +432,8 @@ export default function BaseMap({
   const polygonClickRef = useRef<string | number | null>(null)
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
-  const plumeRequestIdRef = useRef(0) // Tracks the latest plume click fetch so earlier, slower responses don't overwrite newer ones.
-  // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onPlumeClick)
+  const sedExposureBoundaryRequestIdRef = useRef(0) // Tracks the latest dispersal click fetch so earlier, slower responses don't overwrite newer ones.
+  // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onDispersalClick)
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
   selectedYearRef.current = selectedYear
@@ -433,13 +441,13 @@ export default function BaseMap({
   regionOptionsRef.current = regionOptions
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
-  const plumeClickRef = useRef<string | number | null>(null)
-  // Tracks which plume feature has linkedHover/linkedSelect set, so we can clear it later.
+  const sedExposureBoundaryClickRef = useRef<string | number | null>(null)
+  // Tracks which dispersal feature has linkedHover/linkedSelect set, so we can clear it later.
   // Separate from polygonHoverRef/polygonClickRef so the clear helpers don't fight over null-ing.
-  const plumeLinkedHoverRef = useRef<string | number | null>(null)
-  const plumeLinkedSelectRef = useRef<string | number | null>(null)
-  const plumeLayerRef = useRef<typeof plumeLayer>(undefined)
-  const plumeRestorationRanRef = useRef(false)
+  const sedExposureBoundaryLinkedHoverRef = useRef<string | number | null>(null)
+  const sedExposureBoundaryLinkedSelectRef = useRef<string | number | null>(null)
+  const sedExposureBoundaryLayerRef = useRef<typeof sedExposureBoundaryLayer>(undefined)
+  const sedExposureBoundaryRestorationRanRef = useRef(false)
   const watershedRestorationRanRef = useRef(false)
 
   const [isMapLoaded, setIsMapLoaded] = useState(false)
@@ -455,34 +463,34 @@ export default function BaseMap({
     [mapLayers],
   )
   const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
-  const plumeLayer = useMemo(
+  const sedExposureBoundaryLayer = useMemo(
     () =>
-      mapLayers.find((l) => l.layerId === 'plumes' && l.isLayerOn) ??
-      mapLayers.find((l) => l.layerId === 'plumes'),
+      mapLayers.find((l) => l.layerId === 'sed_exposure_boundary' && l.isLayerOn) ??
+      mapLayers.find((l) => l.layerId === 'sed_exposure_boundary'),
     [mapLayers],
   )
 
-  plumeLayerRef.current = plumeLayer
+  sedExposureBoundaryLayerRef.current = sedExposureBoundaryLayer
   const benthicLayer = useMemo(() => mapLayers.find((l) => l.layerId === 'benthic'), [mapLayers])
-  const previousPlumeLayer = usePrevious(plumeLayer)
+  const previousSedExposureBoundaryLayer = usePrevious(sedExposureBoundaryLayer)
   const benthicSubLayerFillExpression = useMemo(
     () => buildBenthicFillExpression(benthicFillColors),
     [benthicFillColors],
   )
 
-  const clearPlumeSelection = useCallback(() => {
-    plumeRequestIdRef.current += 1 // Prevent a stale plume response from applying if the fetch resolves after this selection is cleared.
+  const clearDispersalSelection = useCallback(() => {
+    sedExposureBoundaryRequestIdRef.current += 1 // Prevent a stale dispersal response from applying if the fetch resolves after this selection is cleared.
 
     const map = mapRef.current?.getMap()
-    // Read from ref so this callback never goes stale when plumeLayer changes (e.g. on year switch).
+    // Read from ref so this callback never goes stale when sedExposureBoundaryLayer changes (e.g. on year switch).
     // onWatershedClick in handleMapLoad captures polygonClickHandler once; without the ref the
     // clearPolygonSelect call would target the wrong year's source after a year change.
-    if (map && plumeLayerRef.current) {
-      clearPolygonSelect(map, plumeClickRef, plumeLayerRef.current)
+    if (map && sedExposureBoundaryLayerRef.current) {
+      clearPolygonSelect(map, sedExposureBoundaryClickRef, sedExposureBoundaryLayerRef.current)
     }
 
-    onPlumeSelectionClear()
-  }, [onPlumeSelectionClear])
+    onDispersalSelectionClear()
+  }, [onDispersalSelectionClear])
 
   const handleFeatureSelect = useCallback(
     (
@@ -490,7 +498,7 @@ export default function BaseMap({
       bounds?: LngLatBounds,
       options?: { skipFitBounds?: boolean },
     ) => {
-      clearPlumeSelection()
+      clearDispersalSelection()
       setSelectedFeature(feature)
 
       if (feature && bounds) {
@@ -507,7 +515,7 @@ export default function BaseMap({
 
           setBreadcrumb(breadcrumb)
           // Sync the parent region (e.g. country) to the URL so the up-one-level button
-          // has a valid target to fall back to once the plume/watershed is cleared.
+          // has a valid target to fall back to once the dispersal/watershed is cleared.
           if (addtlRegion) {
             onRegionChange(addtlRegion)
           }
@@ -534,7 +542,7 @@ export default function BaseMap({
       setSelectedFeature,
       onRegionChange,
       onWatershedChange,
-      clearPlumeSelection,
+      clearDispersalSelection,
       regionOptions,
     ],
   )
@@ -583,7 +591,7 @@ export default function BaseMap({
     }
   }, [])
 
-  // Re-apply plume watershed stats when the year changes while a plume is active.
+  // Re-apply dispersal watershed stats when the year changes while a dispersal is active.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -596,21 +604,21 @@ export default function BaseMap({
     if (!map) {
       return
     }
-    const plumeStats = useSelectedFeatureStore.getState().selectedPlumeWatershedStats
-    if (!plumeStats) {
+    const dispersalStats = useSelectedFeatureStore.getState().selectedDispersalWatershedStats
+    if (!dispersalStats) {
       return
     }
 
-    applyPlumeStats({
+    applyDispersalStats({
       map,
       watershedLayer,
-      allYearStats: plumeStats,
+      allYearStats: dispersalStats,
       selectedYear,
       setBreadcrumb,
       onRegionChange,
       regionOptions,
     })
-    // dispersalPoint, selectedPlumeWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
+    // dispersalPoint, selectedDispersalWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
@@ -623,9 +631,9 @@ export default function BaseMap({
     applyLabelVisibility(showLabels)
   }, [showLabels, isMapLoaded, applyLabelVisibility])
 
-  // Re-apply plume outline selection when plume layer/source is (re)available.
+  // Re-apply dispersal outline selection when dispersal layer/source is (re)available.
   useEffect(() => {
-    if (!isMapLoaded || !plumeLayer) {
+    if (!isMapLoaded || !sedExposureBoundaryLayer) {
       return
     }
     const map = mapRef.current?.getMap()
@@ -635,9 +643,9 @@ export default function BaseMap({
 
     // getSource guard: previous source may already be unmounted (e.g. on year change).
     const previousSourceStillMounted =
-      previousPlumeLayer &&
-      previousPlumeLayer.sourceId !== plumeLayer.sourceId &&
-      map.getSource(previousPlumeLayer.sourceId)
+      previousSedExposureBoundaryLayer &&
+      previousSedExposureBoundaryLayer.sourceId !== sedExposureBoundaryLayer.sourceId &&
+      map.getSource(previousSedExposureBoundaryLayer.sourceId)
 
     const reapply = (ref: RefObject<string | number | null>, key: PolygonFeatureStateKey) => {
       // Capture before clearPolygonFeatureState - it nulls ref.current as part of clearing.
@@ -646,15 +654,15 @@ export default function BaseMap({
         return
       }
       if (previousSourceStillMounted) {
-        clearPolygonFeatureState(map, ref, previousPlumeLayer!, key)
+        clearPolygonFeatureState(map, ref, previousSedExposureBoundaryLayer!, key)
       }
       const id = isNaN(Number(current)) ? current : Number(current)
-      setPolygonFeatureState(map, ref, plumeLayer, id, key)
+      setPolygonFeatureState(map, ref, sedExposureBoundaryLayer, id, key)
     }
 
-    reapply(plumeClickRef, 'select')
-    reapply(plumeLinkedSelectRef, 'linkedSelect')
-  }, [isMapLoaded, plumeLayer, mapLayers, previousPlumeLayer])
+    reapply(sedExposureBoundaryClickRef, 'select')
+    reapply(sedExposureBoundaryLinkedSelectRef, 'linkedSelect')
+  }, [isMapLoaded, sedExposureBoundaryLayer, mapLayers, previousSedExposureBoundaryLayer])
 
   useEffect(() => {
     if (!isMapLoaded) {
@@ -707,27 +715,32 @@ export default function BaseMap({
       if (polygonClickRef.current && watershedLayer) {
         clearPolygonSelect(map, polygonClickRef, watershedLayer)
       }
-      // Mirror onto the active plume layer so the linked highlight clears in lockstep.
-      const currentPlumeLayer = plumeLayerRef.current
-      if (plumeLinkedSelectRef.current && currentPlumeLayer) {
-        clearPolygonFeatureState(map, plumeLinkedSelectRef, currentPlumeLayer, 'linkedSelect')
+      // Mirror onto the active dispersal layer so the linked highlight clears in lockstep.
+      const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
+      if (sedExposureBoundaryLinkedSelectRef.current && currentSedExposureBoundaryLayer) {
+        clearPolygonFeatureState(
+          map,
+          sedExposureBoundaryLinkedSelectRef,
+          currentSedExposureBoundaryLayer,
+          'linkedSelect',
+        )
       }
     }
   }, [selectedFeature, isMapLoaded, watershedLayer])
 
-  // Clear plume outline selection when plume context is cleared (e.g., region change).
+  // Clear dispersal outline selection when dispersal context is cleared (e.g., region change).
   useEffect(() => {
     if (!isMapLoaded || dispersalPoint) {
       return
     }
 
     const map = mapRef.current?.getMap()
-    if (!map || !plumeLayer || !plumeClickRef.current) {
+    if (!map || !sedExposureBoundaryLayer || !sedExposureBoundaryClickRef.current) {
       return
     }
 
-    clearPolygonSelect(map, plumeClickRef, plumeLayer)
-  }, [dispersalPoint, isMapLoaded, plumeLayer])
+    clearPolygonSelect(map, sedExposureBoundaryClickRef, sedExposureBoundaryLayer)
+  }, [dispersalPoint, isMapLoaded, sedExposureBoundaryLayer])
 
   // Watershed restoration from URL — runs once on initial load.
   // watershedRestorationRanRef prevents re-running when watershedLayer gets a new reference
@@ -775,13 +788,13 @@ export default function BaseMap({
         setPolygonSelect(map, polygonClickRef, watershedLayer, featureId)
         setWatershedLayer(watershedLayer)
 
-        // Mirror so a restored URL renders the linked plume highlight too.
-        const currentPlumeLayer = plumeLayerRef.current
-        if (currentPlumeLayer) {
+        // Mirror so a restored URL renders the linked dispersal highlight too.
+        const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
+        if (currentSedExposureBoundaryLayer) {
           setPolygonFeatureState(
             map,
-            plumeLinkedSelectRef,
-            currentPlumeLayer,
+            sedExposureBoundaryLinkedSelectRef,
+            currentSedExposureBoundaryLayer,
             featureId,
             'linkedSelect',
           )
@@ -797,32 +810,32 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialWatershedId, watershedLayer, hasExplicitViewState])
 
-  // Plume restoration from URL
+  // Dispersal restoration from URL
   useEffect(() => {
     if (
-      plumeRestorationRanRef.current ||
+      sedExposureBoundaryRestorationRanRef.current ||
       !isMapLoaded ||
       !initialDispersalPoint ||
       !watershedLayer ||
-      !plumeLayer
+      !sedExposureBoundaryLayer
     ) {
       return undefined
     }
 
-    plumeRestorationRanRef.current = true
+    sedExposureBoundaryRestorationRanRef.current = true
 
     const map = mapRef.current?.getMap()
     if (!map) {
       return undefined
     }
 
-    // Validate the dispersal point falls within the plume source, retrying as tiles stream in.
+    // Validate the dispersal point falls within the dispersal source, retrying as tiles stream in.
     // Uses querySourceFeatures (viewport-independent) to avoid clearing valid URL params that
     // are off-screen at load time, or before PMTiles have finished loading.
     return querySourceFeatureAtPointWhenReady(
       map,
-      plumeLayer.sourceId,
-      plumeLayer.sourceFileName,
+      sedExposureBoundaryLayer.sourceId,
+      sedExposureBoundaryLayer.sourceFileName,
       initialDispersalPoint,
       (feature) => {
         if (!feature) {
@@ -830,19 +843,24 @@ export default function BaseMap({
           return
         }
 
-        // Guard against race condition: skip if the user already clicked a new plume
-        if (plumeClickRef.current == null) {
-          const currentPlumeLayer = plumeLayerRef.current
+        // Guard against race condition: skip if the user already clicked a new dispersal
+        if (sedExposureBoundaryClickRef.current == null) {
+          const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
           const restoredId = feature.id
-          if (currentPlumeLayer && restoredId != null) {
+          if (currentSedExposureBoundaryLayer && restoredId != null) {
             const featureId = isNaN(Number(restoredId)) ? restoredId : Number(restoredId)
-            setPolygonSelect(map, plumeClickRef, currentPlumeLayer, featureId)
+            setPolygonSelect(
+              map,
+              sedExposureBoundaryClickRef,
+              currentSedExposureBoundaryLayer,
+              featureId,
+            )
           }
         }
 
         void (async () => {
           const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-          applyPlumeStats({
+          applyDispersalStats({
             map,
             watershedLayer,
             allYearStats,
@@ -857,7 +875,7 @@ export default function BaseMap({
     // onDispersalPointChange, setBreadcrumb, selectedYear intentionally omitted — this effect is for initial restoration only.
     // initialDispersalPoint is stable (captured once at mount) so this effect only runs once when the map loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMapLoaded, initialDispersalPoint, watershedLayer, plumeLayer])
+  }, [isMapLoaded, initialDispersalPoint, watershedLayer, sedExposureBoundaryLayer])
 
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
@@ -888,21 +906,26 @@ export default function BaseMap({
       map.getCanvas().style.cursor = 'pointer'
       polygonHoverHandler(map, e, watershedLayer)
 
-      // Mirror onto plume with same watershed_id.
-      const currentPlumeLayer = plumeLayerRef.current
+      // Mirror onto dispersal with same watershed_id.
+      const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
       const hoveredWatershedId = e.features?.[0]?.id
-      if (!currentPlumeLayer || hoveredWatershedId == null) {
+      if (!currentSedExposureBoundaryLayer || hoveredWatershedId == null) {
         return
       }
-      if (plumeLinkedHoverRef.current === hoveredWatershedId) {
+      if (sedExposureBoundaryLinkedHoverRef.current === hoveredWatershedId) {
         return
       }
 
-      clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
+      clearPolygonFeatureState(
+        map,
+        sedExposureBoundaryLinkedHoverRef,
+        currentSedExposureBoundaryLayer,
+        'linkedHover',
+      )
       setPolygonFeatureState(
         map,
-        plumeLinkedHoverRef,
-        currentPlumeLayer,
+        sedExposureBoundaryLinkedHoverRef,
+        currentSedExposureBoundaryLayer,
         hoveredWatershedId,
         'linkedHover',
       )
@@ -910,40 +933,55 @@ export default function BaseMap({
     const onWatershedClick = (e: MapLayerMouseEvent) => {
       polygonClickHandler(map, e, watershedLayer)
 
-      const currentPlumeLayer = plumeLayerRef.current
+      const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
       const clickedWatershedId = e.features?.[0]?.id
-      if (!currentPlumeLayer || clickedWatershedId == null) {
+      if (!currentSedExposureBoundaryLayer || clickedWatershedId == null) {
         return
       }
       // Same-watershed reclick is a recenter; nothing to mirror.
-      if (plumeLinkedSelectRef.current === clickedWatershedId) {
+      if (sedExposureBoundaryLinkedSelectRef.current === clickedWatershedId) {
         return
       }
 
-      clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
-      clearPolygonFeatureState(map, plumeLinkedSelectRef, currentPlumeLayer, 'linkedSelect')
+      clearPolygonFeatureState(
+        map,
+        sedExposureBoundaryLinkedHoverRef,
+        currentSedExposureBoundaryLayer,
+        'linkedHover',
+      )
+      clearPolygonFeatureState(
+        map,
+        sedExposureBoundaryLinkedSelectRef,
+        currentSedExposureBoundaryLayer,
+        'linkedSelect',
+      )
       setPolygonFeatureState(
         map,
-        plumeLinkedSelectRef,
-        currentPlumeLayer,
+        sedExposureBoundaryLinkedSelectRef,
+        currentSedExposureBoundaryLayer,
         clickedWatershedId,
         'linkedSelect',
       )
     }
 
-    const onPlumeClick = (e: MapLayerMouseEvent) => {
-      const clickedPlumeFeature = e.features?.[0]
+    const onDispersalClick = (e: MapLayerMouseEvent) => {
+      const clickedDispersalFeature = e.features?.[0]
       // feature.id is promoted from properties.watershed_id via promoteId="watershed_id" on the Source
-      const clickedPlumeWatershedId = clickedPlumeFeature?.id
-      const currentPlumeLayer = plumeLayerRef.current
+      const clickedDispersalWatershedId = clickedDispersalFeature?.id
+      const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
 
-      if (currentPlumeLayer && clickedPlumeWatershedId != null) {
-        const currentFeatureId = isNaN(Number(clickedPlumeWatershedId))
-          ? clickedPlumeWatershedId
-          : Number(clickedPlumeWatershedId)
+      if (currentSedExposureBoundaryLayer && clickedDispersalWatershedId != null) {
+        const currentFeatureId = isNaN(Number(clickedDispersalWatershedId))
+          ? clickedDispersalWatershedId
+          : Number(clickedDispersalWatershedId)
 
-        clearPolygonSelect(map, plumeClickRef, currentPlumeLayer)
-        setPolygonSelect(map, plumeClickRef, currentPlumeLayer, currentFeatureId)
+        clearPolygonSelect(map, sedExposureBoundaryClickRef, currentSedExposureBoundaryLayer)
+        setPolygonSelect(
+          map,
+          sedExposureBoundaryClickRef,
+          currentSedExposureBoundaryLayer,
+          currentFeatureId,
+        )
       }
 
       handleMapClick(e, {
@@ -953,7 +991,7 @@ export default function BaseMap({
         setBreadcrumb,
         onDispersalPointChange,
         onWatershedSelectionClear,
-        requestIdRef: plumeRequestIdRef,
+        requestIdRef: sedExposureBoundaryRequestIdRef,
         onRegionChange,
         regionOptions: regionOptionsRef.current,
       })
@@ -967,20 +1005,25 @@ export default function BaseMap({
       map.getCanvas().style.cursor = ''
       clearPolygonHover(map, polygonHoverRef, watershedLayer)
 
-      const currentPlumeLayer = plumeLayerRef.current
-      if (currentPlumeLayer) {
-        clearPolygonFeatureState(map, plumeLinkedHoverRef, currentPlumeLayer, 'linkedHover')
+      const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
+      if (currentSedExposureBoundaryLayer) {
+        clearPolygonFeatureState(
+          map,
+          sedExposureBoundaryLinkedHoverRef,
+          currentSedExposureBoundaryLayer,
+          'linkedHover',
+        )
       }
     })
 
-    // Register click/hover handlers on every plume year's fill layer (sourceId-based IDs).
+    // Register click/hover handlers on every dispersal year's fill layer (sourceId-based IDs).
     // Hidden layers (visibility:'none') do not fire mouse events so only the active year responds.
     mapLayers
-      .filter((l) => l.layerId === 'plumes')
+      .filter((l) => l.layerId === 'sed_exposure_boundary')
       .forEach((pl) => {
-        map.on('click', pl.sourceId, onPlumeClick)
+        map.on('click', pl.sourceId, onDispersalClick)
         map.on('mousemove', pl.sourceId, () => {
-          map.getCanvas().style.cursor = plumeCrosshairCursor
+          map.getCanvas().style.cursor = dispersalCrosshairCursor
         })
         map.on('mouseleave', pl.sourceId, () => {
           map.getCanvas().style.cursor = ''
@@ -1009,12 +1052,12 @@ export default function BaseMap({
         )}
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
-            <div className={styles['plume-marker']} />
+            <div className={styles['dispersal-marker']} />
           </Marker>
         )}
         {/* Layer visual stack (bottom → top):
             base style → COG (lulc/sed_load) → rastertiles (sed_exposure/reef_extent)
-            → benthic → regions/countries → watershed → plumes → shoreline → rivers → map labels
+            → benthic → regions/countries → watershed → sed_exposure_boundary → shoreline → rivers → map labels
             Shoreline mounts first so it exists as the beforeId anchor for the overlays below. */}
         {isMapLoaded && (
           <Layer
@@ -1069,14 +1112,19 @@ export default function BaseMap({
             beforeId="shoreline-emphasis"
           />
         )}
-        {/* Plumes always rendered so tiles stay cached across year switches; visibility toggled
+        {/* Dispersal layers always rendered so tiles stay cached across year switches; visibility toggled
             via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
             beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
         {isMapLoaded &&
           mapLayers
-            .filter((l) => l.layerId === 'plumes')
+            .filter((l) => l.layerId === 'sed_exposure_boundary')
             .map((l, i) => (
-              <PlumeLayers key={l.sourceId} layer={l} index={i} beforeId="shoreline-emphasis" />
+              <SedExposureBoundaryLayers
+                key={l.sourceId}
+                layer={l}
+                index={i}
+                beforeId="shoreline-emphasis"
+              />
             ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
             beforeId="watershed" places it as the lowest app layer, just below regions/countries */}
@@ -1122,7 +1170,7 @@ export default function BaseMap({
         {mapLayers.map((layer: LayerInfo, index) => {
           if (layer.layerId === 'watershed') {
             return null // rendered above, always present
-          } else if (layer.layerId === 'plumes') {
+          } else if (layer.layerId === 'sed_exposure_boundary') {
             return null // rendered above, always present
           } else if (layer.layerId === 'benthic') {
             return null // rendered above the loop so it exists as a beforeId anchor for rastertiles

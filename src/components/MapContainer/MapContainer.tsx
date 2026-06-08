@@ -42,8 +42,8 @@ export default function MapContainer() {
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
-  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
-    (s) => s.clearSelectedPlumeWatershedStats,
+  const clearSelectedDispersalWatershedStats = useSelectedFeatureStore(
+    (s) => s.clearSelectedDispersalWatershedStats,
   )
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -295,14 +295,14 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
-  const handlePlumeSelectionClear = useCallback(() => {
-    clearSelectedPlumeWatershedStats()
+  const handleDispersalSelectionClear = useCallback(() => {
+    clearSelectedDispersalWatershedStats()
     clearTopPolygonsFill('watershed')
     handleDispersalPointChange(null)
-  }, [clearSelectedPlumeWatershedStats, clearTopPolygonsFill, handleDispersalPointChange])
+  }, [clearSelectedDispersalWatershedStats, clearTopPolygonsFill, handleDispersalPointChange])
 
   // Used by the region dropdown and breadcrumb navigation.
-  // Clears watershed and plume state since the user is navigating to a different scope.
+  // Clears watershed and dispersal state since the user is navigating to a different scope.
   const handleRegionDropdownChange = useCallback(
     (region: RegionOption) => {
       setSelectedRegion(region)
@@ -314,14 +314,14 @@ export default function MapContainer() {
         return nextSearchParams
       })
       clearSelectedFeature()
-      clearSelectedPlumeWatershedStats()
+      clearSelectedDispersalWatershedStats()
       clearTopPolygonsFill('watershed')
       jumpToRegion(region)
     },
     [
       updateSearchParams,
       clearSelectedFeature,
-      clearSelectedPlumeWatershedStats,
+      clearSelectedDispersalWatershedStats,
       clearTopPolygonsFill,
       jumpToRegion,
     ],
@@ -416,8 +416,8 @@ export default function MapContainer() {
       case 'region':
         handleRegionDropdownChange(defaultGlobalRegionOption)
         break
-      case 'plume':
-        handlePlumeSelectionClear()
+      case 'dispersal':
+        handleDispersalSelectionClear()
         break
     }
   }
@@ -500,7 +500,7 @@ export default function MapContainer() {
         onWatershedChange={handleWatershedChange}
         onWatershedSelectionClear={handleWatershedSelectionClear}
         onDispersalPointChange={handleDispersalPointChange}
-        onPlumeSelectionClear={handlePlumeSelectionClear}
+        onDispersalSelectionClear={handleDispersalSelectionClear}
         initialWatershedId={initialWatershedId}
         initialDispersalPoint={initialDispersalPoint}
         dispersalPoint={dispersalPoint}

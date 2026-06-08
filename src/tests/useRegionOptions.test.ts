@@ -54,7 +54,7 @@ describe('useRegionOptions', () => {
     expect(ids).toContain('central-indo-pacific')
     expect(ids).toContain('fiji')
     expect(ids[ids.length - 2]).toBe('watershed')
-    expect(ids[ids.length - 1]).toBe('plume')
+    expect(ids[ids.length - 1]).toBe('dispersal')
   })
 
   it('keeps fallbackRegionOptions and sets loading false when fetch returns empty arrays', async () => {

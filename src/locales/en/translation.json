@@ -52,7 +52,6 @@
     "country_boundaries": "Country boundaries"
   },
   "map_layers": {
-    "dispersal_plume": "Plume boundaries",
     "sediment_exposure": "Sediment exposure",
     "sediment_load": "Sediment load"
   },
@@ -72,7 +71,7 @@
     "region": "Region",
     "select_region": "Select region",
     "watershed": "Watershed",
-    "plume": "Plume"
+    "dispersal": "Dispersal"
   },
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
@@ -92,9 +91,9 @@
     "seagrass": "Seagrass"
   },
   "boundary_map_layers": {
-    "watershed_boundaries": "Watershed boundaries",
-    "country_boundaries": "Country boundaries",
-    "regional_boundaries": "Regional boundaries"
+    "watershed": "Watershed",
+    "country": "Country",
+    "regional": "Regional"
   },
   "contact": "Contact",
   "concentration": "Concentration",
@@ -121,6 +120,7 @@
   "science_and_methods": "Science and methods",
   "sediment": "Sediment",
   "sediment_load_unit": "Sediment load (unit)",
+  "sediment_exposure_unit": "Sediment exposure (unit)",
   "small_area": "Small area",
   "type_to_filter": "Type to filter",
   "year": "Year",

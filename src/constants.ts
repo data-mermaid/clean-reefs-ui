@@ -87,7 +87,7 @@ export const mapFitBoundsMobileConfig = {
 }
 
 /******COLORS******/
-export const plumeOutlineColor = '#FFEA46'
+export const sedExposureBoundaryOutlineColor = '#FFEA46'
 export const polygonOutlineHoverColor = '#F006'
 //export const polygonOutlineHoverColor = '#ff000066'
 export const polygonOutlineSelectColor = '#f00'

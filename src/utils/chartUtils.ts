@@ -29,19 +29,19 @@ export function getDrawerTitle(regionType: RegionType, fallbackLabel: string): s
   if (regionType === 'watershed') {
     return 'watershed_information'
   }
-  if (regionType === 'plume') {
+  if (regionType === 'dispersal') {
     return 'ocean_pollution'
   }
   return fallbackLabel
 }
 
 export function getEffectiveRegionType(
-  selectedPlumeWatershedStats: Record<number, ZonalStatsBand> | null,
+  selectedDispersalWatershedStats: Record<number, ZonalStatsBand> | null,
   selectedFeatureSource: string | undefined,
   regionType: RegionType,
 ): RegionType {
-  if (selectedPlumeWatershedStats) {
-    return 'plume'
+  if (selectedDispersalWatershedStats) {
+    return 'dispersal'
   }
   if (selectedFeatureSource === 'watershed_src') {
     return 'watershed'
@@ -50,7 +50,7 @@ export function getEffectiveRegionType(
 }
 
 export function getUpOneLevelLabel(regionType: RegionType, selectedRegion: RegionOption): string {
-  return regionType === 'plume' || regionType === 'watershed'
+  return regionType === 'dispersal' || regionType === 'watershed'
     ? selectedRegion.label
     : i18next.t('regions.global')
 }
@@ -157,10 +157,10 @@ export const getBoundaryFileChartData = (pointProperties): LulcAndSedimentSeries
   }
   return chartSeriesData
 }
-type PlumeStatsEntries = [string, ZonalStatsBand][]
+type DispersalStatsEntries = [string, ZonalStatsBand][]
 
-export const mapChartConfigToPlumeData = (
-  plumeStatsValue: PlumeStatsEntries,
+export const mapChartConfigToDispersalData = (
+  dispersalStatsValue: DispersalStatsEntries,
 ): ChartProperties[] => {
   const sedimentChartName = 'sediment_exposure_historical'
   const sedimentConfig = chartSeriesConfig[`charts.${sedimentChartName}`]
@@ -184,8 +184,8 @@ export const mapChartConfigToPlumeData = (
       hovertemplate: `${sedXAxisTitle}: %{x}<br />${sedimentTraceName}: %{y:.2f}T<extra></extra>`,
       name: sedimentTraceName,
       width: sedimentConfig.width,
-      x: plumeStatsValue.map(([year]) => year),
-      y: plumeStatsValue.map(([, stats]) => stats?.band_1?.majority ?? 0),
+      x: dispersalStatsValue.map(([year]) => year),
+      y: dispersalStatsValue.map(([, stats]) => stats?.band_1?.majority ?? 0),
     },
   ]
 
@@ -200,8 +200,8 @@ export const mapChartConfigToPlumeData = (
         hovertemplate: `${watershedXAxisTitle}: %{x}<br />${name}: %{y}%<extra></extra>`,
         name,
         width: watershedConfig.width,
-        x: plumeStatsValue.map(([year]) => year),
-        y: plumeStatsValue.map(([, stats]) => stats?.[band]?.majority ?? 0),
+        x: dispersalStatsValue.map(([year]) => year),
+        y: dispersalStatsValue.map(([, stats]) => stats?.[band]?.majority ?? 0),
       }
     })
 
@@ -223,13 +223,13 @@ export const mapChartConfigToPlumeData = (
   ]
 }
 
-export const updatePlumeChartData = (
-  plumeStats: Record<string, ZonalStatsBand>,
+export const updateDispersalChartData = (
+  dispersalStats: Record<string, ZonalStatsBand>,
   setChartData: Dispatch<SetStateAction<ChartProperties[] | null>>,
 ) => {
-  const plumeStatsValue: PlumeStatsEntries = Object.entries(plumeStats)
-  const plumeMappedData = mapChartConfigToPlumeData(plumeStatsValue)
-  setChartData(plumeMappedData)
+  const dispersalStatsValue: DispersalStatsEntries = Object.entries(dispersalStats)
+  const dispersalMappedData = mapChartConfigToDispersalData(dispersalStatsValue)
+  setChartData(dispersalMappedData)
 }
 
 export const mapChartConfigToData = (
@@ -328,7 +328,7 @@ export const buildExportFilename = (
   regionLabel: string,
   chartTitle: string,
 ): string => {
-  const prefixedTypes = ['global', 'watershed', 'plume']
+  const prefixedTypes = ['global', 'watershed', 'dispersal']
   const parts: string[] = []
 
   if (prefixedTypes.includes(regionType)) {

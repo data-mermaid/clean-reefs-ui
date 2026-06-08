@@ -18,12 +18,12 @@ describe('sortBoundaryLayers', () => {
       makeBoundaryLayer('countries'),
       makeBoundaryLayer('regions'),
       makeBoundaryLayer('watershed'),
-      makeBoundaryLayer('plumes'),
+      makeBoundaryLayer('sed_exposure_boundary'),
     ]
 
     const sortedIds = input.sort(sortBoundaryLayers).map((layer) => layer.layerId)
 
-    expect(sortedIds).toEqual(['watershed', 'plumes', 'regions', 'countries'])
+    expect(sortedIds).toEqual(['watershed', 'sed_exposure_boundary', 'regions', 'countries'])
   })
 
   it('places unranked layers after all ranked layers', () => {

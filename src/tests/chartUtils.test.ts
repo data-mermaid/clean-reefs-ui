@@ -10,8 +10,8 @@ import {
   getUpOneLevelLabel,
   buildChartDataFromProperties,
   updateChartData,
-  mapChartConfigToPlumeData,
-  updatePlumeChartData,
+  mapChartConfigToDispersalData,
+  updateDispersalChartData,
 } from '../utils/chartUtils'
 import { ChartData, ChartSeriesName } from '../types/ChartDataTypes'
 import { chartSeriesConfig } from '../data/chartSeriesData'
@@ -463,9 +463,9 @@ describe('export filename utilities', () => {
       expect(buildExportFilename('watershed', '12345', 'Land use')).toBe('watershed-12345-land-use')
     })
 
-    it('builds plume filename with prefix', () => {
-      expect(buildExportFilename('plume', 'abc-123', 'Sediment exposure')).toBe(
-        'plume-abc-123-sediment-exposure',
+    it('builds dispersal filename with prefix', () => {
+      expect(buildExportFilename('dispersal', 'abc-123', 'Sediment exposure')).toBe(
+        'dispersal-abc-123-sediment-exposure',
       )
     })
 
@@ -508,7 +508,7 @@ const sharedLandUseMockConfig = {
   },
 }
 
-const sharedPlumeMockConfig = {
+const sharedDispersalMockConfig = {
   'charts.sediment_exposure_historical': {
     xAxisTitle: 'chart_information.year',
     yAxisTitle: 'chart_information.sediment_exposure',
@@ -543,7 +543,7 @@ describe('getDrawerTitle', () => {
   it.each([
     ['global', 'fallback', 'global_trends'],
     ['watershed', 'fallback', 'watershed_information'],
-    ['plume', 'fallback', 'ocean_pollution'],
+    ['dispersal', 'fallback', 'ocean_pollution'],
     ['country', 'country_details', 'country_details'],
     ['region', 'region_overview', 'region_overview'],
   ] as const)('(%s, %s) → %s', (regionType, fallback, expected) => {
@@ -555,14 +555,14 @@ describe('getEffectiveRegionType', () => {
   const stats = { 1: { band_1: { majority: 5, aoi_area: 0, data_area: 0 } } }
 
   it.each([
-    { plumeStats: stats, source: undefined, regionType: 'region', expected: 'plume' },
-    { plumeStats: null, source: 'watershed_src', regionType: 'region', expected: 'watershed' },
-    { plumeStats: null, source: 'countries_src', regionType: 'region', expected: 'region' },
-    { plumeStats: null, source: undefined, regionType: 'global', expected: 'global' },
+    { dispersalStats: stats, source: undefined, regionType: 'region', expected: 'dispersal' },
+    { dispersalStats: null, source: 'watershed_src', regionType: 'region', expected: 'watershed' },
+    { dispersalStats: null, source: 'countries_src', regionType: 'region', expected: 'region' },
+    { dispersalStats: null, source: undefined, regionType: 'global', expected: 'global' },
   ])(
     '(source=$source, type=$regionType) → $expected',
-    ({ plumeStats, source, regionType, expected }) => {
-      expect(getEffectiveRegionType(plumeStats as never, source, regionType as never)).toBe(
+    ({ dispersalStats, source, regionType, expected }) => {
+      expect(getEffectiveRegionType(dispersalStats as never, source, regionType as never)).toBe(
         expected,
       )
     },
@@ -578,7 +578,7 @@ describe('getUpOneLevelLabel', () => {
   })
 
   it.each([
-    ['plume', 'Solomon Islands'],
+    ['dispersal', 'Solomon Islands'],
     ['watershed', 'Solomon Islands'],
     ['global', 'regions.global'],
     ['country', 'regions.global'],
@@ -644,8 +644,8 @@ describe('updateChartData', () => {
   })
 })
 
-describe('mapChartConfigToPlumeData', () => {
-  const plumeStats = {
+describe('mapChartConfigToDispersalData', () => {
+  const dispersalStats = {
     '2020': {
       band_1: { majority: 5, aoi_area: 0, data_area: 0 },
       band_5: { majority: 10, aoi_area: 0, data_area: 0 },
@@ -655,19 +655,19 @@ describe('mapChartConfigToPlumeData', () => {
   }
 
   beforeEach(() => {
-    Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
+    Object.assign(chartSeriesConfig, sharedDispersalMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key
   })
 
   it('returns exactly two ChartProperties entries', () => {
-    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+    const result = mapChartConfigToDispersalData(Object.entries(dispersalStats))
 
     expect(result).toHaveLength(2)
   })
 
   it('first entry is sediment_exposure_historical with correct structure', () => {
-    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+    const result = mapChartConfigToDispersalData(Object.entries(dispersalStats))
     const sedChart = result[0]
 
     expect(sedChart.chartName).toBe('sediment_exposure_historical')
@@ -677,7 +677,7 @@ describe('mapChartConfigToPlumeData', () => {
   })
 
   it('second entry is contributing_watersheds with three reversed watershed bars', () => {
-    const result = mapChartConfigToPlumeData(Object.entries(plumeStats))
+    const result = mapChartConfigToDispersalData(Object.entries(dispersalStats))
     const watershedChart = result[1]
 
     expect(watershedChart.chartName).toBe('contributing_watersheds')
@@ -689,8 +689,8 @@ describe('mapChartConfigToPlumeData', () => {
   })
 })
 
-describe('updatePlumeChartData', () => {
-  const plumeStats = {
+describe('updateDispersalChartData', () => {
+  const dispersalStats = {
     '2020': {
       band_1: { majority: 5, aoi_area: 0, data_area: 0 },
       band_5: { majority: 10, aoi_area: 0, data_area: 0 },
@@ -700,14 +700,14 @@ describe('updatePlumeChartData', () => {
   }
 
   beforeEach(() => {
-    Object.assign(chartSeriesConfig, sharedPlumeMockConfig)
+    Object.assign(chartSeriesConfig, sharedDispersalMockConfig)
     // @ts-expect-error mocking i18next.t
     i18next.t = (key: string) => key
   })
 
   it('calls setChartData with the two mapped ChartProperties', () => {
     const setChartData = jest.fn()
-    updatePlumeChartData(plumeStats, setChartData)
+    updateDispersalChartData(dispersalStats, setChartData)
 
     expect(setChartData).toHaveBeenCalledTimes(1)
     const arg = setChartData.mock.calls[0][0]
