@@ -80,5 +80,5 @@ export const chartsByRegionType: Record<RegionType, ChartSeriesName[]> = {
   country: sharedCharts,
   region: sharedCharts,
   watershed: sharedCharts,
-  plume: [...sharedCharts, 'sediment_exposure_historical', 'contributing_watersheds'],
+  dispersal: [...sharedCharts, 'sediment_exposure_historical', 'contributing_watersheds'],
 }

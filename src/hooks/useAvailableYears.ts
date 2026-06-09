@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { STAC_API_BASE_URL, STAC_API_TIMEOUT, SED_DISPERSAL_COLLECTION_ID } from '../constants'
+import { STAC_API_BASE_URL, STAC_API_TIMEOUT, SED_EXPOSURE_COLLECTION_ID } from '../constants'
 import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../data/mapData'
 
 interface AvailableYears {
@@ -28,7 +28,7 @@ const useAvailableYears = (): AvailableYears => {
     let cancelled = true
     const timeoutId = setTimeout(() => controller.abort(), STAC_API_TIMEOUT)
 
-    fetch(`${STAC_API_BASE_URL}/collections/${SED_DISPERSAL_COLLECTION_ID}/items`, {
+    fetch(`${STAC_API_BASE_URL}/collections/${SED_EXPOSURE_COLLECTION_ID}/items`, {
       signal: controller.signal,
     })
       .then((res) => {

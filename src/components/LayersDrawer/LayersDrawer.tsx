@@ -31,9 +31,9 @@ interface LayersDrawerProps {
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
   onBasemapChange: (basemap: Basemap) => void
-  sedDispersalMinValue?: number
-  sedDispersalMaxValue?: number
-  sedDispersalLoading?: boolean
+  sedExposureMinValue?: number
+  sedExposureMaxValue?: number
+  sedExposureLoading?: boolean
   sedLoadMinValue?: number
   sedLoadMaxValue?: number
   sedLoadLoading?: boolean
@@ -75,9 +75,9 @@ export default function LayersDrawer({
   showLabels,
   onLabelsChange,
   onBasemapChange,
-  sedDispersalMinValue,
-  sedDispersalMaxValue,
-  sedDispersalLoading,
+  sedExposureMinValue,
+  sedExposureMaxValue,
+  sedExposureLoading,
   sedLoadMinValue,
   sedLoadMaxValue,
   sedLoadLoading,
@@ -167,9 +167,9 @@ export default function LayersDrawer({
             selectedYear={selectedYear}
             subSedLayerValue={subSedLayerValue}
             onSedSubLayerChange={onSedSubLayerChange}
-            sedDispersalMinValue={sedDispersalMinValue}
-            sedDispersalMaxValue={sedDispersalMaxValue}
-            sedDispersalLoading={sedDispersalLoading}
+            sedExposureMinValue={sedExposureMinValue}
+            sedExposureMaxValue={sedExposureMaxValue}
+            sedExposureLoading={sedExposureLoading}
             sedLoadMinValue={sedLoadMinValue}
             sedLoadMaxValue={sedLoadMaxValue}
             sedLoadLoading={sedLoadLoading}
@@ -188,9 +188,9 @@ export default function LayersDrawer({
       onLabelsChange,
       selectedBasemap,
       onBasemapChange,
-      sedDispersalMinValue,
-      sedDispersalMaxValue,
-      sedDispersalLoading,
+      sedExposureMinValue,
+      sedExposureMaxValue,
+      sedExposureLoading,
       sedLoadMinValue,
       sedLoadMaxValue,
       sedLoadLoading,

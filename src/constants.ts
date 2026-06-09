@@ -35,19 +35,19 @@ export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/
 export const REEF_EXTENT_URL =
   'https://mermaid.prescient.earth/raster/collections/aca_extent/items/aca_extent/tiles/WebMercatorQuad/{z}/{x}/{y}.png?assets=cog&colormap={"0":[0,0,0,0],"1":[178,8,76,200]}'
 
-/* Ocean Sediment Dispersal Layers */
-export const SED_DISPERSAL_2000_PMTILES_URL =
+/* Sediment Exposure Layers */
+export const SED_EXPOSURE_2000_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2000/visual_sediment_exposure_plumes_2000.pmtiles'
-export const SED_DISPERSAL_2005_PMTILES_URL =
+export const SED_EXPOSURE_2005_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2005/visual_sediment_exposure_plumes_2005.pmtiles'
-export const SED_DISPERSAL_2010_PMTILES_URL =
+export const SED_EXPOSURE_2010_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2010/visual_sediment_exposure_plumes_2010.pmtiles'
-export const SED_DISPERSAL_2015_PMTILES_URL =
+export const SED_EXPOSURE_2015_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2015/visual_sediment_exposure_plumes_2015.pmtiles'
-export const SED_DISPERSAL_2020_PMTILES_URL =
+export const SED_EXPOSURE_2020_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure/gpw_sediment_exposure_2020/visual_sediment_exposure_plumes_2020.pmtiles'
 
-/* Ocean Sediment Dispersal point stats / Zonal Stats data API */
+/* Sediment Exposure point stats / Zonal Stats data API */
 export const BASE_ZONAL_STATS_API =
   'https://api.zonalstats.datamermaid.org/api/v1/zonal-stats/raster'
 export const SEDIMENT_EXPOSURE_2000_URL =
@@ -64,7 +64,7 @@ export const SEDIMENT_EXPOSURE_2020_URL =
 /******TITILER API******/
 export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
-export const SED_DISPERSAL_COLLECTION_ID = 'gpw_sediment_exposure'
+export const SED_EXPOSURE_COLLECTION_ID = 'gpw_sediment_exposure'
 export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
 
 /******STAC API******/
@@ -87,7 +87,7 @@ export const mapFitBoundsMobileConfig = {
 }
 
 /******COLORS******/
-export const plumeOutlineColor = '#FFEA46'
+export const sedExposureBoundaryOutlineColor = '#FFEA46'
 export const polygonOutlineHoverColor = '#F006'
 //export const polygonOutlineHoverColor = '#ff000066'
 export const polygonOutlineSelectColor = '#f00'

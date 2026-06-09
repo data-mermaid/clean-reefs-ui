@@ -219,7 +219,7 @@ export const mapToggleChange = (
  * Queries a vector tile source for a feature, retrying as tiles load.
  * Calls onResult with the feature once found, or null on timeout.
  * Returns a cancel function (suitable as useEffect cleanup).
- * Reusable for any vector source that needs async feature lookup (watershed, plume, etc.).
+ * Reusable for any vector source that needs async feature lookup (watershed, dispersal, etc.).
  */
 export function querySourceFeatureWhenReady(
   map: Map,

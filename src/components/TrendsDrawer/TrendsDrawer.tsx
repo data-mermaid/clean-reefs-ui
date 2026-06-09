@@ -25,7 +25,7 @@ import {
   getEffectiveRegionType,
   getRegionLabel,
   updateChartData,
-  updatePlumeChartData,
+  updateDispersalChartData,
 } from '../../utils/chartUtils'
 
 interface TrendsDrawerProps {
@@ -53,7 +53,9 @@ export default function TrendsDrawer({
   const [isChartDataLoading, setIsChartDataLoading] = useState(false)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
-  const selectedPlumeWatershedStats = useSelectedFeatureStore((s) => s.selectedPlumeWatershedStats)
+  const selectedDispersalWatershedStats = useSelectedFeatureStore(
+    (s) => s.selectedDispersalWatershedStats,
+  )
 
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
@@ -61,8 +63,8 @@ export default function TrendsDrawer({
     setIsChartDataLoading(true)
     const { regionType } = selectedRegion
 
-    if (selectedPlumeWatershedStats) {
-      updatePlumeChartData(selectedPlumeWatershedStats, setChartConfigData)
+    if (selectedDispersalWatershedStats) {
+      updateDispersalChartData(selectedDispersalWatershedStats, setChartConfigData)
       setIsChartDataLoading(false)
       return
     }
@@ -104,12 +106,12 @@ export default function TrendsDrawer({
 
     setChartConfigData(null)
     setIsChartDataLoading(false)
-  }, [selectedFeature, selectedRegion, selectedPlumeWatershedStats])
+  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
   const effectiveRegionType = getEffectiveRegionType(
-    selectedPlumeWatershedStats,
+    selectedDispersalWatershedStats,
     selectedFeature?.source,
     selectedRegion.regionType,
   )

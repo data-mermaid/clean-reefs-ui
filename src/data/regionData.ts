@@ -44,8 +44,8 @@ export const fallbackRegionOptions: RegionOption[] = [
     label: 'Watershed',
   },
   {
-    id: 'plume',
-    regionType: 'plume',
-    label: 'Plume',
+    id: 'dispersal',
+    regionType: 'dispersal',
+    label: 'Dispersal',
   },
 ]

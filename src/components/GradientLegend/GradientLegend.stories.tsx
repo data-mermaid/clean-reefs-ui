@@ -13,9 +13,9 @@ export const SedimentLoad: Story = {
     title: 'sediment',
   },
 }
-export const OceanSedimentDispersal: Story = {
+export const SedimentExposure: Story = {
   args: {
-    variation: 'sed_dispersal',
+    variation: 'sed_exposure',
     title: 'sediment',
   },
 }

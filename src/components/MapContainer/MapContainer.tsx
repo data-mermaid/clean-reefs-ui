@@ -7,7 +7,7 @@ import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
 import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../data/mapData'
-import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_DISPERSAL_COLLECTION_ID } from '../../constants'
+import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_EXPOSURE_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { Basemap } from '../../utils/mapUtils'
@@ -31,8 +31,8 @@ import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
 import {
-  buildSedDispersalItemId,
-  buildSedDispersalTileUrl,
+  buildSedExposureItemId,
+  buildSedExposureTileUrl,
   buildSedLoadTileUrl,
 } from '../../utils/titilerUtils'
 
@@ -42,8 +42,8 @@ export default function MapContainer() {
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
-  const clearSelectedPlumeWatershedStats = useSelectedFeatureStore(
-    (s) => s.clearSelectedPlumeWatershedStats,
+  const clearSelectedDispersalWatershedStats = useSelectedFeatureStore(
+    (s) => s.clearSelectedDispersalWatershedStats,
   )
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -105,10 +105,10 @@ export default function MapContainer() {
   )
 
   const {
-    minValue: sedDispersalMinValue,
-    maxValue: sedDispersalMaxValue,
-    isLoading: sedDispersalLoading,
-  } = useRasterStatistics(SED_DISPERSAL_COLLECTION_ID, selectedRegion, latestYear)
+    minValue: sedExposureMinValue,
+    maxValue: sedExposureMaxValue,
+    isLoading: sedExposureLoading,
+  } = useRasterStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,
@@ -116,27 +116,27 @@ export default function MapContainer() {
     isLoading: sedLoadLoading,
   } = useSedLoadStatistics(latestYear)
 
-  // Update the active sed_dispersal tile URL when min/max values change; clear link when stats are unavailable
+  // Update the active sed_exposure tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
     setMapLayers((prevLayers) =>
       prevLayers.map((layer) => {
-        if (layer.layerId !== 'sed_dispersal' || layer.year !== selectedYear) {
+        if (layer.layerId !== 'sed_exposure' || layer.year !== selectedYear) {
           return layer
         }
         return {
           ...layer,
           link:
-            !sedDispersalLoading && sedDispersalMinValue !== null && sedDispersalMaxValue !== null
-              ? buildSedDispersalTileUrl(
-                  SED_DISPERSAL_COLLECTION_ID,
-                  buildSedDispersalItemId(selectedYear),
-                  sedDispersalMaxValue,
+            !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
+              ? buildSedExposureTileUrl(
+                  SED_EXPOSURE_COLLECTION_ID,
+                  buildSedExposureItemId(selectedYear),
+                  sedExposureMaxValue,
                 )
               : '',
         }
       }),
     )
-  }, [sedDispersalMinValue, sedDispersalMaxValue, selectedYear, sedDispersalLoading])
+  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading])
 
   // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -162,6 +162,9 @@ export default function MapContainer() {
     () =>
       mapLayers.map((layer) => {
         if (!urlControlledLayerIds.includes(layer.layerId)) {
+          if (layer.year !== undefined) {
+            return { ...layer, isLayerOn: layer.isLayerOn && layer.year === selectedYear }
+          }
           return layer
         }
 
@@ -295,14 +298,14 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
-  const handlePlumeSelectionClear = useCallback(() => {
-    clearSelectedPlumeWatershedStats()
+  const handleDispersalSelectionClear = useCallback(() => {
+    clearSelectedDispersalWatershedStats()
     clearTopPolygonsFill('watershed')
     handleDispersalPointChange(null)
-  }, [clearSelectedPlumeWatershedStats, clearTopPolygonsFill, handleDispersalPointChange])
+  }, [clearSelectedDispersalWatershedStats, clearTopPolygonsFill, handleDispersalPointChange])
 
   // Used by the region dropdown and breadcrumb navigation.
-  // Clears watershed and plume state since the user is navigating to a different scope.
+  // Clears watershed and dispersal state since the user is navigating to a different scope.
   const handleRegionDropdownChange = useCallback(
     (region: RegionOption) => {
       setSelectedRegion(region)
@@ -314,14 +317,14 @@ export default function MapContainer() {
         return nextSearchParams
       })
       clearSelectedFeature()
-      clearSelectedPlumeWatershedStats()
+      clearSelectedDispersalWatershedStats()
       clearTopPolygonsFill('watershed')
       jumpToRegion(region)
     },
     [
       updateSearchParams,
       clearSelectedFeature,
-      clearSelectedPlumeWatershedStats,
+      clearSelectedDispersalWatershedStats,
       clearTopPolygonsFill,
       jumpToRegion,
     ],
@@ -416,8 +419,8 @@ export default function MapContainer() {
       case 'region':
         handleRegionDropdownChange(defaultGlobalRegionOption)
         break
-      case 'plume':
-        handlePlumeSelectionClear()
+      case 'dispersal':
+        handleDispersalSelectionClear()
         break
     }
   }
@@ -464,9 +467,9 @@ export default function MapContainer() {
           showLabels={showLabels}
           onLabelsChange={handleLabelsChange}
           onBasemapChange={handleBasemapChange}
-          sedDispersalMinValue={sedDispersalMinValue ?? undefined}
-          sedDispersalMaxValue={sedDispersalMaxValue ?? undefined}
-          sedDispersalLoading={sedDispersalLoading}
+          sedExposureMinValue={sedExposureMinValue ?? undefined}
+          sedExposureMaxValue={sedExposureMaxValue ?? undefined}
+          sedExposureLoading={sedExposureLoading}
           sedLoadMinValue={sedLoadMinValue ?? undefined}
           sedLoadMaxValue={sedLoadMaxValue ?? undefined}
           sedLoadLoading={sedLoadLoading}
@@ -500,7 +503,7 @@ export default function MapContainer() {
         onWatershedChange={handleWatershedChange}
         onWatershedSelectionClear={handleWatershedSelectionClear}
         onDispersalPointChange={handleDispersalPointChange}
-        onPlumeSelectionClear={handlePlumeSelectionClear}
+        onDispersalSelectionClear={handleDispersalSelectionClear}
         initialWatershedId={initialWatershedId}
         initialDispersalPoint={initialDispersalPoint}
         dispersalPoint={dispersalPoint}
