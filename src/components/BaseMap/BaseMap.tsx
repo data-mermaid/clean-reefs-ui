@@ -856,20 +856,23 @@ export default function BaseMap({
               featureId,
             )
           }
-        }
 
-        void (async () => {
-          const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-          applyDispersalStats({
-            map,
-            watershedLayer,
-            allYearStats,
-            selectedYear,
-            setBreadcrumb,
-            onRegionChange,
-            regionOptions,
-          })
-        })()
+          void (async () => {
+            const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
+            if (sedExposureBoundaryClickRef.current != null) {
+              return
+            }
+            applyDispersalStats({
+              map,
+              watershedLayer,
+              allYearStats,
+              selectedYear,
+              setBreadcrumb,
+              onRegionChange,
+              regionOptions,
+            })
+          })()
+        }
       },
     )
     // onDispersalPointChange, setBreadcrumb, selectedYear intentionally omitted — this effect is for initial restoration only.
