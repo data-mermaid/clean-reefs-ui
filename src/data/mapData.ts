@@ -290,7 +290,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_exposure_boundary',
     link: SED_EXPOSURE_2000_PMTILES_URL,
     outlineColor: sedExposureBoundaryOutlineColor,
@@ -302,7 +302,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_exposure_boundary',
     link: SED_EXPOSURE_2005_PMTILES_URL,
     outlineColor: sedExposureBoundaryOutlineColor,
@@ -314,7 +314,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_exposure_boundary',
     link: SED_EXPOSURE_2010_PMTILES_URL,
     outlineColor: sedExposureBoundaryOutlineColor,
@@ -326,7 +326,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_exposure_boundary',
     link: SED_EXPOSURE_2015_PMTILES_URL,
     outlineColor: sedExposureBoundaryOutlineColor,
@@ -338,7 +338,7 @@ export const layers: LayerInfo[] = [
   },
   {
     dataType: 'pmtiles',
-    isLayerOn: false,
+    isLayerOn: true,
     layerId: 'sed_exposure_boundary',
     link: SED_EXPOSURE_2020_PMTILES_URL,
     outlineColor: sedExposureBoundaryOutlineColor,
@@ -397,7 +397,6 @@ export const urlControlledLayerIds = [
   'sed_load',
   'lulc',
   'sed_exposure',
-  'sed_exposure_boundary',
   ...benthicSubLayers.map((l) => l.layerId),
 ]
 export const defaultLayersToShow = urlControlledLayerIds.filter(

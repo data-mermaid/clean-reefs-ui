@@ -162,6 +162,9 @@ export default function MapContainer() {
     () =>
       mapLayers.map((layer) => {
         if (!urlControlledLayerIds.includes(layer.layerId)) {
+          if (layer.year !== undefined) {
+            return { ...layer, isLayerOn: layer.isLayerOn && layer.year === selectedYear }
+          }
           return layer
         }
 

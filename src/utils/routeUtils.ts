@@ -50,13 +50,11 @@ export function getValidLayers(layersFromSearchParam: string | null) {
     return []
   }
 
-  const layers = layersFromSearchParam.split(',').filter(Boolean)
+  const layers = layersFromSearchParam
+    .split(',')
+    .filter((l) => l && urlControlledLayerIds.includes(l))
 
-  if (layers.length === 0 || layers.some((layer) => !urlControlledLayerIds.includes(layer))) {
-    return defaultLayersToShow
-  }
-
-  return layers
+  return layers.length > 0 ? layers : defaultLayersToShow
 }
 
 export function getValidZoom(zoomFromSearchParam: string | null): number | null {
