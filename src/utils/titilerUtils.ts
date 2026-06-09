@@ -30,10 +30,10 @@ interface MinMaxValues {
   max: number
 }
 
-// ─── Sed Dispersal ───────────────────────────────────────────────────────────
+// ─── Sed Exposure ────────────────────────────────────────────────────────────
 
 /** Build the TiTiler expression and required asset bands for the selected region. */
-export function buildSedDispersalExpression(region: RegionOption): ExpressionConfig {
+export function buildSedExposureExpression(region: RegionOption): ExpressionConfig {
   if (region.bandId == null) {
     return { expression: null, assetBidx: 'cog|1' }
   }
@@ -55,15 +55,15 @@ export function buildSedDispersalExpression(region: RegionOption): ExpressionCon
 }
 
 /** Build the TiTiler item ID for the selected year. */
-export function buildSedDispersalItemId(year: number): string {
+export function buildSedExposureItemId(year: number): string {
   return `${SED_EXPOSURE_COLLECTION_ID}_${year}`
 }
 
 /**
- * Fetch statistics for a sed dispersal region from TiTiler.
+ * Fetch statistics for a sed exposure region from TiTiler.
  * Pass null expression for global (no region filter).
  */
-export async function fetchSedDispersalStatistics(
+export async function fetchSedExposureStatistics(
   collectionId: string,
   itemId: string,
   expression: string | null,
@@ -115,15 +115,11 @@ export async function fetchSedDispersalStatistics(
 }
 
 /**
- * Build a MapLibre-compatible tile URL template for sed dispersal with dynamic rescale.
+ * Build a MapLibre-compatible tile URL template for sed exposure with dynamic rescale.
  * Uses {z}/{x}/{y} placeholders that MapLibre fills in when fetching tiles.
  * The expression clamps values at max so nothing renders out of range.
  */
-export function buildSedDispersalTileUrl(
-  collectionId: string,
-  itemId: string,
-  max: number,
-): string {
+export function buildSedExposureTileUrl(collectionId: string, itemId: string, max: number): string {
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
   const params = new URLSearchParams({
     rescale: `0,${max}`,

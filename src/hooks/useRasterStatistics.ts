@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import {
-  buildSedDispersalExpression,
-  buildSedDispersalItemId,
-  fetchSedDispersalStatistics,
+  buildSedExposureExpression,
+  buildSedExposureItemId,
+  fetchSedExposureStatistics,
 } from '../utils/titilerUtils'
 
 interface RasterStatistics {
@@ -29,8 +29,8 @@ const useRasterStatistics = (
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const { expression, assetBidx } = buildSedDispersalExpression(selectedRegion)
-    const itemId = buildSedDispersalItemId(latestYear)
+    const { expression, assetBidx } = buildSedExposureExpression(selectedRegion)
+    const itemId = buildSedExposureItemId(latestYear)
     const cacheKey = `${collectionId}|${itemId}|${expression ?? 'global'}`
 
     const cached = statsCache.get(cacheKey)
@@ -47,23 +47,19 @@ const useRasterStatistics = (
     // Keep stale min/max while reloading — avoids unmounting the tile layer and clearing the tile cache
     setIsLoading(true)
 
-    fetchSedDispersalStatistics(
-      collectionId,
-      itemId,
-      expression,
-      assetBidx,
-      controller.signal,
-    ).then((result) => {
-      if (cancelled) {
-        return
-      }
-      if (result) {
-        statsCache.set(cacheKey, result)
-        setMinValue(result.min)
-        setMaxValue(result.max)
-      }
-      setIsLoading(false)
-    })
+    fetchSedExposureStatistics(collectionId, itemId, expression, assetBidx, controller.signal).then(
+      (result) => {
+        if (cancelled) {
+          return
+        }
+        if (result) {
+          statsCache.set(cacheKey, result)
+          setMinValue(result.min)
+          setMaxValue(result.max)
+        }
+        setIsLoading(false)
+      },
+    )
 
     return () => {
       cancelled = true

@@ -31,8 +31,8 @@ import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
 import {
-  buildSedDispersalItemId,
-  buildSedDispersalTileUrl,
+  buildSedExposureItemId,
+  buildSedExposureTileUrl,
   buildSedLoadTileUrl,
 } from '../../utils/titilerUtils'
 
@@ -127,9 +127,9 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
-              ? buildSedDispersalTileUrl(
+              ? buildSedExposureTileUrl(
                   SED_EXPOSURE_COLLECTION_ID,
-                  buildSedDispersalItemId(selectedYear),
+                  buildSedExposureItemId(selectedYear),
                   sedExposureMaxValue,
                 )
               : '',

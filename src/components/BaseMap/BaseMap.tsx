@@ -631,7 +631,7 @@ export default function BaseMap({
     applyLabelVisibility(showLabels)
   }, [showLabels, isMapLoaded, applyLabelVisibility])
 
-  // Re-apply dispersal outline selection when dispersal layer/source is (re)available.
+  // Re-apply sed exposure boundary selection when the layer/source is (re)available.
   useEffect(() => {
     if (!isMapLoaded || !sedExposureBoundaryLayer) {
       return

@@ -1,14 +1,18 @@
 import { LngLat } from 'maplibre-gl'
 import {
-  buildSedDispersalExpression,
-  buildSedDispersalItemId,
-  buildSedDispersalTileUrl,
-  fetchSedDispersalStatistics,
+  buildSedExposureExpression,
+  buildSedExposureItemId,
+  buildSedExposureTileUrl,
+  fetchSedExposureStatistics,
   fetchSedLoadStatistics,
   buildSedLoadTileUrl,
 } from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
-import { SED_EXPOSURE_COLLECTION_ID, SED_LOAD_COLLECTION_ID, TITILER_API_BASE_URL } from '../constants'
+import {
+  SED_EXPOSURE_COLLECTION_ID,
+  SED_LOAD_COLLECTION_ID,
+  TITILER_API_BASE_URL,
+} from '../constants'
 
 const makeRegion = (overrides: Partial<RegionOption>): RegionOption => ({
   id: 'test',
@@ -19,52 +23,52 @@ const makeRegion = (overrides: Partial<RegionOption>): RegionOption => ({
   ...overrides,
 })
 
-describe('buildSedDispersalExpression', () => {
+describe('buildSedExposureExpression', () => {
   it('returns null expression and base bidx for global region', () => {
-    expect(buildSedDispersalExpression(makeRegion({ regionType: 'global' }))).toEqual({
+    expect(buildSedExposureExpression(makeRegion({ regionType: 'global' }))).toEqual({
       expression: null,
       assetBidx: 'cog|1',
     })
   })
 
   it('returns null expression and base bidx for region without bandId', () => {
-    expect(buildSedDispersalExpression(makeRegion({ regionType: 'country' }))).toEqual({
+    expect(buildSedExposureExpression(makeRegion({ regionType: 'country' }))).toEqual({
       expression: null,
       assetBidx: 'cog|1',
     })
   })
 
   it('returns null expression and base bidx for watershed without bandId', () => {
-    expect(buildSedDispersalExpression(makeRegion({ regionType: 'watershed' }))).toEqual({
+    expect(buildSedExposureExpression(makeRegion({ regionType: 'watershed' }))).toEqual({
       expression: null,
       assetBidx: 'cog|1',
     })
   })
 
   it('returns country expression and band 8 bidx for country with bandId', () => {
-    expect(buildSedDispersalExpression(makeRegion({ regionType: 'country', bandId: 54 }))).toEqual({
+    expect(buildSedExposureExpression(makeRegion({ regionType: 'country', bandId: 54 }))).toEqual({
       expression: 'where((cog_b8==54), cog_b1, 0)',
       assetBidx: 'cog|1,8',
     })
   })
 
   it('returns region expression and band 9 bidx for region with bandId', () => {
-    expect(buildSedDispersalExpression(makeRegion({ regionType: 'region', bandId: 2 }))).toEqual({
+    expect(buildSedExposureExpression(makeRegion({ regionType: 'region', bandId: 2 }))).toEqual({
       expression: 'where((cog_b9==2), cog_b1, 0)',
       assetBidx: 'cog|1,9',
     })
   })
 })
 
-describe('buildSedDispersalItemId', () => {
+describe('buildSedExposureItemId', () => {
   it.each([2000, 2005, 2010, 2015, 2020])('builds dispersal item ID for year %i', (year) => {
-    expect(buildSedDispersalItemId(year)).toBe(`${SED_EXPOSURE_COLLECTION_ID}_${year}`)
+    expect(buildSedExposureItemId(year)).toBe(`${SED_EXPOSURE_COLLECTION_ID}_${year}`)
   })
 })
 
-describe('buildSedDispersalTileUrl', () => {
+describe('buildSedExposureTileUrl', () => {
   const max = 260.8
-  const template = buildSedDispersalTileUrl(
+  const template = buildSedExposureTileUrl(
     'gpw_sediment_exposure',
     'gpw_sediment_exposure_2020',
     max,
@@ -95,7 +99,7 @@ describe('buildSedDispersalTileUrl', () => {
   })
 })
 
-describe('fetchSedDispersalStatistics', () => {
+describe('fetchSedExposureStatistics', () => {
   afterEach(() => jest.restoreAllMocks())
 
   const mockStats = (expression: string) => ({
@@ -108,7 +112,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -124,7 +128,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
@@ -138,7 +142,7 @@ describe('fetchSedDispersalStatistics', () => {
       ok: true,
       json: async () => ({ cog_b1: { min: 0.0, max: 500.0 } }),
     } as Response)
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -153,7 +157,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    await fetchSedDispersalStatistics(
+    await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -170,7 +174,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    await fetchSedDispersalStatistics(
+    await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
@@ -187,7 +191,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats(expression),
     } as Response)
 
-    await fetchSedDispersalStatistics(
+    await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
@@ -203,7 +207,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    await fetchSedDispersalStatistics(
+    await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -220,7 +224,7 @@ describe('fetchSedDispersalStatistics', () => {
     jest
       .spyOn(global, 'fetch')
       .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Error' } as Response)
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -234,7 +238,7 @@ describe('fetchSedDispersalStatistics', () => {
       ok: true,
       json: async () => ({}),
     } as Response)
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -245,7 +249,7 @@ describe('fetchSedDispersalStatistics', () => {
 
   it('returns null on fetch error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
@@ -260,7 +264,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    const result = await fetchSedDispersalStatistics(
+    const result = await fetchSedExposureStatistics(
       SED_LOAD_COLLECTION_ID,
       `${SED_LOAD_COLLECTION_ID}_2020`,
       null,
@@ -275,7 +279,7 @@ describe('fetchSedDispersalStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    await fetchSedDispersalStatistics(
+    await fetchSedExposureStatistics(
       SED_LOAD_COLLECTION_ID,
       `${SED_LOAD_COLLECTION_ID}_2020`,
       null,

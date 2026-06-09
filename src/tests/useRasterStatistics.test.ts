@@ -25,7 +25,7 @@ describe('useRasterStatistics', () => {
   afterEach(() => jest.restoreAllMocks())
 
   it('starts with null values and isLoading true', () => {
-    jest.spyOn(titilerUtils, 'fetchSedDispersalStatistics').mockResolvedValue({ min: 0, max: 100 })
+    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue({ min: 0, max: 100 })
     const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
@@ -34,7 +34,7 @@ describe('useRasterStatistics', () => {
 
   it('returns min/max and clears loading after a successful fetch', async () => {
     jest
-      .spyOn(titilerUtils, 'fetchSedDispersalStatistics')
+      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 1.5, max: 99.9 })
     const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
@@ -43,16 +43,16 @@ describe('useRasterStatistics', () => {
   })
 
   it('sets isLoading false and keeps null values when API returns null', async () => {
-    jest.spyOn(titilerUtils, 'fetchSedDispersalStatistics').mockResolvedValue(null)
+    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue(null)
     const { result } = renderHook(() => useRasterStatistics(nextCollection(), makeRegion(), 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
   })
 
-  it('passes expression and assetBidx derived from region to fetchSedDispersalStatistics', async () => {
+  it('passes expression and assetBidx derived from region to fetchSedExposureStatistics', async () => {
     const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedDispersalStatistics')
+      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const region = makeRegion({ regionType: 'country', bandId: 42 })
     const { result } = renderHook(() => useRasterStatistics(nextCollection(), region, 2020))
@@ -68,7 +68,7 @@ describe('useRasterStatistics', () => {
 
   it('uses the provided latestYear to build the item ID', async () => {
     const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedDispersalStatistics')
+      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
     const collectionId = nextCollection()
     const { result } = renderHook(() => useRasterStatistics(collectionId, makeRegion(), 2020))
@@ -78,7 +78,7 @@ describe('useRasterStatistics', () => {
 
   it('serves a cached result synchronously without re-fetching', async () => {
     const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedDispersalStatistics')
+      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 5, max: 50 })
     const collectionId = nextCollection()
     const region = makeRegion()
@@ -99,7 +99,7 @@ describe('useRasterStatistics', () => {
   })
 
   it('resets to loading and re-fetches when year changes', async () => {
-    jest.spyOn(titilerUtils, 'fetchSedDispersalStatistics').mockResolvedValue({ min: 10, max: 200 })
+    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue({ min: 10, max: 200 })
     const collectionId = nextCollection()
     const region = makeRegion()
     let latestYear = 2020
