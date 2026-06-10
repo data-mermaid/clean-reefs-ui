@@ -18,18 +18,6 @@ export const COUNTRIES_PMTILES_URL =
 export const WATERSHED_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_watersheds/gpw_watersheds/visual_watersheds.pmtiles'
 
-/* Land Use Land Cover Layers */
-export const LULC_2000_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2000_visual.tif'
-export const LULC_2005_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2005_visual.tif'
-export const LULC_2010_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2010_visual.tif'
-export const LULC_2015_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2015_visual.tif'
-export const LULC_2020_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2020_visual.tif'
-
 /* Benthic Attribute Layers */
 export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
 export const REEF_EXTENT_URL =
