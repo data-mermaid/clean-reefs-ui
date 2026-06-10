@@ -4,6 +4,7 @@ import {
   TITILER_API_TIMEOUT,
   SED_EXPOSURE_COLLECTION_ID,
   SED_LOAD_COLLECTION_ID,
+  LULC_COLORMAP,
 } from '../constants'
 
 export interface ExpressionConfig {
@@ -57,6 +58,16 @@ export function buildSedExposureExpression(region: RegionOption): ExpressionConf
 /** Build the TiTiler item ID for the selected year. */
 export function buildSedExposureItemId(year: number): string {
   return `${SED_EXPOSURE_COLLECTION_ID}_${year}`
+}
+
+/** Build a MapLibre-compatible LULC tile URL template for the given year. */
+export function buildLulcTileUrlTemplate(year: number): string {
+  const basePath = `${TITILER_API_BASE_URL}/raster/collections/lulc/items/lulc_${year}/tiles/WebMercatorQuad/{z}/{x}/{y}.png`
+  const params = new URLSearchParams({
+    assets: 'Land Use and Land Cover Collection Cloud Optimized GeoTIFF',
+    colormap: JSON.stringify(LULC_COLORMAP),
+  })
+  return `${basePath}?${params.toString()}`
 }
 
 /**

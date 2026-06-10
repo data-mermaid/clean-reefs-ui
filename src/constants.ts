@@ -18,18 +18,6 @@ export const COUNTRIES_PMTILES_URL =
 export const WATERSHED_PMTILES_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_watersheds/gpw_watersheds/visual_watersheds.pmtiles'
 
-/* Land Use Land Cover Layers */
-export const LULC_2000_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2000_visual.tif'
-export const LULC_2005_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2005_visual.tif'
-export const LULC_2010_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2010_visual.tif'
-export const LULC_2015_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2015_visual.tif'
-export const LULC_2020_URL =
-  'https://gpw-coastal-pollution-model-data-public-0001.s3.ap-southeast-2.amazonaws.com/app/global_lulc/lulc_2020_visual.tif'
-
 /* Benthic Attribute Layers */
 export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
 export const REEF_EXTENT_URL =
@@ -63,6 +51,24 @@ export const SEDIMENT_EXPOSURE_2020_URL =
 
 /******TITILER API******/
 export const TITILER_API_BASE_URL = 'https://mermaid.prescient.earth'
+
+/* LULC colormap — 13 entries (0–12) from STAC lulc collection summaries.label:classes.
+   Class 10 ("OUT") forced transparent instead of the STAC hint #FFFFFF. */
+export const LULC_COLORMAP: Record<string, number[]> = {
+  '0': [0, 0, 0, 0],
+  '1': [254, 254, 204, 255],
+  '2': [237, 237, 162, 255],
+  '3': [221, 221, 121, 255],
+  '4': [202, 202, 72, 255],
+  '5': [176, 176, 6, 255],
+  '6': [96, 156, 48, 255],
+  '7': [49, 116, 49, 255],
+  '8': [6, 81, 6, 255],
+  '9': [14, 57, 214, 255],
+  '10': [0, 0, 0, 0],
+  '11': [255, 125, 0, 255],
+  '12': [100, 220, 220, 255],
+}
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_EXPOSURE_COLLECTION_ID = 'gpw_sediment_exposure'
 export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
