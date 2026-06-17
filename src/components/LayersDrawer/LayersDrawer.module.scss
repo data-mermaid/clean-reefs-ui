@@ -1,20 +1,28 @@
 @use '../../styles/theme';
 
-.LayersDrawer-root {
-  .layer-toggle-button {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: theme.$mapUtilButtonHeight;
+.layers-panel {
+  position: fixed;
+  top: theme.$panelTop;
+  bottom: theme.$panelBottomGap;
+  left: theme.$panelLeftDefault;
+  width: theme.$panelWidth;
+  z-index: theme.$zPanel;
+  background-color: theme.$white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: theme.$spacingSmall;
 
-    @include theme.mobileUpBreakPoint {
-      display: none;
-    }
-    & svg {
-      width: theme.$svgSizeSmall;
-      color: theme.$textColor;
-    }
+  @include theme.panelMobileDown {
+    right: theme.$panelMobileGutter;
+    width: auto;
   }
+}
+
+.layers-panel--hidden {
+  display: none;
 }
 
 .boundary-legend-card {

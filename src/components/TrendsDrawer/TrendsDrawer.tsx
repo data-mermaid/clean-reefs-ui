@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconButton, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
+import clsx from 'clsx'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import { getUpOneLevelLabel } from '../../utils/chartUtils'
 import { useTranslation } from 'react-i18next'
-import CloseIcon from '@mui/icons-material/Close'
 import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import styles from './TrendsDrawer.module.scss'
-import useResponsive from '../../hooks/useResponsive'
-import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
@@ -17,7 +15,6 @@ import { MapGeoJSONFeature } from 'maplibre-gl'
 
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
-import { TRENDS_DRAWER_PEEK_HEIGHT } from '../../constants'
 import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
 import {
   buildChartDataFromProperties,
@@ -32,7 +29,7 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
-  onOpenChange: (open: boolean) => void
+  isShifted: boolean
   onUpOneLevelChange: (regionType: RegionType) => void
 }
 
@@ -40,13 +37,10 @@ export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
-  onOpenChange,
+  isShifted,
   onUpOneLevelChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
-  const { isMobileWidth } = useResponsive()
-  const openDrawer = () => onOpenChange(true)
-  const closeDrawer = () => onOpenChange(false)
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )
@@ -123,67 +117,55 @@ export default function TrendsDrawer({
   )
 
   return (
-    <StyledSwipeableDrawer
-      anchor={isMobileWidth ? 'bottom' : 'right'}
-      open={open}
-      onOpen={openDrawer}
-      onClose={closeDrawer}
-      swipeAreaWidth={TRENDS_DRAWER_PEEK_HEIGHT}
+    <section
+      className={clsx(
+        styles['trends-panel'],
+        isShifted && styles['trends-panel--shifted'],
+        !open && styles['trends-panel--hidden'],
+      )}
+      aria-label={t(drawerTitle)}
+      aria-hidden={!open}
     >
-      <div className={styles['drawer-header']}>
-        {open && (
-          <div className={styles['drawer-header__title']}>
-            {effectiveRegionType !== 'global' && (
-              <StyledIconButtonWithTooltip
-                aria-label={t('buttons.up_one_level')}
-                tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
-                tooltipPlacement="top"
-                onClick={() => onUpOneLevelChange(effectiveRegionType)}
-              >
-                <img src={UpOneLevelIcon} alt="" />
-              </StyledIconButtonWithTooltip>
-            )}
-            <h2>{t(drawerTitle)}</h2>
-          </div>
+      <div className={styles['panel-header']}>
+        {effectiveRegionType !== 'global' && (
+          <StyledIconButtonWithTooltip
+            aria-label={t('buttons.up_one_level')}
+            tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
+            tooltipPlacement="top"
+            onClick={() => onUpOneLevelChange(effectiveRegionType)}
+          >
+            <img src={UpOneLevelIcon} alt="" />
+          </StyledIconButtonWithTooltip>
         )}
-        {open && isMobileWidth && (
-          <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
-            <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
-          </IconButton>
-        )}
+        <h2>{t(drawerTitle)}</h2>
       </div>
 
-      <div className={styles[`charts-container--${open ? 'open' : 'closed'}`]}>
+      <div className={styles['charts-container']}>
         {filteredChartData?.length ? (
-          filteredChartData.map((chart) => {
-            return (
-              <SelectedFeatureContext.Provider
-                key={chart.chartName}
-                value={selectedFeature as MapGeoJSONFeature}
-              >
-                <ChartCard
-                  key={chart.chartName}
-                  open={open}
-                  {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
-                  regionType={effectiveRegionType}
-                  regionLabel={getRegionLabel(
-                    effectiveRegionType,
-                    selectedRegion,
-                    selectedFeature as MapGeoJSONFeature | null,
-                  )}
-                  selectedYear={selectedYear}
-                  chartConfigData={chart}
-                  isChartDataLoading={isChartDataLoading}
-                />
-              </SelectedFeatureContext.Provider>
-            )
-          })
+          filteredChartData.map((chart) => (
+            <SelectedFeatureContext.Provider
+              key={chart.chartName}
+              value={selectedFeature as MapGeoJSONFeature}
+            >
+              <ChartCard
+                regionType={effectiveRegionType}
+                regionLabel={getRegionLabel(
+                  effectiveRegionType,
+                  selectedRegion,
+                  selectedFeature as MapGeoJSONFeature | null,
+                )}
+                selectedYear={selectedYear}
+                chartConfigData={chart}
+                isChartDataLoading={isChartDataLoading}
+              />
+            </SelectedFeatureContext.Provider>
+          ))
         ) : (
-          <Typography className={styles['chart-card__no-data-label']}>
+          <Typography className={styles['no-data-label']}>
             {t('charts.no_data_available')}
           </Typography>
         )}
       </div>
-    </StyledSwipeableDrawer>
+    </section>
   )
 }

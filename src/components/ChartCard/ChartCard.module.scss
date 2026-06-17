@@ -6,11 +6,6 @@
 }
 
 .chart-card__header {
-  padding: 10px;
-  width: 100%;
-}
-
-.chart-card__header--open {
   position: absolute;
   top: 0;
   z-index: 1;
@@ -18,14 +13,9 @@
   padding: theme.$defaultSpacing;
 }
 
-.chart-card__header--closed {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-}
-
 .chart-card__header--no-data {
+  position: static;
+  width: 100%;
   padding: 10px;
 }
 

@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useMemo, useRef } from 'react'
 import styles from './ChartCard.module.scss'
 import createPlotlyComponent from 'react-plotly.js/factory'
 import Plotly from 'plotly.js-basic-dist'
@@ -12,8 +12,6 @@ import { buildExportFilename } from '../../utils/chartUtils'
 const Plot = createPlotlyComponent(Plotly)
 
 interface ChartCardProps {
-  open: boolean
-  onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
   regionLabel?: string
   selectedYear?: number
@@ -21,13 +19,12 @@ interface ChartCardProps {
   isChartDataLoading: boolean
 }
 
-const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperties | null) => {
+const getCardHeaderClassNames = (chartConfigData: ChartProperties | null) => {
   const baseClass = styles['chart-card__header']
   if (!chartConfigData) {
     return `${baseClass} ${styles['chart-card__header--no-data']}`
   }
-
-  return `${baseClass} ${styles[`chart-card__header--${isOpen ? 'open' : 'closed'}`]}`
+  return baseClass
 }
 
 const getSelectedBarIndex = (
@@ -53,8 +50,6 @@ const getSelectedBarIndex = (
 }
 
 export default function ChartCard({
-  open = true,
-  onClick,
   regionType = 'global',
   regionLabel = '',
   selectedYear,
@@ -64,24 +59,6 @@ export default function ChartCard({
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
   const filenameRef = useRef('chart-export')
-  const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
-
-  useEffect(() => {
-    let animationFrameId: number | null = null
-
-    if (open && pendingScrollAfterOpen) {
-      animationFrameId = window.requestAnimationFrame(() => {
-        chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        setPendingScrollAfterOpen(false)
-      })
-    }
-
-    return () => {
-      if (animationFrameId !== null) {
-        window.cancelAnimationFrame(animationFrameId)
-      }
-    }
-  }, [open, pendingScrollAfterOpen])
 
   const selectedBarIndex = useMemo(
     () => getSelectedBarIndex(chartConfigData, selectedYear),
@@ -189,16 +166,8 @@ export default function ChartCard({
   }
 
   return (
-    <Card
-      onClick={(event) => {
-        if (onClick) {
-          onClick(event)
-          setPendingScrollAfterOpen(true)
-        }
-      }}
-      className={styles['chart-card']}
-    >
-      <div className={getCardHeaderClassNames(open, chartConfigData)} ref={chartRef}>
+    <Card className={styles['chart-card']}>
+      <div className={getCardHeaderClassNames(chartConfigData)} ref={chartRef}>
         <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${regionType}`)}
         </Typography>
@@ -208,7 +177,7 @@ export default function ChartCard({
           </Typography>
         )}
       </div>
-      {open && renderChartContent()}
+      {renderChartContent()}
     </Card>
   )
 }

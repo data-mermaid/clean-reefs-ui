@@ -1,9 +1,7 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
-import LayersIcon from '@mui/icons-material/Layers'
 import { useTranslation } from 'react-i18next'
 import { Card, Typography } from '@mui/material'
-import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
-import StyledButtonWithTooltip from '../StyledButtonWithTooltip/StyledButtonWithTooltip'
+import clsx from 'clsx'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
@@ -27,7 +25,6 @@ interface LayersDrawerProps {
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
   open: boolean
-  onOpenChange: (open: boolean) => void
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
   onBasemapChange: (basemap: Basemap) => void
@@ -71,7 +68,6 @@ export default function LayersDrawer({
   onSedSubLayerChange,
   subSedLayerValue,
   open,
-  onOpenChange,
   showLabels,
   onLabelsChange,
   onBasemapChange,
@@ -83,10 +79,6 @@ export default function LayersDrawer({
   sedLoadLoading,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
-
-  const toggleDrawer = (newOpen: boolean) => () => {
-    onOpenChange(newOpen)
-  }
 
   const mapSubLayers = useMemo(
     () =>
@@ -198,37 +190,24 @@ export default function LayersDrawer({
   )
 
   return (
-    <div className={styles['LayersDrawer-root']}>
-      {!open && (
-        <StyledButtonWithTooltip
-          aria-label={t('buttons.open_menu')}
-          tooltipText={t('buttons.open_menu')}
-          onClick={toggleDrawer(true)}
-          className={styles['layer-toggle-button']}
-        >
-          <LayersIcon />
-        </StyledButtonWithTooltip>
-      )}
-      <StyledSwipeableDrawer
-        open={open}
-        anchor="left"
-        onClose={toggleDrawer(false)}
-        onOpen={toggleDrawer(true)}
-      >
-        {Object.entries(parentLayerTitles).map(([key, value]) => {
-          const layerNodes = renderLayerGroup(key)
-          if (layerNodes.length === 0) {
-            return null
-          }
+    <aside
+      className={clsx(styles['layers-panel'], !open && styles['layers-panel--hidden'])}
+      aria-label={t('map_layer_groups.base_map')}
+      aria-hidden={!open}
+    >
+      {Object.entries(parentLayerTitles).map(([key, value]) => {
+        const layerNodes = renderLayerGroup(key)
+        if (layerNodes.length === 0) {
+          return null
+        }
 
-          return (
-            <div key={key}>
-              <h2 style={{ padding: '8px' }}>{t(value)}</h2>
-              {layerNodes}
-            </div>
-          )
-        })}
-      </StyledSwipeableDrawer>
-    </div>
+        return (
+          <div key={key}>
+            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+            {layerNodes}
+          </div>
+        )
+      })}
+    </aside>
   )
 }

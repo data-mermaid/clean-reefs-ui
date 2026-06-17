@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import LayersDrawer from './LayersDrawer'
@@ -23,12 +22,7 @@ export const Primary: Story = {
     showLabels: true,
     onLabelsChange: () => {},
     onBasemapChange: () => {},
-    open: false,
-    onOpenChange: () => {},
-  },
-  render: (args) => {
-    const [open, setOpen] = useState(args.open)
-    return <LayersDrawer {...args} open={open} onOpenChange={setOpen} />
+    open: true,
   },
 }
 

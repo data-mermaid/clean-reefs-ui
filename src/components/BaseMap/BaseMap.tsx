@@ -61,8 +61,6 @@ import {
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
-  SNACKBAR_BOTTOM_GAP,
-  TRENDS_DRAWER_PEEK_HEIGHT,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
@@ -1272,14 +1270,6 @@ export default function BaseMap({
       <Snackbar
         open={showLoading || mapLayersLoadingError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
-        sx={{
-          '&.MuiSnackbar-root': {
-            bottom: isMobileWidth
-              ? `${TRENDS_DRAWER_PEEK_HEIGHT + SNACKBAR_BOTTOM_GAP}px`
-              : undefined,
-          },
-        }}
       >
         <div className={styles['snackbar-stack']}>
           {showLoading && (

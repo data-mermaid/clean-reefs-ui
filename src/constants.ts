@@ -99,7 +99,3 @@ export const polygonOutlineHoverColor = '#F006'
 export const polygonOutlineSelectColor = '#f00'
 export const polygonHighlightWidth = 3
 export const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
-
-/******LAYOUT******/
-export const TRENDS_DRAWER_PEEK_HEIGHT = 100
-export const SNACKBAR_BOTTOM_GAP = 36
