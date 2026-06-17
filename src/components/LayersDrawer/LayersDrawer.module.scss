@@ -14,6 +14,11 @@
   flex-direction: column;
   overflow-y: auto;
   padding: theme.$spacingSmall;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 150ms ease-out,
+    visibility 0s linear 0s;
 
   @include theme.panelMobileDown {
     right: theme.$panelMobileGutter;
@@ -22,7 +27,12 @@
 }
 
 .layers-panel--hidden {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease-out,
+    visibility 0s linear 150ms;
 }
 
 .boundary-legend-card {
