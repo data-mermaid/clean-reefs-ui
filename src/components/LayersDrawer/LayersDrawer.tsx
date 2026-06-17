@@ -195,19 +195,21 @@ export default function LayersDrawer({
       aria-label={t('buttons.layers')}
       aria-hidden={!open}
     >
-      {Object.entries(parentLayerTitles).map(([key, value]) => {
-        const layerNodes = renderLayerGroup(key)
-        if (layerNodes.length === 0) {
-          return null
-        }
+      <div className={styles['layers-panel__content']}>
+        {Object.entries(parentLayerTitles).map(([key, value]) => {
+          const layerNodes = renderLayerGroup(key)
+          if (layerNodes.length === 0) {
+            return null
+          }
 
-        return (
-          <div key={key}>
-            <h2 style={{ padding: '8px' }}>{t(value)}</h2>
-            {layerNodes}
-          </div>
-        )
-      })}
+          return (
+            <div key={key}>
+              <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+              {layerNodes}
+            </div>
+          )
+        })}
+      </div>
     </aside>
   )
 }

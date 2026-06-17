@@ -120,45 +120,47 @@ export default function TrendsDrawer({
       aria-label={t(drawerTitle)}
       aria-hidden={!open}
     >
-      <div className={styles['panel-header']}>
-        {effectiveRegionType !== 'global' && (
-          <StyledIconButtonWithTooltip
-            aria-label={t('buttons.up_one_level')}
-            tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
-            tooltipPlacement="top"
-            onClick={() => onUpOneLevelChange(effectiveRegionType)}
-          >
-            <img src={UpOneLevelIcon} alt="" />
-          </StyledIconButtonWithTooltip>
-        )}
-        <h2>{t(drawerTitle)}</h2>
-      </div>
-
-      <div className={styles['charts-container']}>
-        {filteredChartData?.length ? (
-          filteredChartData.map((chart) => (
-            <SelectedFeatureContext.Provider
-              key={chart.chartName}
-              value={selectedFeature as MapGeoJSONFeature}
+      <div className={styles['trends-panel__content']}>
+        <div className={styles['panel-header']}>
+          {effectiveRegionType !== 'global' && (
+            <StyledIconButtonWithTooltip
+              aria-label={t('buttons.up_one_level')}
+              tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
+              tooltipPlacement="top"
+              onClick={() => onUpOneLevelChange(effectiveRegionType)}
             >
-              <ChartCard
-                regionType={effectiveRegionType}
-                regionLabel={getRegionLabel(
-                  effectiveRegionType,
-                  selectedRegion,
-                  selectedFeature as MapGeoJSONFeature | null,
-                )}
-                selectedYear={selectedYear}
-                chartConfigData={chart}
-                isChartDataLoading={isChartDataLoading}
-              />
-            </SelectedFeatureContext.Provider>
-          ))
-        ) : (
-          <Typography className={styles['no-data-label']}>
-            {t('charts.no_data_available')}
-          </Typography>
-        )}
+              <img src={UpOneLevelIcon} alt="" />
+            </StyledIconButtonWithTooltip>
+          )}
+          <h2>{t(drawerTitle)}</h2>
+        </div>
+
+        <div className={styles['charts-container']}>
+          {filteredChartData?.length ? (
+            filteredChartData.map((chart) => (
+              <SelectedFeatureContext.Provider
+                key={chart.chartName}
+                value={selectedFeature as MapGeoJSONFeature}
+              >
+                <ChartCard
+                  regionType={effectiveRegionType}
+                  regionLabel={getRegionLabel(
+                    effectiveRegionType,
+                    selectedRegion,
+                    selectedFeature as MapGeoJSONFeature | null,
+                  )}
+                  selectedYear={selectedYear}
+                  chartConfigData={chart}
+                  isChartDataLoading={isChartDataLoading}
+                />
+              </SelectedFeatureContext.Provider>
+            ))
+          ) : (
+            <Typography className={styles['no-data-label']}>
+              {t('charts.no_data_available')}
+            </Typography>
+          )}
+        </div>
       </div>
     </section>
   )

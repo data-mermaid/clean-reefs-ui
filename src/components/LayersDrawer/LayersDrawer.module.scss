@@ -12,8 +12,8 @@
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  padding: theme.$spacingSmall;
+  overflow: hidden;
+  padding: theme.$spacingSmall 0 theme.$spacingSmall theme.$spacingSmall;
   opacity: 1;
   visibility: visible;
   transition:
@@ -24,6 +24,12 @@
     right: theme.$panelMobileGutter;
     width: auto;
   }
+}
+
+.layers-panel__content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .layers-panel--hidden {

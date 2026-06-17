@@ -12,8 +12,8 @@
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  padding: theme.$spacingMedium theme.$defaultSpacing 0;
+  overflow: hidden;
+  padding: theme.$spacingMedium 0 theme.$spacingSmall theme.$defaultSpacing;
   opacity: 1;
   visibility: visible;
   transition:
@@ -24,6 +24,12 @@
     right: theme.$panelMobileGutter;
     width: auto;
   }
+}
+
+.trends-panel__content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .trends-panel--hidden {
