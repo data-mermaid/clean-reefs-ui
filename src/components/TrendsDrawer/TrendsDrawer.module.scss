@@ -52,6 +52,7 @@
   display: flex;
   flex-direction: column;
   gap: theme.$defaultSpacing;
+  padding-bottom: theme.$defaultSpacing;
 }
 
 .no-data-label {
