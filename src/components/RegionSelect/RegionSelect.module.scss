@@ -124,9 +124,12 @@
   margin: theme.$spacingXSmall;
   left: 0 !important;
   max-width: calc(100% - theme.$spacingXSmall * 2);
-  @include theme.mobileUpBreakPoint {
+  // TEMP (C235): anchor dropdown to the repositioned breadcrumb (left: 56px).
+  // C241 should remove these overrides and let MUI auto-position relative to the
+  // new bc-control widget.
+  @include theme.panelMobileUp {
     margin-right: 30px;
-    left: calc(50vw - 160px) !important;
+    left: theme.$panelLeftDefault !important;
     width: 330px;
   }
 }

@@ -459,7 +459,7 @@ export default function MapContainer() {
   return (
     <div className={styles['MapContainer-root']}>
       <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} />
-      <div className={styles['layer-controls']}>
+      <div className={styles['breadcrumb-slot']}>
         <RegionSelect
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionDropdownChange}
@@ -468,6 +468,8 @@ export default function MapContainer() {
           regionOptions={regionOptions}
           regionOptionsLoading={regionOptionsLoading}
         />
+      </div>
+      <div className={styles['year-slot']}>
         <YearSelect
           selectedYear={selectedYear}
           onChange={handleYearChange}
