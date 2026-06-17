@@ -19,6 +19,7 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
     <nav className={styles['sidebar']} aria-label={t('sidebar')}>
       <StyledIconButtonWithTooltip
         aria-label={t('buttons.graphs')}
+        aria-pressed={activePanel === 'graphs'}
         tooltipText={t('buttons.graphs')}
         tooltipPlacement="right"
         onClick={() => onTogglePanel('graphs')}
@@ -31,6 +32,7 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
       </StyledIconButtonWithTooltip>
       <StyledIconButtonWithTooltip
         aria-label={t('buttons.layers')}
+        aria-pressed={activePanel === 'layers'}
         tooltipText={t('buttons.layers')}
         tooltipPlacement="right"
         onClick={() => onTogglePanel('layers')}
