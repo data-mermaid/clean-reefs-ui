@@ -41,6 +41,11 @@ $borderRadius: 4px;
 /** Z-indexes **/
 $layersDrawer: 4;
 $baseMap: 1;
+$zSidebar: 20;
+$zPanel: 25;
+$zControl: 30;
+$zTopBar: 35;
+$zDropdown: 40;
 
 /** Component dimensions **/
 $headerHeight: 54px;
@@ -55,9 +60,22 @@ $drawerPullerWidth: 90px;
 $chartCardMaxWidth: 500px;
 $iconButtonWidthHeight: 22px;
 
+/** Layout primitives (C235 redesign) **/
+$sidebarWidth: 48px;
+$panelWidth: 315px;
+$panelLeftDefault: 56px;
+$panelLeftShifted: 379px;
+$panelBottomGap: 8px;
+$panelMobileGutter: 8px;
+// Derived top offsets — anchored to $headerHeight so C236 only changes that token.
+$breadcrumbTop: $headerHeight + 8px;
+$yearSelectTop: $breadcrumbTop + 41px + 8px;
+$panelTop: $yearSelectTop + $mapUtilButtonHeight + 8px;
+
 /** Breakpoints **/
 $breakpointMobile: 768px;
 $breakpointTablet: 1024px;
+$breakpointPanel: 640px;
 
 /** Mixins **/
 @mixin mobileUpBreakPoint {
@@ -67,6 +85,16 @@ $breakpointTablet: 1024px;
 }
 @mixin mobileDownBreakPoint {
   @media (max-width: $breakpointMobile) {
+    @content;
+  }
+}
+@mixin panelMobileUp {
+  @media (min-width: $breakpointPanel) {
+    @content;
+  }
+}
+@mixin panelMobileDown {
+  @media (max-width: $breakpointPanel) {
     @content;
   }
 }
