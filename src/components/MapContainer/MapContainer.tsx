@@ -501,7 +501,6 @@ export default function MapContainer() {
         selectedRegion={selectedRegion}
         selectedYear={selectedYear}
         open={activePanel === 'graphs'}
-        isShifted={activePanel === 'layers' && !isPanelMobile}
         onUpOneLevelChange={handleUpOneLevelChange}
       />
       <BaseMap

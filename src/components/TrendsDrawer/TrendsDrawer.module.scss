@@ -21,12 +21,6 @@
   }
 }
 
-.trends-panel--shifted {
-  @include theme.panelMobileUp {
-    left: theme.$panelLeftShifted;
-  }
-}
-
 .trends-panel--hidden {
   display: none;
 }

@@ -29,7 +29,6 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
-  isShifted: boolean
   onUpOneLevelChange: (regionType: RegionType) => void
 }
 
@@ -37,7 +36,6 @@ export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
-  isShifted,
   onUpOneLevelChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
@@ -118,11 +116,7 @@ export default function TrendsDrawer({
 
   return (
     <section
-      className={clsx(
-        styles['trends-panel'],
-        isShifted && styles['trends-panel--shifted'],
-        !open && styles['trends-panel--hidden'],
-      )}
+      className={clsx(styles['trends-panel'], !open && styles['trends-panel--hidden'])}
       aria-label={t(drawerTitle)}
       aria-hidden={!open}
     >

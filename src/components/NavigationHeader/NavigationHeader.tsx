@@ -32,7 +32,9 @@ const menuOriginConfig: {
 
 export default function Header() {
   const { t } = useTranslation()
-  const { isMobileWidth } = useResponsive()
+  // TEMP (C235): align hamburger/desktop links to the new $breakpointPanel (640px).
+  // C236/C239 will redesign the header and hamburger entirely.
+  const { isPanelMobile } = useResponsive()
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
 
@@ -58,7 +60,7 @@ export default function Header() {
             <ShareIcon className={styles['header-icon']} />
           </IconButton>
           <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
-          {!isMobileWidth && (
+          {!isPanelMobile && (
             <Box className={styles['navigation-desktop-menu-box']}>
               {navItems.map((item) => (
                 <Link
@@ -73,7 +75,7 @@ export default function Header() {
               ))}
             </Box>
           )}
-          {isMobileWidth && (
+          {isPanelMobile && (
             <Box className={styles['navigation-mobile-menu-box']}>
               <IconButton
                 aria-label={t('toggle_navigation_menu')}

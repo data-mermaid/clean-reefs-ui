@@ -14,17 +14,6 @@ export const Primary: Story = {
     selectedRegion: defaultGlobalRegionOption,
     selectedYear: 2020,
     open: true,
-    isShifted: false,
-    onUpOneLevelChange: () => {},
-  },
-}
-
-export const Shifted: Story = {
-  args: {
-    selectedRegion: defaultGlobalRegionOption,
-    selectedYear: 2020,
-    open: true,
-    isShifted: true,
     onUpOneLevelChange: () => {},
   },
 }
