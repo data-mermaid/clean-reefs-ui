@@ -11,6 +11,7 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
+  AttributionControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -1045,12 +1046,9 @@ export default function BaseMap({
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
       >
-        {isDesktopWidth && (
-          <>
-            <ScaleControl position="bottom-right" />
-            <NavigationControl position="bottom-right" showCompass={false} />
-          </>
-        )}
+        <AttributionControl position="bottom-right" compact />
+        <ScaleControl position="bottom-right" />
+        <NavigationControl position="bottom-right" showCompass={false} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />

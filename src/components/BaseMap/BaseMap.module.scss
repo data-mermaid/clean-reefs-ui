@@ -11,10 +11,6 @@
   z-index: theme.$baseMap;
 }
 
-:global(.maplibregl-ctrl-bottom-right) {
-  right: theme.$drawerWidth;
-}
-
 .dispersal-marker {
   width: 15px;
   height: 15px;
