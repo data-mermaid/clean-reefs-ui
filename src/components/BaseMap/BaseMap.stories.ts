@@ -33,7 +33,7 @@ export const Primary: Story = {
       fitBoundsOptions: { padding: 40 },
     },
     onMapMoveEnd: () => {},
-    isAnyDrawerOpen: false,
+    isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
   },
   play: async ({ canvas }) => {
@@ -72,7 +72,7 @@ export const Loading: Story = {
       fitBoundsOptions: { padding: 40 },
     },
     onMapMoveEnd: () => {},
-    isAnyDrawerOpen: false,
+    isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
   },
   // play: async ({ canvasElement }) => {

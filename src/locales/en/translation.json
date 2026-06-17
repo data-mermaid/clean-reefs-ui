@@ -9,8 +9,8 @@
     "reload_page": "Reload page",
     "download_chart": "Download plot as a png",
     "up_one_level": "Up one level",
-    "toggle_graphs": "Toggle graphs panel",
-    "toggle_layers": "Toggle layers panel"
+    "graphs": "Graphs",
+    "layers": "Layers"
   },
   "chart_information": {
     "area_exposed_ha": "Area exposed (ha)",

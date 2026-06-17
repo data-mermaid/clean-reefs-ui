@@ -113,7 +113,7 @@ interface BaseMapProps {
     | { longitude: number; latitude: number; zoom: number }
     | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
-  isAnyDrawerOpen: boolean
+  isAnyPanelOpen: boolean
   regionOptions: RegionOption[]
 }
 
@@ -412,7 +412,7 @@ export default function BaseMap({
   showLabels,
   initialViewState,
   onMapMoveEnd,
-  isAnyDrawerOpen,
+  isAnyPanelOpen,
   regionOptions,
 }: BaseMapProps) {
   const { t } = useTranslation()
@@ -456,7 +456,7 @@ export default function BaseMap({
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
-  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyDrawerOpen)
+  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyPanelOpen)
 
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),

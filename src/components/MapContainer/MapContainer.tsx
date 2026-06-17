@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
+import Sidebar, { ActivePanel } from '../Sidebar/Sidebar'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
@@ -92,12 +93,25 @@ export default function MapContainer() {
     getValidDispersalPoint(searchParams.get('dispersal-point')),
   )
 
-  const { isMobileWidth } = useResponsive()
+  const { isPanelMobile } = useResponsive()
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
-  const [layersDrawerOpen, setLayersDrawerOpen] = useState(false)
-  const [trendsDrawerOpen, setTrendsDrawerOpen] = useState(!isMobileWidth)
+  const [activePanel, setActivePanel] = useState<ActivePanel>(() =>
+    isPanelMobile ? null : 'graphs',
+  )
+
+  const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
+    setActivePanel((prev) => (prev === panel ? null : panel))
+  }, [])
+
+  const handleLayersPanelOpenChange = useCallback((open: boolean) => {
+    setActivePanel(open ? 'layers' : null)
+  }, [])
+
+  const handleGraphsPanelOpenChange = useCallback((open: boolean) => {
+    setActivePanel(open ? 'graphs' : null)
+  }, [])
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
     initialRegion.regionType !== 'global'
       ? [defaultGlobalRegionOption, initialRegion]
@@ -452,6 +466,7 @@ export default function MapContainer() {
 
   return (
     <div className={styles['MapContainer-root']}>
+      <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} />
       <div className={styles['layer-controls']}>
         <LayersDrawer
           mapLayers={urlSyncedMapLayers}
@@ -462,8 +477,8 @@ export default function MapContainer() {
           onLayerToggleChange={handleLayerToggleChange}
           onSedSubLayerChange={handleSedSubLayerChange}
           subSedLayerValue={subSedLayerValue}
-          open={layersDrawerOpen}
-          onOpenChange={setLayersDrawerOpen}
+          open={activePanel === 'layers'}
+          onOpenChange={handleLayersPanelOpenChange}
           showLabels={showLabels}
           onLabelsChange={handleLabelsChange}
           onBasemapChange={handleBasemapChange}
@@ -491,8 +506,8 @@ export default function MapContainer() {
         <TrendsDrawer
           selectedRegion={selectedRegion}
           selectedYear={selectedYear}
-          open={trendsDrawerOpen}
-          onOpenChange={setTrendsDrawerOpen}
+          open={activePanel === 'graphs'}
+          onOpenChange={handleGraphsPanelOpenChange}
           onUpOneLevelChange={handleUpOneLevelChange}
         />
       </div>
@@ -521,7 +536,7 @@ export default function MapContainer() {
               }
         }
         onMapMoveEnd={handleMapMoveEnd}
-        isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
+        isAnyPanelOpen={activePanel !== null}
         regionOptions={regionOptions}
       />
     </div>
