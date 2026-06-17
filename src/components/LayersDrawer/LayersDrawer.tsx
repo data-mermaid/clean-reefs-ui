@@ -192,7 +192,7 @@ export default function LayersDrawer({
   return (
     <aside
       className={clsx(styles['layers-panel'], !open && styles['layers-panel--hidden'])}
-      aria-label={t('map_layer_groups.base_map')}
+      aria-label={t('buttons.layers')}
       aria-hidden={!open}
     >
       {Object.entries(parentLayerTitles).map(([key, value]) => {
