@@ -61,6 +61,7 @@ $panelWidth: 315px;
 $panelLeftDefault: 56px;
 $panelBottomGap: 8px;
 $panelMobileGutter: 8px;
+
 // Derived top offsets — anchored to $headerHeight so C236 only changes that token.
 $breadcrumbTop: $headerHeight + 8px;
 $yearSelectTop: $breadcrumbTop + 41px + 8px;
@@ -83,7 +84,7 @@ $breakpointPanel: 640px;
   }
 }
 @mixin panelMobileUp {
-  @media (min-width: $breakpointPanel) {
+  @media (min-width: #{$breakpointPanel + 1px}) {
     @content;
   }
 }

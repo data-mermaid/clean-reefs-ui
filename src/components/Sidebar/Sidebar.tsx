@@ -16,7 +16,7 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
   const { t } = useTranslation()
 
   return (
-    <nav className={styles['sidebar']} aria-label={t('panel_toggle_sidebar')}>
+    <nav className={styles['sidebar']} aria-label={t('sidebar')}>
       <StyledIconButtonWithTooltip
         aria-label={t('buttons.graphs')}
         aria-pressed={activePanel === 'graphs'}

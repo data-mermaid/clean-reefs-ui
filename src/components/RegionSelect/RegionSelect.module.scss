@@ -124,6 +124,7 @@
   margin: theme.$spacingXSmall;
   left: 0 !important;
   max-width: calc(100% - theme.$spacingXSmall * 2);
+
   // TEMP (C235): anchor dropdown to the repositioned breadcrumb (left: 56px).
   // C241 should remove these overrides and let MUI auto-position relative to the
   // new bc-control widget.
