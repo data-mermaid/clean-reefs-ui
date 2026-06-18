@@ -1,67 +1,78 @@
 @use '../../styles/theme';
 
-.MuiAppBar-root {
-  background-color: theme.$primary;
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: theme.$headerHeight;
+  z-index: theme.$zTopBar;
+  background-color: theme.$white;
+  border-bottom: 1px solid theme.$grey;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 10px;
+}
 
-  .MuiToolbar-root {
-    min-height: theme.$headerHeight;
-    padding: 0 10px;
-    font-size: 16px;
+.wordmark {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #212121;
+}
 
-    .logo {
-      font-size: 19px;
-      font-weight: 700;
-      color: theme.$white;
-      flex-grow: 1;
-    }
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-    .navigation-container {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+.action-button {
+  padding: 4px;
+}
 
-      .navigation-desktop-menu-box {
-        display: flex;
-        gap: 20px;
+.action-icon {
+  width: 20px;
+  height: 20px;
+  color: theme.$textSecondary;
+}
 
-        // TEMP (C235): match the new $breakpointPanel; C236/C239 will redo this.
-        @include theme.panelMobileDown {
-          display: none;
-        }
-      }
+.nav-link {
+  font-size: 13px;
+  color: theme.$textSecondary;
+  text-decoration: none;
+  padding: 0 8px;
+  height: theme.$headerHeight;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 
-      .navigation-mobile-menu-box {
-        display: none;
+  &:hover {
+    color: theme.$primaryAccent;
+    background-color: theme.$hoverGrey;
+  }
 
-        // TEMP (C235): match the new $breakpointPanel; C236/C239 will redo this.
-        @include theme.panelMobileDown {
-          display: flex;
-        }
-      }
-
-      .navigation-item-link {
-        color: theme.$white;
-        text-decoration: none;
-        font-weight: 500;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
+  @include theme.panelMobileDown {
+    display: none;
   }
 }
 
-.navigation-mobile-menu {
-  background-color: theme.$primary;
+.hamburger {
+  display: none;
+
+  @include theme.panelMobileDown {
+    display: flex;
+  }
 }
 
-.navigation-menu-item {
-  text-align: center;
-  font-size: 16px;
-  color: white;
+.mobile-menu {
+  background-color: theme.$white;
+  margin-top: theme.$spacingXSmall;
 }
-.header-icon {
-  width: 24px;
-  color: white;
+
+.mobile-menu-item {
+  font-size: 14px;
+  color: theme.$textColor;
 }
