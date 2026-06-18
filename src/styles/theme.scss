@@ -1,16 +1,12 @@
 /** Theme colors **/
 $primary: #003f5c;
 $primaryLight: #a3b8c8;
-$secondary: #dddce4;
-$secondaryLight: #f5f5f5;
 $white: #ffffff;
 $grey: #dedfe3;
 $greyWhite: #fafbfc;
 $hoverGrey: #f1f2f3;
-$accentBlue: #334bff;
 $primaryAccent: #1976d2;
 $activeSelection: #f00;
-$selectionHover: #f006;
 
 /** Fonts, font styling, text **/
 $textColor: #393939;
@@ -19,7 +15,6 @@ $defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
 $light: 300;
 $regular: 400;
 $semiBold: 600;
-$bold: 900;
 
 $textSizeXSmall: 12px;
 $textSizeSmall: 14px;
@@ -36,7 +31,6 @@ $spacingXXSmall: 3px;
 $spacingXSmall: 5px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
-$spacingLarge: 24px;
 
 $borderRadius: 4px;
 /** Z-indexes **/
@@ -70,7 +64,6 @@ $panelTop: $yearSelectTop + $mapUtilButtonHeight + 8px;
 
 /** Breakpoints **/
 $breakpointMobile: 768px;
-$breakpointTablet: 1024px;
 $breakpointPanel: 640px;
 
 /** Mixins **/
