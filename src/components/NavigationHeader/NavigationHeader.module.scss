@@ -12,7 +12,13 @@
   display: flex;
   align-items: center;
   padding: 0 14px;
-  gap: 10px;
+  gap: theme.$defaultSpacing;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingSmall;
 }
 
 .wordmark {
@@ -20,6 +26,21 @@
   font-weight: 700;
   letter-spacing: 0.01em;
   color: #212121;
+}
+
+.beta-chip {
+  background-color: theme.$primaryAccent;
+  height: auto;
+  border-radius: 10px;
+}
+
+.beta-chip__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: theme.$white;
+  padding: 2px 7px;
 }
 
 .actions {
@@ -34,8 +55,8 @@
 }
 
 .action-icon {
-  width: 20px;
-  height: 20px;
+  width: theme.$svgSizeSmall;
+  height: theme.$svgSizeSmall;
   color: theme.$textSecondary;
 }
 
@@ -43,7 +64,7 @@
   font-size: 13px;
   color: theme.$textSecondary;
   text-decoration: none;
-  padding: 0 8px;
+  padding: 0 theme.$spacingSmall;
   height: theme.$headerHeight;
   display: flex;
   align-items: center;
@@ -73,6 +94,6 @@
 }
 
 .mobile-menu-item {
-  font-size: 14px;
+  font-size: theme.$textSizeSmall;
   color: theme.$textColor;
 }

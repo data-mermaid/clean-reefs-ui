@@ -3,7 +3,7 @@ import { type MouseEvent, useState } from 'react'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import ShareIcon from '@mui/icons-material/Share'
-import { Menu, MenuItem, Link, Typography } from '@mui/material'
+import { Chip, Menu, MenuItem, Link, Typography } from '@mui/material'
 import type { PopoverOrigin } from '@mui/material'
 
 import { useTranslation } from 'react-i18next'
@@ -45,7 +45,14 @@ export default function NavigationHeader() {
 
   return (
     <header className={styles['header']}>
-      <Typography className={styles['wordmark']}>{t('app_title')}</Typography>
+      <div className={styles['brand']}>
+        <Typography className={styles['wordmark']}>{t('app_title')}</Typography>
+        <Chip
+          label={t('beta')}
+          size="small"
+          classes={{ root: styles['beta-chip'], label: styles['beta-chip__label'] }}
+        />
+      </div>
       <div className={styles['actions']}>
         <IconButton
           aria-label={t('buttons.share_view')}
