@@ -1,0 +1,42 @@
+@use '../../styles/theme';
+
+.sidebar {
+  position: fixed;
+  top: theme.$headerHeight;
+  left: 0;
+  bottom: 0;
+  width: theme.$sidebarWidth;
+  background-color: theme.$white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  z-index: theme.$zSidebar;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: theme.$spacingXXSmall;
+  gap: theme.$spacingXXSmall;
+}
+
+.sidebar-button {
+  width: 36px;
+  height: 36px;
+  border-radius: theme.$borderRadius;
+  color: theme.$textColor;
+
+  & svg {
+    width: theme.$svgSizeSmall;
+    height: theme.$svgSizeSmall;
+  }
+}
+
+.sidebar-button--active {
+  background-color: theme.$primaryAccent;
+  color: theme.$white;
+
+  & svg {
+    color: theme.$white;
+  }
+
+  &:hover {
+    background-color: theme.$primaryAccent;
+  }
+}

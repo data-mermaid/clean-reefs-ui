@@ -11,6 +11,7 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
+  AttributionControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -61,8 +62,6 @@ import {
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
-  SNACKBAR_BOTTOM_GAP,
-  TRENDS_DRAWER_PEEK_HEIGHT,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
@@ -113,7 +112,7 @@ interface BaseMapProps {
     | { longitude: number; latitude: number; zoom: number }
     | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
-  isAnyDrawerOpen: boolean
+  isAnyPanelOpen: boolean
   regionOptions: RegionOption[]
 }
 
@@ -412,7 +411,7 @@ export default function BaseMap({
   showLabels,
   initialViewState,
   onMapMoveEnd,
-  isAnyDrawerOpen,
+  isAnyPanelOpen,
   regionOptions,
 }: BaseMapProps) {
   const { t } = useTranslation()
@@ -456,7 +455,7 @@ export default function BaseMap({
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
-  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyDrawerOpen)
+  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyPanelOpen)
 
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),
@@ -1047,12 +1046,9 @@ export default function BaseMap({
         onMoveEnd={handleMoveEnd}
         attributionControl={false}
       >
-        {isDesktopWidth && (
-          <>
-            <ScaleControl position="bottom-right" />
-            <NavigationControl position="bottom-right" showCompass={false} />
-          </>
-        )}
+        <AttributionControl position="bottom-right" compact />
+        <ScaleControl position="bottom-right" />
+        <NavigationControl position="bottom-right" showCompass={false} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />
@@ -1272,14 +1268,6 @@ export default function BaseMap({
       <Snackbar
         open={showLoading || mapLayersLoadingError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
-        sx={{
-          '&.MuiSnackbar-root': {
-            bottom: isMobileWidth
-              ? `${TRENDS_DRAWER_PEEK_HEIGHT + SNACKBAR_BOTTOM_GAP}px`
-              : undefined,
-          },
-        }}
       >
         <div className={styles['snackbar-stack']}>
           {showLoading && (

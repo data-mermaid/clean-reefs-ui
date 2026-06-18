@@ -8,11 +8,7 @@
   background-color: theme.$white;
   width: 100%;
   height: 100%;
-  z-index: theme.$baseMap;
-}
-
-:global(.maplibregl-ctrl-bottom-right) {
-  right: theme.$drawerWidth;
+  z-index: theme.$zBaseMap;
 }
 
 .dispersal-marker {

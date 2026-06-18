@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
+import Sidebar, { ActivePanel } from '../Sidebar/Sidebar'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
@@ -92,12 +93,17 @@ export default function MapContainer() {
     getValidDispersalPoint(searchParams.get('dispersal-point')),
   )
 
-  const { isMobileWidth } = useResponsive()
+  const { isPanelMobile } = useResponsive()
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
-  const [layersDrawerOpen, setLayersDrawerOpen] = useState(false)
-  const [trendsDrawerOpen, setTrendsDrawerOpen] = useState(!isMobileWidth)
+  const [activePanel, setActivePanel] = useState<ActivePanel>(() =>
+    isPanelMobile ? null : 'graphs',
+  )
+
+  const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
+    setActivePanel((prev) => (prev === panel ? null : panel))
+  }, [])
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
     initialRegion.regionType !== 'global'
       ? [defaultGlobalRegionOption, initialRegion]
@@ -452,28 +458,8 @@ export default function MapContainer() {
 
   return (
     <div className={styles['MapContainer-root']}>
-      <div className={styles['layer-controls']}>
-        <LayersDrawer
-          mapLayers={urlSyncedMapLayers}
-          setMapLayers={setMapLayers}
-          selectedYear={selectedYear}
-          selectedLayers={selectedLayers}
-          selectedBasemap={selectedBasemap}
-          onLayerToggleChange={handleLayerToggleChange}
-          onSedSubLayerChange={handleSedSubLayerChange}
-          subSedLayerValue={subSedLayerValue}
-          open={layersDrawerOpen}
-          onOpenChange={setLayersDrawerOpen}
-          showLabels={showLabels}
-          onLabelsChange={handleLabelsChange}
-          onBasemapChange={handleBasemapChange}
-          sedExposureMinValue={sedExposureMinValue ?? undefined}
-          sedExposureMaxValue={sedExposureMaxValue ?? undefined}
-          sedExposureLoading={sedExposureLoading}
-          sedLoadMinValue={sedLoadMinValue ?? undefined}
-          sedLoadMaxValue={sedLoadMaxValue ?? undefined}
-          sedLoadLoading={sedLoadLoading}
-        />
+      <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} />
+      <div className={styles['breadcrumb-slot']}>
         <RegionSelect
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionDropdownChange}
@@ -482,20 +468,41 @@ export default function MapContainer() {
           regionOptions={regionOptions}
           regionOptionsLoading={regionOptionsLoading}
         />
+      </div>
+      <div className={styles['year-slot']}>
         <YearSelect
           selectedYear={selectedYear}
           onChange={handleYearChange}
           availableYears={availableYears}
           disabled={yearsLoading}
         />
-        <TrendsDrawer
-          selectedRegion={selectedRegion}
-          selectedYear={selectedYear}
-          open={trendsDrawerOpen}
-          onOpenChange={setTrendsDrawerOpen}
-          onUpOneLevelChange={handleUpOneLevelChange}
-        />
       </div>
+      <LayersDrawer
+        mapLayers={urlSyncedMapLayers}
+        setMapLayers={setMapLayers}
+        selectedYear={selectedYear}
+        selectedLayers={selectedLayers}
+        selectedBasemap={selectedBasemap}
+        onLayerToggleChange={handleLayerToggleChange}
+        onSedSubLayerChange={handleSedSubLayerChange}
+        subSedLayerValue={subSedLayerValue}
+        open={activePanel === 'layers'}
+        showLabels={showLabels}
+        onLabelsChange={handleLabelsChange}
+        onBasemapChange={handleBasemapChange}
+        sedExposureMinValue={sedExposureMinValue ?? undefined}
+        sedExposureMaxValue={sedExposureMaxValue ?? undefined}
+        sedExposureLoading={sedExposureLoading}
+        sedLoadMinValue={sedLoadMinValue ?? undefined}
+        sedLoadMaxValue={sedLoadMaxValue ?? undefined}
+        sedLoadLoading={sedLoadLoading}
+      />
+      <TrendsDrawer
+        selectedRegion={selectedRegion}
+        selectedYear={selectedYear}
+        open={activePanel === 'graphs'}
+        onUpOneLevelChange={handleUpOneLevelChange}
+      />
       <BaseMap
         mapLayers={urlSyncedMapLayers}
         sedLoadSubLayerValue={subSedLayerValue}
@@ -521,7 +528,7 @@ export default function MapContainer() {
               }
         }
         onMapMoveEnd={handleMapMoveEnd}
-        isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
+        isAnyPanelOpen={activePanel !== null}
         regionOptions={regionOptions}
       />
     </div>
