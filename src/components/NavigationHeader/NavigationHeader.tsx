@@ -1,4 +1,5 @@
 import { type MouseEvent, useState } from 'react'
+import { useLocation } from 'react-router'
 
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -27,12 +28,18 @@ const menuOriginConfig: {
 
 export default function NavigationHeader() {
   const { t } = useTranslation()
+  const location = useLocation()
+  const isMapPage = location.pathname === '/'
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
 
+  // C240 will replace the '#' hrefs with real routes (e.g. /science-and-methods) once
+  // routing is wired in main.tsx. Until then, isMapPage stays true on every path
+  // because MapContainer mounts unconditionally — the back_to_map branch is unreachable.
   const navItems = [
-    { label: t('science_and_methods'), href: '#' },
-    { label: t('contact'), href: '#' },
+    ...(!isMapPage ? [{ label: t('back_to_map'), href: '/', external: false }] : []),
+    { label: t('science_and_methods'), href: '#', external: true },
+    { label: t('contact'), href: '#', external: true },
   ]
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
@@ -54,20 +61,23 @@ export default function NavigationHeader() {
         />
       </div>
       <div className={styles['actions']}>
-        <IconButton
-          aria-label={t('buttons.share_view')}
-          className={styles['action-button']}
-          onClick={() => setShareOpen(true)}
-        >
-          <ShareIcon className={styles['action-icon']} />
-        </IconButton>
-        <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+        {isMapPage && (
+          <>
+            <IconButton
+              aria-label={t('buttons.share_view')}
+              className={styles['action-button']}
+              onClick={() => setShareOpen(true)}
+            >
+              <ShareIcon className={styles['action-icon']} />
+            </IconButton>
+            <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+          </>
+        )}
         {navItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             className={styles['nav-link']}
           >
             {item.label}
