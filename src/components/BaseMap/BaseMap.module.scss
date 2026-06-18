@@ -12,10 +12,10 @@
 }
 
 .dispersal-marker {
-  width: 15px;
-  height: 15px;
+  width: theme.$markerSize;
+  height: theme.$markerSize;
   border: 2px solid theme.$activeSelection;
-  border-radius: 5px;
+  border-radius: theme.$spacingXSmall;
   background: transparent;
   pointer-events: none;
 }
@@ -55,7 +55,7 @@ $my-location-svg-suffix: '%22%3E%3Cpath%20d%3D%22M12%208c-2.21%200-4%201.79-4%20
 
 :global(.maplibregl-ctrl button.maplibregl-ctrl-geolocate .maplibregl-ctrl-icon) {
   background-image: url('#{$my-location-svg-prefix}5f6368#{$my-location-svg-suffix}');
-  background-size: 20px 20px;
+  background-size: theme.$svgSizeSmall theme.$svgSizeSmall;
   background-position: center;
   background-repeat: no-repeat;
 }

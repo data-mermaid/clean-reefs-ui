@@ -1,0 +1,49 @@
+@use '../../styles/theme';
+
+.button {
+  width: theme.$mapControlButtonSize;
+  height: theme.$mapControlButtonSize;
+  border-radius: 0;
+  padding: 0;
+  color: theme.$textColor;
+
+  &:hover {
+    background-color: theme.$hoverGrey;
+  }
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.popper {
+  z-index: theme.$zControl;
+}
+
+.popup {
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+  margin-right: theme.$spacingXSmall;
+  min-width: 300px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingXSmall;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+}
+
+.go-button {
+  flex-shrink: 0;
+}
+
+.error {
+  margin-top: theme.$spacingXSmall;
+  font-size: theme.$textSizeXSmall;
+  // Material red 700; promote to a theme token when another component needs it
+  color: #d32f2f;
+}

@@ -192,7 +192,7 @@ export default function LayersDrawer({
   return (
     <aside
       className={clsx(styles['layers-panel'], !open && styles['layers-panel--hidden'])}
-      aria-label={t('buttons.layers')}
+      aria-label={t('layers')}
       aria-hidden={!open}
     >
       <div className={styles['layers-panel__content']}>

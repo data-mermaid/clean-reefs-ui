@@ -61,6 +61,8 @@ $panelWidth: 315px;
 $panelLeftDefault: 56px;
 $panelBottomGap: 8px;
 $panelMobileGutter: 8px;
+$mapControlButtonSize: 29px;
+$markerSize: 15px;
 
 // Derived top offsets — anchored to $headerHeight so C236 only changes that token.
 $breadcrumbTop: $headerHeight + 8px;
