@@ -13,7 +13,7 @@
 }
 
 .icon {
-  font-size: 18px;
+  font-size: theme.$textSizeLarge;
 }
 
 .popper {
@@ -23,7 +23,7 @@
 .popup {
   padding: theme.$spacingXSmall theme.$spacingSmall;
   margin-right: theme.$spacingXSmall;
-  min-width: 300px;
+  min-width: theme.$geoLookupPopupMinWidth;
 }
 
 .input-row {
@@ -44,6 +44,5 @@
 .error {
   margin-top: theme.$spacingXSmall;
   font-size: theme.$textSizeXSmall;
-  // Material red 700; promote to a theme token when another component needs it
-  color: #d32f2f;
+  color: theme.$colorError;
 }
