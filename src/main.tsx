@@ -11,6 +11,7 @@ import NavigationHeader from './components/NavigationHeader/NavigationHeader'
 import '@fontsource/titillium-web/300.css'
 import '@fontsource/titillium-web/400.css'
 import '@fontsource/titillium-web/600.css'
+import '@fontsource/titillium-web/700.css'
 import '@fontsource/titillium-web/900.css'
 
 if (import.meta.env.DEV) {
