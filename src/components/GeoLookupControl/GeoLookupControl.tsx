@@ -105,7 +105,12 @@ export default function GeoLookupControl() {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=1`,
-        { headers: { 'Accept-Language': 'en' } },
+        {
+          headers: {
+            'Accept-Language': 'en',
+            'User-Agent': 'GlobalPollutionWatch/1.0 (https://globalpollutiwatch.org)',
+          },
+        },
       )
       const data: { lat: string; lon: string }[] = await res.json()
       if (data.length) {
