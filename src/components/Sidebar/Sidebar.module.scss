@@ -17,8 +17,8 @@
 }
 
 .sidebar-button {
-  width: 36px;
-  height: 36px;
+  width: theme.$sidebarButtonSize;
+  height: theme.$sidebarButtonSize;
   border-radius: theme.$borderRadius;
   color: theme.$textColor;
 

@@ -75,6 +75,9 @@
     "watershed": "Watershed",
     "dispersal": "Dispersal"
   },
+  "app_title": "Global Pollution Watch",
+  "beta": "Beta",
+  "back_to_map": "Back to map",
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
   "base_map": "Basemap",

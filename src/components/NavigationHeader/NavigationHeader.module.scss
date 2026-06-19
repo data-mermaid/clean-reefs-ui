@@ -1,67 +1,99 @@
 @use '../../styles/theme';
 
-.MuiAppBar-root {
-  background-color: theme.$primary;
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: theme.$headerHeight;
+  z-index: theme.$zTopBar;
+  background-color: theme.$white;
+  border-bottom: 1px solid theme.$grey;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: theme.$defaultSpacing;
+}
 
-  .MuiToolbar-root {
-    min-height: theme.$headerHeight;
-    padding: 0 10px;
-    font-size: 16px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingSmall;
+}
 
-    .logo {
-      font-size: 19px;
-      font-weight: 700;
-      color: theme.$white;
-      flex-grow: 1;
-    }
+.wordmark {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #212121;
+}
 
-    .navigation-container {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+.beta-chip {
+  background-color: theme.$primaryAccent;
+  height: auto;
+  border-radius: 10px;
+}
 
-      .navigation-desktop-menu-box {
-        display: flex;
-        gap: 20px;
+.beta-chip__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: theme.$white;
+  padding: 2px 7px;
+}
 
-        // TEMP (C235): match the new $breakpointPanel; C236/C239 will redo this.
-        @include theme.panelMobileDown {
-          display: none;
-        }
-      }
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-      .navigation-mobile-menu-box {
-        display: none;
+.action-button {
+  padding: 4px;
+}
 
-        // TEMP (C235): match the new $breakpointPanel; C236/C239 will redo this.
-        @include theme.panelMobileDown {
-          display: flex;
-        }
-      }
+.action-icon {
+  width: theme.$svgSizeSmall;
+  height: theme.$svgSizeSmall;
+  color: theme.$textSecondary;
+}
 
-      .navigation-item-link {
-        color: theme.$white;
-        text-decoration: none;
-        font-weight: 500;
+.nav-link {
+  font-size: 13px;
+  color: theme.$textSecondary;
+  text-decoration: none;
+  padding: 0 theme.$spacingSmall;
+  height: theme.$headerHeight;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
+  &:hover {
+    color: theme.$primaryAccent;
+    background-color: theme.$hoverGrey;
+  }
+
+  @include theme.panelMobileDown {
+    display: none;
   }
 }
 
-.navigation-mobile-menu {
-  background-color: theme.$primary;
+.hamburger {
+  display: none;
+
+  @include theme.panelMobileDown {
+    display: flex;
+  }
 }
 
-.navigation-menu-item {
-  text-align: center;
-  font-size: 16px;
-  color: white;
+.mobile-menu {
+  background-color: theme.$white;
+  margin-top: theme.$spacingXSmall;
 }
-.header-icon {
-  width: 24px;
-  color: white;
+
+.mobile-menu-item {
+  font-size: theme.$textSizeSmall;
+  color: theme.$textColor;
 }
