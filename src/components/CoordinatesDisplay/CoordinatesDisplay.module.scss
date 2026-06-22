@@ -1,0 +1,12 @@
+@use '../../styles/theme';
+
+.coordinates-display {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  font-family: monospace;
+  padding: 4px 10px;
+  border-radius: theme.$borderRadius;
+  white-space: nowrap;
+  pointer-events: none;
+}

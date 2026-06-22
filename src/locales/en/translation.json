@@ -75,6 +75,10 @@
     "watershed": "Watershed",
     "dispersal": "Dispersal"
   },
+  "coordinates": {
+    "lat": "Lat",
+    "lon": "Lon"
+  },
   "app_title": "Global Pollution Watch",
   "beta": "Beta",
   "back_to_map": "Back to map",
