@@ -11,28 +11,17 @@
   z-index: theme.$zBaseMap;
 }
 
-// Slot for coordinates display, positioned to the left of the MapLibre nav button column.
-// The scale bar sits above this via the :global override below.
-.bottom-right-readout {
-  position: absolute;
-  bottom: 6px;
-  right: theme.$mapControlButtonSize + 20px;
-  pointer-events: none;
-  z-index: theme.$zControl;
-}
-
-// Reposition and restyle MapLibre's built-in scale bar so it sits to the left of
-// the nav button column (above the coordinates display) and matches the mockup style.
+// Reposition and restyle MapLibre's built-in scale bar to match the mockup style.
 :global(.maplibregl-ctrl-bottom-right .maplibregl-ctrl-scale) {
   position: absolute;
-  bottom: 32px;
-  right: theme.$mapControlButtonSize + 20px;
-  background: rgba(0, 0, 0, 0.55);
+  bottom: 30px;
+  right: 45px;
+  background: theme.$mapOverlayBg;
   border-top: none;
-  border-left: 2px solid rgba(255, 255, 255, 0.75);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.75);
-  border-right: 2px solid rgba(255, 255, 255, 0.75);
-  padding: 3px 8px 4px;
+  border-left: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-bottom: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-right: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  padding: theme.$spacingXXSmall theme.$spacingSmall theme.$spacingXXSmall;
   text-align: center;
   min-width: 40px;
   color: theme.$white;

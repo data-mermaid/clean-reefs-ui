@@ -9,14 +9,14 @@ interface CoordinatesDisplayProps {
 export default function CoordinatesDisplay({ lat, lng }: CoordinatesDisplayProps) {
   const { t } = useTranslation()
 
-  if (lat === null || lng === null) {
-    return null
-  }
-
   return (
-    <div className={styles['coordinates-display']}>
-      {t('coordinates.lat')}: {lat.toFixed(5)}&nbsp;&nbsp;{t('coordinates.lon')}:{' '}
-      {lng.toFixed(5)}
+    <div className={styles['bottom-right-readout']}>
+      {lat !== null && lng !== null && (
+        <div className={styles['coordinates-display']}>
+          {t('coordinates.lat')}: {lat.toFixed(5)}&nbsp;&nbsp;{t('coordinates.lon')}:{' '}
+          {lng.toFixed(5)}
+        </div>
+      )}
     </div>
   )
 }

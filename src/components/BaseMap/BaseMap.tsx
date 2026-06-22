@@ -11,7 +11,6 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
-  AttributionControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -34,6 +33,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
+import CoordinatesDisplay from '../CoordinatesDisplay/CoordinatesDisplay'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -453,6 +453,9 @@ export default function BaseMap({
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
+  const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
+    null,
+  )
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
   const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyPanelOpen)
@@ -1044,9 +1047,9 @@ export default function BaseMap({
         mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
-        attributionControl={false}
+        onMouseMove={(e) => setMouseCoordinates({ lat: e.lngLat.lat, lng: e.lngLat.lng })}
+        onMouseLeave={() => setMouseCoordinates(null)}
       >
-        <AttributionControl position="bottom-right" compact />
         <ScaleControl position="bottom-right" />
         <NavigationControl position="bottom-right" showCompass={false} />
         {dispersalPoint && (
@@ -1300,6 +1303,7 @@ export default function BaseMap({
           )}
         </div>
       </Snackbar>
+      <CoordinatesDisplay lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
     </div>
   )
 }

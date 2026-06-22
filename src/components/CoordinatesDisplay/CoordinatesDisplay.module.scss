@@ -1,11 +1,23 @@
 @use '../../styles/theme';
 
+.bottom-right-readout {
+  position: fixed;
+  bottom: theme.$defaultSpacing;
+  right: 55px;
+  z-index: theme.$zControl;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: theme.$spacingXXSmall;
+}
+
 .coordinates-display {
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-size: 12px;
+  background: theme.$mapOverlayBg;
+  color: theme.$white;
+  font-size: theme.$textSizeXSmall;
   font-family: monospace;
-  padding: 4px 10px;
+  padding: theme.$spacingXXSmall theme.$defaultSpacing;
   border-radius: theme.$borderRadius;
   white-space: nowrap;
   pointer-events: none;
