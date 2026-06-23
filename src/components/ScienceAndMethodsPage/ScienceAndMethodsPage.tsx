@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link as InternalLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button, ClickAwayListener, IconButton } from '@mui/material'
@@ -26,6 +26,29 @@ const sections = [
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeId, setActiveId] = useState(sections[0].id)
+  const suppressObserver = useRef(false)
+  const suppressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (suppressObserver.current) { return }
+        const visible = entries.find((e) => e.isIntersecting)
+        if (visible) { setActiveId(visible.target.id) }
+      },
+      { rootMargin: '-10% 0px -60% 0px' },
+    )
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) { observer.observe(el) }
+    })
+
+    return () => {
+      observer.disconnect()
+      if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
+    }
+  }, [])
 
   return (
     <div className={styles['page']}>
@@ -33,7 +56,6 @@ export default function ScienceAndMethodsPage() {
         <aside
           className={`${styles['sidebar']} ${sidebarOpen ? styles['sidebar--open'] : ''}`}
         >
-          {/* Single back button: sidebar overflow:hidden clips text in collapsed (48px) */}
           <Button
             component={InternalLink}
             to="/"
@@ -42,7 +64,7 @@ export default function ScienceAndMethodsPage() {
             className={styles['back-button']}
             disableElevation
           >
-            {t('back_to_map')}
+            <span className={styles['back-button-text']}>{t('back_to_map')}</span>
           </Button>
 
           {/* Mobile only: TOC expand/collapse toggle — always at same position */}
@@ -60,8 +82,16 @@ export default function ScienceAndMethodsPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className={styles['nav-link']}
-                onClick={() => setSidebarOpen(false)}
+                className={`${styles['nav-link']}${activeId === section.id ? ` ${styles['nav-link--active']}` : ''}`}
+                onClick={() => {
+                  setActiveId(section.id)
+                  suppressObserver.current = true
+                  if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
+                  suppressTimeout.current = setTimeout(() => {
+                    suppressObserver.current = false
+                  }, 1000)
+                  setSidebarOpen(false)
+                }}
               >
                 {t(section.labelKey)}
               </a>

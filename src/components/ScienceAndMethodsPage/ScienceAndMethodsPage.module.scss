@@ -35,7 +35,9 @@
     gap: 0;
     align-items: flex-start;
     z-index: theme.$zPanel;
-    transition: width 0.25s ease, box-shadow 0.25s ease;
+    transition:
+      width 0.25s ease,
+      box-shadow 0.25s ease;
   }
 
   &.sidebar--open {
@@ -47,19 +49,31 @@
   }
 }
 
-// Back button: full on desktop; on mobile sidebar clips text to show icon-only
-// in collapsed (overflow:hidden at 48px). In expanded (240px) full text shows.
 .back-button {
   width: 100%;
   text-transform: none;
   font-size: theme.$textSizeSmall;
   justify-content: flex-start;
   flex-shrink: 0;
+  height: 35px;
 
   @include theme.panelMobileDown {
     width: 240px;
     border-radius: 0;
-    padding-left: 12px;
+  }
+}
+
+.back-button-text {
+  @include theme.panelMobileDown {
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .sidebar--open & {
+    @include theme.panelMobileDown {
+      opacity: 1;
+      transition: opacity 0.15s ease 0.15s;
+    }
   }
 }
 
@@ -67,7 +81,9 @@
 .toc-toggle {
   display: none;
   width: theme.$sidebarWidth;
+  height: 35px;
   flex-shrink: 0;
+  border-radius: 0;
 
   &:hover {
     background-color: transparent;
@@ -78,36 +94,42 @@
   }
 }
 
-// Section nav: visible on desktop; hidden on mobile collapsed, visible when open
+// Section nav: visible on desktop; fades in/out on mobile via opacity
 .section-nav {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  padding-left: 30px;
 
   @include theme.panelMobileDown {
-    display: none;
-    padding: 0 theme.$spacingXXSmall;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
   }
 
   .sidebar--open & {
     @include theme.panelMobileDown {
-      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 0.15s ease 0.15s;
     }
   }
 }
 
 .nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  height: 35px;
+  width: 100%;
   font-size: theme.$textSizeSmall;
   color: theme.$textSecondary;
   text-decoration: none;
-  padding: theme.$spacingXXSmall theme.$spacingSmall;
-  line-height: 1.6;
-  border-left: 2px solid transparent;
+  padding: 0 theme.$spacingSmall;
+  border-left: 3px solid transparent;
 
   &:hover {
-    color: theme.$primaryAccent;
+    background-color: theme.$hoverGrey;
     border-left-color: rgba(theme.$primaryAccent, 0.4);
-    background-color: rgba(theme.$primaryAccent, 0.06);
   }
 }
 
@@ -119,7 +141,7 @@
 
 .content {
   grid-column: 2;
-  padding: theme.$spacingMedium 40px;
+  padding: theme.$spacingMedium 40px 40vh;
   max-width: 800px;
 
   @include theme.panelMobileDown {
