@@ -882,6 +882,17 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, sedExposureBoundaryLayer])
 
+  const handleMouseMove = (e: { lngLat: { lat: number; lng: number } }) => {
+    const lat = Math.round(e.lngLat.lat * 1e5) / 1e5
+    const lng = Math.round(e.lngLat.lng * 1e5) / 1e5
+    setMouseCoordinates((prev) => {
+      if (prev?.lat === lat && prev?.lng === lng) {
+        return prev
+      }
+      return { lat, lng }
+    })
+  }
+
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
     // Populate store values BEFORE setIsMapLoaded so they're available when
@@ -1047,7 +1058,7 @@ export default function BaseMap({
         mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
-        onMouseMove={(e) => setMouseCoordinates({ lat: e.lngLat.lat, lng: e.lngLat.lng })}
+        onMouseMove={handleMouseMove}
         onMouseLeave={() => setMouseCoordinates(null)}
       >
         <ScaleControl position="bottom-right" />
