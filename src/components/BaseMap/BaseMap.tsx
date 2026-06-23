@@ -415,7 +415,7 @@ export default function BaseMap({
   regionOptions,
 }: BaseMapProps) {
   const { t } = useTranslation()
-  const { isDesktopWidth, isMobileWidth } = useResponsive()
+  const { isDesktopWidth, isPanelMobile } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
@@ -455,7 +455,7 @@ export default function BaseMap({
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
-  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyPanelOpen)
+  const showLoading = showLoadingIndicator && !(isPanelMobile && isAnyPanelOpen)
 
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),

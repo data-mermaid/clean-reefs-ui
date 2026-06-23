@@ -152,6 +152,7 @@ export default function TrendsDrawer({
                   selectedYear={selectedYear}
                   chartConfigData={chart}
                   isChartDataLoading={isChartDataLoading}
+                  isVisible={open}
                 />
               </SelectedFeatureContext.Provider>
             ))

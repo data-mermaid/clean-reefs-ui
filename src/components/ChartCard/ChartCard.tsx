@@ -17,6 +17,7 @@ interface ChartCardProps {
   selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
+  isVisible?: boolean
 }
 
 const getCardHeaderClassNames = (chartConfigData: ChartProperties | null) => {
@@ -55,6 +56,7 @@ export default function ChartCard({
   selectedYear,
   chartConfigData,
   isChartDataLoading,
+  isVisible = true,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
@@ -177,7 +179,7 @@ export default function ChartCard({
           </Typography>
         )}
       </div>
-      {renderChartContent()}
+      {isVisible ? renderChartContent() : null}
     </Card>
   )
 }

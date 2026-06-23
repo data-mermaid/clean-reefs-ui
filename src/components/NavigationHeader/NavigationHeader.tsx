@@ -97,7 +97,9 @@ export default function NavigationHeader() {
               key={item.label}
               {...(item.internalLink
                 ? { component: InternalLink, to: item.href }
-                : { href: item.href, target: '_blank', rel: 'noopener noreferrer' })}
+                : item.href !== '#'
+                  ? { href: item.href, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: item.href })}
               className={className}
             >
               {item.label}
