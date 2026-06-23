@@ -80,6 +80,10 @@
   }
 }
 
+.nav-link--active {
+  color: theme.$primaryAccent;
+}
+
 .hamburger {
   display: none;
 
@@ -96,4 +100,8 @@
 .mobile-menu-item {
   font-size: theme.$textSizeSmall;
   color: theme.$textColor;
+}
+
+.mobile-menu-item--active {
+  color: theme.$primaryAccent;
 }
