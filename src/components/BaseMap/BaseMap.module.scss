@@ -15,7 +15,7 @@
   width: theme.$markerSize;
   height: theme.$markerSize;
   border: 2px solid theme.$activeSelection;
-  border-radius: theme.$spacingXSmall;
+  border-radius: theme.$borderRadius;
   background: transparent;
   pointer-events: none;
 }
