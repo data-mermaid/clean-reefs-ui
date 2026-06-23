@@ -1,9 +1,11 @@
 @use '../../styles/theme';
 
-.bottom-right-readout {
+$map-controls-right-offset: 55px;
+
+.coordinates-display {
   position: fixed;
   bottom: theme.$defaultSpacing;
-  right: 55px;
+  right: $map-controls-right-offset;
   z-index: theme.$zControl;
   pointer-events: none;
   display: flex;
@@ -12,7 +14,7 @@
   gap: theme.$spacingXXSmall;
 }
 
-.coordinates-display {
+.coordinates-display__label {
   background: theme.$mapOverlayBg;
   color: theme.$white;
   font-size: theme.$textSizeXSmall;
