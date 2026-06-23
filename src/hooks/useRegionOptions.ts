@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
-import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
+import { COUNTRY_REGION_MAP, defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
 
 const FIXED_TRAILING: RegionOption[] = [
   { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
@@ -29,7 +29,11 @@ const useRegionOptions = (): RegionOptionsResult => {
           setLoading(false)
           return
         }
-        setRegionOptions([defaultGlobalRegionOption, ...regions, ...countries, ...FIXED_TRAILING])
+        const enrichedCountries = countries.map((c) => ({
+          ...c,
+          parentRegionIds: COUNTRY_REGION_MAP[c.id],
+        }))
+        setRegionOptions([defaultGlobalRegionOption, ...regions, ...enrichedCountries, ...FIXED_TRAILING])
         setLoading(false)
       },
     )
