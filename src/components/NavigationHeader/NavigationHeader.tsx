@@ -67,30 +67,30 @@ export default function NavigationHeader() {
 
   return (
     <header className={styles['header']}>
-      <div className={styles['brand']}>
-        <Typography className={styles['wordmark']}>{t('app_title')}</Typography>
+      <div className={styles['header__brand']}>
+        <Typography className={styles['header__wordmark']}>{t('app_title')}</Typography>
         <Chip
           label={t('beta')}
           size="small"
-          classes={{ root: styles['beta-chip'], label: styles['beta-chip__label'] }}
+          classes={{ root: styles['header__beta-chip'], label: styles['header__beta-chip-label'] }}
         />
       </div>
-      <div className={styles['actions']}>
+      <div className={styles['header__actions']}>
         {isMapPage && (
           <>
             <IconButton
               aria-label={t('buttons.share_view')}
-              className={styles['action-button']}
+              className={styles['header__action-button']}
               onClick={() => setShareOpen(true)}
             >
-              <ShareIcon className={styles['action-icon']} />
+              <ShareIcon className={styles['header__action-icon']} />
             </IconButton>
             <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
           </>
         )}
         {navItems.map((item) => {
           const isActive = item.internalLink && location.pathname === item.href
-          const className = `${styles['nav-link']}${isActive ? ` ${styles['nav-link--active']}` : ''}`
+          const className = `${styles['header__nav-link']}${isActive ? ` ${styles['header__nav-link--active']}` : ''}`
 
           return (
             <Link
@@ -104,15 +104,15 @@ export default function NavigationHeader() {
             </Link>
           )
         })}
-        <div className={styles['hamburger']}>
+        <div className={styles['header__hamburger']}>
           <IconButton
             aria-label={t('toggle_navigation_menu')}
             aria-controls="menu-appbar"
             aria-haspopup="true"
-            className={styles['action-button']}
+            className={styles['header__action-button']}
             onClick={handleOpenNavMenu}
           >
-            <MenuIcon className={styles['action-icon']} />
+            <MenuIcon className={styles['header__action-icon']} />
           </IconButton>
           <Menu
             id="menu-appbar"
@@ -123,7 +123,7 @@ export default function NavigationHeader() {
             onClose={handleCloseNavMenu}
             slotProps={{
               paper: {
-                className: styles['mobile-menu'],
+                className: styles['header__mobile-menu'],
               },
             }}
           >
@@ -132,7 +132,7 @@ export default function NavigationHeader() {
               return (
                 <MenuItem key={item.label} onClick={() => handleMobileNavClick(item)}>
                   <Typography
-                    className={`${styles['mobile-menu-item']}${isActive ? ` ${styles['mobile-menu-item--active']}` : ''}`}
+                    className={`${styles['header__mobile-menu-item']}${isActive ? ` ${styles['header__mobile-menu-item--active']}` : ''}`}
                   >
                     {item.label}
                   </Typography>
