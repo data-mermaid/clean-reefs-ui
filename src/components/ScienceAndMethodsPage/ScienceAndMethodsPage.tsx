@@ -25,6 +25,7 @@ const sections = [
 
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
+  const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeId, setActiveId] = useState(sections[0].id)
   const suppressObserver = useRef(false)
@@ -58,7 +59,7 @@ export default function ScienceAndMethodsPage() {
         >
           <Button
             component={InternalLink}
-            to="/"
+            to={lastMapUrl}
             variant="contained"
             startIcon={<MapIcon />}
             className={styles['science-page__back-button']}

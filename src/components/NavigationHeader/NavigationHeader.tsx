@@ -41,8 +41,10 @@ export default function NavigationHeader() {
   const [shareOpen, setShareOpen] = useState(false)
   const [menuSnapshot, setMenuSnapshot] = useState<NavItem[]>([])
 
+  // Save map URL on every location change while on map, but only once params
+  // are present — avoids overwriting with bare "/" before MapContainer restores them.
   useEffect(() => {
-    if (isMapPage) {
+    if (isMapPage && location.search) {
       sessionStorage.setItem('lastMapUrl', location.pathname + location.search)
     }
   }, [isMapPage, location])
