@@ -1,9 +1,16 @@
 @use '../../styles/theme';
 
-.page {
+$desktop-sidebar-width: 200px;
+$mobile-sidebar-expanded-width: 240px;
+$sidebar-item-height: 35px;
+$section-nav-indent: 30px;
+$section-margin-bottom: 40px;
+$content-max-width: 800px;
+
+.science-page {
   padding-top: theme.$headerHeight;
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: $desktop-sidebar-width 1fr;
   min-height: 100vh;
   background-color: theme.$white;
 
@@ -12,7 +19,7 @@
   }
 }
 
-.sidebar {
+.science-page__sidebar {
   position: sticky;
   top: theme.$headerHeight;
   height: calc(100vh - theme.$headerHeight);
@@ -40,36 +47,36 @@
       box-shadow 0.25s ease;
   }
 
-  &.sidebar--open {
+  &.science-page__sidebar--open {
     @include theme.panelMobileDown {
-      width: 240px;
+      width: $mobile-sidebar-expanded-width;
       overflow-y: auto;
       box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
   }
 }
 
-.back-button {
+.science-page__back-button {
   width: 100%;
   text-transform: none;
   font-size: theme.$textSizeSmall;
   justify-content: flex-start;
   flex-shrink: 0;
-  height: 35px;
+  height: $sidebar-item-height;
 
   @include theme.panelMobileDown {
-    width: 240px;
+    width: $mobile-sidebar-expanded-width;
     border-radius: 0;
   }
 }
 
-.back-button-text {
+.science-page__back-button-text {
   @include theme.panelMobileDown {
     opacity: 0;
     transition: opacity 0.1s ease;
   }
 
-  .sidebar--open & {
+  .science-page__sidebar--open & {
     @include theme.panelMobileDown {
       opacity: 1;
       transition: opacity 0.15s ease 0.15s;
@@ -78,10 +85,10 @@
 }
 
 // TOC toggle: mobile only — pinned to $sidebarWidth so icon x never shifts
-.toc-toggle {
+.science-page__toc-toggle {
   display: none;
   width: theme.$sidebarWidth;
-  height: 35px;
+  height: $sidebar-item-height;
   flex-shrink: 0;
   border-radius: 0;
 
@@ -95,11 +102,11 @@
 }
 
 // Section nav: visible on desktop; fades in/out on mobile via opacity
-.section-nav {
+.science-page__section-nav {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-left: 30px;
+  padding-left: $section-nav-indent;
 
   @include theme.panelMobileDown {
     opacity: 0;
@@ -107,7 +114,7 @@
     transition: opacity 0.1s ease;
   }
 
-  .sidebar--open & {
+  .science-page__sidebar--open & {
     @include theme.panelMobileDown {
       opacity: 1;
       pointer-events: auto;
@@ -116,10 +123,10 @@
   }
 }
 
-.nav-link {
+.science-page__nav-link {
   display: flex;
   align-items: center;
-  height: 35px;
+  height: $sidebar-item-height;
   width: 100%;
   font-size: theme.$textSizeSmall;
   color: theme.$textSecondary;
@@ -133,16 +140,16 @@
   }
 }
 
-.nav-link--active {
+.science-page__nav-link--active {
   color: theme.$primaryAccent;
   border-left-color: theme.$primaryAccent;
   background-color: rgba(theme.$primaryAccent, 0.1);
 }
 
-.content {
+.science-page__content {
   grid-column: 2;
-  padding: theme.$spacingMedium 40px 40vh;
-  max-width: 800px;
+  padding: theme.$spacingLarge theme.$spacingLarge 40vh;
+  max-width: $content-max-width;
 
   @include theme.panelMobileDown {
     grid-column: 1;
@@ -151,31 +158,31 @@
   }
 }
 
-.page-title {
-  font-size: 24px;
+h1.science-page__title {
+  font-size: theme.$textSizeLarge;
   font-weight: theme.$semiBold;
   color: theme.$textColor;
   margin: 0 0 theme.$spacingSmall;
 }
 
-.page-subtitle {
+.science-page__subtitle {
   font-size: theme.$textSizeMedium;
   color: theme.$textSecondary;
-  margin: 0 0 theme.$spacingMedium;
+  margin: 0 0 theme.$spacingLarge;
 }
 
-.section {
-  margin-bottom: 40px;
+.science-page__section {
+  margin-bottom: $section-margin-bottom;
 }
 
-.section-heading {
-  font-size: 18px;
+h2.science-page__section-heading {
+  font-size: theme.$textSizeSemiLarge;
   font-weight: theme.$semiBold;
   color: theme.$textColor;
   margin: 0 0 theme.$spacingSmall;
 }
 
-.section-divider {
+.science-page__section-divider {
   border: none;
   border-bottom: 1px solid theme.$grey;
   margin: 0 0 theme.$spacingMedium;

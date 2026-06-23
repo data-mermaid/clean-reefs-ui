@@ -51,38 +51,38 @@ export default function ScienceAndMethodsPage() {
   }, [])
 
   return (
-    <div className={styles['page']}>
+    <div className={styles['science-page']}>
       <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
         <aside
-          className={`${styles['sidebar']} ${sidebarOpen ? styles['sidebar--open'] : ''}`}
+          className={`${styles['science-page__sidebar']} ${sidebarOpen ? styles['science-page__sidebar--open'] : ''}`}
         >
           <Button
             component={InternalLink}
             to="/"
             variant="contained"
             startIcon={<MapIcon />}
-            className={styles['back-button']}
+            className={styles['science-page__back-button']}
             disableElevation
           >
-            <span className={styles['back-button-text']}>{t('back_to_map')}</span>
+            <span className={styles['science-page__back-button-text']}>{t('back_to_map')}</span>
           </Button>
 
           {/* Mobile only: TOC expand/collapse toggle — always at same position */}
           <IconButton
             onClick={() => setSidebarOpen((prev) => !prev)}
-            className={styles['toc-toggle']}
+            className={styles['science-page__toc-toggle']}
             aria-label={t('toggle_navigation_menu')}
             disableRipple
           >
             <TocIcon />
           </IconButton>
 
-          <nav className={styles['section-nav']}>
+          <nav className={styles['science-page__section-nav']}>
             {sections.map((section) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className={`${styles['nav-link']}${activeId === section.id ? ` ${styles['nav-link--active']}` : ''}`}
+                className={`${styles['science-page__nav-link']}${activeId === section.id ? ` ${styles['science-page__nav-link--active']}` : ''}`}
                 onClick={() => {
                   setActiveId(section.id)
                   suppressObserver.current = true
@@ -100,13 +100,13 @@ export default function ScienceAndMethodsPage() {
         </aside>
       </ClickAwayListener>
 
-      <main className={styles['content']}>
-        <h1 className={styles['page-title']}>{t('science_and_methods_page.title')}</h1>
-        <p className={styles['page-subtitle']}>{t('science_and_methods_page.subtitle')}</p>
+      <main className={styles['science-page__content']}>
+        <h1 className={styles['science-page__title']}>{t('science_and_methods_page.title')}</h1>
+        <p className={styles['science-page__subtitle']}>{t('science_and_methods_page.subtitle')}</p>
         {sections.map((section) => (
-          <section key={section.id} id={section.id} className={styles['section']}>
-            <h2 className={styles['section-heading']}>{t(section.labelKey)}</h2>
-            <hr className={styles['section-divider']} />
+          <section key={section.id} id={section.id} className={styles['science-page__section']}>
+            <h2 className={styles['science-page__section-heading']}>{t(section.labelKey)}</h2>
+            <hr className={styles['science-page__section-divider']} />
             <p>{LOREM}</p>
             <p>{LOREM}</p>
           </section>
