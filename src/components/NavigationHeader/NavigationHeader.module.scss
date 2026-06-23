@@ -80,6 +80,14 @@
   }
 }
 
+.nav-link--active {
+  color: theme.$primaryAccent;
+}
+
+.mobile-menu-item--active {
+  color: theme.$primaryAccent;
+}
+
 .hamburger {
   display: none;
 
