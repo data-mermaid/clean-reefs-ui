@@ -146,9 +146,9 @@ export default function GeoLookupControl() {
           aria-label={t('geo_lookup.aria_label')}
           title={t('geo_lookup.aria_label')}
           onClick={handleToggle}
-          className={styles['button']}
+          className={styles['geo-lookup__button']}
         >
-          <TravelExploreIcon className={styles['icon']} />
+          <TravelExploreIcon className={styles['geo-lookup__icon']} />
         </IconButton>,
         container,
       )}
@@ -156,11 +156,11 @@ export default function GeoLookupControl() {
         open={isOpen}
         anchorEl={buttonRef.current}
         placement="left"
-        className={styles['popper']}
+        className={styles['geo-lookup__popper']}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
-          <Paper className={styles['popup']}>
-            <div className={styles['input-row']}>
+          <Paper className={styles['geo-lookup__popup']}>
+            <div className={styles['geo-lookup__input-row']}>
               <TextField
                 inputRef={inputRef}
                 size="small"
@@ -169,18 +169,18 @@ export default function GeoLookupControl() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isLoading}
-                className={styles['input']}
+                className={styles['geo-lookup__input']}
               />
               <Button
                 variant="contained"
                 onClick={handleSearch}
                 disabled={isLoading}
-                className={styles['go-button']}
+                className={styles['geo-lookup__go-button']}
               >
                 {t('buttons.go')}
               </Button>
             </div>
-            {error && <Typography className={styles['error']}>{error}</Typography>}
+            {error && <Typography className={styles['geo-lookup__error']}>{error}</Typography>}
           </Paper>
         </ClickAwayListener>
       </Popper>

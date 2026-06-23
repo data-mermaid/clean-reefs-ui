@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-.button {
+.geo-lookup__button {
   width: theme.$mapControlButtonSize;
   height: theme.$mapControlButtonSize;
   border-radius: 0;
@@ -12,36 +12,36 @@
   }
 }
 
-.icon {
+.geo-lookup__icon {
   font-size: theme.$textSizeLarge;
 }
 
-.popper {
+.geo-lookup__popper {
   z-index: theme.$zControl;
 }
 
-.popup {
+.geo-lookup__popup {
   padding: theme.$spacingXSmall theme.$spacingSmall;
   margin-right: theme.$spacingXSmall;
   min-width: theme.$geoLookupPopupMinWidth;
 }
 
-.input-row {
+.geo-lookup__input-row {
   display: flex;
   align-items: center;
   gap: theme.$spacingXSmall;
 }
 
-.input {
+.geo-lookup__input {
   flex: 1;
   min-width: 0;
 }
 
-.go-button {
+.geo-lookup__go-button {
   flex-shrink: 0;
 }
 
-.error {
+.geo-lookup__error {
   margin-top: theme.$spacingXSmall;
   font-size: theme.$textSizeXSmall;
   color: theme.$colorError;
