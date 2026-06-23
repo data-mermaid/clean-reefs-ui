@@ -119,6 +119,7 @@ export default function NavigationHeader() {
             anchorEl={anchorElNav}
             {...menuOriginConfig}
             keepMounted
+            disableScrollLock
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
             slotProps={{
