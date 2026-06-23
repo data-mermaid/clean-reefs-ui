@@ -1,0 +1,160 @@
+@use '../../styles/theme';
+
+.page {
+  padding-top: theme.$headerHeight;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 100vh;
+  background-color: theme.$white;
+
+  @include theme.panelMobileDown {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  position: sticky;
+  top: theme.$headerHeight;
+  height: calc(100vh - theme.$headerHeight);
+  overflow-y: auto;
+  border-right: 1px solid theme.$grey;
+  background-color: theme.$white;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingMedium;
+  padding: theme.$spacingMedium theme.$spacingSmall;
+
+  @include theme.panelMobileDown {
+    position: fixed;
+    top: theme.$headerHeight;
+    left: 0;
+    height: calc(100vh - theme.$headerHeight);
+    width: theme.$sidebarWidth;
+    overflow: hidden;
+    padding: 0;
+    gap: 0;
+    align-items: flex-start;
+    z-index: theme.$zPanel;
+    transition: width 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  &.sidebar--open {
+    @include theme.panelMobileDown {
+      width: 240px;
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// Back button: full on desktop; on mobile sidebar clips text to show icon-only
+// in collapsed (overflow:hidden at 48px). In expanded (240px) full text shows.
+.back-button {
+  width: 100%;
+  text-transform: none;
+  font-size: theme.$textSizeSmall;
+  justify-content: flex-start;
+  flex-shrink: 0;
+
+  @include theme.panelMobileDown {
+    width: 240px;
+    border-radius: 0;
+    padding-left: 12px;
+  }
+}
+
+// TOC toggle: mobile only — pinned to $sidebarWidth so icon x never shifts
+.toc-toggle {
+  display: none;
+  width: theme.$sidebarWidth;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  @include theme.panelMobileDown {
+    display: flex;
+  }
+}
+
+// Section nav: visible on desktop; hidden on mobile collapsed, visible when open
+.section-nav {
+  display: flex;
+  flex-direction: column;
+
+  @include theme.panelMobileDown {
+    display: none;
+    padding: 0 theme.$spacingXXSmall;
+  }
+
+  .sidebar--open & {
+    @include theme.panelMobileDown {
+      display: flex;
+    }
+  }
+}
+
+.nav-link {
+  display: block;
+  font-size: theme.$textSizeSmall;
+  color: theme.$textSecondary;
+  text-decoration: none;
+  padding: theme.$spacingXXSmall theme.$spacingSmall;
+  line-height: 1.6;
+  border-left: 2px solid transparent;
+
+  &:hover {
+    color: theme.$primaryAccent;
+    border-left-color: rgba(theme.$primaryAccent, 0.4);
+    background-color: rgba(theme.$primaryAccent, 0.06);
+  }
+}
+
+.nav-link--active {
+  color: theme.$primaryAccent;
+  border-left-color: theme.$primaryAccent;
+  background-color: rgba(theme.$primaryAccent, 0.1);
+}
+
+.content {
+  grid-column: 2;
+  padding: theme.$spacingMedium 40px;
+  max-width: 800px;
+
+  @include theme.panelMobileDown {
+    grid-column: 1;
+    padding-left: calc(theme.$sidebarWidth + theme.$spacingMedium);
+    padding-right: theme.$spacingMedium;
+  }
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: theme.$semiBold;
+  color: theme.$textColor;
+  margin: 0 0 theme.$spacingSmall;
+}
+
+.page-subtitle {
+  font-size: theme.$textSizeMedium;
+  color: theme.$textSecondary;
+  margin: 0 0 theme.$spacingMedium;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.section-heading {
+  font-size: 18px;
+  font-weight: theme.$semiBold;
+  color: theme.$textColor;
+  margin: 0 0 theme.$spacingSmall;
+}
+
+.section-divider {
+  border: none;
+  border-bottom: 1px solid theme.$grey;
+  margin: 0 0 theme.$spacingMedium;
+}

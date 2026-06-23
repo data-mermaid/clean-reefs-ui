@@ -135,5 +135,18 @@
   "map_layers_loading": "Loading map layers...",
   "ocean_pollution": "Ocean Pollution",
   "satellite": "Satellite",
-  "sidebar": "Sidebar"
+  "sidebar": "Sidebar",
+  "science_and_methods_page": {
+    "title": "Science and Methods",
+    "subtitle": "How GPW data is collected and processed",
+    "sections": {
+      "overview": "Overview",
+      "data_sources": "Data sources",
+      "spatial_resolution": "Spatial resolution",
+      "methodology": "Methodology",
+      "coral_reef_regions": "Coral reef regions",
+      "validation": "Validation",
+      "citing_this_platform": "Citing this platform"
+    }
+  }
 }

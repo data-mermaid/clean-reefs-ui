@@ -1,3 +1,87 @@
+import { useState } from 'react'
+import { Link as InternalLink } from 'react-router'
+import { useTranslation } from 'react-i18next'
+import { Button, ClickAwayListener, IconButton } from '@mui/material'
+import MapIcon from '@mui/icons-material/Map'
+import TocIcon from '@mui/icons-material/Toc'
+
+import styles from './ScienceAndMethodsPage.module.scss'
+
+const LOREM =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
+
+const sections = [
+  { id: 'overview', labelKey: 'science_and_methods_page.sections.overview' },
+  { id: 'data-sources', labelKey: 'science_and_methods_page.sections.data_sources' },
+  { id: 'spatial-resolution', labelKey: 'science_and_methods_page.sections.spatial_resolution' },
+  { id: 'methodology', labelKey: 'science_and_methods_page.sections.methodology' },
+  { id: 'coral-reef-regions', labelKey: 'science_and_methods_page.sections.coral_reef_regions' },
+  { id: 'validation', labelKey: 'science_and_methods_page.sections.validation' },
+  {
+    id: 'citing-this-platform',
+    labelKey: 'science_and_methods_page.sections.citing_this_platform',
+  },
+]
+
 export default function ScienceAndMethodsPage() {
-  return null
+  const { t } = useTranslation()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  return (
+    <div className={styles['page']}>
+      <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
+        <aside
+          className={`${styles['sidebar']} ${sidebarOpen ? styles['sidebar--open'] : ''}`}
+        >
+          {/* Single back button: sidebar overflow:hidden clips text in collapsed (48px) */}
+          <Button
+            component={InternalLink}
+            to="/"
+            variant="contained"
+            startIcon={<MapIcon />}
+            className={styles['back-button']}
+            disableElevation
+          >
+            {t('back_to_map')}
+          </Button>
+
+          {/* Mobile only: TOC expand/collapse toggle — always at same position */}
+          <IconButton
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className={styles['toc-toggle']}
+            aria-label={t('toggle_navigation_menu')}
+            disableRipple
+          >
+            <TocIcon />
+          </IconButton>
+
+          <nav className={styles['section-nav']}>
+            {sections.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                className={styles['nav-link']}
+                onClick={() => setSidebarOpen(false)}
+              >
+                {t(section.labelKey)}
+              </a>
+            ))}
+          </nav>
+        </aside>
+      </ClickAwayListener>
+
+      <main className={styles['content']}>
+        <h1 className={styles['page-title']}>{t('science_and_methods_page.title')}</h1>
+        <p className={styles['page-subtitle']}>{t('science_and_methods_page.subtitle')}</p>
+        {sections.map((section) => (
+          <section key={section.id} id={section.id} className={styles['section']}>
+            <h2 className={styles['section-heading']}>{t(section.labelKey)}</h2>
+            <hr className={styles['section-divider']} />
+            <p>{LOREM}</p>
+            <p>{LOREM}</p>
+          </section>
+        ))}
+      </main>
+    </div>
+  )
 }
