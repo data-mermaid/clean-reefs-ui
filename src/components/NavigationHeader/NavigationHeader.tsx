@@ -1,4 +1,4 @@
-import { type MouseEvent, useState } from 'react'
+import { type MouseEvent, useEffect, useState } from 'react'
 import { Link as InternalLink, useLocation, useNavigate } from 'react-router'
 
 import IconButton from '@mui/material/IconButton'
@@ -41,8 +41,16 @@ export default function NavigationHeader() {
   const [shareOpen, setShareOpen] = useState(false)
   const [menuSnapshot, setMenuSnapshot] = useState<NavItem[]>([])
 
+  useEffect(() => {
+    if (isMapPage) {
+      sessionStorage.setItem('lastMapUrl', location.pathname + location.search)
+    }
+  }, [isMapPage, location])
+
+  const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
+
   const navItems: NavItem[] = [
-    ...(!isMapPage ? [{ label: t('back_to_map'), href: '/', internalLink: true }] : []),
+    ...(!isMapPage ? [{ label: t('back_to_map'), href: lastMapUrl, internalLink: true }] : []),
     { label: t('science_and_methods'), href: '/science-and-methods', internalLink: true },
     { label: t('contact'), href: '#', internalLink: false },
   ]
