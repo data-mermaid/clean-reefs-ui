@@ -12,6 +12,7 @@
 }
 
 // Reposition and restyle MapLibre's built-in scale bar to match the mockup style.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 :global(.maplibregl-ctrl-bottom-right .maplibregl-ctrl-scale) {
   position: absolute;
   bottom: 30px;
