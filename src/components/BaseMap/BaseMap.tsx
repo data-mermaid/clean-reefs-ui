@@ -41,6 +41,7 @@ import {
   clearPolygonHover,
   clearPolygonSelect,
   createPolygonClickHandler,
+  buildBreadcrumb,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   querySourceFeatureAtPointWhenReady,
@@ -67,7 +68,6 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 interface ApplyDispersalStatsParams {
@@ -118,31 +118,6 @@ interface BaseMapProps {
 
 const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionById = (id: number | undefined, regionOptions: RegionOption[]) =>
-  regionOptions.find((opt) => opt.bandId === id)
-
-const buildBreadcrumb = (
-  featureProperties: Record<string, unknown> | null | undefined,
-  subRegion: RegionOption,
-  regionOptions: RegionOption[],
-): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryId = featureProperties?.COUNTRY_ID as number | undefined
-  const realmId = featureProperties?.REALM_ID as number | undefined
-  const country = countryId !== undefined ? getRegionById(countryId, regionOptions) : undefined
-  // Prefer deriving the region via the country's parentRegionIds (string-id lookup) because the
-  // region PMTiles API may not return all realms, leaving most region entries without a bandId.
-  // Fall back to the numeric REALM_ID bandId lookup for features where the country is unknown.
-  const region = country?.parentRegionIds?.[0]
-    ? regionOptions.find((r) => r.regionType === 'region' && r.id === country.parentRegionIds![0])
-    : realmId !== undefined ? getRegionById(realmId, regionOptions) : undefined
-  const addtlRegion = country ?? region
-
-  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
-  if (region) { breadcrumb.push(region) }
-  if (country) { breadcrumb.push(country) }
-  breadcrumb.push(subRegion)
-  return { breadcrumb, addtlRegion }
-}
 
 const handleSourceData = (
   e: SourceDataEvent,
