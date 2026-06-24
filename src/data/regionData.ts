@@ -2,8 +2,6 @@ import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from './countryExtents'
 import { REGION_EXTENTS } from './regionExtents'
 
-export { CORAL_REEF_REGIONS, COUNTRY_REGION_MAP } from './coralReefRegions'
-
 export const regionGroups: { type: RegionType; label: string }[] = [
   { type: 'global', label: 'All Data' },
   { type: 'region', label: 'Regions with Coral Reefs' },

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
-import { CORAL_REEF_REGIONS, COUNTRY_REGION_MAP, defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
+import { CORAL_REEF_REGIONS, COUNTRY_REGION_MAP } from '../data/coralReefRegions'
+import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
 
 const FIXED_TRAILING: RegionOption[] = [
   { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
