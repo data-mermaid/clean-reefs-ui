@@ -7,6 +7,7 @@ $greyWhite: #fafbfc;
 $hoverGrey: #f1f2f3;
 $primaryAccent: #1976d2;
 $activeSelection: #f00;
+$colorError: #d32f2f;
 
 /** Fonts, font styling, text **/
 $textColor: #393939;
@@ -52,6 +53,7 @@ $headerHeight: 36px;
 $mapUtilButtonHeight: 44px;
 $loadingStateDefaultHeight: 200px;
 $chartCardMaxWidth: 500px;
+$geoLookupPopupMinWidth: 300px;
 $iconButtonWidthHeight: 22px;
 $sidebarButtonSize: 36px;
 
@@ -61,6 +63,8 @@ $panelWidth: 315px;
 $panelLeftDefault: 56px;
 $panelBottomGap: 8px;
 $panelMobileGutter: 8px;
+$mapControlButtonSize: 29px;
+$markerSize: 15px;
 
 // Derived top offsets — anchored to $headerHeight so C236 only changes that token.
 $breadcrumbTop: $headerHeight + 8px;
