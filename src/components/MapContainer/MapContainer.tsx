@@ -238,13 +238,25 @@ export default function MapContainer() {
   useEffect(() => {
     setSelectedRegion(initialRegion)
     if (!watershedParam && !dispersalPointParam) {
-      setBreadcrumb(
-        initialRegion.regionType !== 'global'
-          ? [defaultGlobalRegionOption, initialRegion]
-          : [initialRegion],
-      )
+      if (initialRegion.regionType === 'country') {
+        const parentRegionId = initialRegion.parentRegionIds?.[0]
+        const parentRegion = parentRegionId
+          ? regionOptions.find((r) => r.id === parentRegionId)
+          : undefined
+        setBreadcrumb([
+          defaultGlobalRegionOption,
+          ...(parentRegion ? [parentRegion] : []),
+          initialRegion,
+        ])
+      } else {
+        setBreadcrumb(
+          initialRegion.regionType !== 'global'
+            ? [defaultGlobalRegionOption, initialRegion]
+            : [initialRegion],
+        )
+      }
     }
-  }, [initialRegion, watershedParam, dispersalPointParam])
+  }, [initialRegion, watershedParam, dispersalPointParam, regionOptions])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -422,9 +434,11 @@ export default function MapContainer() {
         handleWatershedSelectionClear()
         break
       case 'country':
-      case 'region':
-        handleRegionDropdownChange(defaultGlobalRegionOption)
+      case 'region': {
+        const parent = breadcrumb[breadcrumb.length - 2] ?? defaultGlobalRegionOption
+        handleRegionDropdownChange(parent)
         break
+      }
       case 'dispersal':
         handleDispersalSelectionClear()
         break
@@ -463,6 +477,7 @@ export default function MapContainer() {
         <RegionSelect
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionDropdownChange}
+          onUpOneLevelChange={handleUpOneLevelChange}
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
           regionOptions={regionOptions}

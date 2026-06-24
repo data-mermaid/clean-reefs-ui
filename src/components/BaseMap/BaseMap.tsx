@@ -126,14 +126,20 @@ const buildBreadcrumb = (
   subRegion: RegionOption,
   regionOptions: RegionOption[],
 ): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegionId = (featureProperties?.COUNTRY_ID ?? featureProperties?.REALM_ID) as
-    | number
-    | undefined
-  const addtlRegion = getRegionById(countryOrRegionId, regionOptions)
+  const countryId = featureProperties?.COUNTRY_ID as number | undefined
+  const realmId = featureProperties?.REALM_ID as number | undefined
+  const country = countryId !== undefined ? getRegionById(countryId, regionOptions) : undefined
+  // Prefer deriving the region via the country's parentRegionIds (string-id lookup) because the
+  // region PMTiles API may not return all realms, leaving most region entries without a bandId.
+  // Fall back to the numeric REALM_ID bandId lookup for features where the country is unknown.
+  const region = country?.parentRegionIds?.[0]
+    ? regionOptions.find((r) => r.regionType === 'region' && r.id === country.parentRegionIds![0])
+    : realmId !== undefined ? getRegionById(realmId, regionOptions) : undefined
+  const addtlRegion = country ?? region
+
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
-  if (addtlRegion) {
-    breadcrumb.push(addtlRegion)
-  }
+  if (region) { breadcrumb.push(region) }
+  if (country) { breadcrumb.push(country) }
   breadcrumb.push(subRegion)
   return { breadcrumb, addtlRegion }
 }
@@ -509,7 +515,7 @@ export default function BaseMap({
           const { breadcrumb, addtlRegion } = buildBreadcrumb(
             feature.properties,
             { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
-            regionOptions,
+            regionOptionsRef.current,
           )
 
           setBreadcrumb(breadcrumb)
@@ -542,7 +548,6 @@ export default function BaseMap({
       onRegionChange,
       onWatershedChange,
       clearDispersalSelection,
-      regionOptions,
     ],
   )
 
