@@ -115,8 +115,6 @@ export default function RegionSelect({
         ...(parentRegion ? [parentRegion] : []),
         region,
       ])
-    } else if (region.regionType === 'region') {
-      setBreadcrumb([defaultGlobalRegionOption, region])
     } else {
       setBreadcrumb([defaultGlobalRegionOption, region])
     }
@@ -127,27 +125,13 @@ export default function RegionSelect({
     setDropdownOpen(false)
 
     if (value.regionType === 'country') {
-      const country = regionOptions.find((r) => r.id === value.id && r.regionType === 'country')
-      if (!country) { return }
-
-      const parentIds = country.parentRegionIds ?? []
-      const parentRegion = parentIds.length > 0
-        ? regionOptions.find((r) =>
-            r.regionType === 'region' &&
-            parentIds.includes(r.id) &&
-            (value.groupLabel ? r.label === value.groupLabel : true)
-          )
-        : undefined
-
-      jumpToRegion(country)
-      onRegionChange(country)
-      setBreadcrumb([
-        defaultGlobalRegionOption,
-        ...(parentRegion ? [parentRegion] : []),
-        country,
-      ])
-    } else if (value.regionType === 'region') {
-      updateRegion(value)
+      const parentIds = value.parentRegionIds ?? []
+      const parentRegion = regionOptions.find((r) =>
+        r.regionType === 'region' &&
+        parentIds.includes(r.id) &&
+        (!value.groupLabel || r.label === value.groupLabel)
+      )
+      updateRegion(value, parentRegion)
     } else {
       updateRegion(value)
     }
@@ -156,10 +140,6 @@ export default function RegionSelect({
   const handleUpArrow = () => {
     const lastCrumb = breadcrumb[breadcrumb.length - 1]
     onUpOneLevelChange(lastCrumb?.regionType ?? 'global')
-  }
-
-  const handleCrumbClick = (crumb: RegionOption) => {
-    updateRegion(crumb)
   }
 
   return (
@@ -192,7 +172,7 @@ export default function RegionSelect({
                   <button
                     type="button"
                     disabled={isLast}
-                    onClick={() => handleCrumbClick(crumb)}
+                    onClick={() => updateRegion(crumb)}
                     className={clsx(
                       styles['region-select__crumb'],
                       !isFirst && !isLast && styles['region-select__crumb--middle'],
