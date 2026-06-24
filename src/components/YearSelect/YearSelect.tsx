@@ -40,7 +40,7 @@ export const YearSelect = ({
       disabled={disabled}
       className={clsx(styles['year-select'], className)}
     >
-      {availableYears.map((year) => (
+      {[...availableYears].sort((a, b) => a - b).map((year) => (
         <ToggleButton key={year} value={year} className={styles['year-select__button']}>
           {year}
         </ToggleButton>
