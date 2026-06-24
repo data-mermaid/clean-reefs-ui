@@ -11,6 +11,7 @@ export const KNOWN_REGIONS: { id: string; label: string }[] = [
 // Countries that span two ocean basins (e.g. Colombia) appear in both groups.
 // IDs are lowercase-hyphenated to match the values returned by the PMTiles API.
 // TODO: replace with API-provided parentRegionId once the backend supports it.
+// Countries not listed here will appear ungrouped in the region dropdown.
 export const COUNTRY_REGION_MAP: Record<string, string[]> = {
   // Tropical Atlantic
   bahamas: ['tropical-atlantic'],

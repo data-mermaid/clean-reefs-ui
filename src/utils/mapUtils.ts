@@ -556,6 +556,7 @@ export function buildBreadcrumbFromFeature(
   const countryId = featureProperties?.COUNTRY_ID as number | undefined
   const realmId = featureProperties?.REALM_ID as number | undefined
   const country = regionOptions.find((r) => r.bandId === countryId)
+  // First parent region used as best-effort approximation — no click-location disambiguation for countries spanning multiple regions.
   const parentRegionId = country?.parentRegionIds?.[0]
   const region = parentRegionId
     ? regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionId)

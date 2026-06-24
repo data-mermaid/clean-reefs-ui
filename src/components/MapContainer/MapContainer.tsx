@@ -235,6 +235,7 @@ export default function MapContainer() {
     shouldSyncBasemapParam,
   ])
 
+  // regionOptions in deps so the breadcrumb is rebuilt once real data loads and replaces the fallback.
   useEffect(() => {
     setSelectedRegion(initialRegion)
     if (!watershedParam && !dispersalPointParam) {
