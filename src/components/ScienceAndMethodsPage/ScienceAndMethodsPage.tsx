@@ -84,7 +84,16 @@ export default function ScienceAndMethodsPage() {
                 key={section.id}
                 href={`#${section.id}`}
                 className={`${styles['science-page__nav-link']}${activeId === section.id ? ` ${styles['science-page__nav-link--active']}` : ''}`}
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  const target = document.getElementById(section.id)
+                  if (target) {
+                    const HEADER_OFFSET = 52 // $headerHeight (36px) + breathing room (16px)
+                    window.scrollTo({
+                      top: target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET,
+                      behavior: 'smooth',
+                    })
+                  }
                   setActiveId(section.id)
                   suppressObserver.current = true
                   if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
