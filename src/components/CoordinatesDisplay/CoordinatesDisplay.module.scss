@@ -1,12 +1,6 @@
 @use '../../styles/theme';
 
-$map-controls-right-offset: 55px;
-
 .coordinates-display {
-  position: fixed;
-  bottom: theme.$defaultSpacing;
-  right: $map-controls-right-offset;
-  z-index: theme.$zControl;
   pointer-events: none;
   display: flex;
   flex-direction: column;

@@ -9,14 +9,17 @@ interface CoordinatesDisplayProps {
 export default function CoordinatesDisplay({ lat, lng }: CoordinatesDisplayProps) {
   const { t } = useTranslation()
 
+  const latStr = lat !== null ? lat.toFixed(5) : '—'
+  const lngStr = lng !== null ? lng.toFixed(5) : '—'
+
+  const coordinatesDisplay =
+    lat !== null && lng !== null
+      ? `${t('coordinates.lat')}: ${latStr}  ${t('coordinates.lon')}: ${lngStr}`
+      : '-'
+
   return (
     <div className={styles['coordinates-display']}>
-      {lat !== null && lng !== null && (
-        <div className={styles['coordinates-display__label']}>
-          {t('coordinates.lat')}: {lat.toFixed(5)}&nbsp;&nbsp;{t('coordinates.lon')}:{' '}
-          {lng.toFixed(5)}
-        </div>
-      )}
+      <div className={styles['coordinates-display__label']}>{coordinatesDisplay}</div>
     </div>
   )
 }

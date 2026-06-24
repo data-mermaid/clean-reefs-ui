@@ -34,7 +34,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
-import CoordinatesDisplay from '../CoordinatesDisplay/CoordinatesDisplay'
+import CoordinatesMapControl from '../CoordinatesDisplay/CoordinatesMapControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -1062,14 +1062,15 @@ export default function BaseMap({
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setMouseCoordinates(null)}
       >
-        <ScaleControl position="bottom-right" />
-        {/* <GeoLookupControl /> */}
         <GeolocateControl
           position="bottom-right"
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation
         />
         <NavigationControl position="bottom-right" showCompass={false} />
+        {/* <GeoLookupControl /> */}
+        <ScaleControl position="bottom-right" />
+        <CoordinatesMapControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />
@@ -1321,7 +1322,6 @@ export default function BaseMap({
           )}
         </div>
       </Snackbar>
-      <CoordinatesDisplay lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
     </div>
   )
 }
