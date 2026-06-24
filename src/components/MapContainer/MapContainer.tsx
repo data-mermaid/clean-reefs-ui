@@ -516,7 +516,6 @@ export default function MapContainer() {
         selectedRegion={selectedRegion}
         selectedYear={selectedYear}
         open={activePanel === 'graphs'}
-        onUpOneLevelChange={handleUpOneLevelChange}
       />
       <BaseMap
         mapLayers={urlSyncedMapLayers}

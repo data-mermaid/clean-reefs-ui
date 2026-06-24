@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Typography } from '@mui/material'
 import clsx from 'clsx'
-import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
-import { getUpOneLevelLabel } from '../../utils/chartUtils'
 import { useTranslation } from 'react-i18next'
-import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import styles from './TrendsDrawer.module.scss'
 import ChartCard from '../ChartCard/ChartCard'
-import { RegionOption, RegionType } from '../../types/RegionDataTypes'
+import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
@@ -29,14 +26,12 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
-  onUpOneLevelChange: (regionType: RegionType) => void
 }
 
 export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
-  onUpOneLevelChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
@@ -122,16 +117,6 @@ export default function TrendsDrawer({
     >
       <div className={styles['trends-panel__content']}>
         <div className={styles['panel-header']}>
-          {effectiveRegionType !== 'global' && (
-            <StyledIconButtonWithTooltip
-              aria-label={t('buttons.up_one_level')}
-              tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
-              tooltipPlacement="top"
-              onClick={() => onUpOneLevelChange(effectiveRegionType)}
-            >
-              <img src={UpOneLevelIcon} alt="" />
-            </StyledIconButtonWithTooltip>
-          )}
           <h2>{t(drawerTitle)}</h2>
         </div>
 
