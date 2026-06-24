@@ -59,12 +59,24 @@ export default function RegionSelect({
     const groupOrder = new Map<string, number>([['', 0]])
     CORAL_REEF_REGIONS.forEach((cr, i) => groupOrder.set(cr.label, i + 1))
 
+    // Only show a region if at least one country in regionOptions belongs to it.
+    const regionsWithCountries = new Set<string>()
+    for (const option of regionOptions) {
+      if (option.regionType === 'country') {
+        for (const parentId of option.parentRegionIds ?? []) {
+          regionsWithCountries.add(parentId)
+        }
+      }
+    }
+
     const opts: AutocompleteOption[] = []
     for (const option of regionOptions) {
       if (option.regionType === 'global') {
         opts.push({ ...option, groupLabel: '' })
       } else if (option.regionType === 'region') {
-        opts.push({ ...option, groupLabel: option.label })
+        if (regionsWithCountries.has(option.id) || option.bandId !== undefined) {
+          opts.push({ ...option, groupLabel: option.label })
+        }
       } else if (option.regionType === 'country') {
         const parentIds = option.parentRegionIds ?? []
         if (parentIds.length === 0) {
