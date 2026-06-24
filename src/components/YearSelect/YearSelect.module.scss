@@ -28,7 +28,6 @@
     border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
   }
 
-  // Nested for specificity: .year-select .year-select__button = (0,2,0)
   .year-select__button {
     flex: 1;
     height: theme.$yearSelectorHeight;
@@ -44,7 +43,6 @@
       background-color: theme.$hoverBlue;
     }
 
-    // (0,3,0) — beats MUI's .MuiToggleButton-root.Mui-selected (0,2,0)
     &:global(.Mui-selected) {
       background-color: theme.$primary;
       color: theme.$white;

@@ -1,5 +1,6 @@
 import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import clsx from 'clsx'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import styles from './YearSelect.module.scss'
@@ -21,9 +22,14 @@ export const YearSelect = ({
 }: YearSelectProps) => {
   const { t } = useTranslation()
 
-  const handleChange = (_: React.MouseEvent<HTMLElement>, newValue: number | null) => {
-    if (newValue !== null) { onChange(newValue) }
-  }
+  const handleChange = useCallback(
+    (_: React.MouseEvent<HTMLElement>, newValue: number | null) => {
+      if (newValue !== null) {
+        onChange(newValue)
+      }
+    },
+    [onChange],
+  )
 
   return (
     <ToggleButtonGroup

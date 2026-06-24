@@ -65,8 +65,8 @@ $markerSize: 15px;
 
 // Derived top offsets — anchored to $headerHeight so C236 only changes that token.
 $breadcrumbTop: $headerHeight + 8px;
-$yearSelectTop: $breadcrumbTop + 41px + 8px;
-$panelTop: $yearSelectTop + $yearSelectorHeight + 6px;
+$yearSelectTop: $breadcrumbTop + $mapUtilButtonHeight + $spacingSmall;
+$panelTop: $yearSelectTop + $yearSelectorHeight + $spacingSmall;
 
 /** Breakpoints **/
 $breakpointMobile: 768px;
