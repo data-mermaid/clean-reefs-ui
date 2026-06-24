@@ -1,16 +1,34 @@
 {
+  "agricultural_nutrients": "Agricultural nutrients",
+  "all_data": "All data",
+  "area_exposed_ha": "Area exposed (ha)",
+  "base_map": "Basemap",
+  "benthic_layers": "Benthic layers",
+  "benthic_map_layers": {
+    "coral_algae": "Coral/Algae",
+    "microalgal_mats": "Microalgal mats",
+    "reef_extent": "Reef extent",
+    "rock": "Rock",
+    "rubble": "Rubble",
+    "sand": "Sand",
+    "seagrass": "Seagrass"
+  },
+  "boundaries": "Boundaries",
+  "boundary_map_layers": {
+    "country": "Country",
+    "regional": "Regional",
+    "watershed": "Watershed"
+  },
   "buttons": {
     "cancel": "Cancel",
     "close": "Close",
     "copy": "Copy",
+    "download_chart": "Download plot as a png",
     "go": "Go",
     "open_menu": "Open menu",
-    "share_view": "Share view",
     "reload_page": "Reload page",
-    "download_chart": "Download plot as a png",
-    "up_one_level": "Up one level",
-    "graphs": "Graphs",
-    "layers": "Layers"
+    "share_view": "Share view",
+    "up_one_level": "Up one level"
   },
   "chart_information": {
     "area_exposed_ha": "Area exposed (ha)",
@@ -19,7 +37,6 @@
     "sediment_exposure": "Sediment exposure (tonnes)",
     "sediment_load": "Sediment load (tonnes)"
   },
-
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
@@ -32,48 +49,74 @@
     "w3": "W3",
     "w4": "W4"
   },
+  "concentration": "Concentration",
+  "contact": "Contact",
+  "coral_reef": "Coral reef",
+  "dark": "Dark",
+  "domestic_wastewater": "Domestic wastewater",
+  "exposure": "Exposure",
+  "geo_lookup": {
+    "aria_label": "Search location",
+    "no_results": "No results found.",
+    "placeholder": "Address, country, or lat, lon",
+    "search_failed": "Search failed."
+  },
+  "global_trends": "Global trends",
+  "google_satellite": "Google satellite",
+  "graphs": "Graphs",
+  "high_concentration": "High concentration",
+  "high_sediment": "High sediment",
+  "labels": "Labels",
   "land_types": {
     "bare_ground": "Bare ground",
     "built_up": "Built-up",
     "cropland": "Cropland",
     "high_canopy_forest": "High canopy forest",
     "mixed_forest": "Mixed forest",
+    "sediment": "Sediment",
     "shrubland_grassland": "Shrubland / grassland",
-    "surface_water": "Surface water",
-    "sediment": "Sediment"
+    "surface_water": "Surface water"
   },
+  "land_use": "Land use",
+  "large_area": "Large area",
+  "layers": "Layers",
+  "light": "Light",
+  "loading": "Loading",
+  "low_concentration": "Low concentration",
+  "low_sediment": "Low sediment",
   "map_layer_groups": {
     "base_map": "Basemap",
     "benthic_layers": "Benthic layers",
     "boundaries": "Boundaries",
+    "country_boundaries": "Country boundaries",
     "land_pollution_layers": "Pollution layers",
     "land_use_cover": "Land use / Land cover",
     "ocean_pollution_layers": "Ocean pollution layers",
-    "watershed_boundaries": "Watershed boundaries",
     "regional_boundaries": "Regional boundaries",
-    "country_boundaries": "Country boundaries"
+    "watershed_boundaries": "Watershed boundaries"
   },
   "map_layers": {
     "sediment_exposure": "Sediment exposure",
     "sediment_load": "Sediment load"
   },
-  "share_view": {
-    "title": "Share this view of GPW",
-    "copied": "Copied!",
-    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
-    "url_label": "Shareable URL"
-  },
+  "map_layers_did_not_load": "Some map layers didn't load",
+  "map_layers_loading": "Loading map layers...",
+  "ocean_pollution": "Ocean Pollution",
+  "ocean_pollution_dispersal": "Ocean pollution dispersal",
+  "pixel_value": "Pixel value",
+  "pollution_export": "Pollution export",
+  "reef_extent_exposure": "Reef ecosystem extent exposure",
   "regions": {
     "coral_reef_regions": "Coral reef regions",
     "countries_with_coral": "Countries with coral reefs",
     "country": "Country",
+    "dispersal": "Dispersal",
     "global": "Global",
     "no_countries_match": "No countries match your search",
     "no_regions_match": "No regions match your search",
     "region": "Region",
     "select_region": "Select region",
-    "watershed": "Watershed",
-    "dispersal": "Dispersal"
+    "watershed": "Watershed"
   },
   "coordinates": {
     "lat": "Lat",
@@ -88,56 +131,24 @@
   "benthic_layers": "Benthic layers",
   "boundaries": "Boundaries",
   "area_exposed_ha": "Area exposed (ha)",
-  "scale_low": "Low",
+  "satellite": "Satellite",
   "scale_high": "High",
-  "benthic_map_layers": {
-    "coral_algae": "Coral/Algae",
-    "microalgal_mats": "Microalgal mats",
-    "reef_extent": "Reef extent",
-    "rock": "Rock",
-    "rubble": "Rubble",
-    "sand": "Sand",
-    "seagrass": "Seagrass"
-  },
-  "boundary_map_layers": {
-    "watershed": "Watershed",
-    "country": "Country",
-    "regional": "Regional"
-  },
-  "contact": "Contact",
-  "concentration": "Concentration",
-  "coral_reef": "Coral reef",
-  "dark": "Dark",
-  "domestic_wastewater": "Domestic wastewater",
-  "exposure": "Exposure",
-  "global_trends": "Global trends",
-  "watershed_information": "Watershed Information",
-  "google_satellite": "Google satellite",
-  "high_concentration": "High concentration",
-  "high_sediment": "High sediment",
-  "labels": "Labels",
-  "land_use": "Land use",
-  "large_area": "Large area",
-  "light": "Light",
-  "loading": "Loading",
-  "low_concentration": "Low concentration",
-  "low_sediment": "Low sediment",
-  "ocean_pollution_dispersal": "Ocean pollution dispersal",
-  "pixel_value": "Pixel value",
-  "pollution_export": "Pollution export",
-  "reef_extent_exposure": "Reef ecosystem extent exposure",
+  "scale_low": "Low",
   "science_and_methods": "Science and methods",
   "sediment": "Sediment",
-  "sediment_load_unit": "Sediment load (unit)",
   "sediment_exposure_unit": "Sediment exposure (unit)",
-  "small_area": "Small area",
-  "type_to_filter": "Type to filter",
-  "year": "Year",
-  "toggle_navigation_menu": "Toggle navigation menu",
+  "sediment_load_unit": "Sediment load (unit)",
   "select_year": "Select year",
-  "map_layers_did_not_load": "Some map layers didn't load",
-  "map_layers_loading": "Loading map layers...",
-  "ocean_pollution": "Ocean Pollution",
-  "satellite": "Satellite",
-  "sidebar": "Sidebar"
+  "share_view": {
+    "copied": "Copied!",
+    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
+    "title": "Share this view of GPW",
+    "url_label": "Shareable URL"
+  },
+  "sidebar": "Sidebar",
+  "small_area": "Small area",
+  "toggle_navigation_menu": "Toggle navigation menu",
+  "type_to_filter": "Type to filter",
+  "watershed_information": "Watershed Information",
+  "year": "Year"
 }

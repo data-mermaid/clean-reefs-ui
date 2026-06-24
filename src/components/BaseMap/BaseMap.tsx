@@ -11,6 +11,7 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
+  GeolocateControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -1062,6 +1063,12 @@ export default function BaseMap({
         onMouseLeave={() => setMouseCoordinates(null)}
       >
         <ScaleControl position="bottom-right" />
+        {/* <GeoLookupControl /> */}
+        <GeolocateControl
+          position="bottom-right"
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+        />
         <NavigationControl position="bottom-right" showCompass={false} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
