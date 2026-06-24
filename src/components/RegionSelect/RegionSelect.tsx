@@ -7,9 +7,9 @@ import { KNOWN_REGIONS } from '../../data/coralReefRegions'
 import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import {
   Autocomplete,
-  IconButton,
   TextField,
 } from '@mui/material'
+import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
@@ -138,15 +138,17 @@ export default function RegionSelect({
   return (
     <Box ref={rootRef} className={clsx(styles['region-select'], dropdownOpen && styles['region-select--open'])}>
       {/* Up arrow — navigates one level up */}
-      <IconButton
+      <StyledIconButtonWithTooltip
+        tooltipText={t('buttons.up_one_level')}
+        tooltipPlacement="bottom"
         size="small"
         disabled={isAtGlobal || regionOptionsLoading}
         onClick={handleUpArrow}
         className={styles['region-select__up-button']}
         aria-label={t('buttons.up_one_level')}
       >
-        <SubdirectoryArrowLeftIcon className={styles['region-select__icon']} />
-      </IconButton>
+        <SubdirectoryArrowLeftIcon className={styles['region-select__up-icon']} />
+      </StyledIconButtonWithTooltip>
 
       {/* Center — breadcrumb when closed, search when open */}
       <div className={styles['region-select__center']}>
@@ -248,7 +250,9 @@ export default function RegionSelect({
       </div>
 
       {/* Chevron — opens / closes dropdown */}
-      <IconButton
+      <StyledIconButtonWithTooltip
+        tooltipText={dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')}
+        tooltipPlacement="bottom"
         size="small"
         onClick={() => setDropdownOpen((prev) => !prev)}
         className={styles['region-select__chevron']}
@@ -260,7 +264,7 @@ export default function RegionSelect({
         ) : (
           <ExpandMoreIcon className={styles['region-select__icon']} />
         )}
-      </IconButton>
+      </StyledIconButtonWithTooltip>
     </Box>
   )
 }

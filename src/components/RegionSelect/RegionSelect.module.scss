@@ -1,6 +1,5 @@
 @use '../../styles/theme';
 
-$crumb-middle-max-width: 80px;
 
 .region-select {
   display: flex;
@@ -75,7 +74,6 @@ $crumb-middle-max-width: 80px;
 }
 
 .region-select__crumb--middle {
-  max-width: $crumb-middle-max-width;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
@@ -106,6 +104,11 @@ $crumb-middle-max-width: 80px;
 
 .region-select__icon {
   font-size: theme.$svgSizeSmall;
+}
+
+.region-select__up-icon {
+  font-size: theme.$svgSizeSmall;
+  transform: rotate(90deg);
 }
 
 .region-select__autocomplete {
