@@ -11,7 +11,7 @@ import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../da
 import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_EXPOSURE_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { Basemap } from '../../utils/mapUtils'
+import { Basemap, buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import {
   getValidLatLng,
   getValidLayers,
@@ -238,23 +238,7 @@ export default function MapContainer() {
   useEffect(() => {
     setSelectedRegion(initialRegion)
     if (!watershedParam && !dispersalPointParam) {
-      if (initialRegion.regionType === 'country') {
-        const parentRegionId = initialRegion.parentRegionIds?.[0]
-        const parentRegion = parentRegionId
-          ? regionOptions.find((r) => r.id === parentRegionId)
-          : undefined
-        setBreadcrumb([
-          defaultGlobalRegionOption,
-          ...(parentRegion ? [parentRegion] : []),
-          initialRegion,
-        ])
-      } else {
-        setBreadcrumb(
-          initialRegion.regionType !== 'global'
-            ? [defaultGlobalRegionOption, initialRegion]
-            : [initialRegion],
-        )
-      }
+      setBreadcrumb(buildBreadcrumbFromRegion(initialRegion, regionOptions))
     }
   }, [initialRegion, watershedParam, dispersalPointParam, regionOptions])
 

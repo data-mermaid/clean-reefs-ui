@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import styles from './RegionSelect.module.scss'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
-import { CORAL_REEF_REGIONS, defaultGlobalRegionOption } from '../../data/regionData'
+import { CORAL_REEF_REGIONS } from '../../data/regionData'
+import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import {
   Autocomplete,
   IconButton,
@@ -106,18 +107,7 @@ export default function RegionSelect({
       jumpToRegion(region)
     }
     onRegionChange(region)
-
-    if (region.regionType === 'global') {
-      setBreadcrumb([region])
-    } else if (region.regionType === 'country') {
-      setBreadcrumb([
-        defaultGlobalRegionOption,
-        ...(parentRegion ? [parentRegion] : []),
-        region,
-      ])
-    } else {
-      setBreadcrumb([defaultGlobalRegionOption, region])
-    }
+    setBreadcrumb(buildBreadcrumbFromRegion(region, regionOptions, parentRegion))
   }
 
   const handleAutocompleteChange = (_: React.SyntheticEvent, value: AutocompleteOption | null) => {

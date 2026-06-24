@@ -532,7 +532,23 @@ export function getBasemapStyleUrl(selectedBasemap: Basemap, apiKey: string): Ba
   return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
 }
 
-export function buildBreadcrumb(
+export function buildBreadcrumbFromRegion(
+  region: RegionOption,
+  regionOptions: RegionOption[],
+  parentRegion?: RegionOption,
+): RegionOption[] {
+  if (region.regionType === 'global') {
+    return [region]
+  }
+  if (region.regionType === 'country') {
+    const parent = parentRegion
+      ?? regionOptions.find((r) => r.regionType === 'region' && r.id === region.parentRegionIds?.[0])
+    return [defaultGlobalRegionOption, ...(parent ? [parent] : []), region]
+  }
+  return [defaultGlobalRegionOption, region]
+}
+
+export function buildBreadcrumbFromFeature(
   featureProperties: Record<string, unknown> | null | undefined,
   subRegion: RegionOption,
   regionOptions: RegionOption[],

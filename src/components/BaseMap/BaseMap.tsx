@@ -41,7 +41,7 @@ import {
   clearPolygonHover,
   clearPolygonSelect,
   createPolygonClickHandler,
-  buildBreadcrumb,
+  buildBreadcrumbFromFeature,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   querySourceFeatureAtPointWhenReady,
@@ -180,7 +180,7 @@ const applyDispersalStats = ({
     sourceLayer: watershedLayer.sourceFileName,
     filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
-  const { breadcrumb, addtlRegion } = buildBreadcrumb(
+  const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
     watershedFeatures[0]?.properties,
     { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
     regionOptions,
@@ -487,7 +487,7 @@ export default function BaseMap({
         if (map) {
           // Breadcrumb: Global > [Country] > Watershed
           // Country is omitted if it can't be determined from the feature
-          const { breadcrumb, addtlRegion } = buildBreadcrumb(
+          const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
             feature.properties,
             { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
             regionOptionsRef.current,
