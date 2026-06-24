@@ -12,6 +12,7 @@ import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
   AttributionControl,
+  GeolocateControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -1048,6 +1049,12 @@ export default function BaseMap({
       >
         <AttributionControl position="bottom-right" compact />
         <ScaleControl position="bottom-right" />
+        {/* <GeoLookupControl /> */}
+        <GeolocateControl
+          position="bottom-right"
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+        />
         <NavigationControl position="bottom-right" showCompass={false} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">

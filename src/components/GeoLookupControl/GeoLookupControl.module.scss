@@ -1,0 +1,48 @@
+@use '../../styles/theme';
+
+.geo-lookup__button {
+  width: theme.$mapControlButtonSize;
+  height: theme.$mapControlButtonSize;
+  border-radius: 0;
+  padding: 0;
+  color: theme.$textColor;
+
+  &:hover {
+    background-color: theme.$hoverGrey;
+  }
+}
+
+.geo-lookup__icon {
+  font-size: theme.$textSizeLarge;
+}
+
+.geo-lookup__popper {
+  z-index: theme.$zControl;
+}
+
+.geo-lookup__popup {
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+  margin-right: theme.$spacingXSmall;
+  min-width: theme.$geoLookupPopupMinWidth;
+}
+
+.geo-lookup__input-row {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingXSmall;
+}
+
+.geo-lookup__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.geo-lookup__go-button {
+  flex-shrink: 0;
+}
+
+.geo-lookup__error {
+  margin-top: theme.$spacingXSmall;
+  font-size: theme.$textSizeXSmall;
+  color: theme.$colorError;
+}

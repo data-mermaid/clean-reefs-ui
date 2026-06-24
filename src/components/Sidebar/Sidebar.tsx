@@ -18,9 +18,9 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
   return (
     <nav className={styles['sidebar']} aria-label={t('sidebar')}>
       <StyledIconButtonWithTooltip
-        aria-label={t('buttons.graphs')}
+        aria-label={t('graphs')}
         aria-pressed={activePanel === 'graphs'}
-        tooltipText={t('buttons.graphs')}
+        tooltipText={t('graphs')}
         tooltipPlacement="right"
         onClick={() => onTogglePanel('graphs')}
         className={clsx(
@@ -31,9 +31,9 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
         <BarChartIcon />
       </StyledIconButtonWithTooltip>
       <StyledIconButtonWithTooltip
-        aria-label={t('buttons.layers')}
+        aria-label={t('layers')}
         aria-pressed={activePanel === 'layers'}
-        tooltipText={t('buttons.layers')}
+        tooltipText={t('layers')}
         tooltipPlacement="right"
         onClick={() => onTogglePanel('layers')}
         className={clsx(
