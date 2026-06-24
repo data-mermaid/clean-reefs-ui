@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
-import { CORAL_REEF_REGIONS, COUNTRY_REGION_MAP } from '../data/coralReefRegions'
-import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
-
-const FIXED_TRAILING: RegionOption[] = [
-  { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
-  { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
-]
+import { KNOWN_REGIONS, COUNTRY_REGION_MAP } from '../data/coralReefRegions'
+import { defaultGlobalRegionOption, fallbackRegionOptions, watershedAndDispersalRegions } from '../data/regionData'
 
 interface RegionOptionsResult {
   regionOptions: RegionOption[]
@@ -15,10 +10,13 @@ interface RegionOptionsResult {
 }
 
 // Ensure all 5 coral reef regions are present: use the API version (with bandId + extent)
-// when available, otherwise fall back to a minimal entry from CORAL_REEF_REGIONS so that
+// when available, otherwise fall back to a minimal entry from KNOWN_REGIONS so that
 // COUNTRY_REGION_MAP parent lookups always resolve.
 function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
-  return CORAL_REEF_REGIONS.map((cr) => apiRegions.find((r) => r.id === cr.id) ?? { id: cr.id, regionType: 'region' as const, label: cr.label })
+  return KNOWN_REGIONS.map((knownRegion) => {
+    const fallback: RegionOption = { id: knownRegion.id, regionType: 'region', label: knownRegion.label }
+    return apiRegions.find((r) => r.id === knownRegion.id) ?? fallback
+  })
 }
 
 const useRegionOptions = (): RegionOptionsResult => {
@@ -41,7 +39,7 @@ const useRegionOptions = (): RegionOptionsResult => {
           ...c,
           parentRegionIds: COUNTRY_REGION_MAP[c.id],
         }))
-        setRegionOptions([defaultGlobalRegionOption, ...mergeRegions(regions), ...enrichedCountries, ...FIXED_TRAILING])
+        setRegionOptions([defaultGlobalRegionOption, ...mergeRegions(regions), ...enrichedCountries, ...watershedAndDispersalRegions])
         setLoading(false)
       },
     )

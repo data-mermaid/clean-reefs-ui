@@ -72,6 +72,8 @@
     "no_regions_match": "No regions match your search",
     "region": "Region",
     "search_placeholder": "Search countries & regions...",
+    "close_region_selector": "Close region selector",
+    "open_region_selector": "Open region selector",
     "select_region": "Select region",
     "watershed": "Watershed",
     "dispersal": "Dispersal"

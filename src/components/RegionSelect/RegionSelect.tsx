@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import styles from './RegionSelect.module.scss'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
-import { CORAL_REEF_REGIONS } from '../../data/coralReefRegions'
+import { KNOWN_REGIONS } from '../../data/coralReefRegions'
 import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import {
   Autocomplete,
@@ -58,7 +58,7 @@ export default function RegionSelect({
   // Options are sorted so each group's items are consecutive (required by MUI groupBy).
   const autocompleteOptions = useMemo<AutocompleteOption[]>(() => {
     const groupOrder = new Map<string, number>([['', 0]])
-    CORAL_REEF_REGIONS.forEach((cr, i) => groupOrder.set(cr.label, i + 1))
+    KNOWN_REGIONS.forEach((cr, i) => groupOrder.set(cr.label, i + 1))
 
     // Only show a region if at least one country in regionOptions belongs to it.
     const regionsWithCountries = new Set<string>()
@@ -252,7 +252,7 @@ export default function RegionSelect({
         size="small"
         onClick={() => setDropdownOpen((prev) => !prev)}
         className={styles['region-select__chevron']}
-        aria-label={dropdownOpen ? t('regions.select_region') : t('regions.select_region')}
+        aria-label={dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')}
         aria-expanded={dropdownOpen}
       >
         {dropdownOpen ? (

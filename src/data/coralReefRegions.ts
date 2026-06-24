@@ -1,5 +1,5 @@
-// Coral reef regions from the Allen Coral Atlas, in display order.
-export const CORAL_REEF_REGIONS: { id: string; label: string }[] = [
+// Known regions from the Allen Coral Atlas, in display order.
+export const KNOWN_REGIONS: { id: string; label: string }[] = [
   { id: 'tropical-atlantic', label: 'Tropical Atlantic' },
   { id: 'western-indo-pacific', label: 'Western Indo-Pacific' },
   { id: 'central-indo-pacific', label: 'Central Indo-Pacific' },

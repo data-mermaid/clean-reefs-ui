@@ -72,7 +72,7 @@ export const DropdownOpen: Story = {
     regionOptions: fallbackRegionOptions,
   },
   play: async ({ canvas }) => {
-    const chevron = canvas.getByRole('button', { name: /select region/i })
+    const chevron = canvas.getByRole('button', { name: /open region selector/i })
     await userEvent.click(chevron)
 
     const listbox = within(document.body).getByRole('listbox')
@@ -93,7 +93,7 @@ export const SelectingOptionFiresChange: Story = {
     regionOptions: fallbackRegionOptions,
   },
   play: async ({ canvas, args }) => {
-    await userEvent.click(canvas.getByRole('button', { name: /select region/i }))
+    await userEvent.click(canvas.getByRole('button', { name: /open region selector/i }))
     const listbox = within(document.body).getByRole('listbox')
     await userEvent.click(within(listbox).getByText('Fiji'))
     const fiji = fallbackRegionOptions.find((r) => r.id === 'fiji')
@@ -108,7 +108,7 @@ export const MultiRegionCountry: Story = {
     regionOptions: multiRegionOptions,
   },
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole('button', { name: /select region/i }))
+    await userEvent.click(canvas.getByRole('button', { name: /open region selector/i }))
     const listbox = within(document.body).getByRole('listbox')
 
     // Region names appear as both group header and option — getAllByText handles that
