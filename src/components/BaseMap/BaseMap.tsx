@@ -825,20 +825,21 @@ export default function BaseMap({
         // Guard against race condition: skip if the user already clicked a new dispersal
         if (sedExposureBoundaryClickRef.current == null) {
           const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
-          const restoredId = feature.id
-          if (currentSedExposureBoundaryLayer && restoredId != null) {
-            const featureId = isNaN(Number(restoredId)) ? restoredId : Number(restoredId)
+          let restoredFeatureId: string | number | null = null
+          if (currentSedExposureBoundaryLayer && feature.id != null) {
+            restoredFeatureId = isNaN(Number(feature.id)) ? feature.id : Number(feature.id)
             setPolygonSelect(
               map,
               sedExposureBoundaryClickRef,
               currentSedExposureBoundaryLayer,
-              featureId,
+              restoredFeatureId,
             )
           }
 
           void (async () => {
             const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-            if (sedExposureBoundaryClickRef.current != null) {
+            // Bail only if the user clicked a *different* dispersal after restoration started.
+            if (sedExposureBoundaryClickRef.current !== restoredFeatureId) {
               return
             }
             applyDispersalStats({
