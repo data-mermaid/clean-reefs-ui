@@ -35,7 +35,6 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
-import GeoLookupControl from '../GeoLookupControl/GeoLookupControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -1050,7 +1049,7 @@ export default function BaseMap({
       >
         <AttributionControl position="bottom-right" compact />
         <ScaleControl position="bottom-right" />
-        <GeoLookupControl />
+        {/* <GeoLookupControl /> */}
         <GeolocateControl
           position="bottom-right"
           positionOptions={{ enableHighAccuracy: true }}
