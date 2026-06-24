@@ -77,7 +77,8 @@ export const DropdownOpen: Story = {
 
     const listbox = within(document.body).getByRole('listbox')
     await expect(within(listbox).getByText('Global')).toBeInTheDocument()
-    await expect(within(listbox).getByText('Central Indo-Pacific')).toBeInTheDocument()
+    // Region name appears as both group header and option — getAllByText handles that
+    await expect(within(listbox).getAllByText('Central Indo-Pacific')[0]).toBeInTheDocument()
     await expect(within(listbox).getByText('Fiji')).toBeInTheDocument()
     await expect(within(listbox).getByText('Solomon Islands')).toBeInTheDocument()
     // Watershed / Dispersal are excluded from the dropdown
@@ -110,8 +111,9 @@ export const MultiRegionCountry: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /select region/i }))
     const listbox = within(document.body).getByRole('listbox')
 
-    await expect(within(listbox).getByText('Tropical Atlantic')).toBeInTheDocument()
-    await expect(within(listbox).getByText('Tropical Eastern Pacific')).toBeInTheDocument()
+    // Region names appear as both group header and option — getAllByText handles that
+    await expect(within(listbox).getAllByText('Tropical Atlantic')[0]).toBeInTheDocument()
+    await expect(within(listbox).getAllByText('Tropical Eastern Pacific')[0]).toBeInTheDocument()
     // Colombia appears twice (once per parent region)
     const colombiaItems = within(listbox).getAllByText('Colombia')
     await expect(colombiaItems).toHaveLength(2)

@@ -114,16 +114,19 @@ export default function RegionSelect({
     if (!value) { return }
     setDropdownOpen(false)
 
-    if (value.regionType === 'country') {
-      const parentIds = value.parentRegionIds ?? []
+    // Strip groupLabel — it's an autocomplete UI concern, not part of RegionOption
+    const { groupLabel, ...region } = value
+
+    if (region.regionType === 'country') {
+      const parentIds = region.parentRegionIds ?? []
       const parentRegion = regionOptions.find((r) =>
         r.regionType === 'region' &&
         parentIds.includes(r.id) &&
-        (!value.groupLabel || r.label === value.groupLabel)
+        (!groupLabel || r.label === groupLabel)
       )
-      updateRegion(value, parentRegion)
+      updateRegion(region, parentRegion)
     } else {
-      updateRegion(value)
+      updateRegion(region)
     }
   }
 
