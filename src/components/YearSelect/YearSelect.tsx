@@ -1,10 +1,8 @@
-import React from 'react'
-import Box from '@mui/material/Box'
-import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
+import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import clsx from 'clsx'
+import { useTranslation } from 'react-i18next'
 
 import styles from './YearSelect.module.scss'
-import { useTranslation } from 'react-i18next'
 
 export interface YearSelectProps {
   selectedYear: number
@@ -23,39 +21,25 @@ export const YearSelect = ({
 }: YearSelectProps) => {
   const { t } = useTranslation()
 
-  const handleChange = (event: SelectChangeEvent<number>) => {
-    onChange(Number(event.target.value))
+  const handleChange = (_: React.MouseEvent<HTMLElement>, newValue: number | null) => {
+    if (newValue !== null) { onChange(newValue) }
   }
 
   return (
-    <Box className={clsx(styles['year-select'], className)}>
-      <span className={styles['year-label']}>{selectedYear}</span>
-      <Select<number>
-        size="small"
-        aria-label={t('select_year')}
-        value={selectedYear}
-        onChange={handleChange}
-        disabled={disabled}
-        variant="outlined"
-        renderValue={() => ''}
-        MenuProps={{
-          classes: {
-            paper: styles['MuiPaper-root'],
-            list: styles['MuiList-root'],
-          },
-        }}
-        classes={{
-          root: styles['MuiSelect-root'],
-          select: styles['MuiSelect-select'],
-        }}
-      >
-        {availableYears.map((year) => (
-          <MenuItem key={year} value={year} className={styles['MuiMenuItem-root']}>
-            {year}
-          </MenuItem>
-        ))}
-      </Select>
-    </Box>
+    <ToggleButtonGroup
+      exclusive
+      value={selectedYear}
+      onChange={handleChange}
+      aria-label={t('select_year')}
+      disabled={disabled}
+      className={clsx(styles['year-select'], className)}
+    >
+      {availableYears.map((year) => (
+        <ToggleButton key={year} value={year} className={styles['year-select__button']}>
+          {year}
+        </ToggleButton>
+      ))}
+    </ToggleButtonGroup>
   )
 }
 

@@ -16,7 +16,7 @@
   gap: theme.$spacingXXSmall;
 }
 
-.sidebar-button {
+.sidebar__button {
   width: theme.$sidebarButtonSize;
   height: theme.$sidebarButtonSize;
   border-radius: theme.$borderRadius;
@@ -26,9 +26,13 @@
     width: theme.$svgSizeSmall;
     height: theme.$svgSizeSmall;
   }
+
+  &:hover {
+    background-color: theme.$hoverBlue;
+  }
 }
 
-.sidebar-button--active {
+.sidebar__button--active {
   background-color: theme.$primaryAccent;
   color: theme.$white;
 

@@ -1,41 +1,58 @@
 @use '../../styles/theme';
-@use '../../styles/muiComponents';
 
 .year-select {
-  display: flex;
-  align-items: center;
-  background-color: theme.$greyWhite;
-  border-radius: theme.$borderRadius;
-  height: theme.$mapUtilButtonHeight;
-}
+  width: theme.$panelWidth;
+  height: theme.$yearSelectorHeight;
+  overflow: hidden;
 
-.year-label {
-  padding: theme.$spacingSmall theme.$spacingMedium;
-  font-size: theme.$defaultTextSize;
-  color: theme.$textColor;
-
-  @include theme.mobileDownBreakPoint {
-    font-size: theme.$textSizeSmall;
+  @include theme.panelMobileDown {
+    width: 100%;
   }
-}
 
-.MuiSelect-root {
-  @include muiComponents.muiSelectRoot;
-}
+  // Scoped MUI overrides — .year-select .MuiToggleButtonGroup-grouped gives (0,2,0) vs MUI's (0,1,0)
+  :global(.MuiToggleButtonGroup-grouped) {
+    border: 1px solid theme.$grey;
+    margin: 0;
+  }
 
-.MuiSelect-select {
-  @include muiComponents.muiSelectValue;
-}
+  :global(.MuiToggleButtonGroup-grouped:not(:first-of-type)) {
+    border-left-color: theme.$grey;
+    border-radius: 0;
+  }
 
-.MuiPaper-root {
-  @include muiComponents.muiSelectPaper;
-  margin-top: theme.$spacingXSmall;
-}
+  :global(.MuiToggleButtonGroup-grouped:first-of-type) {
+    border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
+  }
 
-.MuiList-root {
-  @include muiComponents.muiSelectList;
-}
+  :global(.MuiToggleButtonGroup-grouped:last-of-type) {
+    border-radius: 0 theme.$borderRadius theme.$borderRadius 0;
+  }
 
-.MuiMenuItem-root {
-  @include muiComponents.muiSelectMenuItem;
+  // Nested for specificity: .year-select .year-select__button = (0,2,0)
+  .year-select__button {
+    flex: 1;
+    height: theme.$yearSelectorHeight;
+    padding: 0;
+    font-size: theme.$textSizeXSmall;
+    font-weight: theme.$semiBold;
+    text-transform: none;
+    color: theme.$primaryAccent;
+    background-color: theme.$white;
+    border-color: theme.$grey;
+
+    &:hover {
+      background-color: theme.$hoverBlue;
+    }
+
+    // (0,3,0) — beats MUI's .MuiToggleButton-root.Mui-selected (0,2,0)
+    &:global(.Mui-selected) {
+      background-color: theme.$primary;
+      color: theme.$white;
+      border-color: theme.$grey;
+
+      &:hover {
+        background-color: theme.$primary;
+      }
+    }
+  }
 }
