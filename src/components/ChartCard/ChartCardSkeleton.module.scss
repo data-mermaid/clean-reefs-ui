@@ -1,0 +1,20 @@
+@use '../../styles/theme';
+
+.chart-card-skeleton {
+  padding: theme.$defaultSpacing;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingSmall;
+}
+
+.chart-card-skeleton__chart-area {
+  margin-top: theme.$spacingXSmall;
+  border-radius: theme.$borderRadius;
+}
+
+.chart-card-skeleton__legend {
+  display: flex;
+  gap: theme.$spacingMedium;
+  margin-top: theme.$spacingXSmall;
+}
