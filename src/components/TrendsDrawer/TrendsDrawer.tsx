@@ -155,11 +155,9 @@ export default function TrendsDrawer({
 
         <div className={styles['charts-container']}>
           {isChartsLoading ? (
-            <>
-              {Array.from({ length: prevChartCountRef.current || allowedCharts.length }, (_, i) => (
-                <ChartCardSkeleton key={i} />
-              ))}
-            </>
+            Array.from({ length: prevChartCountRef.current || allowedCharts.length }, (_, i) => (
+              <ChartCardSkeleton key={i} />
+            ))
           ) : filteredChartData?.length ? (
             filteredChartData.map((chart) => (
               <SelectedFeatureContext.Provider
