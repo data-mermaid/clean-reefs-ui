@@ -24,8 +24,8 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
         tooltipPlacement="right"
         onClick={() => onTogglePanel('graphs')}
         className={clsx(
-          styles['sidebar-button'],
-          activePanel === 'graphs' && styles['sidebar-button--active'],
+          styles['sidebar__button'],
+          activePanel === 'graphs' && styles['sidebar__button--active'],
         )}
       >
         <BarChartIcon />
@@ -37,8 +37,8 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
         tooltipPlacement="right"
         onClick={() => onTogglePanel('layers')}
         className={clsx(
-          styles['sidebar-button'],
-          activePanel === 'layers' && styles['sidebar-button--active'],
+          styles['sidebar__button'],
+          activePanel === 'layers' && styles['sidebar__button--active'],
         )}
       >
         <LayersIcon />

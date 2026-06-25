@@ -5,6 +5,7 @@ $white: #ffffff;
 $grey: #dedfe3;
 $greyWhite: #fafbfc;
 $hoverGrey: #f1f2f3;
+$hoverBlue: #e3f2fd;
 $primaryAccent: #1976d2;
 $activeSelection: #f00;
 $colorError: #d32f2f;
@@ -54,6 +55,7 @@ $zDropdown: 40;
 /** Component dimensions **/
 $headerHeight: 36px;
 $mapUtilButtonHeight: 44px;
+$yearSelectorHeight: 30px;
 $loadingStateDefaultHeight: 200px;
 $chartCardMaxWidth: 500px;
 $geoLookupPopupMinWidth: 300px;
@@ -71,8 +73,8 @@ $markerSize: 15px;
 
 // Derived top offsets — anchored to $headerHeight so C236 only changes that token.
 $breadcrumbTop: $headerHeight + 8px;
-$yearSelectTop: $breadcrumbTop + 41px + 8px;
-$panelTop: $yearSelectTop + $mapUtilButtonHeight + 8px;
+$yearSelectTop: $breadcrumbTop + $mapUtilButtonHeight + $spacingSmall;
+$panelTop: $yearSelectTop + $yearSelectorHeight + $spacingSmall;
 
 /** Breakpoints **/
 $breakpointMobile: 768px;
