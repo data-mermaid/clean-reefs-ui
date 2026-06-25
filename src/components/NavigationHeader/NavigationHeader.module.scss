@@ -1,5 +1,14 @@
 @use '../../styles/theme';
 
+$header-h-padding: 14px;
+$wordmark-font-size: 15px;
+$wordmark-letter-spacing: 0.01em;
+$beta-chip-radius: 10px;
+$beta-chip-font-size: 10px;
+$beta-chip-letter-spacing: 0.08em;
+$beta-chip-padding: 2px 7px;
+$nav-link-font-size: 13px;
+
 .header {
   position: fixed;
   top: 0;
@@ -11,57 +20,57 @@
   border-bottom: 1px solid theme.$grey;
   display: flex;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 $header-h-padding;
   gap: theme.$defaultSpacing;
 }
 
-.brand {
+.header__brand {
   display: flex;
   align-items: center;
   gap: theme.$spacingSmall;
 }
 
-.wordmark {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: #212121;
+.header__wordmark {
+  font-size: $wordmark-font-size;
+  font-weight: theme.$bold;
+  letter-spacing: $wordmark-letter-spacing;
+  color: theme.$textDark;
 }
 
-.beta-chip {
+.header__beta-chip {
   background-color: theme.$primaryAccent;
   height: auto;
-  border-radius: 10px;
+  border-radius: $beta-chip-radius;
 }
 
-.beta-chip__label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+.header__beta-chip-label {
+  font-size: $beta-chip-font-size;
+  font-weight: theme.$bold;
+  letter-spacing: $beta-chip-letter-spacing;
   text-transform: uppercase;
   color: theme.$white;
-  padding: 2px 7px;
+  padding: $beta-chip-padding;
 }
 
-.actions {
+.header__actions {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: theme.$gapSpacing;
 }
 
-.action-button {
-  padding: 4px;
+.header__action-button {
+  padding: theme.$gapSpacing;
 }
 
-.action-icon {
+.header__action-icon {
   width: theme.$svgSizeSmall;
   height: theme.$svgSizeSmall;
   color: theme.$textSecondary;
 }
 
-.nav-link {
-  font-size: 13px;
+.header__nav-link {
+  font-size: $nav-link-font-size;
   color: theme.$textSecondary;
   text-decoration: none;
   padding: 0 theme.$spacingSmall;
@@ -80,7 +89,11 @@
   }
 }
 
-.hamburger {
+.header__nav-link--active {
+  color: theme.$primaryAccent;
+}
+
+.header__hamburger {
   display: none;
 
   @include theme.panelMobileDown {
@@ -88,12 +101,16 @@
   }
 }
 
-.mobile-menu {
+.header__mobile-menu {
   background-color: theme.$white;
   margin-top: theme.$spacingXSmall;
 }
 
-.mobile-menu-item {
+.header__mobile-menu-item {
   font-size: theme.$textSizeSmall;
   color: theme.$textColor;
+}
+
+.header__mobile-menu-item--active {
+  color: theme.$primaryAccent;
 }

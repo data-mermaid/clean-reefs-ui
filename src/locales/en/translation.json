@@ -1,7 +1,9 @@
 {
   "agricultural_nutrients": "Agricultural nutrients",
   "all_data": "All data",
+  "app_title": "Global Pollution Watch",
   "area_exposed_ha": "Area exposed (ha)",
+  "back_to_map": "Back to map",
   "base_map": "Basemap",
   "benthic_layers": "Benthic layers",
   "benthic_map_layers": {
@@ -13,6 +15,7 @@
     "sand": "Sand",
     "seagrass": "Seagrass"
   },
+  "beta": "Beta",
   "boundaries": "Boundaries",
   "boundary_map_layers": {
     "country": "Country",
@@ -122,19 +125,23 @@
     "lat": "Lat",
     "lon": "Lon"
   },
-  "app_title": "Global Pollution Watch",
-  "beta": "Beta",
-  "back_to_map": "Back to map",
-  "agricultural_nutrients": "Agricultural nutrients",
-  "all_data": "All data",
-  "base_map": "Basemap",
-  "benthic_layers": "Benthic layers",
-  "boundaries": "Boundaries",
-  "area_exposed_ha": "Area exposed (ha)",
   "satellite": "Satellite",
   "scale_high": "High",
   "scale_low": "Low",
   "science_and_methods": "Science and methods",
+  "science_and_methods_page": {
+    "title": "Science and Methods",
+    "subtitle": "How GPW data is collected and processed",
+    "sections": {
+      "overview": "Overview",
+      "data_sources": "Data sources",
+      "spatial_resolution": "Spatial resolution",
+      "methodology": "Methodology",
+      "coral_reef_regions": "Coral reef regions",
+      "validation": "Validation",
+      "citing_this_platform": "Citing this platform"
+    }
+  },
   "sediment": "Sediment",
   "sediment_exposure_unit": "Sediment exposure (unit)",
   "sediment_load_unit": "Sediment load (unit)",

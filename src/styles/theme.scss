@@ -13,16 +13,19 @@ $mapOverlayBg: rgba(0, 0, 0, 0.55);
 /** Fonts, font styling, text **/
 $textColor: #393939;
 $textSecondary: #6a6a6a;
+$textDark: #212121;
 $defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
 $light: 300;
 $regular: 400;
 $semiBold: 600;
+$bold: 700;
 
 $textSizeXSmall: 12px;
 $textSizeSmall: 14px;
 $defaultTextSize: 16px;
 $textSizeMedium: $defaultTextSize;
-$textSizeLarge: 18px;
+$textSizeSemiLarge: 19px;
+$textSizeLarge: 26px;
 $textSizeXLarge: 52px;
 
 $svgSizeSmall: 20px;
@@ -31,9 +34,11 @@ $svgSizeMedium: 26px;
 /** Layout, spacing **/
 $defaultSpacing: 10px;
 $spacingXXSmall: 3px;
+$gapSpacing: 4px;
 $spacingXSmall: 5px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
+$spacingLarge: 48px;
 
 $borderRadius: 4px;
 $borderWidth: 2px;

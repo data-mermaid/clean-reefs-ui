@@ -1,5 +1,5 @@
-import { type MouseEvent, useState } from 'react'
-import { useLocation } from 'react-router'
+import { type MouseEvent, useEffect, useState } from 'react'
+import { Link as InternalLink, useLocation, useNavigate } from 'react-router'
 
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -26,23 +26,39 @@ const menuOriginConfig: {
   },
 }
 
+interface NavItem {
+  label: string
+  href: string
+  internalLink: boolean
+}
+
 export default function NavigationHeader() {
   const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const isMapPage = location.pathname === '/'
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [menuSnapshot, setMenuSnapshot] = useState<NavItem[]>([])
 
-  // C240 will replace the '#' hrefs with real routes (e.g. /science-and-methods) once
-  // routing is wired in main.tsx. Until then, isMapPage stays true on every path
-  // because MapContainer mounts unconditionally — the back_to_map branch is unreachable.
-  const navItems = [
-    ...(!isMapPage ? [{ label: t('back_to_map'), href: '/', external: false }] : []),
-    { label: t('science_and_methods'), href: '#', external: true },
-    { label: t('contact'), href: '#', external: true },
+  // Save map URL on every location change while on map, but only once params
+  // are present — avoids overwriting with bare "/" before MapContainer restores them.
+  useEffect(() => {
+    if (isMapPage && location.search) {
+      sessionStorage.setItem('lastMapUrl', location.pathname + location.search)
+    }
+  }, [isMapPage, location])
+
+  const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
+
+  const navItems: NavItem[] = [
+    ...(!isMapPage ? [{ label: t('back_to_map'), href: lastMapUrl, internalLink: true }] : []),
+    { label: t('science_and_methods'), href: '/science-and-methods', internalLink: true },
+    { label: t('contact'), href: '#', internalLink: false },
   ]
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
+    setMenuSnapshot(navItems)
     setAnchorElNav(event.currentTarget)
   }
 
@@ -50,67 +66,93 @@ export default function NavigationHeader() {
     setAnchorElNav(null)
   }
 
+  const handleMobileNavClick = (item: NavItem) => {
+    handleCloseNavMenu()
+    if (item.internalLink) {
+      navigate(item.href)
+    } else if (item.href !== '#') {
+      window.open(item.href, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
     <header className={styles['header']}>
-      <div className={styles['brand']}>
-        <Typography className={styles['wordmark']}>{t('app_title')}</Typography>
+      <div className={styles['header__brand']}>
+        <Typography className={styles['header__wordmark']}>{t('app_title')}</Typography>
         <Chip
           label={t('beta')}
           size="small"
-          classes={{ root: styles['beta-chip'], label: styles['beta-chip__label'] }}
+          classes={{ root: styles['header__beta-chip'], label: styles['header__beta-chip-label'] }}
         />
       </div>
-      <div className={styles['actions']}>
+      <div className={styles['header__actions']}>
         {isMapPage && (
           <>
             <IconButton
               aria-label={t('buttons.share_view')}
-              className={styles['action-button']}
+              className={styles['header__action-button']}
               onClick={() => setShareOpen(true)}
             >
-              <ShareIcon className={styles['action-icon']} />
+              <ShareIcon className={styles['header__action-icon']} />
             </IconButton>
             <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
           </>
         )}
-        {navItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            className={styles['nav-link']}
-          >
-            {item.label}
-          </Link>
-        ))}
-        <div className={styles['hamburger']}>
+        {navItems.map((item) => {
+          const isActive = item.internalLink && location.pathname === item.href
+          const className = `${styles['header__nav-link']}${isActive ? ` ${styles['header__nav-link--active']}` : ''}`
+
+          return (
+            <Link
+              key={item.label}
+              {...(item.internalLink
+                ? { component: InternalLink, to: item.href }
+                : item.href !== '#'
+                  ? { href: item.href, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: item.href })}
+              className={className}
+            >
+              {item.label}
+            </Link>
+          )
+        })}
+        <div className={styles['header__hamburger']}>
           <IconButton
             aria-label={t('toggle_navigation_menu')}
             aria-controls="menu-appbar"
             aria-haspopup="true"
-            className={styles['action-button']}
+            aria-expanded={Boolean(anchorElNav)}
+            className={styles['header__action-button']}
             onClick={handleOpenNavMenu}
           >
-            <MenuIcon className={styles['action-icon']} />
+            <MenuIcon className={styles['header__action-icon']} />
           </IconButton>
           <Menu
             id="menu-appbar"
             anchorEl={anchorElNav}
             {...menuOriginConfig}
             keepMounted
+            disableScrollLock
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
             slotProps={{
               paper: {
-                className: styles['mobile-menu'],
+                className: styles['header__mobile-menu'],
               },
             }}
           >
-            {navItems.map((item) => (
-              <MenuItem key={item.label} onClick={handleCloseNavMenu}>
-                <Typography className={styles['mobile-menu-item']}>{item.label}</Typography>
-              </MenuItem>
-            ))}
+            {menuSnapshot.map((item) => {
+              const isActive = item.internalLink && location.pathname === item.href
+              return (
+                <MenuItem key={item.label} onClick={() => handleMobileNavClick(item)}>
+                  <Typography
+                    className={`${styles['header__mobile-menu-item']}${isActive ? ` ${styles['header__mobile-menu-item--active']}` : ''}`}
+                  >
+                    {item.label}
+                  </Typography>
+                </MenuItem>
+              )
+            })}
           </Menu>
         </div>
       </div>
