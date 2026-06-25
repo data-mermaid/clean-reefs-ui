@@ -12,6 +12,7 @@ import {
 import { RefObject } from 'react'
 import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
 import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { defaultGlobalRegionOption } from '../data/regionData'
 import {
   BASE_ZONAL_STATS_API,
   SEDIMENT_EXPOSURE_2000_URL,
@@ -529,4 +530,42 @@ export function getBasemapStyleUrl(selectedBasemap: Basemap, apiKey: string): Ba
   const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
 
   return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
+}
+
+export function buildBreadcrumbFromRegion(
+  region: RegionOption,
+  regionOptions: RegionOption[],
+  parentRegion?: RegionOption,
+): RegionOption[] {
+  if (region.regionType === 'global') {
+    return [region]
+  }
+  if (region.regionType === 'country') {
+    const parent = parentRegion
+      ?? regionOptions.find((r) => r.regionType === 'region' && r.id === region.parentRegionIds?.[0])
+    return [defaultGlobalRegionOption, ...(parent ? [parent] : []), region]
+  }
+  return [defaultGlobalRegionOption, region]
+}
+
+export function buildBreadcrumbFromFeature(
+  featureProperties: Record<string, unknown> | null | undefined,
+  subRegion: RegionOption,
+  regionOptions: RegionOption[],
+): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } {
+  const countryId = featureProperties?.COUNTRY_ID as number | undefined
+  const realmId = featureProperties?.REALM_ID as number | undefined
+  const country = regionOptions.find((r) => r.bandId === countryId)
+  // First parent region used as best-effort approximation — no click-location disambiguation for countries spanning multiple regions.
+  const parentRegionId = country?.parentRegionIds?.[0]
+  const region = parentRegionId
+    ? regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionId)
+    : regionOptions.find((r) => r.bandId === realmId)
+  const addtlRegion = country ?? region
+
+  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
+  if (region) { breadcrumb.push(region) }
+  if (country) { breadcrumb.push(country) }
+  breadcrumb.push(subRegion)
+  return { breadcrumb, addtlRegion }
 }

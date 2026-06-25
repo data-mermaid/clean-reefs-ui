@@ -1,9 +1,9 @@
 @use '../../styles/theme';
 
+$tooltip-bg: rgba(50, 50, 50, 0.92);
+
 .icon-button {
   min-width: unset;
-  width: theme.$iconButtonWidthHeight;
-  height: theme.$iconButtonWidthHeight;
   border-radius: 100px;
   background-color: transparent;
   padding: 0;
@@ -13,15 +13,11 @@
   }
 }
 
-.tooltip {
-  background-color: rgba(50, 50, 50, 0.92) !important;
+.icon-button__tooltip {
+  background-color: $tooltip-bg !important;
   color: theme.$white !important;
   font-size: theme.$textSizeXSmall;
   letter-spacing: 0.03em;
-  padding: 4px 8px;
+  padding: theme.$spacingXXSmall theme.$spacingSmall;
   border-radius: theme.$borderRadius;
-}
-
-.tooltip-arrow {
-  color: rgba(50, 50, 50, 0.92) !important;
 }

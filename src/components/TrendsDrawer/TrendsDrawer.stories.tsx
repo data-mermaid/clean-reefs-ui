@@ -14,7 +14,6 @@ export const Primary: Story = {
     selectedRegion: defaultGlobalRegionOption,
     selectedYear: 2020,
     open: true,
-    onUpOneLevelChange: () => {},
   },
 }
 

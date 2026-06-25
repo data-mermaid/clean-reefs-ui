@@ -26,10 +26,8 @@ export default function StyledIconButtonWithTooltip({
     <Tooltip
       title={tooltipText}
       placement={tooltipPlacement}
-      arrow
       slotProps={{
-        tooltip: { className: styles['tooltip'] },
-        arrow: { className: styles['tooltip-arrow'] },
+        tooltip: { className: styles['icon-button__tooltip'] },
       }}
     >
       <span>{buttonContent}</span>

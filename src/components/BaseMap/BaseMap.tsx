@@ -42,6 +42,7 @@ import {
   clearPolygonHover,
   clearPolygonSelect,
   createPolygonClickHandler,
+  buildBreadcrumbFromFeature,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   querySourceFeatureAtPointWhenReady,
@@ -68,7 +69,6 @@ import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 
 interface ApplyDispersalStatsParams {
@@ -119,25 +119,6 @@ interface BaseMapProps {
 
 const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
 
-const getRegionById = (id: number | undefined, regionOptions: RegionOption[]) =>
-  regionOptions.find((opt) => opt.bandId === id)
-
-const buildBreadcrumb = (
-  featureProperties: Record<string, unknown> | null | undefined,
-  subRegion: RegionOption,
-  regionOptions: RegionOption[],
-): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegionId = (featureProperties?.COUNTRY_ID ?? featureProperties?.REALM_ID) as
-    | number
-    | undefined
-  const addtlRegion = getRegionById(countryOrRegionId, regionOptions)
-  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
-  if (addtlRegion) {
-    breadcrumb.push(addtlRegion)
-  }
-  breadcrumb.push(subRegion)
-  return { breadcrumb, addtlRegion }
-}
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -200,7 +181,7 @@ const applyDispersalStats = ({
     sourceLayer: watershedLayer.sourceFileName,
     filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
-  const { breadcrumb, addtlRegion } = buildBreadcrumb(
+  const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
     watershedFeatures[0]?.properties,
     { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
     regionOptions,
@@ -510,10 +491,10 @@ export default function BaseMap({
         if (map) {
           // Breadcrumb: Global > [Country] > Watershed
           // Country is omitted if it can't be determined from the feature
-          const { breadcrumb, addtlRegion } = buildBreadcrumb(
+          const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
             feature.properties,
             { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
-            regionOptions,
+            regionOptionsRef.current,
           )
 
           setBreadcrumb(breadcrumb)
@@ -546,7 +527,6 @@ export default function BaseMap({
       onRegionChange,
       onWatershedChange,
       clearDispersalSelection,
-      regionOptions,
     ],
   )
 
@@ -849,20 +829,21 @@ export default function BaseMap({
         // Guard against race condition: skip if the user already clicked a new dispersal
         if (sedExposureBoundaryClickRef.current == null) {
           const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
-          const restoredId = feature.id
-          if (currentSedExposureBoundaryLayer && restoredId != null) {
-            const featureId = isNaN(Number(restoredId)) ? restoredId : Number(restoredId)
+          let restoredFeatureId: string | number | null = null
+          if (currentSedExposureBoundaryLayer && feature.id != null) {
+            restoredFeatureId = isNaN(Number(feature.id)) ? feature.id : Number(feature.id)
             setPolygonSelect(
               map,
               sedExposureBoundaryClickRef,
               currentSedExposureBoundaryLayer,
-              featureId,
+              restoredFeatureId,
             )
           }
 
           void (async () => {
             const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-            if (sedExposureBoundaryClickRef.current != null) {
+            // Bail only if the user clicked a *different* dispersal after restoration started.
+            if (sedExposureBoundaryClickRef.current !== restoredFeatureId) {
               return
             }
             applyDispersalStats({
