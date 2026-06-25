@@ -19,4 +19,14 @@ export const Primary: Story = {
   },
 }
 
+export const Loading: Story = {
+  args: {
+    selectedRegion: defaultGlobalRegionOption,
+    selectedYear: 2020,
+    open: true,
+    isChartsLoading: true,
+    onChartsLoadingChange: () => {},
+  },
+}
+
 export default meta
