@@ -11,6 +11,51 @@
   z-index: theme.$zBaseMap;
 }
 
+// Stack all bottom-right controls in a single flex column, 10px from the right/bottom edges.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+}
+
+// NavigationControl and GeolocateControl are both .maplibregl-ctrl-group — DOM order determines which is on top.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-group) {
+  order: 1;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-scale) {
+  order: 2;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .coordinates-display-ctrl) {
+  order: 3;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-attrib) {
+  order: 4;
+  margin-top: 0 !important;
+}
+
+// Restyle MapLibre's built-in scale bar to match the mockup style.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right .maplibregl-ctrl-scale) {
+  background: theme.$mapOverlayBg;
+  border-top: none;
+  border-left: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-bottom: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-right: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  padding: theme.$spacingXXSmall theme.$spacingSmall theme.$spacingXXSmall;
+  text-align: center;
+  min-width: 40px;
+  color: theme.$white;
+  font-size: theme.$textSizeSmall;
+}
+
 .dispersal-marker {
   width: theme.$markerSize;
   height: theme.$markerSize;

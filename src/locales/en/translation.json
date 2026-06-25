@@ -121,6 +121,10 @@
     "select_region": "Select region",
     "watershed": "Watershed"
   },
+  "coordinates": {
+    "lat": "Lat",
+    "lon": "Lon"
+  },
   "satellite": "Satellite",
   "scale_high": "High",
   "scale_low": "Low",

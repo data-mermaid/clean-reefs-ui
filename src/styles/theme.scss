@@ -8,6 +8,7 @@ $hoverGrey: #f1f2f3;
 $primaryAccent: #1976d2;
 $activeSelection: #f00;
 $colorError: #d32f2f;
+$mapOverlayBg: rgba(0, 0, 0, 0.55);
 
 /** Fonts, font styling, text **/
 $textColor: #393939;
@@ -40,6 +41,8 @@ $spacingMedium: 16px;
 $spacingLarge: 48px;
 
 $borderRadius: 4px;
+$borderWidth: 2px;
+
 /** Z-indexes **/
 $zBaseMap: 1;
 $zSidebar: 20;
