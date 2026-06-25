@@ -458,7 +458,11 @@ export default function MapContainer() {
 
   return (
     <div className={styles['MapContainer-root']}>
-      <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} isChartsLoading={isChartsLoading} />
+      <Sidebar
+        activePanel={activePanel}
+        onTogglePanel={togglePanel}
+        isChartsLoading={isChartsLoading}
+      />
       <div className={styles['breadcrumb-slot']}>
         <RegionSelect
           selectedRegion={selectedRegion}

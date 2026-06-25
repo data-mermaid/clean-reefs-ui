@@ -50,6 +50,8 @@ export default function TrendsDrawer({
 
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
+  // Remembers the last known chart count so skeletons match what was showing before loading.
+  const prevChartCountRef = useRef<number>(0)
   // Enforces a minimum 500ms skeleton display so the user sees the transition.
   const skeletonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -114,7 +116,13 @@ export default function TrendsDrawer({
 
     setChartConfigData(null)
     stopLoading()
-  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats, stopLoading, onChartsLoadingChange])
+  }, [
+    selectedFeature,
+    selectedRegion,
+    selectedDispersalWatershedStats,
+    stopLoading,
+    onChartsLoadingChange,
+  ])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
@@ -130,6 +138,10 @@ export default function TrendsDrawer({
     allowedCharts.includes(chart.chartName as ChartSeriesName),
   )
 
+  if (!isChartsLoading && filteredChartData?.length) {
+    prevChartCountRef.current = filteredChartData.length
+  }
+
   return (
     <section
       className={clsx(styles['trends-panel'], !open && styles['trends-panel--hidden'])}
@@ -144,8 +156,9 @@ export default function TrendsDrawer({
         <div className={styles['charts-container']}>
           {isChartsLoading ? (
             <>
-              <ChartCardSkeleton />
-              <ChartCardSkeleton />
+              {Array.from({ length: prevChartCountRef.current || allowedCharts.length }, (_, i) => (
+                <ChartCardSkeleton key={i} />
+              ))}
             </>
           ) : filteredChartData?.length ? (
             filteredChartData.map((chart) => (

@@ -9,7 +9,7 @@ export default function ChartCardSkeleton() {
       <Skeleton
         variant="rectangular"
         width="100%"
-        height={200}
+        height={350}
         animation="wave"
         className={styles['chart-card-skeleton__chart-area']}
       />
