@@ -132,6 +132,11 @@
     background-color: theme.$greyWhite;
     font-size: theme.$textSizeSmall;
     padding-right: 0 !important;
+
+    // Prevent iOS Safari from zooming in when the input is focused (triggered when font-size < 16px)
+    @include theme.panelMobileDown {
+      font-size: 16px;
+    }
   }
 
   :global(.MuiInputBase-input) {
