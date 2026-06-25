@@ -11,7 +11,6 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
-  AttributionControl,
   GeolocateControl,
   Map as MapGL,
   MapRef,
@@ -35,6 +34,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
+import CoordinatesMapControl from '../CoordinatesDisplay/CoordinatesMapControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -454,6 +454,9 @@ export default function BaseMap({
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
+  const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
+    null,
+  )
 
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
   const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyPanelOpen)
@@ -880,6 +883,17 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, sedExposureBoundaryLayer])
 
+  const handleMouseMove = (e: { lngLat: { lat: number; lng: number } }) => {
+    const lat = Math.round(e.lngLat.lat * 1e5) / 1e5
+    const lng = Math.round(e.lngLat.lng * 1e5) / 1e5
+    setMouseCoordinates((prev) => {
+      if (prev?.lat === lat && prev?.lng === lng) {
+        return prev
+      }
+      return { lat, lng }
+    })
+  }
+
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
     // Populate store values BEFORE setIsMapLoaded so they're available when
@@ -1045,17 +1059,18 @@ export default function BaseMap({
         mapStyle={mapStyleUrl}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
-        attributionControl={false}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setMouseCoordinates(null)}
       >
-        <AttributionControl position="bottom-right" compact />
-        <ScaleControl position="bottom-right" />
-        {/* <GeoLookupControl /> */}
         <GeolocateControl
           position="bottom-right"
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation
         />
         <NavigationControl position="bottom-right" showCompass={false} />
+        {/* <GeoLookupControl /> */}
+        <ScaleControl position="bottom-right" />
+        <CoordinatesMapControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />

@@ -118,6 +118,10 @@
     "select_region": "Select region",
     "watershed": "Watershed"
   },
+  "coordinates": {
+    "lat": "Lat",
+    "lon": "Lon"
+  },
   "app_title": "Global Pollution Watch",
   "beta": "Beta",
   "back_to_map": "Back to map",
