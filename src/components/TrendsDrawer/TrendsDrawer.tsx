@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Typography } from '@mui/material'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
@@ -27,18 +27,21 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
+  isChartsLoading: boolean
+  onChartsLoadingChange: (isLoading: boolean) => void
 }
 
 export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
+  isChartsLoading,
+  onChartsLoadingChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )
-  const [isChartDataLoading, setIsChartDataLoading] = useState(false)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   const selectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -52,17 +55,21 @@ export default function TrendsDrawer({
 
   useEffect(() => {
     return () => {
-      if (skeletonTimerRef.current) {clearTimeout(skeletonTimerRef.current)}
+      if (skeletonTimerRef.current) {
+        clearTimeout(skeletonTimerRef.current)
+      }
     }
   }, [])
 
-  const stopLoading = () => {
-    if (skeletonTimerRef.current) {clearTimeout(skeletonTimerRef.current)}
-    skeletonTimerRef.current = setTimeout(() => setIsChartDataLoading(false), 500)
-  }
+  const stopLoading = useCallback(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    skeletonTimerRef.current = setTimeout(() => onChartsLoadingChange(false), 500)
+  }, [onChartsLoadingChange])
 
   useEffect(() => {
-    setIsChartDataLoading(true)
+    onChartsLoadingChange(true)
     const { regionType } = selectedRegion
 
     if (selectedDispersalWatershedStats) {
@@ -107,7 +114,7 @@ export default function TrendsDrawer({
 
     setChartConfigData(null)
     stopLoading()
-  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats])
+  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats, stopLoading, onChartsLoadingChange])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
@@ -135,7 +142,7 @@ export default function TrendsDrawer({
         </div>
 
         <div className={styles['charts-container']}>
-          {isChartDataLoading ? (
+          {isChartsLoading ? (
             <>
               <ChartCardSkeleton />
               <ChartCardSkeleton />
@@ -155,7 +162,7 @@ export default function TrendsDrawer({
                   )}
                   selectedYear={selectedYear}
                   chartConfigData={chart}
-                  isChartDataLoading={isChartDataLoading}
+                  isChartDataLoading={isChartsLoading}
                   isVisible={open}
                 />
               </SelectedFeatureContext.Provider>

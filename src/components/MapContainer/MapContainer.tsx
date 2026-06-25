@@ -100,6 +100,7 @@ export default function MapContainer() {
   const [activePanel, setActivePanel] = useState<ActivePanel>(() =>
     isPanelMobile ? null : 'graphs',
   )
+  const [isChartsLoading, setIsChartsLoading] = useState(false)
 
   const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
     setActivePanel((prev) => (prev === panel ? null : panel))
@@ -457,7 +458,7 @@ export default function MapContainer() {
 
   return (
     <div className={styles['MapContainer-root']}>
-      <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} />
+      <Sidebar activePanel={activePanel} onTogglePanel={togglePanel} isChartsLoading={isChartsLoading} />
       <div className={styles['breadcrumb-slot']}>
         <RegionSelect
           selectedRegion={selectedRegion}
@@ -501,6 +502,8 @@ export default function MapContainer() {
         selectedRegion={selectedRegion}
         selectedYear={selectedYear}
         open={activePanel === 'graphs'}
+        isChartsLoading={isChartsLoading}
+        onChartsLoadingChange={setIsChartsLoading}
       />
       <BaseMap
         mapLayers={urlSyncedMapLayers}
