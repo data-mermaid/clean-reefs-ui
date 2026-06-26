@@ -18,6 +18,7 @@
   "beta": "Beta",
   "boundaries": "Boundaries",
   "boundary_map_layers": {
+    "coastlines": "Coast lines",
     "country": "Country",
     "regional": "Regional",
     "watershed": "Watershed"

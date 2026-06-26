@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, Typography } from '@mui/material'
+import { Card, Switch, Typography } from '@mui/material'
 import clsx from 'clsx'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import styles from './LayersDrawer.module.scss'
@@ -36,11 +36,12 @@ interface LayersDrawerProps {
   sedLoadLoading?: boolean
 }
 
-interface BoundaryLegendCardProps {
+interface BoundaryToggleCardProps {
   layers: LayerInfo[]
+  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-function BoundaryLegendCard({ layers }: BoundaryLegendCardProps) {
+function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
   const { t } = useTranslation()
 
   return (
@@ -48,10 +49,18 @@ function BoundaryLegendCard({ layers }: BoundaryLegendCardProps) {
       {[...layers].sort(sortBoundaryLayers).map((layer) => (
         <div className={styles['boundary-legend-row']} key={layer.sourceId}>
           <Typography className={styles['boundary-layer-title']}>{t(layer.title)}</Typography>
-          <div
-            className={styles['boundary-layer-legend']}
-            style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
-          />
+          <div className={styles['boundary-toggle-right']}>
+            <div
+              className={styles['boundary-layer-legend']}
+              style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
+            />
+            <Switch
+              className={styles['MuiSwitch-root']}
+              id={layer.layerId}
+              checked={layer.isLayerOn}
+              onChange={toggleLayer}
+            />
+          </div>
         </div>
       ))}
     </Card>
@@ -91,6 +100,17 @@ export default function LayersDrawer({
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
+  const toggleBoundaryLayer = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const toggledLayerId = event.target.id
+      const isChecked = event.target.checked
+      setMapLayers((prevMapLayers) =>
+        mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear),
+      )
+    },
+    [setMapLayers, selectedYear],
+  )
+
   const toggleLayer = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
@@ -123,10 +143,18 @@ export default function LayersDrawer({
     (parentGroup: string): React.ReactNode[] => {
       if (parentGroup === 'boundaries') {
         const boundaryLayers = mapLayers.filter(
-          (layer) => layer.parentLayerType === 'boundaries' && layer.isLayerOn,
+          (layer) =>
+            layer.parentLayerType === 'boundaries' &&
+            (!layer.year || layer.year === selectedYear),
         )
         return boundaryLayers.length > 0
-          ? [<BoundaryLegendCard key="boundary-legend" layers={boundaryLayers} />]
+          ? [
+              <BoundaryToggleCard
+                key="boundary-toggle"
+                layers={boundaryLayers}
+                toggleLayer={toggleBoundaryLayer}
+              />,
+            ]
           : []
       }
 
@@ -171,6 +199,7 @@ export default function LayersDrawer({
     [
       mapLayers,
       selectedYear,
+      toggleBoundaryLayer,
       toggleLayer,
       toggleSubLayer,
       mapSubLayers,
