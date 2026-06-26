@@ -27,6 +27,8 @@ export default function BasemapSwitcher({
 }: BasemapSwitcherProps) {
   const { t } = useTranslation()
   const isBasemapChanging = useMapStore((s) => s.isBasemapChanging)
+  const showRivers = useMapStore((s) => s.showRivers)
+  const setShowRivers = useMapStore((s) => s.setShowRivers)
 
   const handleLabelsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onLabelsChange(event.target.checked)
@@ -50,6 +52,22 @@ export default function BasemapSwitcher({
             disabled={isBasemapChanging}
             aria-labelledby="basemapLabelsTitle"
           />
+        </div>
+      </Card>
+      <Card className={styles['basemap-card']}>
+        <div className={styles['basemap-toggle-header']}>
+          <Typography id="basemapRiversTitle" className={styles['basemap-card_title']}>
+            {t('base_map_layers.rivers')}
+          </Typography>
+          <div className={styles['basemap-toggle-right']}>
+            <div className={styles['rivers-legend']} />
+            <Switch
+              className={styles['MuiSwitch-root']}
+              checked={showRivers}
+              onChange={(e) => setShowRivers(e.target.checked)}
+              aria-labelledby="basemapRiversTitle"
+            />
+          </div>
         </div>
       </Card>
       <Card className={styles['basemap-card']}>

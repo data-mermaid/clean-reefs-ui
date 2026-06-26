@@ -24,3 +24,14 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.basemap-toggle-right {
+  display: flex;
+  align-items: center;
+}
+
+.rivers-legend {
+  width: 20px;
+  height: 15px;
+  background-color: darkblue;
+}

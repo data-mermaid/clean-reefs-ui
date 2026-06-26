@@ -405,6 +405,8 @@ export default function BaseMap({
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
+  const showCoastlines = useMapStore((s) => s.showCoastlines)
+  const showRivers = useMapStore((s) => s.showRivers)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
@@ -1073,6 +1075,7 @@ export default function BaseMap({
             source-layer="water"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'ocean']}
+            layout={{ visibility: showCoastlines ? 'visible' : 'none' }}
             paint={{
               'line-color': '#000',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 5, 1, 10, 1.75, 15, 2.5],
@@ -1087,6 +1090,7 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
               'line-color': 'white',
               'line-width': 3,
@@ -1101,6 +1105,7 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
               'line-color': 'darkblue',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 6, 2, 11, 2.5, 16, 3],

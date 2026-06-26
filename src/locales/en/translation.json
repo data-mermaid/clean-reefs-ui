@@ -5,6 +5,9 @@
   "area_exposed_ha": "Area exposed (ha)",
   "back_to_map": "Back to map",
   "base_map": "Basemap",
+  "base_map_layers": {
+    "rivers": "Rivers"
+  },
   "benthic_layers": "Benthic layers",
   "benthic_map_layers": {
     "coral_algae": "Coral/Algae",

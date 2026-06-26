@@ -7,6 +7,7 @@ import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import React from 'react'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 import BasemapSwitcher from '../BaseMapSwitcher/BaseMapSwitcher'
@@ -43,6 +44,8 @@ interface BoundaryToggleCardProps {
 
 function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
   const { t } = useTranslation()
+  const showCoastlines = useMapStore((s) => s.showCoastlines)
+  const setShowCoastlines = useMapStore((s) => s.setShowCoastlines)
 
   return (
     <Card className={styles['boundary-legend-card']}>
@@ -63,6 +66,22 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
           </div>
         </div>
       ))}
+      <div className={styles['boundary-legend-row']}>
+        <Typography className={styles['boundary-layer-title']}>
+          {t('boundary_map_layers.coastlines')}
+        </Typography>
+        <div className={styles['boundary-toggle-right']}>
+          <div
+            className={styles['boundary-layer-legend']}
+            style={{ '--outline-color': '#000' } as React.CSSProperties}
+          />
+          <Switch
+            className={styles['MuiSwitch-root']}
+            checked={showCoastlines}
+            onChange={(e) => setShowCoastlines(e.target.checked)}
+          />
+        </div>
+      </div>
     </Card>
   )
 }
