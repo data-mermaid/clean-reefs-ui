@@ -1,4 +1,12 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import {
+  CSSProperties,
+  ChangeEvent,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useMemo,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, Switch, Typography } from '@mui/material'
 import clsx from 'clsx'
@@ -7,7 +15,6 @@ import styles from './LayersDrawer.module.scss'
 import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
-import React from 'react'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 import BasemapSwitcher from '../BaseMapSwitcher/BaseMapSwitcher'
@@ -39,7 +46,7 @@ interface LayersDrawerProps {
 
 interface BoundaryToggleCardProps {
   layers: LayerInfo[]
-  toggleLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleLayer: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
 function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
@@ -55,7 +62,7 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
           <div className={styles['boundary-toggle-right']}>
             <div
               className={styles['boundary-layer-legend']}
-              style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
+              style={{ '--outline-color': layer.outlineColor } as CSSProperties}
             />
             <Switch
               className={styles['MuiSwitch-root']}
@@ -67,18 +74,19 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
         </div>
       ))}
       <div className={styles['boundary-legend-row']}>
-        <Typography className={styles['boundary-layer-title']}>
+        <Typography id="coastlinesTitle" className={styles['boundary-layer-title']}>
           {t('boundary_map_layers.coastlines')}
         </Typography>
         <div className={styles['boundary-toggle-right']}>
           <div
             className={styles['boundary-layer-legend']}
-            style={{ '--outline-color': '#000' } as React.CSSProperties}
+            style={{ '--outline-color': '#000' } as CSSProperties}
           />
           <Switch
             className={styles['MuiSwitch-root']}
             checked={showCoastlines}
             onChange={(e) => setShowCoastlines(e.target.checked)}
+            aria-labelledby="coastlinesTitle"
           />
         </div>
       </div>
@@ -120,7 +128,7 @@ export default function LayersDrawer({
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
 
   const toggleBoundaryLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
       setMapLayers((prevMapLayers) =>
@@ -131,7 +139,7 @@ export default function LayersDrawer({
   )
 
   const toggleLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
       const isUrlControlled = urlControlledLayerIds.includes(toggledLayerId)
@@ -149,7 +157,7 @@ export default function LayersDrawer({
   )
 
   const toggleSubLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
       toggleSubLayerFillColor(toggledLayerId)
@@ -159,7 +167,7 @@ export default function LayersDrawer({
   )
 
   const renderLayerGroup = useCallback(
-    (parentGroup: string): React.ReactNode[] => {
+    (parentGroup: string): ReactNode[] => {
       if (parentGroup === 'boundaries') {
         const boundaryLayers = mapLayers.filter(
           (layer) =>

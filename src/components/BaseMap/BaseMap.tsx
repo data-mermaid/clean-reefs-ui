@@ -1107,7 +1107,7 @@ export default function BaseMap({
             filter={['==', ['get', 'class'], 'river']}
             layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
-              'line-color': 'darkblue',
+              'line-color': '#00008b',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 6, 2, 11, 2.5, 16, 3],
             }}
           />
