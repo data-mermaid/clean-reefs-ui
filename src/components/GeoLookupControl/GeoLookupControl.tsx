@@ -1,22 +1,23 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useControl, useMap } from 'react-map-gl/maplibre'
+import { useControl } from 'react-map-gl/maplibre'
 import { useTranslation } from 'react-i18next'
 import {
-  Button,
   ClickAwayListener,
   IconButton,
-  Paper,
+  List,
+  ListItemButton,
   Popper,
-  TextField,
   Typography,
 } from '@mui/material'
 import TravelExploreIcon from '@mui/icons-material/TravelExplore'
+import MapIcon from '@mui/icons-material/Map'
+import CloseIcon from '@mui/icons-material/Close'
 import type { IControl } from 'maplibre-gl'
+import { useMapStore } from '../../stores/mapStore'
+import useResponsive from '../../hooks/useResponsive'
+import { useGeoSearch } from './useGeoSearch'
 import styles from './GeoLookupControl.module.scss'
-
-const FLY_TO_ZOOM = 8
-const LAT_LON_REGEX = /^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/
 
 class ContainerControl implements IControl {
   private container: HTMLDivElement | null = null
@@ -28,7 +29,7 @@ class ContainerControl implements IControl {
 
   onAdd() {
     this.container = document.createElement('div')
-    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group'
+    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group geo-lookup-ctrl'
     this.onContainerReady(this.container)
     return this.container
   }
@@ -41,102 +42,66 @@ class ContainerControl implements IControl {
 
 export default function GeoLookupControl() {
   const { t } = useTranslation()
-  const { current: map } = useMap()
+  const { isPanelMobile } = useResponsive()
+  const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
+  const openGeoSearch = useMapStore((s) => s.openGeoSearch)
+
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+
+  const {
+    query,
+    results,
+    isLoading,
+    error,
+    activeIndex,
+    handleQueryChange,
+    handleSelect,
+    handleClose,
+    handleKeyDown,
+  } = useGeoSearch()
 
   useControl(() => new ContainerControl((el) => setContainer(el)), {
     position: 'bottom-right',
   })
 
   useEffect(() => {
-    if (isOpen) {
+    if (isGeoSearchOpen && !isPanelMobile) {
       inputRef.current?.focus()
     }
-  }, [isOpen])
+  }, [isGeoSearchOpen, isPanelMobile])
 
-  const handleClose = () => {
-    setIsOpen(false)
-    setQuery('')
-    setError('')
-  }
+  useEffect(() => {
+    if (!isPanelMobile) {
+      inputRef.current?.focus()
+    }
+  }, [results, isPanelMobile])
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev)
+    if (isGeoSearchOpen) {
+      handleClose()
+    } else {
+      openGeoSearch()
+    }
   }
 
   const handleClickAway = (event: MouseEvent | TouchEvent) => {
-    // The toggle button has its own onClick; let it handle open/close so the
-    // dropdown doesn't immediately re-close after being opened.
     if (buttonRef.current?.contains(event.target as Node)) {
       return
     }
     handleClose()
   }
 
-  const flyToCoords = (lng: number, lat: number) => {
-    map?.flyTo({ center: [lng, lat], zoom: FLY_TO_ZOOM })
-    handleClose()
-  }
-
-  const handleSearch = async () => {
-    setError('')
-    const trimmed = query.trim()
-    if (!trimmed) {
-      return
-    }
-
-    const latLonMatch = trimmed.match(LAT_LON_REGEX)
-    if (latLonMatch) {
-      const lat = parseFloat(latLonMatch[1])
-      const lon = parseFloat(latLonMatch[2])
-      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-        flyToCoords(lon, lat)
-        return
-      }
-    }
-
-    setIsLoading(true)
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=1`,
-        {
-          headers: {
-            'Accept-Language': 'en',
-            'User-Agent': 'GlobalPollutionWatch/1.0 (https://globalpollutiwatch.org)',
-          },
-        },
-      )
-      const data: { lat: string; lon: string }[] = await res.json()
-      if (data.length) {
-        flyToCoords(parseFloat(data[0].lon), parseFloat(data[0].lat))
-      } else {
-        setError(t('geo_lookup.no_results'))
-      }
-    } catch {
-      setError(t('geo_lookup.search_failed'))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      handleSearch()
-    } else if (event.key === 'Escape') {
-      handleClose()
-    }
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleQueryChange(e.target.value)
   }
 
   if (!container) {
     return null
   }
+
+  const showPanel = isGeoSearchOpen && !isPanelMobile
 
   return (
     <>
@@ -144,44 +109,75 @@ export default function GeoLookupControl() {
         <IconButton
           ref={buttonRef}
           aria-label={t('geo_lookup.aria_label')}
+          aria-expanded={isGeoSearchOpen}
           title={t('geo_lookup.aria_label')}
           onClick={handleToggle}
-          className={styles['geo-lookup__button']}
+          className={`${styles['geo-lookup__button']} ${isGeoSearchOpen ? styles['geo-lookup__button--active'] : ''}`}
         >
           <TravelExploreIcon className={styles['geo-lookup__icon']} />
         </IconButton>,
         container,
       )}
       <Popper
-        open={isOpen}
+        open={showPanel}
         anchorEl={buttonRef.current}
-        placement="left"
+        placement="left-end"
         className={styles['geo-lookup__popper']}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
-          <Paper className={styles['geo-lookup__popup']}>
+          <div className={styles['geo-lookup__panel']}>
+            {results.length > 0 && (
+              <List
+                dense
+                disablePadding
+                className={styles['geo-lookup__results']}
+                role="listbox"
+                aria-label={t('geo_lookup.aria_label')}
+              >
+                {results.map((result, i) => (
+                  <ListItemButton
+                    key={`${result.lat}-${result.lon}`}
+                    selected={i === activeIndex}
+                    tabIndex={-1}
+                    onClick={() => handleSelect(result)}
+                    className={styles['geo-lookup__result-item']}
+                    role="option"
+                    aria-selected={i === activeIndex}
+                  >
+                    <Typography component="span" className={styles['geo-lookup__result-name']}>
+                      {result.display_name}
+                    </Typography>
+                    <Typography component="span" className={styles['geo-lookup__result-type']}>
+                      {result.addresstype.replace(/_/g, ' ')}
+                    </Typography>
+                  </ListItemButton>
+                ))}
+              </List>
+            )}
+            {error && <Typography className={styles['geo-lookup__error']}>{error}</Typography>}
             <div className={styles['geo-lookup__input-row']}>
-              <TextField
-                inputRef={inputRef}
-                size="small"
+              <MapIcon className={styles['geo-lookup__map-icon']} />
+              <input
+                ref={inputRef}
+                type="text"
                 placeholder={t('geo_lookup.placeholder')}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 disabled={isLoading}
                 className={styles['geo-lookup__input']}
+                aria-label={t('geo_lookup.aria_label')}
               />
-              <Button
-                variant="contained"
-                onClick={handleSearch}
-                disabled={isLoading}
-                className={styles['geo-lookup__go-button']}
+              <IconButton
+                size="small"
+                onClick={handleClose}
+                aria-label={t('geo_lookup.close')}
+                className={styles['geo-lookup__close-button']}
               >
-                {t('buttons.go')}
-              </Button>
+                <CloseIcon fontSize="small" />
+              </IconButton>
             </div>
-            {error && <Typography className={styles['geo-lookup__error']}>{error}</Typography>}
-          </Paper>
+          </div>
         </ClickAwayListener>
       </Popper>
     </>

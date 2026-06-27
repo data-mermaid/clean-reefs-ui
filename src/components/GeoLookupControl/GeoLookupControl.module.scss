@@ -10,6 +10,15 @@
   &:hover {
     background-color: theme.$hoverGrey;
   }
+
+  &--active {
+    background-color: theme.$primary !important;
+    color: theme.$white !important;
+
+    &:hover {
+      background-color: theme.$primary !important;
+    }
+  }
 }
 
 .geo-lookup__icon {
@@ -20,29 +29,73 @@
   z-index: theme.$zControl;
 }
 
-.geo-lookup__popup {
+.geo-lookup__panel {
+  background: theme.$white;
+  border: 1px solid #a9a9b3;
+  border-radius: 4px;
+  width: theme.$geoLookupPopupMinWidth;
+  overflow: hidden;
+  margin-right: theme.$spacingSmall;
+}
+
+.geo-lookup__results {
+  border-bottom: 1px solid theme.$grey;
+}
+
+.geo-lookup__result-item {
+  display: block;
   padding: theme.$spacingXSmall theme.$spacingSmall;
-  margin-right: theme.$spacingXSmall;
-  min-width: theme.$geoLookupPopupMinWidth;
+}
+
+.geo-lookup__result-name {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$semiBold;
+}
+
+.geo-lookup__result-type {
+  font-size: theme.$textSizeXSmall;
+  color: theme.$textSecondary;
+  margin-left: theme.$spacingXSmall;
+}
+
+.geo-lookup__error {
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+  font-size: theme.$textSizeXSmall;
+  color: theme.$colorError;
 }
 
 .geo-lookup__input-row {
   display: flex;
   align-items: center;
   gap: theme.$spacingXSmall;
+  padding: theme.$spacingXSmall theme.$spacingXSmall theme.$spacingXSmall theme.$spacingSmall;
+}
+
+.geo-lookup__map-icon {
+  color: theme.$textSecondary;
+  font-size: theme.$textSizeLarge;
+  flex-shrink: 0;
 }
 
 .geo-lookup__input {
   flex: 1;
   min-width: 0;
+  border: none;
+  outline: none;
+  font-size: theme.$textSizeSmall;
+  background: transparent;
+  color: theme.$textColor;
+
+  &::placeholder {
+    color: theme.$textSecondary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
 }
 
-.geo-lookup__go-button {
+.geo-lookup__close-button {
   flex-shrink: 0;
-}
-
-.geo-lookup__error {
-  margin-top: theme.$spacingXSmall;
-  font-size: theme.$textSizeXSmall;
-  color: theme.$colorError;
+  color: theme.$textSecondary;
 }

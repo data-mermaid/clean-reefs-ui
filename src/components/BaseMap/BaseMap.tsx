@@ -70,6 +70,7 @@ import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
+import GeoLookupControl from '../GeoLookupControl/GeoLookupControl'
 
 interface ApplyDispersalStatsParams {
   map: maplibregl.Map
@@ -1049,7 +1050,7 @@ export default function BaseMap({
           trackUserLocation
         />
         <NavigationControl position="bottom-right" showCompass={false} />
-        {/* <GeoLookupControl /> */}
+        <GeoLookupControl />
         <ScaleControl position="bottom-right" />
         <CoordinatesMapControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
         {dispersalPoint && (
