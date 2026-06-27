@@ -1,0 +1,71 @@
+@use '../../styles/theme';
+
+.geo-search-bar {
+  background: theme.$white;
+  border: 1px solid #a9a9b3;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.geo-search-bar__input-row {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingXSmall;
+  padding: theme.$spacingXSmall theme.$spacingXSmall theme.$spacingXSmall theme.$spacingSmall;
+}
+
+.geo-search-bar__map-icon {
+  color: theme.$textSecondary;
+  font-size: theme.$textSizeLarge;
+  flex-shrink: 0;
+}
+
+.geo-search-bar__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 16px; // prevents iOS zoom on focus
+  background: transparent;
+  color: theme.$textColor;
+
+  &::placeholder {
+    color: theme.$textSecondary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.geo-search-bar__close-button {
+  flex-shrink: 0;
+  color: theme.$textSecondary;
+}
+
+.geo-search-bar__results {
+  border-top: 1px solid theme.$grey;
+}
+
+.geo-search-bar__result-item {
+  display: block;
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+}
+
+.geo-search-bar__result-name {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$semiBold;
+}
+
+.geo-search-bar__result-type {
+  font-size: theme.$textSizeXSmall;
+  color: theme.$textSecondary;
+  margin-left: theme.$spacingXSmall;
+}
+
+.geo-search-bar__error {
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+  font-size: theme.$textSizeXSmall;
+  color: theme.$colorError;
+  border-top: 1px solid theme.$grey;
+}

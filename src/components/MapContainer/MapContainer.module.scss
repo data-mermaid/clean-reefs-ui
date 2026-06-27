@@ -38,3 +38,11 @@
     }
   }
 }
+
+.search-slot {
+  position: fixed;
+  top: theme.$panelTop;
+  left: theme.$panelLeftDefault;
+  right: theme.$panelMobileGutter;
+  z-index: theme.$zControl;
+}
