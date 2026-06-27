@@ -21,6 +21,7 @@ type MapState = {
   sedLoadMapSubLayerColors: Record<string, string>
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
+  isGeoSearchOpen: boolean
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -41,6 +42,8 @@ type MapActions = {
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
   jumpToRegion: (region: RegionOption) => void
+  openGeoSearch: () => void
+  closeGeoSearch: () => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -135,6 +138,9 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   sedLoadMapSubLayerColors: sedLoadColorMapping,
   sedLoadMode: null,
   sedLoadYear: 0,
+  isGeoSearchOpen: false,
+  openGeoSearch: () => set({ isGeoSearchOpen: true }),
+  closeGeoSearch: () => set({ isGeoSearchOpen: false }),
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
   setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
   toggleSubLayerFillColor: (toggledProperty) => {

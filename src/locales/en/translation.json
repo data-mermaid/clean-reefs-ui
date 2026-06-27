@@ -60,6 +60,7 @@
   "exposure": "Exposure",
   "geo_lookup": {
     "aria_label": "Search location",
+    "close": "Close",
     "no_results": "No results found.",
     "placeholder": "Address, country, or lat, lon",
     "search_failed": "Search failed."
