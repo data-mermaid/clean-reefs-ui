@@ -25,12 +25,12 @@ class CoordinatesContainer implements IControl {
   }
 }
 
-interface CoordinatesMapControlProps {
+interface CoordinatesDisplayControlProps {
   lat: number | null
   lng: number | null
 }
 
-export default function CoordinatesMapControl({ lat, lng }: CoordinatesMapControlProps) {
+export default function CoordinatesDisplayControl({ lat, lng }: CoordinatesDisplayControlProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
 
   useControl(

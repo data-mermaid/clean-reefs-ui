@@ -34,7 +34,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
-import CoordinatesMapControl from '../CoordinatesDisplay/CoordinatesMapControl'
+import CoordinatesDisplayControl from '../CoordinatesDisplay/CoordinatesDisplayControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -1052,7 +1052,7 @@ export default function BaseMap({
         <NavigationControl position="bottom-right" showCompass={false} />
         <GeoSearchControl />
         <ScaleControl position="bottom-right" />
-        <CoordinatesMapControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
+        <CoordinatesDisplayControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />
