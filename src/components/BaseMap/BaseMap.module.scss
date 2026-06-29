@@ -27,7 +27,7 @@
 
 // Geo-lookup sits between geolocate (order 1) and scale (order 3).
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .geo-lookup-ctrl) {
+:global(.maplibregl-ctrl-bottom-right > .geo-search-ctrl) {
   order: 2;
 }
 
