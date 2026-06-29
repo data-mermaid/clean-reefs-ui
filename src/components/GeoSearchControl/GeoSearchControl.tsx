@@ -67,7 +67,7 @@ export default function GeoSearchControl() {
 
   useEffect(() => {
     if (isGeoSearchOpen && !isPanelMobile) {
-      inputRef.current?.focus()
+      setTimeout(() => inputRef.current?.focus(), 0)
     }
   }, [isGeoSearchOpen, isPanelMobile])
 
