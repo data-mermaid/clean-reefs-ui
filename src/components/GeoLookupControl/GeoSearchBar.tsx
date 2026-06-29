@@ -27,7 +27,9 @@ export default function GeoSearchBar() {
   }, [])
 
   useEffect(() => {
-    inputRef.current?.focus()
+    if (results.length > 0) {
+      inputRef.current?.focus()
+    }
   }, [results])
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

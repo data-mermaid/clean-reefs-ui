@@ -73,7 +73,7 @@ export default function GeoLookupControl() {
   }, [isGeoSearchOpen, isPanelMobile])
 
   useEffect(() => {
-    if (!isPanelMobile) {
+    if (results.length > 0 && !isPanelMobile) {
       inputRef.current?.focus()
     }
   }, [results, isPanelMobile])
