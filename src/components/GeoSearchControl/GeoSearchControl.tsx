@@ -17,7 +17,7 @@ import type { IControl } from 'maplibre-gl'
 import { useMapStore } from '../../stores/mapStore'
 import useResponsive from '../../hooks/useResponsive'
 import { useGeoSearch } from './useGeoSearch'
-import styles from './GeoLookupControl.module.scss'
+import styles from './GeoSearchControl.module.scss'
 
 class ContainerControl implements IControl {
   private container: HTMLDivElement | null = null
@@ -40,7 +40,7 @@ class ContainerControl implements IControl {
   }
 }
 
-export default function GeoLookupControl() {
+export default function GeoSearchControl() {
   const { t } = useTranslation()
   const { isPanelMobile } = useResponsive()
   const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
