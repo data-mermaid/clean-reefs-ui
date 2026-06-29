@@ -53,7 +53,6 @@ export default function GeoSearchControl() {
   const {
     query,
     results,
-    isLoading,
     error,
     activeIndex,
     handleQueryChange,
@@ -164,7 +163,6 @@ export default function GeoSearchControl() {
                 value={query}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                disabled={isLoading}
                 className={styles['geo-lookup__input']}
                 aria-label={t('geo_lookup.aria_label')}
               />

@@ -13,7 +13,6 @@ export default function GeoSearchControlMobile() {
   const {
     query,
     results,
-    isLoading,
     error,
     activeIndex,
     handleQueryChange,
@@ -48,7 +47,6 @@ export default function GeoSearchControlMobile() {
             value={query}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            disabled={isLoading}
             className={styles['geo-search-bar__input']}
             aria-label={t('geo_lookup.aria_label')}
           />
