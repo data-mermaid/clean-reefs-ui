@@ -4,9 +4,9 @@ import { ClickAwayListener, IconButton, List, ListItemButton, Typography } from 
 import MapIcon from '@mui/icons-material/Map'
 import CloseIcon from '@mui/icons-material/Close'
 import { useGeoSearch } from './useGeoSearch'
-import styles from './GeoSearchControlMobile.module.scss'
+import styles from './GeoSearchBar.module.scss'
 
-export default function GeoSearchControlMobile() {
+export default function GeoSearchBar() {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement | null>(null)
 

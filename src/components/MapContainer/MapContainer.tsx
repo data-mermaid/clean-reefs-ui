@@ -24,7 +24,7 @@ import {
   getValidBasemap,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
-import GeoSearchControlMobile from '../GeoSearchControl/GeoSearchControlMobile'
+import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
@@ -481,7 +481,7 @@ export default function MapContainer() {
       </div>
       {isGeoSearchOpen && isPanelMobile && (
         <div className={styles['search-slot']}>
-          <GeoSearchControlMobile />
+          <GeoSearchBar />
         </div>
       )}
       <LayersDrawer
