@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-.geo-lookup__button {
+.geo-search__button {
   width: theme.$mapControlButtonSize;
   height: theme.$mapControlButtonSize;
   border-radius: 0;
@@ -21,15 +21,15 @@
   }
 }
 
-.geo-lookup__icon {
+.geo-search__icon {
   font-size: theme.$textSizeLarge;
 }
 
-.geo-lookup__popper {
+.geo-search__popper {
   z-index: theme.$zControl;
 }
 
-.geo-lookup__panel {
+.geo-search__panel {
   background: theme.$white;
   border: 1px solid #a9a9b3;
   border-radius: 4px;
@@ -38,46 +38,46 @@
   margin-right: theme.$spacingSmall;
 }
 
-.geo-lookup__results {
+.geo-search__results {
   border-bottom: 1px solid theme.$grey;
 }
 
-.geo-lookup__result-item {
+.geo-search__result-item {
   display: block;
   padding: theme.$spacingXSmall theme.$spacingSmall;
 }
 
-.geo-lookup__result-name {
+.geo-search__result-name {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$semiBold;
 }
 
-.geo-lookup__result-type {
+.geo-search__result-type {
   font-size: theme.$textSizeXSmall;
   color: theme.$textSecondary;
   margin-left: theme.$spacingXSmall;
 }
 
-.geo-lookup__error {
+.geo-search__error {
   padding: theme.$spacingXSmall theme.$spacingSmall;
   font-size: theme.$textSizeXSmall;
   color: theme.$colorError;
 }
 
-.geo-lookup__input-row {
+.geo-search__input-row {
   display: flex;
   align-items: center;
   gap: theme.$spacingXSmall;
   padding: theme.$spacingXSmall theme.$spacingXSmall theme.$spacingXSmall theme.$spacingSmall;
 }
 
-.geo-lookup__map-icon {
+.geo-search__map-icon {
   color: theme.$textSecondary;
   font-size: theme.$textSizeLarge;
   flex-shrink: 0;
 }
 
-.geo-lookup__input {
+.geo-search__input {
   flex: 1;
   min-width: 0;
   border: none;
@@ -95,7 +95,7 @@
   }
 }
 
-.geo-lookup__close-button {
+.geo-search__close-button {
   flex-shrink: 0;
   color: theme.$textSecondary;
 }

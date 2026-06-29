@@ -43,17 +43,17 @@ export default function GeoSearchBar() {
           <input
             ref={inputRef}
             type="text"
-            placeholder={t('geo_lookup.placeholder')}
+            placeholder={t('geo_search.placeholder')}
             value={query}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             className={styles['geo-search-bar__input']}
-            aria-label={t('geo_lookup.aria_label')}
+            aria-label={t('geo_search.aria_label')}
           />
           <IconButton
             size="small"
             onClick={handleClose}
-            aria-label={t('geo_lookup.close')}
+            aria-label={t('geo_search.close')}
             className={styles['geo-search-bar__close-button']}
           >
             <CloseIcon fontSize="small" />
@@ -65,7 +65,7 @@ export default function GeoSearchBar() {
             disablePadding
             className={styles['geo-search-bar__results']}
             role="listbox"
-            aria-label={t('geo_lookup.aria_label')}
+            aria-label={t('geo_search.aria_label')}
           >
             {results.map((result, i) => (
               <ListItemButton

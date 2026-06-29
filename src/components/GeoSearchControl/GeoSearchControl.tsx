@@ -107,13 +107,13 @@ export default function GeoSearchControl() {
       {createPortal(
         <IconButton
           ref={buttonRef}
-          aria-label={t('geo_lookup.aria_label')}
+          aria-label={t('geo_search.aria_label')}
           aria-expanded={isGeoSearchOpen}
-          title={t('geo_lookup.aria_label')}
+          title={t('geo_search.aria_label')}
           onClick={handleToggle}
-          className={`${styles['geo-lookup__button']} ${isGeoSearchOpen ? styles['geo-lookup__button--active'] : ''}`}
+          className={`${styles['geo-search__button']} ${isGeoSearchOpen ? styles['geo-search__button--active'] : ''}`}
         >
-          <TravelExploreIcon className={styles['geo-lookup__icon']} />
+          <TravelExploreIcon className={styles['geo-search__icon']} />
         </IconButton>,
         container,
       )}
@@ -121,17 +121,17 @@ export default function GeoSearchControl() {
         open={showPanel}
         anchorEl={buttonRef.current}
         placement="left-end"
-        className={styles['geo-lookup__popper']}
+        className={styles['geo-search__popper']}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
-          <div className={styles['geo-lookup__panel']}>
+          <div className={styles['geo-search__panel']}>
             {results.length > 0 && (
               <List
                 dense
                 disablePadding
-                className={styles['geo-lookup__results']}
+                className={styles['geo-search__results']}
                 role="listbox"
-                aria-label={t('geo_lookup.aria_label')}
+                aria-label={t('geo_search.aria_label')}
               >
                 {results.map((result, i) => (
                   <ListItemButton
@@ -139,38 +139,38 @@ export default function GeoSearchControl() {
                     selected={i === activeIndex}
                     tabIndex={-1}
                     onClick={() => handleSelect(result)}
-                    className={styles['geo-lookup__result-item']}
+                    className={styles['geo-search__result-item']}
                     role="option"
                     aria-selected={i === activeIndex}
                   >
-                    <Typography component="span" className={styles['geo-lookup__result-name']}>
+                    <Typography component="span" className={styles['geo-search__result-name']}>
                       {result.display_name}
                     </Typography>
-                    <Typography component="span" className={styles['geo-lookup__result-type']}>
+                    <Typography component="span" className={styles['geo-search__result-type']}>
                       {result.addresstype.replace(/_/g, ' ')}
                     </Typography>
                   </ListItemButton>
                 ))}
               </List>
             )}
-            {error && <Typography className={styles['geo-lookup__error']}>{error}</Typography>}
-            <div className={styles['geo-lookup__input-row']}>
-              <MapIcon className={styles['geo-lookup__map-icon']} />
+            {error && <Typography className={styles['geo-search__error']}>{error}</Typography>}
+            <div className={styles['geo-search__input-row']}>
+              <MapIcon className={styles['geo-search__map-icon']} />
               <input
                 ref={inputRef}
                 type="text"
-                placeholder={t('geo_lookup.placeholder')}
+                placeholder={t('geo_search.placeholder')}
                 value={query}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                className={styles['geo-lookup__input']}
-                aria-label={t('geo_lookup.aria_label')}
+                className={styles['geo-search__input']}
+                aria-label={t('geo_search.aria_label')}
               />
               <IconButton
                 size="small"
                 onClick={handleClose}
-                aria-label={t('geo_lookup.close')}
-                className={styles['geo-lookup__close-button']}
+                aria-label={t('geo_search.close')}
+                className={styles['geo-search__close-button']}
               >
                 <CloseIcon fontSize="small" />
               </IconButton>

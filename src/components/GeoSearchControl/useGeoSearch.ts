@@ -85,13 +85,13 @@ export function useGeoSearch() {
       setResults(data)
       setActiveIndex(-1)
       if (!data.length) {
-        setError(t('geo_lookup.no_results'))
+        setError(t('geo_search.no_results'))
       }
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
         return
       }
-      setError(t('geo_lookup.search_failed'))
+      setError(t('geo_search.search_failed'))
     } finally {
       if (requestId === requestIdRef.current) {
         setIsLoading(false)
