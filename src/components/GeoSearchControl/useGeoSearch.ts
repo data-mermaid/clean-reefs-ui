@@ -28,20 +28,26 @@ export function useGeoSearch() {
   const [activeIndex, setActiveIndex] = useState(-1)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
 
-    if (query.trim().length < MIN_QUERY_LENGTH) {
+    const trimmed = query.trim()
+    if (trimmed.length < MIN_QUERY_LENGTH || LAT_LON_REGEX.test(trimmed)) {
+      abortRef.current?.abort()
       setResults([])
       setError('')
+      setActiveIndex(-1)
+      setIsLoading(false)
       return () => {}
     }
 
     debounceRef.current = setTimeout(() => {
-      void fetchResults(query.trim())
+      void fetchResults(trimmed)
     }, DEBOUNCE_MS)
 
     return () => {
@@ -54,9 +60,10 @@ export function useGeoSearch() {
   }, [query])
 
   const fetchResults = async (trimmed: string) => {
-    if (trimmed.match(LAT_LON_REGEX)) {
-      return
-    }
+    const requestId = ++requestIdRef.current
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
 
     setIsLoading(true)
     setError('')
@@ -64,6 +71,7 @@ export function useGeoSearch() {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=${MAX_RESULTS}`,
         {
+          signal: controller.signal,
           headers: {
             'Accept-Language': 'en',
             'User-Agent': 'GlobalPollutionWatch/1.0 (https://globalpollutiwatch.org)',
@@ -71,15 +79,23 @@ export function useGeoSearch() {
         },
       )
       const data: NominatimResult[] = await res.json()
+      if (requestId !== requestIdRef.current) {
+        return
+      }
       setResults(data)
       setActiveIndex(-1)
       if (!data.length) {
         setError(t('geo_lookup.no_results'))
       }
-    } catch {
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') {
+        return
+      }
       setError(t('geo_lookup.search_failed'))
     } finally {
-      setIsLoading(false)
+      if (requestId === requestIdRef.current) {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -95,6 +111,7 @@ export function useGeoSearch() {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
+    abortRef.current?.abort()
     closeGeoSearch()
   }
 
