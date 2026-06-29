@@ -14,7 +14,7 @@ class CoordinatesContainer implements IControl {
 
   onAdd(): HTMLDivElement {
     this.container = document.createElement('div')
-    this.container.className = 'maplibregl-ctrl coordinates-display-ctrl'
+    this.container.className = 'maplibregl-ctrl custom-ctrl-coordinates-display'
     this.onContainerReady(this.container)
     return this.container
   }

@@ -25,9 +25,9 @@
   order: 1;
 }
 
-// Geo-lookup sits between geolocate (order 1) and scale (order 3).
+// Geo search sits between geolocate (order 1) and scale (order 3).
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .geo-search-ctrl) {
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-geo-search) {
   order: 2;
 }
 
@@ -37,7 +37,7 @@
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .coordinates-display-ctrl) {
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-coordinates-display) {
   order: 4;
 }
 

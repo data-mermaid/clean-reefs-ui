@@ -29,7 +29,7 @@ class ContainerControl implements IControl {
 
   onAdd() {
     this.container = document.createElement('div')
-    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group geo-search-ctrl'
+    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group custom-ctrl-geo-search'
     this.onContainerReady(this.container)
     return this.container
   }
