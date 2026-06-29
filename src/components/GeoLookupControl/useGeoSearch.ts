@@ -9,6 +9,7 @@ const MAX_RESULTS = 3
 const DEBOUNCE_MS = 300
 
 export interface NominatimResult {
+  osm_id: number
   display_name: string
   lat: string
   lon: string

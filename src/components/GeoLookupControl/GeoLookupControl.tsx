@@ -136,7 +136,7 @@ export default function GeoLookupControl() {
               >
                 {results.map((result, i) => (
                   <ListItemButton
-                    key={`${result.lat}-${result.lon}`}
+                    key={result.osm_id}
                     selected={i === activeIndex}
                     tabIndex={-1}
                     onClick={() => handleSelect(result)}
