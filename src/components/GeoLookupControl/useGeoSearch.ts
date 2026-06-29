@@ -1,5 +1,4 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react'
-import { useMap } from 'react-map-gl/maplibre'
 import { useTranslation } from 'react-i18next'
 import { useMapStore } from '../../stores/mapStore'
 
@@ -18,7 +17,7 @@ export interface NominatimResult {
 
 export function useGeoSearch() {
   const { t } = useTranslation()
-  const { current: map } = useMap()
+  const mapReference = useMapStore((s) => s.mapReference)
   const closeGeoSearch = useMapStore((s) => s.closeGeoSearch)
 
   const [query, setQuery] = useState('')
@@ -84,7 +83,7 @@ export function useGeoSearch() {
   }
 
   const flyToCoords = (lng: number, lat: number) => {
-    map?.flyTo({ center: [lng, lat], zoom: FLY_TO_ZOOM })
+    mapReference?.getMap()?.flyTo({ center: [lng, lat], zoom: FLY_TO_ZOOM })
   }
 
   const handleClose = () => {
