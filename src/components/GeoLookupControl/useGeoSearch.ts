@@ -17,7 +17,7 @@ export interface NominatimResult {
 
 export function useGeoSearch() {
   const { t } = useTranslation()
-  const mapReference = useMapStore((s) => s.mapReference)
+  const mapRef = useMapStore((s) => s.mapReference)
   const closeGeoSearch = useMapStore((s) => s.closeGeoSearch)
 
   const [query, setQuery] = useState('')
@@ -83,7 +83,7 @@ export function useGeoSearch() {
   }
 
   const flyToCoords = (lng: number, lat: number) => {
-    mapReference?.getMap()?.flyTo({ center: [lng, lat], zoom: FLY_TO_ZOOM })
+    mapRef?.getMap()?.flyTo({ center: [lng, lat], zoom: FLY_TO_ZOOM })
   }
 
   const handleClose = () => {
