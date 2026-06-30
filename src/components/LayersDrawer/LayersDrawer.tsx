@@ -58,7 +58,12 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
     <Card className={styles['boundary-legend-card']}>
       {[...layers].sort(sortBoundaryLayers).map((layer) => (
         <div className={styles['boundary-legend-row']} key={layer.sourceId}>
-          <Typography className={styles['boundary-layer-title']}>{t(layer.title)}</Typography>
+          <Typography
+            id={`${layer.layerId}-title`}
+            className={styles['boundary-layer-title']}
+          >
+            {t(layer.title)}
+          </Typography>
           <div className={styles['boundary-toggle-right']}>
             <div
               className={styles['boundary-layer-legend']}
@@ -69,6 +74,7 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
               id={layer.layerId}
               checked={layer.isLayerOn}
               onChange={toggleLayer}
+              aria-labelledby={`${layer.layerId}-title`}
             />
           </div>
         </div>
