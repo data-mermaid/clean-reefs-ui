@@ -24,6 +24,7 @@ import {
   getValidBasemap,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
+import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
@@ -94,6 +95,7 @@ export default function MapContainer() {
   )
 
   const { isPanelMobile } = useResponsive()
+  const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
@@ -482,6 +484,11 @@ export default function MapContainer() {
           disabled={yearsLoading}
         />
       </div>
+      {isGeoSearchOpen && isPanelMobile && (
+        <div className={styles['search-slot']}>
+          <GeoSearchBar />
+        </div>
+      )}
       <LayersDrawer
         mapLayers={urlSyncedMapLayers}
         setMapLayers={setMapLayers}

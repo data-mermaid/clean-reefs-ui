@@ -34,7 +34,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
-import CoordinatesMapControl from '../CoordinatesDisplay/CoordinatesMapControl'
+import CoordinatesDisplayControl from '../CoordinatesDisplay/CoordinatesDisplayControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -70,6 +70,7 @@ import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { transparent } from '../../data/mapData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
+import GeoSearchControl from '../GeoSearchControl/GeoSearchControl'
 
 interface ApplyDispersalStatsParams {
   map: maplibregl.Map
@@ -1049,9 +1050,9 @@ export default function BaseMap({
           trackUserLocation
         />
         <NavigationControl position="bottom-right" showCompass={false} />
-        {/* <GeoLookupControl /> */}
+        <GeoSearchControl />
         <ScaleControl position="bottom-right" />
-        <CoordinatesMapControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
+        <CoordinatesDisplayControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />

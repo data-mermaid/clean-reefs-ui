@@ -25,19 +25,25 @@
   order: 1;
 }
 
+// Geo search sits between geolocate (order 1) and scale (order 3).
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-scale) {
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-geo-search) {
   order: 2;
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .coordinates-display-ctrl) {
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-scale) {
   order: 3;
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-attrib) {
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-coordinates-display) {
   order: 4;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-attrib) {
+  order: 5;
   margin-top: 0 !important;
 }
 

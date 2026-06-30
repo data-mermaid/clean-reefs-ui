@@ -14,7 +14,7 @@ class CoordinatesContainer implements IControl {
 
   onAdd(): HTMLDivElement {
     this.container = document.createElement('div')
-    this.container.className = 'maplibregl-ctrl coordinates-display-ctrl'
+    this.container.className = 'maplibregl-ctrl custom-ctrl-coordinates-display'
     this.onContainerReady(this.container)
     return this.container
   }
@@ -25,12 +25,12 @@ class CoordinatesContainer implements IControl {
   }
 }
 
-interface CoordinatesMapControlProps {
+interface CoordinatesDisplayControlProps {
   lat: number | null
   lng: number | null
 }
 
-export default function CoordinatesMapControl({ lat, lng }: CoordinatesMapControlProps) {
+export default function CoordinatesDisplayControl({ lat, lng }: CoordinatesDisplayControlProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
 
   useControl(

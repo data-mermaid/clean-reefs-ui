@@ -58,8 +58,9 @@
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
   "exposure": "Exposure",
-  "geo_lookup": {
+  "geo_search": {
     "aria_label": "Search location",
+    "close": "Close",
     "no_results": "No results found.",
     "placeholder": "Address, country, or lat, lon",
     "search_failed": "Search failed."
