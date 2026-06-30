@@ -247,12 +247,10 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
         paint={{
           'fill-color': transparent,
           'fill-outline-color': layer.outlineColor,
+          'fill-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -262,10 +260,7 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-          'line-sort-key': 5,
-        }}
+        layout={{ 'line-sort-key': 5 }}
         paint={{
           'line-width': [
             'case',
@@ -304,12 +299,10 @@ function PmTileLayers({ layer, index }) {
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="watershed"
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
         paint={{
           'line-color': layer.outlineColor,
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
     </Source>
@@ -342,7 +335,6 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
           'line-color': [
             'case',
@@ -360,6 +352,7 @@ function SedExposureBoundaryLayers({
             polygonHighlightWidth,
             1,
           ],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -369,7 +362,6 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{ 'fill-color': transparent }}
       />
     </Source>
