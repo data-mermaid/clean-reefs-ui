@@ -1,5 +1,6 @@
 import BarChartIcon from '@mui/icons-material/BarChart'
 import LayersIcon from '@mui/icons-material/Layers'
+import SyncIcon from '@mui/icons-material/Sync'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
@@ -10,9 +11,10 @@ export type ActivePanel = 'graphs' | 'layers' | null
 interface SidebarProps {
   activePanel: ActivePanel
   onTogglePanel: (panel: Exclude<ActivePanel, null>) => void
+  isChartsLoading: boolean
 }
 
-export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
+export default function Sidebar({ activePanel, onTogglePanel, isChartsLoading }: SidebarProps) {
   const { t } = useTranslation()
 
   return (
@@ -28,7 +30,11 @@ export default function Sidebar({ activePanel, onTogglePanel }: SidebarProps) {
           activePanel === 'graphs' && styles['sidebar__button--active'],
         )}
       >
-        <BarChartIcon />
+        {isChartsLoading ? (
+          <SyncIcon className={styles['sidebar__button-icon--spinning']} />
+        ) : (
+          <BarChartIcon />
+        )}
       </StyledIconButtonWithTooltip>
       <StyledIconButtonWithTooltip
         aria-label={t('layers')}

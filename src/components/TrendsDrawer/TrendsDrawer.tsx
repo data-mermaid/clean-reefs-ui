@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Typography } from '@mui/material'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
 import styles from './TrendsDrawer.module.scss'
 import ChartCard from '../ChartCard/ChartCard'
+import ChartCardSkeleton from '../ChartCard/ChartCardSkeleton'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
 import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
@@ -26,18 +27,21 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
+  isChartsLoading: boolean
+  onChartsLoadingChange: (isLoading: boolean) => void
 }
 
 export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
+  isChartsLoading,
+  onChartsLoadingChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
   const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
     tempGlobalChartSeriesData,
   )
-  const [isChartDataLoading, setIsChartDataLoading] = useState(false)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   const selectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -46,26 +50,44 @@ export default function TrendsDrawer({
 
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
+  // Enforces a minimum 500ms skeleton display so the user sees the transition.
+  const skeletonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
-    setIsChartDataLoading(true)
+    return () => {
+      if (skeletonTimerRef.current) {
+        clearTimeout(skeletonTimerRef.current)
+      }
+    }
+  }, [])
+
+  const stopLoading = useCallback(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    skeletonTimerRef.current = setTimeout(() => onChartsLoadingChange(false), 500)
+  }, [onChartsLoadingChange])
+
+  useEffect(() => {
+    onChartsLoadingChange(true)
     const { regionType } = selectedRegion
 
     if (selectedDispersalWatershedStats) {
       updateDispersalChartData(selectedDispersalWatershedStats, setChartConfigData)
-      setIsChartDataLoading(false)
+      stopLoading()
       return
     }
 
     if (regionType === 'global') {
       setChartConfigData(tempGlobalChartSeriesData)
-      setIsChartDataLoading(false)
+      stopLoading()
       return
     }
 
     // Watershed: selectedFeature from map click takes priority
     if (selectedFeature) {
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
-      setIsChartDataLoading(false)
+      stopLoading()
       return
     }
 
@@ -74,7 +96,7 @@ export default function TrendsDrawer({
       const { bandId } = selectedRegion
       if (bandId == null) {
         setChartConfigData(null)
-        setIsChartDataLoading(false)
+        stopLoading()
         return
       }
 
@@ -84,16 +106,21 @@ export default function TrendsDrawer({
         if (requestId !== requestIdRef.current) {
           return
         }
-        const data = properties ? buildChartDataFromProperties(properties) : null
-        setChartConfigData(data)
-        setIsChartDataLoading(false)
+        setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
+        stopLoading()
       })
       return
     }
 
     setChartConfigData(null)
-    setIsChartDataLoading(false)
-  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats])
+    stopLoading()
+  }, [
+    selectedFeature,
+    selectedRegion,
+    selectedDispersalWatershedStats,
+    stopLoading,
+    onChartsLoadingChange,
+  ])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
@@ -121,7 +148,14 @@ export default function TrendsDrawer({
         </div>
 
         <div className={styles['charts-container']}>
-          {filteredChartData?.length ? (
+          {isChartsLoading ? (
+            // filteredChartData already reflects incoming data here because React 18 batches
+            // onChartsLoadingChange(true) and setChartConfigData() from the same effect into
+            // one render. This avoids a skeleton count jump when rapidly switching selections.
+            Array.from({ length: filteredChartData?.length ?? allowedCharts.length }, (_, i) => (
+              <ChartCardSkeleton key={i} />
+            ))
+          ) : filteredChartData?.length ? (
             filteredChartData.map((chart) => (
               <SelectedFeatureContext.Provider
                 key={chart.chartName}
@@ -136,7 +170,7 @@ export default function TrendsDrawer({
                   )}
                   selectedYear={selectedYear}
                   chartConfigData={chart}
-                  isChartDataLoading={isChartDataLoading}
+                  isChartDataLoading={isChartsLoading}
                   isVisible={open}
                 />
               </SelectedFeatureContext.Provider>
