@@ -36,6 +36,10 @@ interface LayersDrawerProps {
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
   onBasemapChange: (basemap: Basemap) => void
+  showCoastlines: boolean
+  onCoastlinesChange: (show: boolean) => void
+  showRivers: boolean
+  onRiversChange: (show: boolean) => void
   sedExposureMinValue?: number
   sedExposureMaxValue?: number
   sedExposureLoading?: boolean
@@ -47,12 +51,12 @@ interface LayersDrawerProps {
 interface BoundaryToggleCardProps {
   layers: LayerInfo[]
   toggleLayer: (event: ChangeEvent<HTMLInputElement>) => void
+  showCoastlines: boolean
+  onCoastlinesChange: (show: boolean) => void
 }
 
-function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
+function BoundaryToggleCard({ layers, toggleLayer, showCoastlines, onCoastlinesChange }: BoundaryToggleCardProps) {
   const { t } = useTranslation()
-  const showCoastlines = useMapStore((s) => s.showCoastlines)
-  const setShowCoastlines = useMapStore((s) => s.setShowCoastlines)
 
   return (
     <Card className={styles['boundary-legend-card']}>
@@ -91,7 +95,7 @@ function BoundaryToggleCard({ layers, toggleLayer }: BoundaryToggleCardProps) {
           <Switch
             className={styles['MuiSwitch-root']}
             checked={showCoastlines}
-            onChange={(e) => setShowCoastlines(e.target.checked)}
+            onChange={(e) => onCoastlinesChange(e.target.checked)}
             aria-labelledby="coastlinesTitle"
           />
         </div>
@@ -113,6 +117,10 @@ export default function LayersDrawer({
   showLabels,
   onLabelsChange,
   onBasemapChange,
+  showCoastlines,
+  onCoastlinesChange,
+  showRivers,
+  onRiversChange,
   sedExposureMinValue,
   sedExposureMaxValue,
   sedExposureLoading,
@@ -138,11 +146,10 @@ export default function LayersDrawer({
     (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
-      setMapLayers((prevMapLayers) =>
-        mapToggleChange(prevMapLayers, toggledLayerId, isChecked, selectedYear),
-      )
+      // Boundary layers are now URL-controlled; isLayerOn is derived from URL via urlSyncedMapLayers
+      onLayerToggleChange(toggledLayerId, isChecked)
     },
-    [setMapLayers, selectedYear],
+    [onLayerToggleChange],
   )
 
   const toggleLayer = useCallback(
@@ -198,6 +205,8 @@ export default function LayersDrawer({
                 key="boundary-toggle"
                 layers={boundaryLayers}
                 toggleLayer={toggleBoundaryLayer}
+                showCoastlines={showCoastlines}
+                onCoastlinesChange={onCoastlinesChange}
               />,
             ]
           : []
@@ -211,6 +220,8 @@ export default function LayersDrawer({
             selectedBasemap={selectedBasemap}
             onLabelsChange={onLabelsChange}
             onBasemapChange={onBasemapChange}
+            showRivers={showRivers}
+            onRiversChange={onRiversChange}
           />,
         ]
       }
@@ -256,6 +267,10 @@ export default function LayersDrawer({
       onLabelsChange,
       selectedBasemap,
       onBasemapChange,
+      showCoastlines,
+      onCoastlinesChange,
+      showRivers,
+      onRiversChange,
       sedExposureMinValue,
       sedExposureMaxValue,
       sedExposureLoading,

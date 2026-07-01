@@ -22,6 +22,8 @@ import {
   getValidDispersalPoint,
   getValidLabels,
   getValidBasemap,
+  getValidCoastlines,
+  getValidRivers,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
 import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
@@ -77,6 +79,16 @@ export default function MapContainer() {
   const selectedBasemap = getValidBasemap(basemapParam)
   const shouldSyncBasemapParam = basemapParam !== selectedBasemap
 
+  const coastlinesParam = searchParams.get('coastlines')
+  const showCoastlines = getValidCoastlines(coastlinesParam)
+  const normalizedCoastlinesParam = showCoastlines ? 'true' : 'false'
+  const shouldSyncCoastlinesParam = coastlinesParam !== normalizedCoastlinesParam
+
+  const riversParam = searchParams.get('rivers')
+  const showRivers = getValidRivers(riversParam)
+  const normalizedRiversParam = showRivers ? 'true' : 'false'
+  const shouldSyncRiversParam = riversParam !== normalizedRiversParam
+
   const watershedParam = searchParams.get('watershed')
   const dispersalPointParam = searchParams.get('dispersal-point')
   const dispersalPoint = useMemo(
@@ -96,6 +108,9 @@ export default function MapContainer() {
 
   const { isPanelMobile } = useResponsive()
   const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
+  const setShowCoastlines = useMapStore((s) => s.setShowCoastlines)
+  const setShowRivers = useMapStore((s) => s.setShowRivers)
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
@@ -103,6 +118,10 @@ export default function MapContainer() {
     isPanelMobile ? null : 'graphs',
   )
   const [isChartsLoading, setIsChartsLoading] = useState(false)
+
+  // Keep mapStore in sync with URL-derived values so BaseMap renders correctly
+  useEffect(() => { setShowCoastlines(showCoastlines) }, [showCoastlines, setShowCoastlines])
+  useEffect(() => { setShowRivers(showRivers) }, [showRivers, setShowRivers])
 
   const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
     setActivePanel((prev) => (prev === panel ? null : panel))
@@ -207,7 +226,9 @@ export default function MapContainer() {
       !shouldSyncRegionParam &&
       !shouldSyncLayersParam &&
       !shouldSyncLabelsParam &&
-      !shouldSyncBasemapParam
+      !shouldSyncBasemapParam &&
+      !shouldSyncCoastlinesParam &&
+      !shouldSyncRiversParam
     ) {
       return
     }
@@ -220,6 +241,8 @@ export default function MapContainer() {
         nextSearchParams.set('layers', normalizedLayersParam)
         nextSearchParams.set('labels', normalizedLabelsParam)
         nextSearchParams.set('basemap', selectedBasemap)
+        nextSearchParams.set('coastlines', normalizedCoastlinesParam)
+        nextSearchParams.set('rivers', normalizedRiversParam)
         return nextSearchParams
       },
       { replace: true },
@@ -231,11 +254,15 @@ export default function MapContainer() {
     normalizedLayersParam,
     normalizedLabelsParam,
     selectedBasemap,
+    normalizedCoastlinesParam,
+    normalizedRiversParam,
     shouldSyncYearParam,
     shouldSyncRegionParam,
     shouldSyncLayersParam,
     shouldSyncLabelsParam,
     shouldSyncBasemapParam,
+    shouldSyncCoastlinesParam,
+    shouldSyncRiversParam,
   ])
 
   // regionOptions in deps so the breadcrumb is rebuilt once real data loads and replaces the fallback.
@@ -444,6 +471,28 @@ export default function MapContainer() {
     [updateSearchParams],
   )
 
+  const handleCoastlinesChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('coastlines', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
+  const handleRiversChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('rivers', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
   const handleBasemapChange = useCallback(
     (basemap: Basemap) => {
       useMapStore.getState().prepareBasemapChange(showLabels)
@@ -502,6 +551,10 @@ export default function MapContainer() {
         showLabels={showLabels}
         onLabelsChange={handleLabelsChange}
         onBasemapChange={handleBasemapChange}
+        showCoastlines={showCoastlines}
+        onCoastlinesChange={handleCoastlinesChange}
+        showRivers={showRivers}
+        onRiversChange={handleRiversChange}
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
