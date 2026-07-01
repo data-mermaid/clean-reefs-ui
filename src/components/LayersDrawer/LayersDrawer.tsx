@@ -2,7 +2,6 @@ import {
   CSSProperties,
   ChangeEvent,
   Dispatch,
-  ReactNode,
   SetStateAction,
   useCallback,
   useMemo,
@@ -191,42 +190,42 @@ export default function LayersDrawer({
     [setBenthicMapSubLayerColors, onLayerToggleChange],
   )
 
-  const renderLayerGroup = useCallback(
-    (parentGroup: string): ReactNode[] => {
-      if (parentGroup === 'boundaries') {
-        const boundaryLayers = mapLayers.filter(
-          (layer) =>
-            layer.parentLayerType === 'boundaries' &&
-            (!layer.year || layer.year === selectedYear),
-        )
-        return boundaryLayers.length > 0
-          ? [
-              <BoundaryToggleCard
-                key="boundary-toggle"
-                layers={boundaryLayers}
-                toggleLayer={toggleBoundaryLayer}
-                showCoastlines={showCoastlines}
-                onCoastlinesChange={onCoastlinesChange}
-              />,
-            ]
-          : []
-      }
-
-      if (parentGroup === 'base') {
-        return [
-          <BasemapSwitcher
-            key="basemap-switcher"
-            showLabels={showLabels}
-            selectedBasemap={selectedBasemap}
-            onLabelsChange={onLabelsChange}
-            onBasemapChange={onBasemapChange}
-            showRivers={showRivers}
-            onRiversChange={onRiversChange}
+  const renderBoundaryGroup = useCallback(() => {
+    const boundaryLayers = mapLayers.filter(
+      (layer) =>
+        layer.parentLayerType === 'boundaries' && (!layer.year || layer.year === selectedYear),
+    )
+    return boundaryLayers.length > 0
+      ? [
+          <BoundaryToggleCard
+            key="boundary-toggle"
+            layers={boundaryLayers}
+            toggleLayer={toggleBoundaryLayer}
+            showCoastlines={showCoastlines}
+            onCoastlinesChange={onCoastlinesChange}
           />,
         ]
-      }
+      : []
+  }, [mapLayers, selectedYear, toggleBoundaryLayer, showCoastlines, onCoastlinesChange])
 
-      return mapLayers
+  const renderBaseGroup = useCallback(
+    () => [
+      <BasemapSwitcher
+        key="basemap-switcher"
+        showLabels={showLabels}
+        selectedBasemap={selectedBasemap}
+        onLabelsChange={onLabelsChange}
+        onBasemapChange={onBasemapChange}
+        showRivers={showRivers}
+        onRiversChange={onRiversChange}
+      />,
+    ],
+    [showLabels, selectedBasemap, onLabelsChange, onBasemapChange, showRivers, onRiversChange],
+  )
+
+  const renderDataLayerGroup = useCallback(
+    (parentGroup: string) =>
+      mapLayers
         .filter(
           (layer) =>
             layer.parentLayerType === parentGroup &&
@@ -251,26 +250,16 @@ export default function LayersDrawer({
             sedLoadMaxValue={sedLoadMaxValue}
             sedLoadLoading={sedLoadLoading}
           />
-        ))
-    },
+        )),
     [
       mapLayers,
       selectedYear,
-      toggleBoundaryLayer,
       toggleLayer,
       toggleSubLayer,
       toggleAllSubLayers,
       mapSubLayers,
       subSedLayerValue,
       onSedSubLayerChange,
-      showLabels,
-      onLabelsChange,
-      selectedBasemap,
-      onBasemapChange,
-      showCoastlines,
-      onCoastlinesChange,
-      showRivers,
-      onRiversChange,
       sedExposureMinValue,
       sedExposureMaxValue,
       sedExposureLoading,
@@ -278,6 +267,15 @@ export default function LayersDrawer({
       sedLoadMaxValue,
       sedLoadLoading,
     ],
+  )
+
+  const getLayerNodes = useCallback(
+    (key: string) => {
+      if (key === 'boundaries') { return renderBoundaryGroup() }
+      if (key === 'base') { return renderBaseGroup() }
+      return renderDataLayerGroup(key)
+    },
+    [renderBoundaryGroup, renderBaseGroup, renderDataLayerGroup],
   )
 
   return (
@@ -288,7 +286,8 @@ export default function LayersDrawer({
     >
       <div className={styles['layers-panel__content']}>
         {Object.entries(parentLayerTitles).map(([key, value]) => {
-          const layerNodes = renderLayerGroup(key)
+          const layerNodes = getLayerNodes(key)
+
           if (layerNodes.length === 0) {
             return null
           }
