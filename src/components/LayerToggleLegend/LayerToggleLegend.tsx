@@ -17,16 +17,16 @@ export default function LayerToggleLegend({
 }: LayerToggleLegendProps) {
   const { t } = useTranslation()
   const legendTextPrefix = 'benthic_map_layers'
-  const masterChecked = mapSubLayers.some((l) => l.isLayerOn)
+  const anySubLayerOn = mapSubLayers.some((l) => l.isLayerOn)
 
   return (
     <div className={styles['LayerToggleLegend']}>
       <div className={styles['LayerToggleLegend__row']}>
-        <Typography>{t(`${legendTextPrefix}.all`)}</Typography>
+        <Typography className={styles['LayerToggleLegend__all-label']}>{t(`${legendTextPrefix}.all`)}</Typography>
         <div className={styles['LayerToggleLegend__item-row']}>
           <Switch
             className={styles['MuiSwitch-root']}
-            checked={masterChecked}
+            checked={anySubLayerOn}
             onChange={(e) => toggleAllSubLayers(e.target.checked)}
             aria-label={t(`${legendTextPrefix}.all`)}
           />
