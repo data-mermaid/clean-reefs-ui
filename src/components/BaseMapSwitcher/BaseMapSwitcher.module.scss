@@ -31,7 +31,7 @@
 }
 
 .rivers-legend {
-  width: 20px;
-  height: 15px;
+  width: theme.$legendSwatchWidth;
+  height: theme.$legendSwatchHeight;
   background-color: theme.$riversColor;
 }
