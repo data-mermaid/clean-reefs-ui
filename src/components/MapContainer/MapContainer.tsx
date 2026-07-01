@@ -73,7 +73,7 @@ export default function MapContainer() {
   const labelsParam = searchParams.get('labels')
   const showLabels = getValidLabels(labelsParam)
   const normalizedLabelsParam = showLabels ? 'true' : 'false'
-  const shouldSyncLabelsParam = labelsParam !== null && labelsParam !== normalizedLabelsParam
+  const shouldSyncLabelsParam = labelsParam !== normalizedLabelsParam
 
   const basemapParam = searchParams.get('basemap')
   const selectedBasemap = getValidBasemap(basemapParam)
@@ -108,8 +108,6 @@ export default function MapContainer() {
 
   const { isPanelMobile } = useResponsive()
   const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
-  const setShowCoastlines = useMapStore((s) => s.setShowCoastlines)
-  const setShowRivers = useMapStore((s) => s.setShowRivers)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
   const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
@@ -118,10 +116,6 @@ export default function MapContainer() {
     isPanelMobile ? null : 'graphs',
   )
   const [isChartsLoading, setIsChartsLoading] = useState(false)
-
-  // Keep mapStore in sync with URL-derived values so BaseMap renders correctly
-  useEffect(() => { setShowCoastlines(showCoastlines) }, [showCoastlines, setShowCoastlines])
-  useEffect(() => { setShowRivers(showRivers) }, [showRivers, setShowRivers])
 
   const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
     setActivePanel((prev) => (prev === panel ? null : panel))
@@ -585,6 +579,8 @@ export default function MapContainer() {
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
         showLabels={showLabels}
+        showCoastlines={showCoastlines}
+        showRivers={showRivers}
         initialViewState={
           hasExplicitViewState
             ? { longitude: lng!, latitude: lat!, zoom: zoom! }

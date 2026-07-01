@@ -110,6 +110,8 @@ interface BaseMapProps {
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   showLabels: boolean
+  showCoastlines: boolean
+  showRivers: boolean
   initialViewState:
     | { longitude: number; latitude: number; zoom: number }
     | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
@@ -384,6 +386,8 @@ export default function BaseMap({
   hasExplicitViewState,
   setBreadcrumb,
   showLabels,
+  showCoastlines,
+  showRivers,
   initialViewState,
   onMapMoveEnd,
   isAnyPanelOpen,
@@ -397,8 +401,6 @@ export default function BaseMap({
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
-  const showCoastlines = useMapStore((s) => s.showCoastlines)
-  const showRivers = useMapStore((s) => s.showRivers)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)

@@ -22,8 +22,6 @@ type MapState = {
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
   isGeoSearchOpen: boolean
-  showCoastlines: boolean
-  showRivers: boolean
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -46,8 +44,6 @@ type MapActions = {
   jumpToRegion: (region: RegionOption) => void
   openGeoSearch: () => void
   closeGeoSearch: () => void
-  setShowCoastlines: (show: boolean) => void
-  setShowRivers: (show: boolean) => void
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -145,10 +141,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   isGeoSearchOpen: false,
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
-  showCoastlines: true,
-  showRivers: true,
-  setShowCoastlines: (show) => set({ showCoastlines: show }),
-  setShowRivers: (show) => set({ showRivers: show }),
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
   setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
   toggleSubLayerFillColor: (toggledProperty) => {

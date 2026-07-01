@@ -27,6 +27,8 @@ export const Primary: Story = {
     selectedYear: 2000,
     hasExplicitViewState: false,
     showLabels: true,
+    showCoastlines: true,
+    showRivers: true,
     setBreadcrumb: () => {},
     initialViewState: {
       bounds: defaultGlobalRegionOption.extent!,
@@ -66,6 +68,8 @@ export const Loading: Story = {
     selectedYear: 2000,
     hasExplicitViewState: false,
     showLabels: true,
+    showCoastlines: true,
+    showRivers: true,
     setBreadcrumb: () => {},
     initialViewState: {
       bounds: defaultGlobalRegionOption.extent!,
