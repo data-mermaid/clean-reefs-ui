@@ -10,6 +10,7 @@
   },
   "benthic_layers": "Benthic layers",
   "benthic_map_layers": {
+    "all": "All benthic layers",
     "coral_algae": "Coral/Algae",
     "microalgal_mats": "Microalgal mats",
     "reef_extent": "Reef extent",

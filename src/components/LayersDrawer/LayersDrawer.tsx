@@ -12,7 +12,7 @@ import { Card, Switch, Typography } from '@mui/material'
 import clsx from 'clsx'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import styles from './LayersDrawer.module.scss'
-import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
+import { atlasBenthicColors, benthicSubLayers, parentLayerTitles, urlControlledLayerIds, transparent } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
@@ -132,6 +132,7 @@ export default function LayersDrawer({
   )
 
   const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
+  const setBenthicMapSubLayerColors = useMapStore((state) => state.setBenthicMapSubLayerColors)
 
   const toggleBoundaryLayer = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +171,17 @@ export default function LayersDrawer({
       onLayerToggleChange(toggledLayerId, isChecked)
     },
     [toggleSubLayerFillColor, onLayerToggleChange],
+  )
+
+  const toggleAllSubLayers = useCallback(
+    (checked: boolean) => {
+      const newColors = Object.fromEntries(
+        benthicSubLayers.map((l) => [l.layerId, checked ? atlasBenthicColors[l.layerId] : transparent]),
+      )
+      setBenthicMapSubLayerColors(newColors)
+      benthicSubLayers.forEach((l) => onLayerToggleChange(l.layerId, checked))
+    },
+    [setBenthicMapSubLayerColors, onLayerToggleChange],
   )
 
   const renderLayerGroup = useCallback(
@@ -216,6 +228,7 @@ export default function LayersDrawer({
             layer={layer}
             toggleLayer={toggleLayer}
             toggleSubLayer={toggleSubLayer}
+            toggleAllSubLayers={toggleAllSubLayers}
             mapSubLayers={mapSubLayers}
             selectedYear={selectedYear}
             subSedLayerValue={subSedLayerValue}
@@ -235,6 +248,7 @@ export default function LayersDrawer({
       toggleBoundaryLayer,
       toggleLayer,
       toggleSubLayer,
+      toggleAllSubLayers,
       mapSubLayers,
       subSedLayerValue,
       onSedSubLayerChange,
