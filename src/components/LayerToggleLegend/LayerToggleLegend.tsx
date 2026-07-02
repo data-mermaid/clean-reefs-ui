@@ -7,17 +7,32 @@ import { atlasBenthicColors } from '../../data/mapData'
 interface LayerToggleLegendProps {
   mapSubLayers: SubLayerInfo[]
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleAllSubLayers: (checked: boolean) => void
 }
 
 export default function LayerToggleLegend({
   mapSubLayers,
   toggleSubLayer,
+  toggleAllSubLayers,
 }: LayerToggleLegendProps) {
   const { t } = useTranslation()
   const legendTextPrefix = 'benthic_map_layers'
-  const getItems = () => {
-    return mapSubLayers.map(({ layerId, isLayerOn }) => {
-      return (
+  const anySubLayerOn = mapSubLayers.some((l) => l.isLayerOn)
+
+  return (
+    <div className={styles['LayerToggleLegend']}>
+      <div className={styles['LayerToggleLegend__row']}>
+        <Typography className={styles['LayerToggleLegend__all-label']}>{t(`${legendTextPrefix}.all`)}</Typography>
+        <div className={styles['LayerToggleLegend__item-row']}>
+          <Switch
+            className={styles['MuiSwitch-root']}
+            checked={anySubLayerOn}
+            onChange={(e) => toggleAllSubLayers(e.target.checked)}
+            aria-label={t(`${legendTextPrefix}.all`)}
+          />
+        </div>
+      </div>
+      {mapSubLayers.map(({ layerId, isLayerOn }) => (
         <div className={styles['LayerToggleLegend__row']} key={layerId}>
           <Typography>{t(`${legendTextPrefix}.${layerId}`)}</Typography>
           <div className={styles['LayerToggleLegend__item-row']}>
@@ -33,8 +48,7 @@ export default function LayerToggleLegend({
             />
           </div>
         </div>
-      )
-    })
-  }
-  return <div className={styles['LayerToggleLegend']}>{getItems()}</div>
+      ))}
+    </div>
+  )
 }

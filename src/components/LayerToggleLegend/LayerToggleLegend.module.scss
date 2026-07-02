@@ -5,8 +5,8 @@
 }
 .LayerToggleLegend__item {
   display: inline-block;
-  width: 15px;
-  height: 15px;
+  width: theme.$legendSwatchHeight;
+  height: theme.$legendSwatchHeight;
   border: 1px solid black;
 }
 .LayerToggleLegend__item-row {
@@ -18,4 +18,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.LayerToggleLegend__all-label {
+  font-weight: 600;
 }

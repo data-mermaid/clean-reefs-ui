@@ -22,6 +22,10 @@ export const Primary: Story = {
     showLabels: true,
     onLabelsChange: () => {},
     onBasemapChange: () => {},
+    showCoastlines: true,
+    onCoastlinesChange: () => {},
+    showRivers: true,
+    onRiversChange: () => {},
     open: true,
   },
 }

@@ -105,6 +105,14 @@ export function getValidLabels(labelsFromSearchParam: string | null): boolean {
   return labelsFromSearchParam !== 'false'
 }
 
+export function getValidCoastlines(param: string | null): boolean {
+  return param !== 'false'
+}
+
+export function getValidRivers(param: string | null): boolean {
+  return param !== 'false'
+}
+
 export function getValidBasemap(basemapFromSearchParam: string | null): Basemap {
   if (basemapFromSearchParam && VALID_BASEMAPS.includes(basemapFromSearchParam as never)) {
     return basemapFromSearchParam as Basemap

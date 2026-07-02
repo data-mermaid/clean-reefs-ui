@@ -393,6 +393,10 @@ export const urlControlledLayerIds = [
   'sed_load',
   'lulc',
   'sed_exposure',
+  'watershed',
+  'sed_exposure_boundary',
+  'regions',
+  'countries',
   ...benthicSubLayers.map((l) => l.layerId),
 ]
 export const defaultLayersToShow = urlControlledLayerIds.filter(

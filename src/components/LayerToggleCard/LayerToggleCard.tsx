@@ -19,6 +19,7 @@ interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleAllSubLayers: (checked: boolean) => void
   mapSubLayers?: SubLayerInfo[]
   selectedYear: number
   subSedLayerValue: 'pixel' | 'watershed'
@@ -34,6 +35,7 @@ interface LayerToggleCardProps {
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  toggleAllSubLayers: (checked: boolean) => void,
   subSedLayerValue: 'pixel' | 'watershed',
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void,
   mapSubLayers?: SubLayerInfo[],
@@ -78,7 +80,11 @@ const getLayerToggleDetails = (
       break
     case 'benthic':
       toggleCardDetails = layer.isLayerOn && mapSubLayers && (
-        <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
+        <LayerToggleLegend
+          mapSubLayers={mapSubLayers}
+          toggleSubLayer={toggleSubLayer}
+          toggleAllSubLayers={toggleAllSubLayers}
+        />
       )
       break
     default:
@@ -136,6 +142,7 @@ export default function LayerToggleCard({
   layer,
   toggleLayer,
   toggleSubLayer,
+  toggleAllSubLayers,
   selectedYear,
   mapSubLayers,
   subSedLayerValue,
@@ -170,6 +177,7 @@ export default function LayerToggleCard({
       {getLayerToggleDetails(
         layer,
         toggleSubLayer,
+        toggleAllSubLayers,
         subSedLayerValue,
         onSedSubLayerChange,
         mapSubLayers,

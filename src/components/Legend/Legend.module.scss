@@ -9,8 +9,8 @@
 .Legend__item {
   display: block;
   background-color: theme.$grey;
-  width: 15px;
-  height: 15px;
+  width: theme.$legendSwatchHeight;
+  height: theme.$legendSwatchHeight;
   border: 1px solid black;
 }
 

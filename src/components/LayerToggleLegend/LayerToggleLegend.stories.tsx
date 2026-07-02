@@ -12,6 +12,7 @@ export const Primary: Story = {
   args: {
     mapSubLayers: benthicSubLayers,
     toggleSubLayer: () => {},
+    toggleAllSubLayers: () => {},
   },
 }
 export default meta

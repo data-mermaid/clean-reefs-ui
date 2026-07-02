@@ -11,8 +11,8 @@ import {
 jest.mock('../data/mapData', () => ({
   FALLBACK_AVAILABLE_YEARS: [2020, 2015, 2010, 2005, 2000],
   FALLBACK_LATEST_YEAR: 2020,
-  defaultLayersToShow: ['sed_load', 'sed_exposure'],
-  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_exposure'],
+  defaultLayersToShow: ['sed_load', 'sed_exposure', 'watershed', 'sed_exposure_boundary', 'regions', 'countries'],
+  urlControlledLayerIds: ['none', 'sed_load', 'lulc', 'sed_exposure', 'watershed', 'sed_exposure_boundary', 'regions', 'countries'],
 }))
 
 jest.mock('../data/regionData', () => ({
@@ -105,7 +105,7 @@ describe('route parameter utilities', () => {
 
   describe('getValidLayers', () => {
     it('returns defaultLayersToShow for null input', () => {
-      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_exposure'])
+      expect(getValidLayers(null)).toEqual(['sed_load', 'sed_exposure', 'watershed', 'sed_exposure_boundary', 'regions', 'countries'])
     })
 
     it('returns empty array for "none"', () => {
@@ -120,16 +120,16 @@ describe('route parameter utilities', () => {
       expect(getValidLayers('sed_load,unknown_layer')).toEqual(['sed_load'])
     })
 
-    it('filters out old non-url-controlled layer ids (e.g. sed_exposure_boundary)', () => {
-      expect(getValidLayers('sed_exposure_boundary,sed_exposure')).toEqual(['sed_exposure'])
+    it('keeps boundary layer ids that are now url-controlled', () => {
+      expect(getValidLayers('sed_exposure_boundary,sed_exposure')).toEqual(['sed_exposure_boundary', 'sed_exposure'])
     })
 
     it('returns defaultLayersToShow for empty string', () => {
-      expect(getValidLayers('')).toEqual(['sed_load', 'sed_exposure'])
+      expect(getValidLayers('')).toEqual(['sed_load', 'sed_exposure', 'watershed', 'sed_exposure_boundary', 'regions', 'countries'])
     })
 
     it('returns defaultLayersToShow if all layer ids are unknown', () => {
-      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_exposure'])
+      expect(getValidLayers('foo,bar')).toEqual(['sed_load', 'sed_exposure', 'watershed', 'sed_exposure_boundary', 'regions', 'countries'])
     })
   })
 

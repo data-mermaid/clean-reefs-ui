@@ -110,6 +110,8 @@ interface BaseMapProps {
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   showLabels: boolean
+  showCoastlines: boolean
+  showRivers: boolean
   initialViewState:
     | { longitude: number; latitude: number; zoom: number }
     | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
@@ -247,12 +249,10 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
         paint={{
           'fill-color': transparent,
           'fill-outline-color': layer.outlineColor,
+          'fill-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -262,10 +262,7 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-          'line-sort-key': 5,
-        }}
+        layout={{ 'line-sort-key': 5 }}
         paint={{
           'line-width': [
             'case',
@@ -304,12 +301,10 @@ function PmTileLayers({ layer, index }) {
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="watershed"
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
         paint={{
           'line-color': layer.outlineColor,
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
     </Source>
@@ -342,7 +337,6 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{
           'line-color': [
             'case',
@@ -360,6 +354,7 @@ function SedExposureBoundaryLayers({
             polygonHighlightWidth,
             1,
           ],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -369,7 +364,6 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
         paint={{ 'fill-color': transparent }}
       />
     </Source>
@@ -392,6 +386,8 @@ export default function BaseMap({
   hasExplicitViewState,
   setBreadcrumb,
   showLabels,
+  showCoastlines,
+  showRivers,
   initialViewState,
   onMapMoveEnd,
   isAnyPanelOpen,
@@ -1073,6 +1069,7 @@ export default function BaseMap({
             source-layer="water"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'ocean']}
+            layout={{ visibility: showCoastlines ? 'visible' : 'none' }}
             paint={{
               'line-color': '#000',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 5, 1, 10, 1.75, 15, 2.5],
@@ -1087,6 +1084,7 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
               'line-color': 'white',
               'line-width': 3,
@@ -1101,8 +1099,9 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
-              'line-color': 'darkblue',
+              'line-color': '#00008b',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 6, 2, 11, 2.5, 16, 3],
             }}
           />

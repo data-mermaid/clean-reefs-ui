@@ -59,8 +59,13 @@
   flex-grow: 1;
 }
 
+.boundary-toggle-right {
+  display: flex;
+  align-items: center;
+}
+
 .boundary-layer-legend {
-  width: 20px;
-  height: 15px;
+  width: theme.$legendSwatchWidth;
+  height: theme.$legendSwatchHeight;
   border: 3px solid var(--outline-color, transparent);
 }
