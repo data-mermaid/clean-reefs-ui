@@ -313,8 +313,8 @@ export default function LayersDrawer({
 
           return (
             <div key={key}>
-              <div style={{ display: 'flex', alignItems: 'center', padding: '8px', gap: '2px' }}>
-                <h2 style={{ margin: 0 }}>{t(value)}</h2>
+              <div className={styles['layer-group-header']}>
+                <h2 className={styles['layer-group-title']}>{t(value)}</h2>
                 {key === 'boundaries' && (
                   <IconButton
                     size="small"

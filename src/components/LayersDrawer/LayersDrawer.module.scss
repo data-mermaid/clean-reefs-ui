@@ -65,6 +65,17 @@
   margin-right: theme.$defaultSpacing;
 }
 
+.layer-group-header {
+  display: flex;
+  align-items: center;
+  padding: theme.$defaultSpacing;
+  gap: theme.$spacingXXSmall;
+}
+
+.layer-group-title {
+  margin: 0;
+}
+
 .boundary-toggle-right {
   display: flex;
   align-items: center;
