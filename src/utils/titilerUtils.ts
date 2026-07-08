@@ -165,6 +165,7 @@ export async function fetchSedLoadStatistics(
     )
     url.searchParams.append('assets', 'cog')
     url.searchParams.append('asset_bidx', 'cog|1')
+    url.searchParams.append('expression', 'cog_b1')
     url.searchParams.append('max_size', '1025')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })

@@ -136,7 +136,7 @@ export default function MapContainer() {
     minValue: sedLoadMinValue,
     maxValue: sedLoadMaxValue,
     isLoading: sedLoadLoading,
-  } = useSedLoadStatistics(latestYear)
+  } = useSedLoadStatistics(selectedYear)
 
   // Update the active sed_exposure tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
