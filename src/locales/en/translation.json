@@ -1,5 +1,20 @@
 {
   "agricultural_nutrients": "Agricultural nutrients",
+  "info_text": {
+    "sediment_load_chart": "The amount of eroded soil that is delivered to streams, summarised at the watershed, country, region, or global levels.",
+    "sediment_load_legend": "The amount of eroded soil that is delivered to streams from each land pixel or from across the entire watershed.",
+    "sediment_exposure": "The concentration of the sediment load in the ocean.",
+    "land_use": "Land cover/ land use classes summarised from the Global Land Cover and Land Use Change Dataset (GLAD).",
+    "contributing_watersheds": "The three watersheds contributing the most sediment to the selected ocean pixel, and their percentage contribution to the total sediment exposure at the pixel.",
+    "benthic": "Coral reef benthic habitats defined by the Allen Coral Atlas.",
+    "boundaries_items": [
+      "Watershed boundaries from HydroBASINS.",
+      "Plume boundaries modelled by CoaSTED.",
+      "Regional boundaries are Marine Ecoregions Of the World",
+      "Country boundaries are exclusive economic zones."
+    ]
+  },
+  "read_more": "Read more",
   "all_data": "All data",
   "app_title": "Global Pollution Watch",
   "area_exposed_ha": "Area exposed (ha)",

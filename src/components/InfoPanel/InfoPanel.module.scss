@@ -1,0 +1,36 @@
+@use '../../styles/theme';
+
+.info-panel {
+  background-color: theme.$hoverGrey;
+  border-radius: theme.$borderRadius;
+  padding: theme.$spacingSmall theme.$spacingMedium;
+  margin-bottom: theme.$spacingSmall;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingXSmall;
+
+  &__text {
+    font-size: theme.$textSizeSmall;
+    color: theme.$textColor;
+  }
+
+  &__list {
+    margin: 0;
+    padding-left: theme.$spacingMedium;
+    display: flex;
+    flex-direction: column;
+    gap: theme.$spacingXXSmall;
+
+    li {
+      p {
+        font-size: theme.$textSizeSmall;
+        color: theme.$textColor;
+      }
+    }
+  }
+
+  &__read-more {
+    font-size: theme.$textSizeSmall;
+    align-self: flex-start;
+  }
+}
