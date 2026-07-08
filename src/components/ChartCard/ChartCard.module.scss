@@ -47,6 +47,11 @@
   gap: theme.$spacingXXSmall;
 }
 
+.chart-card__info-panel {
+  margin-left: theme.$defaultSpacing;
+  margin-right: theme.$defaultSpacing;
+}
+
 .chart-card__chart-label {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$semiBold;

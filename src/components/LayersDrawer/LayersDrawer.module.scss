@@ -60,6 +60,11 @@
   font-size: theme.$textSizeSmall;
 }
 
+.boundaries-info-panel {
+  margin-left: theme.$defaultSpacing;
+  margin-right: theme.$defaultSpacing;
+}
+
 .boundary-toggle-right {
   display: flex;
   align-items: center;

@@ -206,7 +206,11 @@ export default function ChartCard({
           </div>
         )}
       </div>
-      {infoTextKey && <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />}
+      {infoTextKey && (
+        <div className={styles['chart-card__info-panel']}>
+          <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />
+        </div>
+      )}
       {isVisible ? renderChartContent() : null}
     </Card>
   )

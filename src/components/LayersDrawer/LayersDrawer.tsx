@@ -327,7 +327,9 @@ export default function LayersDrawer({
                 )}
               </div>
               {key === 'boundaries' && (
-                <InfoPanel isOpen={boundariesInfoOpen} listKey="info_text.boundaries_items" />
+                <div className={styles['boundaries-info-panel']}>
+                  <InfoPanel isOpen={boundariesInfoOpen} listKey="info_text.boundaries_items" />
+                </div>
               )}
               {layerNodes}
             </div>
