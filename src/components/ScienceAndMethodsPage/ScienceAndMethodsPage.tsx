@@ -5,6 +5,7 @@ import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
+import { SCROLL_TO_SECTION_OFFSET } from '../../constants'
 import styles from './ScienceAndMethodsPage.module.scss'
 
 const LOREM =
@@ -96,9 +97,11 @@ export default function ScienceAndMethodsPage() {
                   e.preventDefault()
                   const target = document.getElementById(section.id)
                   if (target) {
-                    const HEADER_OFFSET = 52 // $headerHeight (36px) + breathing room (16px)
                     window.scrollTo({
-                      top: target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET,
+                      top:
+                        target.getBoundingClientRect().top +
+                        window.scrollY -
+                        SCROLL_TO_SECTION_OFFSET,
                       behavior: 'smooth',
                     })
                   }

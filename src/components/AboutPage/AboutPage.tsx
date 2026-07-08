@@ -5,7 +5,7 @@ import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
-import { INVEST_URL } from '../../constants'
+import { INVEST_URL, SCROLL_TO_SECTION_OFFSET } from '../../constants'
 import styles from './AboutPage.module.scss'
 
 const sections = [
@@ -85,9 +85,11 @@ export default function AboutPage() {
                   e.preventDefault()
                   const target = document.getElementById(section.id)
                   if (target) {
-                    const HEADER_OFFSET = 52
                     window.scrollTo({
-                      top: target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET,
+                      top:
+                        target.getBoundingClientRect().top +
+                        window.scrollY -
+                        SCROLL_TO_SECTION_OFFSET,
                       behavior: 'smooth',
                     })
                   }
