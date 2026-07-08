@@ -81,6 +81,7 @@ export default function AboutPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
+                aria-current={activeId === section.id ? 'true' : undefined}
                 className={`${styles['about-page__nav-link']}${activeId === section.id ? ` ${styles['about-page__nav-link--active']}` : ''}`}
                 onClick={(e) => {
                   e.preventDefault()

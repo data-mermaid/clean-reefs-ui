@@ -93,6 +93,7 @@ export default function ScienceAndMethodsPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
+                aria-current={activeId === section.id ? 'true' : undefined}
                 className={`${styles['science-page__nav-link']}${activeId === section.id ? ` ${styles['science-page__nav-link--active']}` : ''}`}
                 onClick={(e) => {
                   e.preventDefault()
