@@ -9,6 +9,7 @@ import '../i18n'
 import MapContainer from './components/MapContainer/MapContainer'
 import NavigationHeader from './components/NavigationHeader/NavigationHeader'
 import ScienceAndMethodsPage from './components/ScienceAndMethodsPage/ScienceAndMethodsPage'
+import AboutPage from './components/AboutPage/AboutPage'
 import '@fontsource/titillium-web/300.css'
 import '@fontsource/titillium-web/400.css'
 import '@fontsource/titillium-web/600.css'
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<MapContainer />} />
           <Route path="/science-and-methods" element={<ScienceAndMethodsPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </StyledEngineProvider>
     </BrowserRouter>

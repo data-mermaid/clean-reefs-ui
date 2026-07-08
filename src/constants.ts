@@ -92,6 +92,13 @@ export const mapFitBoundsMobileConfig = {
   maxZoom: 9,
 }
 
+/******EXTERNAL LINKS******/
+export const INVEST_URL = 'https://naturalcapitalalliance.stanford.edu/software/invest'
+
+/******PAGE LAYOUT******/
+// $headerHeight (36px) + breathing room (16px)
+export const SCROLL_TO_SECTION_OFFSET = 52
+
 /******COLORS******/
 export const sedExposureBoundaryOutlineColor = '#FFEA46'
 export const polygonOutlineHoverColor = '#F006'

@@ -54,7 +54,7 @@ export default function NavigationHeader() {
   const navItems: NavItem[] = [
     ...(!isMapPage ? [{ label: t('back_to_map'), href: lastMapUrl, internalLink: true }] : []),
     { label: t('science_and_methods'), href: '/science-and-methods', internalLink: true },
-    { label: t('contact'), href: '#', internalLink: false },
+    { label: t('about'), href: '/about', internalLink: true },
   ]
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
 import { Link as InternalLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
+import { useScrollSpy } from '../../hooks/useScrollSpy'
 import styles from './ScienceAndMethodsPage.module.scss'
 
 const LOREM =
@@ -26,30 +26,7 @@ const sections = [
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
   const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeId, setActiveId] = useState(sections[0].id)
-  const suppressObserver = useRef(false)
-  const suppressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (suppressObserver.current) { return }
-        const visible = entries.find((e) => e.isIntersecting)
-        if (visible) { setActiveId(visible.target.id) }
-      },
-      { rootMargin: '-10% 0px -60% 0px' },
-    )
-    sections.forEach(({ id }) => {
-      const el = document.getElementById(id)
-      if (el) { observer.observe(el) }
-    })
-
-    return () => {
-      observer.disconnect()
-      if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
-    }
-  }, [])
+  const { activeId, sidebarOpen, setSidebarOpen, handleNavClick } = useScrollSpy(sections)
 
   return (
     <div className={styles['science-page']}>
@@ -73,6 +50,7 @@ export default function ScienceAndMethodsPage() {
             onClick={() => setSidebarOpen((prev) => !prev)}
             className={styles['science-page__toc-toggle']}
             aria-label={t('toggle_navigation_menu')}
+            aria-expanded={sidebarOpen}
             disableRipple
           >
             <TocIcon />
@@ -83,25 +61,9 @@ export default function ScienceAndMethodsPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
+                aria-current={activeId === section.id ? 'true' : undefined}
                 className={`${styles['science-page__nav-link']}${activeId === section.id ? ` ${styles['science-page__nav-link--active']}` : ''}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  const target = document.getElementById(section.id)
-                  if (target) {
-                    const HEADER_OFFSET = 52 // $headerHeight (36px) + breathing room (16px)
-                    window.scrollTo({
-                      top: target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET,
-                      behavior: 'smooth',
-                    })
-                  }
-                  setActiveId(section.id)
-                  suppressObserver.current = true
-                  if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
-                  suppressTimeout.current = setTimeout(() => {
-                    suppressObserver.current = false
-                  }, 1000)
-                  setSidebarOpen(false)
-                }}
+                onClick={(e) => handleNavClick(e, section.id)}
               >
                 {t(section.labelKey)}
               </a>
@@ -111,7 +73,7 @@ export default function ScienceAndMethodsPage() {
       </ClickAwayListener>
 
       <main className={styles['science-page__content']}>
-        <h1 className={styles['science-page__title']}>{t('science_and_methods_page.title')}</h1>
+        <h1 className={styles['science-page__title']}>{t('science_and_methods')}</h1>
         <p className={styles['science-page__subtitle']}>{t('science_and_methods_page.subtitle')}</p>
         {sections.map((section) => (
           <section key={section.id} id={section.id} className={styles['science-page__section']}>
