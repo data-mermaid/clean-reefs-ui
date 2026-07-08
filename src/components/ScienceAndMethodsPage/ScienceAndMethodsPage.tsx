@@ -34,20 +34,28 @@ export default function ScienceAndMethodsPage() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (suppressObserver.current) { return }
+        if (suppressObserver.current) {
+          return
+        }
         const visible = entries.find((e) => e.isIntersecting)
-        if (visible) { setActiveId(visible.target.id) }
+        if (visible) {
+          setActiveId(visible.target.id)
+        }
       },
       { rootMargin: '-10% 0px -60% 0px' },
     )
     sections.forEach(({ id }) => {
       const el = document.getElementById(id)
-      if (el) { observer.observe(el) }
+      if (el) {
+        observer.observe(el)
+      }
     })
 
     return () => {
       observer.disconnect()
-      if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
+      if (suppressTimeout.current) {
+        clearTimeout(suppressTimeout.current)
+      }
     }
   }, [])
 
@@ -96,7 +104,9 @@ export default function ScienceAndMethodsPage() {
                   }
                   setActiveId(section.id)
                   suppressObserver.current = true
-                  if (suppressTimeout.current) { clearTimeout(suppressTimeout.current) }
+                  if (suppressTimeout.current) {
+                    clearTimeout(suppressTimeout.current)
+                  }
                   suppressTimeout.current = setTimeout(() => {
                     suppressObserver.current = false
                   }, 1000)
@@ -111,7 +121,7 @@ export default function ScienceAndMethodsPage() {
       </ClickAwayListener>
 
       <main className={styles['science-page__content']}>
-        <h1 className={styles['science-page__title']}>{t('science_and_methods_page.title')}</h1>
+        <h1 className={styles['science-page__title']}>{t('science_and_methods')}</h1>
         <p className={styles['science-page__subtitle']}>{t('science_and_methods_page.subtitle')}</p>
         {sections.map((section) => (
           <section key={section.id} id={section.id} className={styles['science-page__section']}>

@@ -148,9 +148,8 @@
   "satellite": "Satellite",
   "scale_high": "High",
   "scale_low": "Low",
-  "science_and_methods": "Science and methods",
+  "science_and_methods": "Science and Methods",
   "science_and_methods_page": {
-    "title": "Science and Methods",
     "subtitle": "How GPW data is collected and processed",
     "sections": {
       "overview": "Overview",
