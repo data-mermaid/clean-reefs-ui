@@ -48,7 +48,7 @@
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
     "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
-    "land_use_historical": "Land use",
+    "land_use_historical": "Land use / Land cover",
     "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure",
     "sediment_load_historical": "Sediment load",
@@ -77,7 +77,7 @@
     "aria_label": "Search location",
     "close": "Close",
     "no_results": "No results found.",
-    "placeholder": "Address, country, or lat, lon",
+    "placeholder": "Address, country, or latitude, longitude",
     "search_failed": "Search failed."
   },
   "global_trends": "Global trends",
@@ -161,11 +161,11 @@
     }
   },
   "sediment": "Sediment",
-  "sediment_exposure_unit": "Sediment exposure (unit)",
-  "sediment_load_unit": "Sediment load (unit)",
+  "sediment_exposure_unit": "Sediment exposure",
+  "sediment_load_unit": "Sediment load (tonnes)",
   "select_year": "Select year",
   "share_view": {
-    "copied": "Copied!",
+    "copied": "Copied",
     "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
     "title": "Share this view of GPW",
     "url_label": "Shareable URL"
