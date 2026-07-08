@@ -120,14 +120,17 @@ export default function ChartCard({
       return
     }
     const originalOpacities = gd.data.map((trace) => (trace as Plotly.PlotData).marker?.opacity)
-    await Plotly.restyle(gd, { 'marker.opacity': 1 })
-    await Plotly.downloadImage(gd, {
-      format: 'png',
-      width: null,
-      height: null,
-      filename: filenameRef.current,
-    })
-    await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+    try {
+      await Plotly.restyle(gd, { 'marker.opacity': 1 })
+      await Plotly.downloadImage(gd, {
+        format: 'png',
+        width: null,
+        height: null,
+        filename: filenameRef.current,
+      })
+    } finally {
+      await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+    }
   }
 
   const renderChartContent = () => {
