@@ -110,8 +110,6 @@ export default function AboutPage() {
       </ClickAwayListener>
 
       <main className={styles['about-page__content']}>
-        <h1 className={styles['about-page__title']}>{t('about')}</h1>
-
         <section id="about" className={styles['about-page__section']}>
           <h2 className={styles['about-page__section-heading']}>{t('about')}</h2>
           <hr className={styles['about-page__section-divider']} />
