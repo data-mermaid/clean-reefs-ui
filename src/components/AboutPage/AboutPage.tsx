@@ -70,6 +70,7 @@ export default function AboutPage() {
             onClick={() => setSidebarOpen((prev) => !prev)}
             className={styles['about-page__toc-toggle']}
             aria-label={t('toggle_navigation_menu')}
+            aria-expanded={sidebarOpen}
             disableRipple
           >
             <TocIcon />

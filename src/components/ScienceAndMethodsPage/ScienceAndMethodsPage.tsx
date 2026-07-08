@@ -82,6 +82,7 @@ export default function ScienceAndMethodsPage() {
             onClick={() => setSidebarOpen((prev) => !prev)}
             className={styles['science-page__toc-toggle']}
             aria-label={t('toggle_navigation_menu')}
+            aria-expanded={sidebarOpen}
             disableRipple
           >
             <TocIcon />
