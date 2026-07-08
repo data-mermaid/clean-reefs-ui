@@ -58,6 +58,17 @@
     "w4": "W4"
   },
   "concentration": "Concentration",
+  "about": "About",
+  "about_page": {
+    "sections": {
+      "contact_us": "Contact Us"
+    },
+    "para1": "Global Pollution Watch (GPW) is an open-source pollution mapping and risk assessment tool which can support managers, scientists, and citizen scientists to identify and address land-based pollution risks impacting tropical coastal environments.",
+    "para2": "In over 100 countries with watersheds draining into tropical waters, the tool quantifies and maps pollution loads generated on land as well as pollution exposure in downstream coastal environments across 20 years (2000-2020). Pollution loads and exposures are based on the results of spatially explicit models developed from globally available datasets.",
+    "para3": "Under the beta version of Global Pollution Watch, users can explore the generation and impact of sediment pollution from land use change and deforestation. Sediment pollution data is available for watersheds > 500 hectares that drain into tropical waters, and is modelled using linked land-sea models. On land, sediment load is modelled using the sediment delivery ratio model within the Natural Capital Project's <invest>InVEST®</invest> toolkit, and in the sea, sediment exposure in coastal waters is modelled using a newly developed marine pollution transport model, CoaSTED. See Science & Methods for further details.",
+    "para4": "Global Pollution Watch is developed by the <em>Wildlife Conservation Society</em>, <em>Fluvio</em>, <em>Sparkgeo – Applied Geospatial</em>, and <em>The University of Queensland</em>; powered by MERMAID; and funded by <em>G20 CORDAP (Coral Research & Development Accelerator Platform)</em>.",
+    "contact_para": "We would love your feedback, please contact us at <email>info@globalpollutionwatch.org</email>."
+  },
   "contact": "Contact",
   "coral_reef": "Coral reef",
   "dark": "Dark",
