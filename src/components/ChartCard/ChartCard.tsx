@@ -192,9 +192,6 @@ export default function ChartCard({
             onInitialized={(_figure, graphDiv) => {
               plotRef.current = graphDiv as Plotly.PlotlyHTMLElement
             }}
-            onUpdate={(_figure, graphDiv) => {
-              plotRef.current = graphDiv as Plotly.PlotlyHTMLElement
-            }}
           />
         </Suspense>
       )
