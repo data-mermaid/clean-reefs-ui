@@ -1,7 +1,6 @@
 @use '../../styles/theme';
 .LayerToggleLegend {
   display: block;
-  max-width: 300px;
 }
 .LayerToggleLegend__item {
   display: inline-block;
@@ -22,4 +21,16 @@
 
 .LayerToggleLegend__all-label {
   font-weight: 600;
+  font-size: theme.$textSizeSmall;
+}
+
+.LayerToggleLegend__layer-label {
+  font-size: theme.$textSizeSmall;
+}
+
+.LayerToggleLegend__title-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-grow: 1;
 }

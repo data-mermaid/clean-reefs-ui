@@ -3,17 +3,27 @@ import {
   FormControl,
   FormControlLabel,
   FormControlLabelProps,
+  IconButton,
   Radio,
   RadioGroup,
   Switch,
   Typography,
 } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import Legend from '../Legend/Legend'
 import styles from '../LayerToggleCard/LayerToggleCard.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
+import InfoPanel from '../InfoPanel/InfoPanel'
+import { useState } from 'react'
+
+const layerInfoTextKey: Record<string, string> = {
+  sed_load: 'info_text.sediment_load_legend',
+  sed_exposure: 'info_text.sediment_exposure',
+  lulc: 'info_text.land_use',
+}
 
 interface LayerToggleCardProps {
   layer: LayerInfo
@@ -155,16 +165,27 @@ export default function LayerToggleCard({
   sedLoadLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
+  const [infoOpen, setInfoOpen] = useState(false)
+  const infoTextKey = layerInfoTextKey[layer.layerId]
 
   return (
     <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
       <div className={styles['layer-toggle-header']}>
         {layer.layerId !== 'benthic' && (
           <>
-            <Typography className={styles['layer-card_title']}>
-              {t(layer.legendTitle ?? layer.title)}
-            </Typography>
-            {layer.year && <Typography>{selectedYear}</Typography>}
+            <Typography sx={{ fontSize: '14px' }}>{t(layer.legendTitle ?? layer.title)}</Typography>
+            {infoTextKey && (
+              <IconButton
+                size="small"
+                onClick={() => setInfoOpen((v) => !v)}
+                aria-label={t('read_more')}
+                aria-expanded={infoOpen}
+              >
+                <InfoOutlined sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            )}
+            <div style={{ flex: 1 }} />
+            {layer.year && <Typography sx={{ fontSize: '14px' }}>{selectedYear}</Typography>}
             <Switch
               className={styles['MuiSwitch-root']}
               id={layer.layerId}
@@ -174,6 +195,7 @@ export default function LayerToggleCard({
           </>
         )}
       </div>
+      {infoTextKey && <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />}
       {getLayerToggleDetails(
         layer,
         toggleSubLayer,

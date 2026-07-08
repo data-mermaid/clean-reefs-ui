@@ -180,7 +180,11 @@ export default function ChartCard({
 
   return (
     <Card className={styles['chart-card']}>
-      <div className={getCardHeaderClassNames(chartConfigData)} ref={chartRef}>
+      <div
+        className={getCardHeaderClassNames(chartConfigData)}
+        ref={chartRef}
+        style={infoOpen ? { position: 'static', width: '100%' } : undefined}
+      >
         <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${regionType}`)}
         </Typography>
@@ -196,7 +200,7 @@ export default function ChartCard({
                 aria-label={t('read_more')}
                 aria-expanded={infoOpen}
               >
-                <InfoOutlined fontSize="small" />
+                <InfoOutlined sx={{ fontSize: '1rem' }} />
               </IconButton>
             )}
           </div>

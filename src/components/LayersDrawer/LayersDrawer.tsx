@@ -5,13 +5,22 @@ import {
   SetStateAction,
   useCallback,
   useMemo,
+  useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, Switch, Typography } from '@mui/material'
+import { Card, IconButton, Switch, Typography } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import clsx from 'clsx'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
+import InfoPanel from '../InfoPanel/InfoPanel'
 import styles from './LayersDrawer.module.scss'
-import { atlasBenthicColors, benthicSubLayers, parentLayerTitles, urlControlledLayerIds, transparent } from '../../data/mapData'
+import {
+  atlasBenthicColors,
+  benthicSubLayers,
+  parentLayerTitles,
+  urlControlledLayerIds,
+  transparent,
+} from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
@@ -54,17 +63,19 @@ interface BoundaryToggleCardProps {
   onCoastlinesChange: (show: boolean) => void
 }
 
-function BoundaryToggleCard({ layers, toggleLayer, showCoastlines, onCoastlinesChange }: BoundaryToggleCardProps) {
+function BoundaryToggleCard({
+  layers,
+  toggleLayer,
+  showCoastlines,
+  onCoastlinesChange,
+}: BoundaryToggleCardProps) {
   const { t } = useTranslation()
 
   return (
     <Card className={styles['boundary-legend-card']}>
       {[...layers].sort(sortBoundaryLayers).map((layer) => (
         <div className={styles['boundary-legend-row']} key={layer.sourceId}>
-          <Typography
-            id={`${layer.layerId}-title`}
-            className={styles['boundary-layer-title']}
-          >
+          <Typography id={`${layer.layerId}-title`} className={styles['boundary-layer-title']}>
             {t(layer.title)}
           </Typography>
           <div className={styles['boundary-toggle-right']}>
@@ -128,6 +139,7 @@ export default function LayersDrawer({
   sedLoadLoading,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
+  const [boundariesInfoOpen, setBoundariesInfoOpen] = useState(false)
 
   const mapSubLayers = useMemo(
     () =>
@@ -182,7 +194,10 @@ export default function LayersDrawer({
   const toggleAllSubLayers = useCallback(
     (checked: boolean) => {
       const newColors = Object.fromEntries(
-        benthicSubLayers.map((l) => [l.layerId, checked ? atlasBenthicColors[l.layerId] : transparent]),
+        benthicSubLayers.map((l) => [
+          l.layerId,
+          checked ? atlasBenthicColors[l.layerId] : transparent,
+        ]),
       )
       setBenthicMapSubLayerColors(newColors)
       benthicSubLayers.forEach((l) => onLayerToggleChange(l.layerId, checked))
@@ -271,8 +286,12 @@ export default function LayersDrawer({
 
   const getLayerNodes = useCallback(
     (key: string) => {
-      if (key === 'boundaries') { return renderBoundaryGroup() }
-      if (key === 'base') { return renderBaseGroup() }
+      if (key === 'boundaries') {
+        return renderBoundaryGroup()
+      }
+      if (key === 'base') {
+        return renderBaseGroup()
+      }
       return renderDataLayerGroup(key)
     },
     [renderBoundaryGroup, renderBaseGroup, renderDataLayerGroup],
@@ -294,7 +313,22 @@ export default function LayersDrawer({
 
           return (
             <div key={key}>
-              <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '8px', gap: '2px' }}>
+                <h2 style={{ margin: 0 }}>{t(value)}</h2>
+                {key === 'boundaries' && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setBoundariesInfoOpen((v) => !v)}
+                    aria-label={t('read_more')}
+                    aria-expanded={boundariesInfoOpen}
+                  >
+                    <InfoOutlined sx={{ fontSize: '1rem' }} />
+                  </IconButton>
+                )}
+              </div>
+              {key === 'boundaries' && (
+                <InfoPanel isOpen={boundariesInfoOpen} listKey="info_text.boundaries_items" />
+              )}
               {layerNodes}
             </div>
           )

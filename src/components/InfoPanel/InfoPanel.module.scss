@@ -5,12 +5,13 @@
   border-radius: theme.$borderRadius;
   padding: theme.$spacingSmall theme.$spacingMedium;
   margin-bottom: theme.$spacingSmall;
+  margin-right: theme.$defaultSpacing;
   display: flex;
   flex-direction: column;
   gap: theme.$spacingXSmall;
 
   &__text {
-    font-size: theme.$textSizeSmall;
+    font-size: theme.$textSizeXSmall;
     color: theme.$textColor;
   }
 
@@ -23,14 +24,14 @@
 
     li {
       p {
-        font-size: theme.$textSizeSmall;
+        font-size: theme.$textSizeXSmall;
         color: theme.$textColor;
       }
     }
   }
 
   &__read-more {
-    font-size: theme.$textSizeSmall;
+    font-size: theme.$textSizeXSmall;
     align-self: flex-start;
   }
 }
