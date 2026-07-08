@@ -41,6 +41,12 @@
   color: theme.$textSecondary;
 }
 
+.chart-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacingXXSmall;
+}
+
 .chart-card__chart-label {
   font-size: theme.$textSizeSmall;
   font-weight: theme.$semiBold;

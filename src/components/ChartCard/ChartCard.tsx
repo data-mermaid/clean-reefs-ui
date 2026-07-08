@@ -1,13 +1,22 @@
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
 import createPlotlyComponent from 'react-plotly.js/factory'
 import Plotly from 'plotly.js-basic-dist'
-import { Card, Typography } from '@mui/material'
+import { Card, IconButton, Typography } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
 import { buildExportFilename } from '../../utils/chartUtils'
+import InfoPanel from '../InfoPanel/InfoPanel'
+
+const chartInfoTextKey: Record<string, string> = {
+  sediment_load_historical: 'info_text.sediment_load_chart',
+  sediment_exposure_historical: 'info_text.sediment_exposure',
+  land_use_historical: 'info_text.land_use',
+  contributing_watersheds: 'info_text.contributing_watersheds',
+}
 
 const Plot = createPlotlyComponent(Plotly)
 
@@ -61,6 +70,8 @@ export default function ChartCard({
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
   const filenameRef = useRef('chart-export')
+  const [infoOpen, setInfoOpen] = useState(false)
+  const infoTextKey = chartConfigData ? chartInfoTextKey[chartConfigData.chartName] : undefined
 
   const selectedBarIndex = useMemo(
     () => getSelectedBarIndex(chartConfigData, selectedYear),
@@ -174,11 +185,24 @@ export default function ChartCard({
           {t(`regions.${regionType}`)}
         </Typography>
         {chartConfigData && (
-          <Typography className={styles['chart-card__chart-label']}>
-            {t(`charts.${chartConfigData.chartName}`)}
-          </Typography>
+          <div className={styles['chart-card__title-row']}>
+            <Typography className={styles['chart-card__chart-label']}>
+              {t(`charts.${chartConfigData.chartName}`)}
+            </Typography>
+            {infoTextKey && (
+              <IconButton
+                size="small"
+                onClick={() => setInfoOpen((v) => !v)}
+                aria-label={t('read_more')}
+                aria-expanded={infoOpen}
+              >
+                <InfoOutlined fontSize="small" />
+              </IconButton>
+            )}
+          </div>
         )}
       </div>
+      {infoTextKey && <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />}
       {isVisible ? renderChartContent() : null}
     </Card>
   )
