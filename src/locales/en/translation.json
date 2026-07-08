@@ -63,7 +63,7 @@
   },
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
-    "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
+    "ecosystem_extent_exposed": "Ecosystem extent exposed\nto pollution",
     "land_use_historical": "Land use / Land cover",
     "no_data_available": "No data available for selected region.",
     "sediment_exposure_historical": "Sediment exposure",
