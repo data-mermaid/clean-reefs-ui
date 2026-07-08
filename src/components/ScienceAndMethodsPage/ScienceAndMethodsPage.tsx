@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
 import { Link as InternalLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
-import { SCROLL_TO_SECTION_OFFSET } from '../../constants'
+import { useScrollSpy } from '../../hooks/useScrollSpy'
 import styles from './ScienceAndMethodsPage.module.scss'
 
 const LOREM =
@@ -27,38 +26,7 @@ const sections = [
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
   const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeId, setActiveId] = useState(sections[0].id)
-  const suppressObserver = useRef(false)
-  const suppressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (suppressObserver.current) {
-          return
-        }
-        const visible = entries.find((e) => e.isIntersecting)
-        if (visible) {
-          setActiveId(visible.target.id)
-        }
-      },
-      { rootMargin: '-10% 0px -60% 0px' },
-    )
-    sections.forEach(({ id }) => {
-      const el = document.getElementById(id)
-      if (el) {
-        observer.observe(el)
-      }
-    })
-
-    return () => {
-      observer.disconnect()
-      if (suppressTimeout.current) {
-        clearTimeout(suppressTimeout.current)
-      }
-    }
-  }, [])
+  const { activeId, sidebarOpen, setSidebarOpen, handleNavClick } = useScrollSpy(sections)
 
   return (
     <div className={styles['science-page']}>
@@ -95,28 +63,7 @@ export default function ScienceAndMethodsPage() {
                 href={`#${section.id}`}
                 aria-current={activeId === section.id ? 'true' : undefined}
                 className={`${styles['science-page__nav-link']}${activeId === section.id ? ` ${styles['science-page__nav-link--active']}` : ''}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  const target = document.getElementById(section.id)
-                  if (target) {
-                    window.scrollTo({
-                      top:
-                        target.getBoundingClientRect().top +
-                        window.scrollY -
-                        SCROLL_TO_SECTION_OFFSET,
-                      behavior: 'smooth',
-                    })
-                  }
-                  setActiveId(section.id)
-                  suppressObserver.current = true
-                  if (suppressTimeout.current) {
-                    clearTimeout(suppressTimeout.current)
-                  }
-                  suppressTimeout.current = setTimeout(() => {
-                    suppressObserver.current = false
-                  }, 1000)
-                  setSidebarOpen(false)
-                }}
+                onClick={(e) => handleNavClick(e, section.id)}
               >
                 {t(section.labelKey)}
               </a>
