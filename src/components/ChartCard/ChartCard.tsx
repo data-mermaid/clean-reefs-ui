@@ -16,6 +16,7 @@ const chartInfoTextKey: Record<string, string> = {
   sediment_exposure_historical: 'info_text.sediment_exposure',
   land_use_historical: 'info_text.land_use',
   contributing_watersheds: 'info_text.contributing_watersheds',
+  ecosystem_extent_exposed: 'info_text.ecosystem_extent',
 }
 
 const Plot = createPlotlyComponent(Plotly)

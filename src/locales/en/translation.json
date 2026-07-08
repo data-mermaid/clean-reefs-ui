@@ -6,6 +6,7 @@
     "sediment_exposure": "The concentration of the sediment load in the ocean.",
     "land_use": "Land cover/ land use classes summarised from the Global Land Cover and Land Use Change Dataset (GLAD).",
     "contributing_watersheds": "The three watersheds contributing the most sediment to the selected ocean pixel, and their percentage contribution to the total sediment exposure at the pixel.",
+    "ecosystem_extent": "Area of reef extent, coral/algae, and seagrass exposed to sediment pollution.",
     "benthic": "Coral reef benthic habitats defined by the Allen Coral Atlas.",
     "boundaries_items": [
       "Watershed boundaries from HydroBASINS.",
