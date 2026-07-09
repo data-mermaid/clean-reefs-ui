@@ -16,22 +16,21 @@ export default function InfoPanel({ isOpen, textKey, listKey }: InfoPanelProps) 
     return null
   }
 
+  const listItems = listKey ? t(listKey, { returnObjects: true }) : null
+  const items = Array.isArray(listItems) ? (listItems as string[]) : null
+
   return (
     <div className={styles['info-panel']}>
       {textKey && <Typography className={styles['info-panel__text']}>{t(textKey)}</Typography>}
-      {listKey &&
-        (() => {
-          const items = t(listKey, { returnObjects: true })
-          return Array.isArray(items) ? (
-            <ul className={styles['info-panel__list']}>
-              {(items as string[]).map((item) => (
-                <li key={item}>
-                  <Typography>{item}</Typography>
-                </li>
-              ))}
-            </ul>
-          ) : null
-        })()}
+      {items && (
+        <ul className={styles['info-panel__list']}>
+          {items.map((item) => (
+            <li key={item}>
+              <Typography>{item}</Typography>
+            </li>
+          ))}
+        </ul>
+      )}
       <Link
         component={RouterLink}
         to="/science-and-methods"
