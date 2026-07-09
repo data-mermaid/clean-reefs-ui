@@ -100,9 +100,6 @@ export async function fetchAllBoundaryFeatures(
     for (let i = 0; i < layer.length; i++) {
       const feature = layer.feature(i)
       const props = feature.properties
-      if (props['total_sed_load_2020'] == null) {
-        continue
-      }
       const label = props[labelProp]
       if (typeof label !== 'string' || label.length === 0) {
         continue
