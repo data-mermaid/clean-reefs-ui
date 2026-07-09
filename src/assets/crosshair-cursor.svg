@@ -1,7 +1,7 @@
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_4577_28115)">
 <g filter="url(#filter0_d_4577_28115)">
-<path d="M10 1V7M10 13V19M1 10H7M13 10H19" stroke="#FF0000" stroke-width="2" stroke-linecap="round"/>
+<path d="M10 1V7M10 13V19M1 10H7M13 10H19" stroke="#FF00FF" stroke-width="2" stroke-linecap="round"/>
 </g>
 </g>
 <defs>
