@@ -592,6 +592,7 @@ export default function MapContainer() {
         onMapMoveEnd={handleMapMoveEnd}
         isAnyPanelOpen={activePanel !== null}
         regionOptions={regionOptions}
+        selectedRegion={selectedRegion}
       />
     </div>
   )

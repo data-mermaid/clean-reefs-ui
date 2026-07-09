@@ -118,10 +118,10 @@ interface BaseMapProps {
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
   isAnyPanelOpen: boolean
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
 }
 
 const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
-
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -392,6 +392,7 @@ export default function BaseMap({
   onMapMoveEnd,
   isAnyPanelOpen,
   regionOptions,
+  selectedRegion,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth, isPanelMobile } = useResponsive()
@@ -602,6 +603,25 @@ export default function BaseMap({
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
+
+  // Filter watershed layer to only show features matching the selected region/country.
+  useEffect(() => {
+    if (!isMapLoaded || !watershedLayer) {
+      return
+    }
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+    let filter: maplibregl.FilterSpecification | null = null
+    if (selectedRegion.regionType === 'region' && selectedRegion.bandId !== undefined) {
+      filter = ['==', ['get', 'REALM_ID'], selectedRegion.bandId]
+    } else if (selectedRegion.regionType === 'country' && selectedRegion.bandId !== undefined) {
+      filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+    }
+    map.setFilter(watershedLayer.layerId, filter)
+    map.setFilter(`${watershedLayer.layerId}-lines`, filter)
+  }, [selectedRegion, isMapLoaded, watershedLayer])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -1048,7 +1068,10 @@ export default function BaseMap({
         <NavigationControl position="bottom-right" showCompass={false} />
         <GeoSearchControl />
         <ScaleControl position="bottom-right" />
-        <CoordinatesDisplayControl lat={mouseCoordinates?.lat ?? null} lng={mouseCoordinates?.lng ?? null} />
+        <CoordinatesDisplayControl
+          lat={mouseCoordinates?.lat ?? null}
+          lng={mouseCoordinates?.lng ?? null}
+        />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />
