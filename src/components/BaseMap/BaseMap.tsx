@@ -651,30 +651,27 @@ export default function BaseMap({
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
-      const percentile = (p: number) => sorted[Math.floor((p / 100) * sorted.length)] ?? 0
-      const breaks = [
-        1,
-        percentile(10),
-        percentile(25),
-        percentile(50),
-        percentile(75),
-        percentile(90),
-      ]
+      const log10min = Math.log10(Math.max(1, sorted[0]))
+      const log10max = Math.log10(sorted[sorted.length - 1])
+      const span = log10max - log10min || 1
+      // 7 color stops distributed across the log10 range for a smooth gradient
       const fillColor: maplibregl.ExpressionSpecification = [
-        'step',
-        ['get', 'total_sed_load_2020'],
+        'interpolate',
+        ['linear'],
+        ['log10', ['max', 1, ['get', 'total_sed_load_2020']]],
+        log10min,
         '#018571',
-        breaks[0],
+        log10min + span * 0.15,
         '#76BBB0',
-        breaks[1],
+        log10min + span * 0.33,
         '#D1E4E1',
-        breaks[2],
+        log10min + span * 0.5,
         '#F5F5F5',
-        breaks[3],
+        log10min + span * 0.67,
         '#E4D5C5',
-        breaks[4],
+        log10min + span * 0.85,
         '#c79e74',
-        breaks[5],
+        log10max,
         '#A6611A',
       ]
       setWatershedFillColor(fillColor)
