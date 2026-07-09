@@ -1,7 +1,7 @@
 import { PMTiles, FetchSource } from 'pmtiles'
 import Pbf from 'pbf'
 import { VectorTile, VectorTileLayer } from '@mapbox/vector-tile'
-import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL } from '../constants'
+import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL, WATERSHED_PMTILES_URL } from '../constants'
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from '../data/countryExtents'
 import { REGION_EXTENTS } from '../data/regionExtents'
@@ -17,10 +17,19 @@ function getPMTiles(url: string): PMTiles {
   return instance
 }
 
+function slugify(label: string): string {
+  return label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+}
+
 async function getParsedLayer(config: {
   url: string
   sourceLayer: string
-  filterProp: string
+  filterProp?: string
 }): Promise<VectorTileLayer | null> {
   const pm = getPMTiles(config.url)
   const tileData = await pm.getZxy(0, 0, 0)
@@ -90,7 +99,7 @@ export async function fetchAllBoundaryFeatures(
     for (let i = 0; i < layer.length; i++) {
       const feature = layer.feature(i)
       const props = feature.properties
-      if (props['reef_exposed_2020'] == null) {
+      if (props['total_sed_load_2020'] == null) {
         continue
       }
       const label = props[labelProp]
@@ -100,13 +109,7 @@ export async function fetchAllBoundaryFeatures(
       const bandId = props[idProp] as number
       const extent = extents[label]
       results.push({
-        // NFD splits accented chars into base + combining mark; strip marks, remove non-alphanumeric, collapse spaces to hyphens for ASCII-safe URL slugs
-        id: label
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-'),
+        id: slugify(label),
         regionType,
         label,
         bandId,
@@ -116,5 +119,33 @@ export async function fetchAllBoundaryFeatures(
     return results
   } catch {
     return []
+  }
+}
+
+export async function fetchCountryRegionMap(): Promise<Record<string, string[]>> {
+  try {
+    const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
+    if (!layer) {
+      return {}
+    }
+
+    const map: Record<string, string[]> = {}
+    for (let i = 0; i < layer.length; i++) {
+      const { TERRITORY1, REALM } = layer.feature(i).properties
+      if (typeof TERRITORY1 !== 'string' || typeof REALM !== 'string') {
+        continue
+      }
+      const countryId = slugify(TERRITORY1)
+      const realmId = slugify(REALM)
+      if (!map[countryId]) {
+        map[countryId] = []
+      }
+      if (!map[countryId].includes(realmId)) {
+        map[countryId].push(realmId)
+      }
+    }
+    return map
+  } catch {
+    return {}
   }
 }

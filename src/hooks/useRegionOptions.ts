@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
-import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
+import { fetchAllBoundaryFeatures, fetchCountryRegionMap } from '../utils/pmtilesUtils'
 import { KNOWN_REGIONS, COUNTRY_REGION_MAP } from '../data/coralReefRegions'
-import { defaultGlobalRegionOption, fallbackRegionOptions, watershedAndDispersalRegions } from '../data/regionData'
+import {
+  defaultGlobalRegionOption,
+  fallbackRegionOptions,
+  watershedAndDispersalRegions,
+} from '../data/regionData'
 
 interface RegionOptionsResult {
   regionOptions: RegionOption[]
@@ -14,7 +18,11 @@ interface RegionOptionsResult {
 // COUNTRY_REGION_MAP parent lookups always resolve.
 function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
   return KNOWN_REGIONS.map((knownRegion) => {
-    const fallback: RegionOption = { id: knownRegion.id, regionType: 'region', label: knownRegion.label }
+    const fallback: RegionOption = {
+      id: knownRegion.id,
+      regionType: 'region',
+      label: knownRegion.label,
+    }
     return apiRegions.find((r) => r.id === knownRegion.id) ?? fallback
   })
 }
@@ -26,23 +34,30 @@ const useRegionOptions = (): RegionOptionsResult => {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([fetchAllBoundaryFeatures('region'), fetchAllBoundaryFeatures('country')]).then(
-      ([regions, countries]) => {
-        if (cancelled) {
-          return
-        }
-        if (regions.length === 0 && countries.length === 0) {
-          setLoading(false)
-          return
-        }
-        const enrichedCountries = countries.map((c) => ({
-          ...c,
-          parentRegionIds: COUNTRY_REGION_MAP[c.id],
-        }))
-        setRegionOptions([defaultGlobalRegionOption, ...mergeRegions(regions), ...enrichedCountries, ...watershedAndDispersalRegions])
+    Promise.all([
+      fetchAllBoundaryFeatures('region'),
+      fetchAllBoundaryFeatures('country'),
+      fetchCountryRegionMap(),
+    ]).then(([regions, countries, countryRegionMap]) => {
+      if (cancelled) {
+        return
+      }
+      if (regions.length === 0 && countries.length === 0) {
         setLoading(false)
-      },
-    )
+        return
+      }
+      const enrichedCountries = countries.map((c) => ({
+        ...c,
+        parentRegionIds: countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id],
+      }))
+      setRegionOptions([
+        defaultGlobalRegionOption,
+        ...mergeRegions(regions),
+        ...enrichedCountries,
+        ...watershedAndDispersalRegions,
+      ])
+      setLoading(false)
+    })
 
     return () => {
       cancelled = true
