@@ -58,11 +58,12 @@ const useRegionOptions = (): RegionOptionsResult => {
         setLoading(false)
         return
       }
-      const validRegionIds = new Set(regions.map((r) => r.id))
+      const mergedRegions = mergeRegions(regions)
+      const validRegionIds = new Set(mergedRegions.map((r) => r.id))
       const enriched = enrichCountries(countries, countryRegionMap, validRegionIds)
       setRegionOptions([
         defaultGlobalRegionOption,
-        ...mergeRegions(regions),
+        ...mergedRegions,
         ...enriched,
         ...watershedAndDispersalRegions,
       ])

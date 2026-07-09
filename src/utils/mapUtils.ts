@@ -541,8 +541,9 @@ export function buildBreadcrumbFromRegion(
     return [region]
   }
   if (region.regionType === 'country') {
-    const parent = parentRegion
-      ?? regionOptions.find((r) => r.regionType === 'region' && r.id === region.parentRegionIds?.[0])
+    const parent =
+      parentRegion ??
+      regionOptions.find((r) => r.regionType === 'region' && r.id === region.parentRegionIds?.[0])
     return [defaultGlobalRegionOption, ...(parent ? [parent] : []), region]
   }
   return [defaultGlobalRegionOption, region]
@@ -556,16 +557,19 @@ export function buildBreadcrumbFromFeature(
   const countryId = featureProperties?.COUNTRY_ID as number | undefined
   const realmId = featureProperties?.REALM_ID as number | undefined
   const country = regionOptions.find((r) => r.bandId === countryId)
-  // First parent region used as best-effort approximation — no click-location disambiguation for countries spanning multiple regions.
-  const parentRegionId = country?.parentRegionIds?.[0]
-  const region = parentRegionId
-    ? regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionId)
-    : regionOptions.find((r) => r.bandId === realmId)
+  // Use REALM_ID from the clicked feature for exact region match; fall back to first known parentRegionId.
+  const region =
+    regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId) ??
+    regionOptions.find((r) => r.regionType === 'region' && r.id === country?.parentRegionIds?.[0])
   const addtlRegion = country ?? region
 
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
-  if (region) { breadcrumb.push(region) }
-  if (country) { breadcrumb.push(country) }
+  if (region) {
+    breadcrumb.push(region)
+  }
+  if (country) {
+    breadcrumb.push(country)
+  }
   breadcrumb.push(subRegion)
   return { breadcrumb, addtlRegion }
 }
