@@ -178,7 +178,7 @@ export default function LayerToggleCard({
               <IconButton
                 size="small"
                 onClick={() => setInfoOpen((v) => !v)}
-                aria-label={t('read_more')}
+                aria-label={t(infoOpen ? 'buttons.hide_info' : 'buttons.show_info')}
                 aria-expanded={infoOpen}
               >
                 <InfoOutlined sx={{ fontSize: '1rem' }} />
