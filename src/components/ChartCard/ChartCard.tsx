@@ -74,6 +74,7 @@ export default function ChartCard({
   const chartRef = useRef<HTMLDivElement>(null)
   const plotRef = useRef<Plotly.PlotlyHTMLElement | null>(null)
   const filenameRef = useRef('chart-export')
+  const downloadInProgressRef = useRef(false)
   const [infoOpen, setInfoOpen] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(0)
   const infoTextKey = chartConfigData ? chartInfoTextKey[chartConfigData.chartName] : undefined
@@ -116,9 +117,10 @@ export default function ChartCard({
 
   const handleDownload = async () => {
     const gd = plotRef.current
-    if (!gd) {
+    if (!gd || downloadInProgressRef.current) {
       return
     }
+    downloadInProgressRef.current = true
     const originalOpacities = gd.data.map((trace) => (trace as Plotly.PlotData).marker?.opacity)
     try {
       await Plotly.restyle(gd, { 'marker.opacity': 1 })
@@ -129,7 +131,11 @@ export default function ChartCard({
         filename: filenameRef.current,
       })
     } finally {
-      await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+      try {
+        await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+      } finally {
+        downloadInProgressRef.current = false
+      }
     }
   }
 
