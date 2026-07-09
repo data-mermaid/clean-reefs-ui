@@ -625,7 +625,7 @@ export default function BaseMap({
   }, [selectedRegion, isMapLoaded, watershedLayer])
 
   // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
-  // TODO: field name 'total_sed_load_2020.x' is a temporary placeholder — remove once data team fixes join artifact.
+  // TODO: 'total_sed_load_2020' is a temporary placeholder — update when final field name is confirmed.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -656,7 +656,7 @@ export default function BaseMap({
       ]
       const fillColor: maplibregl.ExpressionSpecification = [
         'step',
-        ['get', 'total_sed_load_2020.x'],
+        ['get', 'total_sed_load_2020'],
         '#018571',
         breaks[0],
         '#76BBB0',

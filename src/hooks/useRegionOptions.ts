@@ -27,15 +27,26 @@ function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
   })
 }
 
+// countryRegionMap uses numeric COUNTRY_ID → [REALM_ID] from the watershed PMTiles.
+// mergedRegions is used to resolve REALM_ID bandIds back to region string IDs.
+// Falls back to the hardcoded COUNTRY_REGION_MAP (by slug) for countries not in the watershed data.
 function enrichCountries(
   countries: RegionOption[],
-  countryRegionMap: Record<string, string[]>,
-  validRegionIds: Set<string>,
+  countryRegionMap: Record<number, number[]>,
+  mergedRegions: RegionOption[],
 ): RegionOption[] {
+  const validRegionIds = new Set(mergedRegions.map((r) => r.id))
   return countries.map((c) => {
-    const rawIds = countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id] ?? []
-    const parentRegionIds = rawIds.filter((id) => validRegionIds.has(id))
-    return { ...c, parentRegionIds }
+    if (c.bandId !== undefined && countryRegionMap[c.bandId]?.length) {
+      const parentRegionIds = countryRegionMap[c.bandId]
+        .map((realmId) => mergedRegions.find((r) => r.bandId === realmId)?.id)
+        .filter((id): id is string => id !== undefined)
+      if (parentRegionIds.length > 0) {
+        return { ...c, parentRegionIds }
+      }
+    }
+    const fallbackIds = (COUNTRY_REGION_MAP[c.id] ?? []).filter((id) => validRegionIds.has(id))
+    return { ...c, parentRegionIds: fallbackIds }
   })
 }
 
@@ -59,8 +70,7 @@ const useRegionOptions = (): RegionOptionsResult => {
         return
       }
       const mergedRegions = mergeRegions(regions)
-      const validRegionIds = new Set(mergedRegions.map((r) => r.id))
-      const enriched = enrichCountries(countries, countryRegionMap, validRegionIds)
+      const enriched = enrichCountries(countries, countryRegionMap, mergedRegions)
       setRegionOptions([
         defaultGlobalRegionOption,
         ...mergedRegions,

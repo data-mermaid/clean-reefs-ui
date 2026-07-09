@@ -125,8 +125,8 @@ export async function fetchAllBoundaryFeatures(
   }
 }
 
-// TODO: replace 'total_sed_load_2020.x' with the correct field name once the data team fixes the join artifact
-const TEMP_SED_LOAD_FIELD = 'total_sed_load_2020.x'
+// TODO: field name is a temporary placeholder — update when data team confirms final schema
+const TEMP_SED_LOAD_FIELD = 'total_sed_load_2020'
 
 export async function fetchWatershedSedLoadValues(
   realmId?: number,
@@ -157,26 +157,26 @@ export async function fetchWatershedSedLoadValues(
   }
 }
 
-export async function fetchCountryRegionMap(): Promise<Record<string, string[]>> {
+// Returns COUNTRY_ID → [REALM_ID] mapping using numeric IDs from the watershed PMTiles.
+// The new watershed schema no longer includes TERRITORY1/REALM text fields — only numeric IDs.
+export async function fetchCountryRegionMap(): Promise<Record<number, number[]>> {
   try {
     const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
     if (!layer) {
       return {}
     }
 
-    const map: Record<string, string[]> = {}
+    const map: Record<number, number[]> = {}
     for (let i = 0; i < layer.length; i++) {
-      const { TERRITORY1, REALM } = layer.feature(i).properties
-      if (typeof TERRITORY1 !== 'string' || typeof REALM !== 'string') {
+      const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
+      if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
         continue
       }
-      const countryId = slugify(TERRITORY1)
-      const realmId = slugify(REALM)
-      if (!map[countryId]) {
-        map[countryId] = []
+      if (!map[COUNTRY_ID]) {
+        map[COUNTRY_ID] = []
       }
-      if (!map[countryId].includes(realmId)) {
-        map[countryId].push(realmId)
+      if (!map[COUNTRY_ID].includes(REALM_ID)) {
+        map[COUNTRY_ID].push(REALM_ID)
       }
     }
     return map
