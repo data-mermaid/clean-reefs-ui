@@ -32,13 +32,11 @@ function enrichCountries(
   countryRegionMap: Record<string, string[]>,
   validRegionIds: Set<string>,
 ): RegionOption[] {
-  return countries
-    .map((c) => {
-      const rawIds = countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id] ?? []
-      const parentRegionIds = rawIds.filter((id) => validRegionIds.has(id))
-      return { ...c, parentRegionIds }
-    })
-    .filter((c) => c.parentRegionIds.length > 0)
+  return countries.map((c) => {
+    const rawIds = countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id] ?? []
+    const parentRegionIds = rawIds.filter((id) => validRegionIds.has(id))
+    return { ...c, parentRegionIds }
+  })
 }
 
 const useRegionOptions = (): RegionOptionsResult => {
