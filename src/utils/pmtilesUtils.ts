@@ -95,6 +95,7 @@ export async function fetchAllBoundaryFeatures(
       return []
     }
 
+    const seen = new Set<string>()
     const results: RegionOption[] = []
     for (let i = 0; i < layer.length; i++) {
       const feature = layer.feature(i)
@@ -106,10 +107,15 @@ export async function fetchAllBoundaryFeatures(
       if (typeof label !== 'string' || label.length === 0) {
         continue
       }
+      const id = slugify(label)
+      if (seen.has(id)) {
+        continue
+      }
+      seen.add(id)
       const bandId = props[idProp] as number
       const extent = extents[label]
       results.push({
-        id: slugify(label),
+        id,
         regionType,
         label,
         bandId,

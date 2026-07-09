@@ -5,10 +5,7 @@ import styles from './RegionSelect.module.scss'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { KNOWN_REGIONS } from '../../data/coralReefRegions'
 import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
-import {
-  Autocomplete,
-  TextField,
-} from '@mui/material'
+import { Autocomplete, TextField } from '@mui/material'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -79,13 +76,10 @@ export default function RegionSelect({
           opts.push({ ...option, groupLabel: option.label })
         }
       } else if (option.regionType === 'country') {
-        const parentIds = option.parentRegionIds ?? []
-        if (parentIds.length === 0) {
-          opts.push({ ...option, groupLabel: '' })
-        } else {
-          for (const parentId of parentIds) {
-            const parent = regionOptions.find((r) => r.id === parentId)
-            opts.push({ ...option, groupLabel: parent?.label ?? '' })
+        for (const parentId of option.parentRegionIds ?? []) {
+          const parent = regionOptions.find((r) => r.id === parentId)
+          if (parent) {
+            opts.push({ ...option, groupLabel: parent.label })
           }
         }
       }
@@ -94,10 +88,16 @@ export default function RegionSelect({
     return opts.sort((a, b) => {
       const aOrder = groupOrder.get(a.groupLabel) ?? 999
       const bOrder = groupOrder.get(b.groupLabel) ?? 999
-      if (aOrder !== bOrder) { return aOrder - bOrder }
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
+      }
       // Within the same group, region option comes first
-      if (a.regionType === 'region' && b.regionType !== 'region') { return -1 }
-      if (a.regionType !== 'region' && b.regionType === 'region') { return 1 }
+      if (a.regionType === 'region' && b.regionType !== 'region') {
+        return -1
+      }
+      if (a.regionType !== 'region' && b.regionType === 'region') {
+        return 1
+      }
       return a.label.localeCompare(b.label)
     })
   }, [regionOptions])
@@ -111,7 +111,9 @@ export default function RegionSelect({
   }
 
   const handleAutocompleteChange = (_: React.SyntheticEvent, value: AutocompleteOption | null) => {
-    if (!value) { return }
+    if (!value) {
+      return
+    }
     setDropdownOpen(false)
 
     // Strip groupLabel — it's an autocomplete UI concern, not part of RegionOption
@@ -119,10 +121,11 @@ export default function RegionSelect({
 
     if (region.regionType === 'country') {
       const parentIds = region.parentRegionIds ?? []
-      const parentRegion = regionOptions.find((r) =>
-        r.regionType === 'region' &&
-        parentIds.includes(r.id) &&
-        (!groupLabel || r.label === groupLabel)
+      const parentRegion = regionOptions.find(
+        (r) =>
+          r.regionType === 'region' &&
+          parentIds.includes(r.id) &&
+          (!groupLabel || r.label === groupLabel),
       )
       updateRegion(region, parentRegion)
     } else {
@@ -136,7 +139,10 @@ export default function RegionSelect({
   }
 
   return (
-    <Box ref={rootRef} className={clsx(styles['region-select'], dropdownOpen && styles['region-select--open'])}>
+    <Box
+      ref={rootRef}
+      className={clsx(styles['region-select'], dropdownOpen && styles['region-select--open'])}
+    >
       {/* Up arrow — navigates one level up */}
       <StyledIconButtonWithTooltip
         tooltipText={t('buttons.up_one_level')}
@@ -192,7 +198,9 @@ export default function RegionSelect({
             }
             onChange={handleAutocompleteChange}
             onClose={(_, reason) => {
-              if (reason !== 'selectOption') { setDropdownOpen(false) }
+              if (reason !== 'selectOption') {
+                setDropdownOpen(false)
+              }
             }}
             filterOptions={(options, state) => {
               const input = state.inputValue.toLowerCase()
@@ -251,12 +259,16 @@ export default function RegionSelect({
 
       {/* Chevron — opens / closes dropdown */}
       <StyledIconButtonWithTooltip
-        tooltipText={dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')}
+        tooltipText={
+          dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')
+        }
         tooltipPlacement="bottom"
         size="small"
         onClick={() => setDropdownOpen((prev) => !prev)}
         className={styles['region-select__chevron']}
-        aria-label={dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')}
+        aria-label={
+          dropdownOpen ? t('regions.close_region_selector') : t('regions.open_region_selector')
+        }
         aria-expanded={dropdownOpen}
       >
         {dropdownOpen ? (

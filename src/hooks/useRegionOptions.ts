@@ -27,6 +27,20 @@ function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
   })
 }
 
+function enrichCountries(
+  countries: RegionOption[],
+  countryRegionMap: Record<string, string[]>,
+  validRegionIds: Set<string>,
+): RegionOption[] {
+  return countries
+    .map((c) => {
+      const rawIds = countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id] ?? []
+      const parentRegionIds = rawIds.filter((id) => validRegionIds.has(id))
+      return { ...c, parentRegionIds }
+    })
+    .filter((c) => c.parentRegionIds.length > 0)
+}
+
 const useRegionOptions = (): RegionOptionsResult => {
   const [regionOptions, setRegionOptions] = useState<RegionOption[]>(fallbackRegionOptions)
   const [loading, setLoading] = useState(true)
@@ -46,14 +60,12 @@ const useRegionOptions = (): RegionOptionsResult => {
         setLoading(false)
         return
       }
-      const enrichedCountries = countries.map((c) => ({
-        ...c,
-        parentRegionIds: countryRegionMap[c.id] ?? COUNTRY_REGION_MAP[c.id],
-      }))
+      const validRegionIds = new Set(regions.map((r) => r.id))
+      const enriched = enrichCountries(countries, countryRegionMap, validRegionIds)
       setRegionOptions([
         defaultGlobalRegionOption,
         ...mergeRegions(regions),
-        ...enrichedCountries,
+        ...enriched,
         ...watershedAndDispersalRegions,
       ])
       setLoading(false)
