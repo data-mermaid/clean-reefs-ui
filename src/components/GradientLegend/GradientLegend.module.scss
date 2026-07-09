@@ -1,7 +1,7 @@
 @use '../../styles/theme';
 
 .GradientLegend {
-  background-color: theme.$grey;
+  background-color: theme.$greyWhite;
   border-radius: theme.$borderRadius;
   padding: theme.$defaultSpacing;
   max-width: 300px;
