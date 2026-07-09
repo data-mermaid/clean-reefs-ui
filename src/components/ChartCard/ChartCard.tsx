@@ -242,9 +242,9 @@ export default function ChartCard({
             </StyledIconButtonWithTooltip>
           </div>
         )}
-        {infoTextKey && (
+        {infoTextKey && infoOpen && (
           <div className={styles['chart-card__info-panel']}>
-            <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />
+            <InfoPanel isOpen textKey={infoTextKey} />
           </div>
         )}
       </div>
