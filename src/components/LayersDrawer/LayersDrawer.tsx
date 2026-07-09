@@ -319,7 +319,7 @@ export default function LayersDrawer({
                   <IconButton
                     size="small"
                     onClick={() => setBoundariesInfoOpen((v) => !v)}
-                    aria-label={t('read_more')}
+                    aria-label={t(boundariesInfoOpen ? 'buttons.hide_info' : 'buttons.show_info')}
                     aria-expanded={boundariesInfoOpen}
                   >
                     <InfoOutlined sx={{ fontSize: '1rem' }} />

@@ -50,6 +50,8 @@
     "download_chart": "Download plot as a png",
     "show_chart_info": "Show chart information",
     "hide_chart_info": "Hide chart information",
+    "show_info": "Show information",
+    "hide_info": "Hide information",
     "go": "Go",
     "open_menu": "Open menu",
     "reload_page": "Reload page",
