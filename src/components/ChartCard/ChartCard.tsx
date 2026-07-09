@@ -225,7 +225,7 @@ export default function ChartCard({
                 <IconButton
                   size="small"
                   onClick={() => setInfoOpen((v) => !v)}
-                  aria-label={t('read_more')}
+                  aria-label={t(infoOpen ? 'buttons.hide_chart_info' : 'buttons.show_chart_info')}
                   aria-expanded={infoOpen}
                 >
                   <InfoOutlined sx={{ fontSize: '1rem' }} />

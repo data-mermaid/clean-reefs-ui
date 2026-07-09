@@ -48,6 +48,8 @@
     "close": "Close",
     "copy": "Copy",
     "download_chart": "Download plot as a png",
+    "show_chart_info": "Show chart information",
+    "hide_chart_info": "Hide chart information",
     "go": "Go",
     "open_menu": "Open menu",
     "reload_page": "Reload page",
