@@ -33,4 +33,8 @@
     font-size: theme.$textSizeXSmall;
     align-self: flex-start;
   }
+
+  & &__read-more {
+    text-decoration: underline;
+  }
 }
