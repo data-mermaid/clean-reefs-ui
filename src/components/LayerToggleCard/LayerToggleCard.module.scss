@@ -14,6 +14,10 @@
 .MuiFormControlLabel-root {
   margin-left: 0;
   justify-content: space-between;
+
+  :global(.MuiFormControlLabel-label) {
+    font-size: theme.$textSizeSmall;
+  }
 }
 .layer-card {
   margin: theme.$defaultSpacing;
@@ -21,11 +25,7 @@
   background-color: theme.$white;
 }
 
-.layer-card_title {
-  flex-grow: 1;
-}
 .layer-toggle-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }

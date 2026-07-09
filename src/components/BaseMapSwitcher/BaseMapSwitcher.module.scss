@@ -7,6 +7,10 @@
 .formControlLabelRoot {
   margin-left: 0;
   justify-content: space-between;
+
+  :global(.MuiFormControlLabel-label) {
+    font-size: theme.$textSizeSmall;
+  }
 }
 
 .basemap-card {
@@ -17,6 +21,7 @@
 
 .basemap-card_title {
   flex-grow: 1;
+  font-size: theme.$textSizeSmall;
 }
 
 .basemap-toggle-header {

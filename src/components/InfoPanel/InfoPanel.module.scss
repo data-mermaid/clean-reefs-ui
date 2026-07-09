@@ -1,0 +1,40 @@
+@use '../../styles/theme';
+
+.info-panel {
+  background-color: theme.$greyWhite;
+  border-radius: theme.$borderRadius;
+  padding: theme.$spacingSmall theme.$spacingMedium;
+  margin-bottom: theme.$spacingSmall;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingXSmall;
+
+  &__text {
+    font-size: theme.$textSizeXSmall;
+    color: theme.$textColor;
+  }
+
+  &__list {
+    margin: 0;
+    padding-left: theme.$spacingMedium;
+    display: flex;
+    flex-direction: column;
+    gap: theme.$spacingXXSmall;
+
+    li {
+      p {
+        font-size: theme.$textSizeXSmall;
+        color: theme.$textColor;
+      }
+    }
+  }
+
+  &__read-more {
+    font-size: theme.$textSizeXSmall;
+    align-self: flex-start;
+  }
+
+  & &__read-more {
+    text-decoration: underline;
+  }
+}

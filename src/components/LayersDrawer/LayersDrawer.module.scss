@@ -56,6 +56,23 @@
 
 .boundary-layer-title {
   flex-grow: 1;
+  font-size: theme.$textSizeSmall;
+}
+
+.boundaries-info-panel {
+  margin-left: theme.$defaultSpacing;
+  margin-right: theme.$defaultSpacing;
+}
+
+.layer-group-header {
+  display: flex;
+  align-items: center;
+  padding: theme.$defaultSpacing;
+  gap: theme.$spacingXXSmall;
+}
+
+.layer-group-title {
+  margin: 0;
 }
 
 .boundary-toggle-right {

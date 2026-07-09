@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './LayerToggleLegend.module.scss'
-import { Switch, Typography } from '@mui/material'
+import { IconButton, Switch, Typography } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import { SubLayerInfo } from '../../types/MapDataTypes'
 import { atlasBenthicColors } from '../../data/mapData'
+import InfoPanel from '../InfoPanel/InfoPanel'
 
 interface LayerToggleLegendProps {
   mapSubLayers: SubLayerInfo[]
@@ -18,11 +21,24 @@ export default function LayerToggleLegend({
   const { t } = useTranslation()
   const legendTextPrefix = 'benthic_map_layers'
   const anySubLayerOn = mapSubLayers.some((l) => l.isLayerOn)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   return (
     <div className={styles['LayerToggleLegend']}>
       <div className={styles['LayerToggleLegend__row']}>
-        <Typography className={styles['LayerToggleLegend__all-label']}>{t(`${legendTextPrefix}.all`)}</Typography>
+        <div className={styles['LayerToggleLegend__title-row']}>
+          <Typography className={styles['LayerToggleLegend__all-label']}>
+            {t(`${legendTextPrefix}.all`)}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setInfoOpen((v) => !v)}
+            aria-label={t(infoOpen ? 'buttons.hide_info' : 'buttons.show_info')}
+            aria-expanded={infoOpen}
+          >
+            <InfoOutlined sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </div>
         <div className={styles['LayerToggleLegend__item-row']}>
           <Switch
             className={styles['MuiSwitch-root']}
@@ -32,9 +48,12 @@ export default function LayerToggleLegend({
           />
         </div>
       </div>
+      <InfoPanel isOpen={infoOpen} textKey="info_text.benthic" />
       {mapSubLayers.map(({ layerId, isLayerOn }) => (
         <div className={styles['LayerToggleLegend__row']} key={layerId}>
-          <Typography>{t(`${legendTextPrefix}.${layerId}`)}</Typography>
+          <Typography className={styles['LayerToggleLegend__layer-label']}>
+            {t(`${legendTextPrefix}.${layerId}`)}
+          </Typography>
           <div className={styles['LayerToggleLegend__item-row']}>
             <div
               className={styles['LayerToggleLegend__item']}
