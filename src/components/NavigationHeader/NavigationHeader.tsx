@@ -38,7 +38,7 @@ export default function Header() {
 
   const navItems = [
     { label: t('science_and_methods'), href: '#' },
-    { label: t('contact'), href: '#' },
+    { label: t('contact'), href: 'mailto:info@globalpollutionwatch.org' },
   ]
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
@@ -97,7 +97,14 @@ export default function Header() {
                 }}
               >
                 {navItems.map((item) => (
-                  <MenuItem key={item.label} onClick={handleCloseNavMenu}>
+                  <MenuItem
+                    key={item.label}
+                    component="a"
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleCloseNavMenu}
+                  >
                     <Typography className={styles['navigation-menu-item']}>{item.label}</Typography>
                   </MenuItem>
                 ))}
