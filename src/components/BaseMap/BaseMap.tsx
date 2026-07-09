@@ -68,6 +68,7 @@ import {
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import { fetchWatershedSedLoadValues } from '../../utils/pmtilesUtils'
 import { transparent } from '../../data/mapData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 import GeoSearchControl from '../GeoSearchControl/GeoSearchControl'
@@ -622,6 +623,58 @@ export default function BaseMap({
     map.setFilter(watershedLayer.layerId, filter)
     map.setFilter(`${watershedLayer.layerId}-lines`, filter)
   }, [selectedRegion, isMapLoaded, watershedLayer])
+
+  // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
+  // TODO: field name 'total_sed_load_2020.x' is a temporary placeholder — remove once data team fixes join artifact.
+  useEffect(() => {
+    if (!isMapLoaded || !watershedLayer) {
+      return
+    }
+    const map = mapRef.current?.getMap()
+    if (!map) {
+      return
+    }
+    if (sedLoadSubLayerValue !== 'watershed') {
+      map.setPaintProperty(watershedLayer.layerId, 'fill-color', 'rgba(0,0,0,0)')
+      return
+    }
+    const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
+    fetchWatershedSedLoadValues(realmId, countryId).then((values) => {
+      if (!map.getLayer(watershedLayer.layerId)) {
+        return
+      }
+      const sorted = [...values].sort((a, b) => a - b)
+      const percentile = (p: number) => sorted[Math.floor((p / 100) * sorted.length)] ?? 0
+      const breaks = [
+        1,
+        percentile(10),
+        percentile(25),
+        percentile(50),
+        percentile(75),
+        percentile(90),
+      ]
+      const fillColor: maplibregl.ExpressionSpecification = [
+        'step',
+        ['get', 'total_sed_load_2020.x'],
+        '#018571',
+        breaks[0],
+        '#76BBB0',
+        breaks[1],
+        '#D1E4E1',
+        breaks[2],
+        '#F5F5F5',
+        breaks[3],
+        '#E4D5C5',
+        breaks[4],
+        '#c79e74',
+        breaks[5],
+        '#A6611A',
+      ]
+      map.setPaintProperty(watershedLayer.layerId, 'fill-color', fillColor)
+      map.setPaintProperty(watershedLayer.layerId, 'fill-opacity', 1)
+    })
+  }, [sedLoadSubLayerValue, selectedRegion, isMapLoaded, watershedLayer])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {

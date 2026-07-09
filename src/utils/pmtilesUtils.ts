@@ -125,6 +125,38 @@ export async function fetchAllBoundaryFeatures(
   }
 }
 
+// TODO: replace 'total_sed_load_2020.x' with the correct field name once the data team fixes the join artifact
+const TEMP_SED_LOAD_FIELD = 'total_sed_load_2020.x'
+
+export async function fetchWatershedSedLoadValues(
+  realmId?: number,
+  countryId?: number,
+): Promise<number[]> {
+  try {
+    const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
+    if (!layer) {
+      return []
+    }
+    const values: number[] = []
+    for (let i = 0; i < layer.length; i++) {
+      const props = layer.feature(i).properties
+      if (realmId !== undefined && props['REALM_ID'] !== realmId) {
+        continue
+      }
+      if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
+        continue
+      }
+      const val = props[TEMP_SED_LOAD_FIELD]
+      if (typeof val === 'number' && val > 0) {
+        values.push(val)
+      }
+    }
+    return values
+  } catch {
+    return []
+  }
+}
+
 export async function fetchCountryRegionMap(): Promise<Record<string, string[]>> {
   try {
     const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
