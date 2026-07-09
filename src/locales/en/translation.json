@@ -161,8 +161,8 @@
     }
   },
   "sediment": "Sediment",
-  "sediment_exposure_unit": "Sediment exposure",
-  "sediment_load_unit": "Sediment load (tonnes)",
+  "sediment_exposure_unit": "Sediment exposure (tons/ha)",
+  "sediment_load_unit": "Sediment load (tons)",
   "select_year": "Select year",
   "share_view": {
     "copied": "Copied",

@@ -17,8 +17,8 @@ import { buildLulcTileUrlTemplate } from '../utils/titilerUtils'
 export const transparent = 'rgba(0,0,0,0)'
 
 export const atlasBenthicColors = {
-  reef_extent: '#B2084C80',
-  coral_algae: '#CC6677',
+  reef_extent: '#CC6677',
+  coral_algae: '#003f5C',
   seagrass: '#117733',
   microalgal_mats: '#44AA99',
   rock: '#88CCEE',

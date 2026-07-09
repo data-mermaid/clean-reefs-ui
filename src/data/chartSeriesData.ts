@@ -21,9 +21,9 @@ export const chartSeriesConfig: ChartSeriesConfig = {
   'charts.ecosystem_extent_exposed': {
     barmode: 'group',
     legendColors: {
-      reef_extent: '#FB9A99',
+      reef_extent: '#CC6677',
       coral_algae: '#003F5C',
-      seagrass: '#FFA600',
+      seagrass: '#117733',
     },
     name: 'charts.ecosystem_extent_exposed',
     tracePrefix: 'benthic_map_layers',
