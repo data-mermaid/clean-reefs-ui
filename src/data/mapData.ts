@@ -17,8 +17,8 @@ import { buildLulcTileUrlTemplate } from '../utils/titilerUtils'
 export const transparent = 'rgba(0,0,0,0)'
 
 export const atlasBenthicColors = {
-  reef_extent: '#B2084C80',
-  coral_algae: '#CC6677',
+  reef_extent: '#CC6677',
+  coral_algae: '#003f5C',
   seagrass: '#117733',
   microalgal_mats: '#44AA99',
   rock: '#88CCEE',
@@ -266,7 +266,7 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     layerId: 'regions',
     link: REGIONS_PMTILES_URL,
-    outlineColor: '#CECE00',
+    outlineColor: 'hsl(20deg, 90%, 80%)',
     outlineStyle: false,
     parentLayerType: 'boundaries',
     sourceId: 'regions_src',
@@ -278,7 +278,7 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     layerId: 'countries',
     link: COUNTRIES_PMTILES_URL,
-    outlineColor: '#FF0000',
+    outlineColor: 'hsl(120deg, 90%, 80%)',
     parentLayerType: 'boundaries',
     sourceId: 'countries_src',
     sourceFileName: 'data',
@@ -350,7 +350,7 @@ export const layers: LayerInfo[] = [
     isLayerOn: true,
     layerId: 'watershed',
     link: WATERSHED_PMTILES_URL,
-    outlineColor: '#000',
+    outlineColor: 'hsl(0deg, 0%, 50%)',
     parentLayerType: 'boundaries',
     sourceId: 'watershed_src',
     sourceFileName: 'data',

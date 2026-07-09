@@ -100,9 +100,8 @@ export const INVEST_URL = 'https://naturalcapitalalliance.stanford.edu/software/
 export const SCROLL_TO_SECTION_OFFSET = 52
 
 /******COLORS******/
-export const sedExposureBoundaryOutlineColor = '#FFEA46'
-export const polygonOutlineHoverColor = '#F006'
-//export const polygonOutlineHoverColor = '#ff000066'
-export const polygonOutlineSelectColor = '#f00'
+export const sedExposureBoundaryOutlineColor = 'hsl(300deg, 100%, 25%)'
+export const polygonOutlineHoverColor = 'hsl(300deg, 41%, 63%)'
+export const polygonOutlineSelectColor = 'hsl(300deg, 81%, 43%)'
 export const polygonHighlightWidth = 3
 export const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
