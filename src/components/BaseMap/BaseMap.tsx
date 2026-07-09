@@ -234,7 +234,17 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
   })
 }
 
-function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
+function WatershedLayers({
+  layer,
+  index,
+  beforeId,
+  fillColor,
+}: {
+  layer
+  index
+  beforeId?: string
+  fillColor?: maplibregl.ExpressionSpecification | string
+}) {
   return (
     <Source
       id={layer.sourceId}
@@ -251,7 +261,7 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
         paint={{
-          'fill-color': transparent,
+          'fill-color': fillColor ?? transparent,
           'fill-outline-color': layer.outlineColor,
           'fill-opacity': layer.isLayerOn ? 1 : 0,
         }}
@@ -433,6 +443,9 @@ export default function BaseMap({
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
+  const [watershedFillColor, setWatershedFillColor] = useState<
+    maplibregl.ExpressionSpecification | string
+  >(transparent)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
     null,
@@ -627,21 +640,14 @@ export default function BaseMap({
   // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
   // TODO: 'total_sed_load_2020' is a temporary placeholder — update when final field name is confirmed.
   useEffect(() => {
-    if (!isMapLoaded || !watershedLayer) {
-      return
-    }
-    const map = mapRef.current?.getMap()
-    if (!map) {
-      return
-    }
     if (sedLoadSubLayerValue !== 'watershed') {
-      map.setPaintProperty(watershedLayer.layerId, 'fill-color', 'rgba(0,0,0,0)')
+      setWatershedFillColor(transparent)
       return
     }
     const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
     const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     fetchWatershedSedLoadValues(realmId, countryId).then((values) => {
-      if (!map.getLayer(watershedLayer.layerId)) {
+      if (values.length === 0) {
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
@@ -671,10 +677,9 @@ export default function BaseMap({
         breaks[5],
         '#A6611A',
       ]
-      map.setPaintProperty(watershedLayer.layerId, 'fill-color', fillColor)
-      map.setPaintProperty(watershedLayer.layerId, 'fill-opacity', 1)
+      setWatershedFillColor(fillColor)
     })
-  }, [sedLoadSubLayerValue, selectedRegion, isMapLoaded, watershedLayer])
+  }, [sedLoadSubLayerValue, selectedRegion])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -1188,6 +1193,7 @@ export default function BaseMap({
             layer={watershedLayer}
             index={watershedIndex}
             beforeId="shoreline-emphasis"
+            fillColor={watershedFillColor}
           />
         )}
         {/* Dispersal layers always rendered so tiles stay cached across year switches; visibility toggled
