@@ -12,7 +12,7 @@ export const defaultGlobalRegionOption: RegionOption = {
   id: 'global',
   regionType: 'global',
   label: 'Global',
-  extent: COUNTRY_EXTENTS['Fiji'],
+  extent: [-180, -40, 180, 40],
 }
 
 export const watershedAndDispersalRegions: RegionOption[] = [
