@@ -675,30 +675,27 @@ export default function BaseMap({
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
-      const n = sorted.length
-      const pct = (p: number) => sorted[Math.min(Math.floor(n * p), n - 1)]
-      const p10 = pct(0.1)
-      const p25 = pct(0.25)
-      const p50 = pct(0.5)
-      const p75 = pct(0.75)
-      const p90 = pct(0.9)
+      const log10min = Math.log10(Math.max(1, sorted[0]))
+      const log10max = Math.log10(sorted[sorted.length - 1])
+      const span = log10max - log10min || 1
       const field = `total_sed_load_${selectedYear}`
-      // Discrete 7-bucket step expression per spec.
-      // Dedup stops so MapLibre's strict-monotonic requirement holds for sparse samples.
-      const rawStops: [number, string][] = [
-        [1, '#76BBB0'],
-        [p10, '#D1E4E1'],
-        [p25, '#F5F5F5'],
-        [p50, '#E4D5C5'],
-        [p75, '#c79e74'],
-        [p90, '#A6611A'],
-      ]
-      const stops = rawStops.filter((stop, i, arr) => i === 0 || stop[0] > arr[i - 1][0])
-      const stepArgs = stops.flatMap(([threshold, color]) => [threshold, color])
+      // Smooth log10 interpolation across 7 colour stops.
+      // case wrapper makes zero/missing values transparent instead of clamping to first stop.
       const fillColor: maplibregl.ExpressionSpecification = [
         'case',
         ['>', ['coalesce', ['get', field], 0], 0],
-        ['step', ['get', field], '#018571', ...stepArgs] as maplibregl.ExpressionSpecification,
+        [
+          'interpolate',
+          ['linear'],
+          ['log10', ['max', 1, ['get', field]]],
+          log10min, '#018571',
+          log10min + span * 0.15, '#76BBB0',
+          log10min + span * 0.33, '#D1E4E1',
+          log10min + span * 0.5, '#F5F5F5',
+          log10min + span * 0.67, '#E4D5C5',
+          log10min + span * 0.85, '#c79e74',
+          log10min + span, '#A6611A',
+        ],
         transparent,
       ]
       setWatershedFillColor(fillColor)

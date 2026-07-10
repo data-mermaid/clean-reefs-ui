@@ -136,7 +136,7 @@ export default function MapContainer() {
     minValue: sedLoadMinValue,
     maxValue: sedLoadMaxValue,
     isLoading: sedLoadLoading,
-  } = useSedLoadStatistics(latestYear)
+  } = useSedLoadStatistics(latestYear, selectedRegion)
 
   // Update the active sed_exposure tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -552,8 +552,8 @@ export default function MapContainer() {
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
-        sedLoadMinValue={sedLoadMinValue ?? undefined}
-        sedLoadMaxValue={sedLoadMaxValue ?? undefined}
+        sedLoadMinValue={subSedLayerValue === 'watershed' ? sedLoadMinValue ?? undefined : undefined}
+        sedLoadMaxValue={subSedLayerValue === 'watershed' ? sedLoadMaxValue ?? undefined : undefined}
         sedLoadLoading={sedLoadLoading}
       />
       <TrendsDrawer

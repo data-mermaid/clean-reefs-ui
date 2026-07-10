@@ -144,15 +144,44 @@ export function buildSedExposureTileUrl(collectionId: string, itemId: string, ma
 
 // ─── Sed Load ──────────────────────────────────────────────────────────────
 
+/** Build the TiTiler expression and required asset bands for the selected region.
+ * NOTE: country COUNTRY_IDs (b2) may not align with boundary PMTiles IDs for all countries
+ * (confirmed mismatch for Fiji — raised with data team). Results may be incorrect per-country. */
+export function buildSedLoadExpression(region: RegionOption): ExpressionConfig {
+  if (region.bandId == null) {
+    return { expression: null, assetBidx: 'cog|1' }
+  }
+
+  if (region.regionType === 'country') {
+    return {
+      expression: `where((cog_b2==${region.bandId * 1000}), cog_b1, 0)`,
+      assetBidx: 'cog|1,2',
+    }
+  }
+  if (region.regionType === 'region') {
+    return {
+      expression: `where((cog_b3==${region.bandId * 1000}), cog_b1, 0)`,
+      assetBidx: 'cog|1,3',
+    }
+  }
+
+  return { expression: null, assetBidx: 'cog|1' }
+}
+
 /**
  * Fetch statistics for a sediment load item from TiTiler.
+ * Pass a region to get scope-specific percentiles; omit for global stats.
  * Clamps percentile_2 to 0 — raw values can be slightly negative due to data artifacts.
  */
 export async function fetchSedLoadStatistics(
   year: number,
+  region?: RegionOption,
   signal?: AbortSignal,
 ): Promise<MinMaxValues | null> {
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
+  const { expression, assetBidx } = region
+    ? buildSedLoadExpression(region)
+    : { expression: null, assetBidx: 'cog|1' }
   const timeoutController = new AbortController()
   const timeoutId = setTimeout(() => timeoutController.abort(), TITILER_API_TIMEOUT)
   const combinedSignal = signal
@@ -164,7 +193,10 @@ export async function fetchSedLoadStatistics(
       `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/statistics`,
     )
     url.searchParams.append('assets', 'cog')
-    url.searchParams.append('asset_bidx', 'cog|1')
+    url.searchParams.append('asset_bidx', assetBidx)
+    if (expression) {
+      url.searchParams.append('expression', expression)
+    }
     url.searchParams.append('max_size', '1025')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })
@@ -175,7 +207,8 @@ export async function fetchSedLoadStatistics(
     }
 
     const data: StatisticsResponse = await response.json()
-    const statsData = data['cog_b1']
+    const statsKey = expression ?? 'cog_b1'
+    const statsData = data[statsKey]
 
     if (
       !statsData ||

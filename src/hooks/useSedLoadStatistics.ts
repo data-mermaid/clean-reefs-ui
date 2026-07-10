@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchSedLoadStatistics } from '../utils/titilerUtils'
 import { SED_LOAD_COLLECTION_ID } from '../constants'
+import { RegionOption } from '../types/RegionDataTypes'
 
 interface SedLoadStatistics {
   minValue: number | null
@@ -15,13 +16,13 @@ interface CachedStats {
 
 const statsCache = new Map<string, CachedStats>()
 
-const useSedLoadStatistics = (latestYear: number): SedLoadStatistics => {
+const useSedLoadStatistics = (latestYear: number, selectedRegion: RegionOption): SedLoadStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const cacheKey = `${SED_LOAD_COLLECTION_ID}|${latestYear}`
+    const cacheKey = `${SED_LOAD_COLLECTION_ID}|${latestYear}|${selectedRegion.id}`
 
     const cached = statsCache.get(cacheKey)
     if (cached) {
@@ -38,7 +39,7 @@ const useSedLoadStatistics = (latestYear: number): SedLoadStatistics => {
     // stays mounted in MapLibre and the tile cache stays warm.
     setIsLoading(true)
 
-    fetchSedLoadStatistics(latestYear, controller.signal).then((result) => {
+    fetchSedLoadStatistics(latestYear, selectedRegion, controller.signal).then((result) => {
       if (cancelled) {
         return
       }
@@ -54,7 +55,7 @@ const useSedLoadStatistics = (latestYear: number): SedLoadStatistics => {
       cancelled = true
       controller.abort()
     }
-  }, [latestYear])
+  }, [latestYear, selectedRegion])
 
   return { minValue, maxValue, isLoading }
 }
