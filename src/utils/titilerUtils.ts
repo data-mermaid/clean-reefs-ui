@@ -129,6 +129,9 @@ export async function fetchSedExposureStatistics(
  * Build a MapLibre-compatible tile URL template for sed exposure with dynamic rescale.
  * Uses {z}/{x}/{y} placeholders that MapLibre fills in when fetching tiles.
  * The expression clamps values at max so nothing renders out of range.
+ * NOTE: multi-band expression filtering (per country/region) is not supported by the
+ * /collections/.../items/.../tiles/ endpoint — the tile always shows full CIP coverage.
+ * Raised as Q6 in design-questions-draft.md.
  */
 export function buildSedExposureTileUrl(collectionId: string, itemId: string, max: number): string {
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`

@@ -1131,6 +1131,16 @@ export default function BaseMap({
       })
   }
 
+  // Sed exposure tiles always render the full CIP dataset — the tile endpoint does not support
+  // per-country band filtering (returns 502). Temporary solution: show for global, CIP region,
+  // and CIP countries; hide for non-CIP scopes. CIP country selections will still bleed data
+  // from other CIP countries. See Q6 in design-questions-draft.md.
+  const sedExposureScopeValid =
+    selectedRegion.regionType === 'global' ||
+    selectedRegion.id === 'central-indo-pacific' ||
+    (selectedRegion.regionType === 'country' &&
+      selectedRegion.parentRegionIds?.includes('central-indo-pacific'))
+
   return (
     <div className={styles['map-wrap']}>
       {!isMapLoaded && <LoadingState isOverlay={true} />}
@@ -1227,6 +1237,7 @@ export default function BaseMap({
             via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
             beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
         {isMapLoaded &&
+          sedExposureScopeValid &&
           mapLayers
             .filter((l) => l.layerId === 'sed_exposure_boundary')
             .map((l, i) => (
@@ -1326,15 +1337,8 @@ export default function BaseMap({
             }
             const shouldRenderSedLoadRasterTile =
               layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
-            // Sed exposure data only exists for Central Indo-Pacific. Hide the layer when the
-            // selected scope has no data (non-CIP region, or country outside CIP).
-            const isInCentralIndoPacific =
-              selectedRegion.regionType === 'global' ||
-              selectedRegion.id === 'central-indo-pacific' ||
-              (selectedRegion.regionType === 'country' &&
-                selectedRegion.parentRegionIds?.includes('central-indo-pacific'))
             const shouldRenderSedExposureRasterTile =
-              layer.layerId !== 'sed_exposure' || isInCentralIndoPacific
+              layer.layerId !== 'sed_exposure' || sedExposureScopeValid
             return (
               isMapLoaded && (
                 <Source
