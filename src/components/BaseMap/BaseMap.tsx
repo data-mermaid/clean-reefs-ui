@@ -651,7 +651,7 @@ export default function BaseMap({
     if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
       setWatershedFillColor(transparent)
       setWatershedChoroplethExpression(transparent)
-      return
+      return undefined
     }
     // Always normalize at region scale so country and its parent region share the same color ramp.
     // For a country, resolve its parent region's bandId via regionOptions lookup.
@@ -661,6 +661,7 @@ export default function BaseMap({
         : selectedRegion.regionType === 'country' && selectedRegion.parentRegionIds?.[0]
           ? regionOptions.find((r) => r.id === selectedRegion.parentRegionIds![0])?.bandId
           : undefined
+    let cancelled = false
     const fetchWithFallback = async () => {
       let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, undefined)
       if (values.length === 0) {
@@ -669,6 +670,9 @@ export default function BaseMap({
       return values
     }
     fetchWithFallback().then((values) => {
+      if (cancelled) {
+        return
+      }
       if (values.length === 0) {
         setWatershedFillColor(transparent)
         setWatershedChoroplethExpression(transparent)
@@ -701,6 +705,7 @@ export default function BaseMap({
       setWatershedFillColor(fillColor)
       setWatershedChoroplethExpression(fillColor)
     })
+    return () => { cancelled = true }
   }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, regionOptions])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
