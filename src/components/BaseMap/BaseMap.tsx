@@ -411,6 +411,7 @@ export default function BaseMap({
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
+  const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
   const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
@@ -457,6 +458,10 @@ export default function BaseMap({
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),
     [mapLayers],
+  )
+  const isSedLoadOn = useMemo(
+    () => mapLayers.some((l) => l.layerId === 'sed_load' && l.isLayerOn && l.year === selectedYear),
+    [mapLayers, selectedYear],
   )
   const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
   const sedExposureBoundaryLayer = useMemo(
@@ -618,6 +623,7 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
+
   // Filter watershed layer to only show features matching the selected region/country.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
@@ -638,45 +644,65 @@ export default function BaseMap({
   }, [selectedRegion, isMapLoaded, watershedLayer])
 
   // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
-  // TODO: 'total_sed_load_2020' is a temporary placeholder — update when final field name is confirmed.
+  // Percentile breakpoints are always derived from 2020 data at the current scope (per spec).
+  // Values < 1 ton are excluded from the percentile calculation and get their own color bucket.
+  // The display field changes with selectedYear so colors reflect the chosen year's actual values.
   useEffect(() => {
-    if (sedLoadSubLayerValue !== 'watershed') {
+    if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
       setWatershedFillColor(transparent)
+      setWatershedChoroplethExpression(transparent)
       return
     }
-    const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
-    const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
-    fetchWatershedSedLoadValues(realmId, countryId).then((values) => {
+    // Always normalize at region scale so country and its parent region share the same color ramp.
+    // For a country, resolve its parent region's bandId via regionOptions lookup.
+    const normalizationRealmId =
+      selectedRegion.regionType === 'region'
+        ? selectedRegion.bandId
+        : selectedRegion.regionType === 'country' && selectedRegion.parentRegionIds?.[0]
+          ? regionOptions.find((r) => r.id === selectedRegion.parentRegionIds![0])?.bandId
+          : undefined
+    const fetchWithFallback = async () => {
+      let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, undefined)
       if (values.length === 0) {
+        values = await fetchWatershedSedLoadValues(2020, undefined, undefined)
+      }
+      return values
+    }
+    fetchWithFallback().then((values) => {
+      if (values.length === 0) {
+        setWatershedFillColor(transparent)
+        setWatershedChoroplethExpression(transparent)
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
       const log10min = Math.log10(Math.max(1, sorted[0]))
       const log10max = Math.log10(sorted[sorted.length - 1])
       const span = log10max - log10min || 1
-      // 7 color stops distributed across the log10 range for a smooth gradient
+      const field = `total_sed_load_${selectedYear}`
+      // Smooth log10 interpolation across 7 color stops.
+      // Last stop uses log10min + span (not log10max) to stay monotonic when span is overridden to 1.
+      // case wrapper makes zero/missing values transparent instead of clamping to first stop.
       const fillColor: maplibregl.ExpressionSpecification = [
-        'interpolate',
-        ['linear'],
-        ['log10', ['max', 1, ['get', 'total_sed_load_2020']]],
-        log10min,
-        '#018571',
-        log10min + span * 0.15,
-        '#76BBB0',
-        log10min + span * 0.33,
-        '#D1E4E1',
-        log10min + span * 0.5,
-        '#F5F5F5',
-        log10min + span * 0.67,
-        '#E4D5C5',
-        log10min + span * 0.85,
-        '#c79e74',
-        log10max,
-        '#A6611A',
+        'case',
+        ['>', ['coalesce', ['get', field], 0], 0],
+        [
+          'interpolate',
+          ['linear'],
+          ['log10', ['max', 1, ['get', field]]],
+          log10min, '#018571',
+          log10min + span * 0.15, '#76BBB0',
+          log10min + span * 0.33, '#D1E4E1',
+          log10min + span * 0.5, '#F5F5F5',
+          log10min + span * 0.67, '#E4D5C5',
+          log10min + span * 0.85, '#c79e74',
+          log10min + span, '#A6611A',
+        ],
+        transparent,
       ]
       setWatershedFillColor(fillColor)
+      setWatershedChoroplethExpression(fillColor)
     })
-  }, [sedLoadSubLayerValue, selectedRegion])
+  }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, regionOptions])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -1294,6 +1320,8 @@ export default function BaseMap({
             if (!layer.link) {
               return null
             }
+            const shouldRenderSedLoadRasterTile =
+              layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
             return (
               isMapLoaded && (
                 <Source
@@ -1311,7 +1339,10 @@ export default function BaseMap({
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
-                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+                    layout={{
+                      visibility:
+                        layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',
+                    }}
                   />
                 </Source>
               )

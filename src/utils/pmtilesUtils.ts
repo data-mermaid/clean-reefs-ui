@@ -125,10 +125,8 @@ export async function fetchAllBoundaryFeatures(
   }
 }
 
-// TODO: field name is a temporary placeholder — update when data team confirms final schema
-const TEMP_SED_LOAD_FIELD = 'total_sed_load_2020'
-
 export async function fetchWatershedSedLoadValues(
+  year: number,
   realmId?: number,
   countryId?: number,
 ): Promise<number[]> {
@@ -137,6 +135,7 @@ export async function fetchWatershedSedLoadValues(
     if (!layer) {
       return []
     }
+    const field = `total_sed_load_${year}`
     const values: number[] = []
     for (let i = 0; i < layer.length; i++) {
       const props = layer.feature(i).properties
@@ -146,7 +145,7 @@ export async function fetchWatershedSedLoadValues(
       if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
         continue
       }
-      const val = props[TEMP_SED_LOAD_FIELD]
+      const val = props[field]
       if (typeof val === 'number' && val > 0) {
         values.push(val)
       }

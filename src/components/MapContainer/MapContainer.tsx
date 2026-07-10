@@ -110,7 +110,7 @@ export default function MapContainer() {
   const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
 
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
+  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('watershed')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
   const [activePanel, setActivePanel] = useState<ActivePanel>(() =>
     isPanelMobile ? null : 'graphs',

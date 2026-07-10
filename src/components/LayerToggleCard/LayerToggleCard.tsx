@@ -76,7 +76,7 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend
-            variation={layerId}
+            variation={subSedLayerValue === 'watershed' ? 'sed_load_watershed' : layerId}
             minValue={sedLoadMinValue}
             maxValue={sedLoadMaxValue}
             isLoading={sedLoadLoading}
