@@ -1333,7 +1333,7 @@ export default function BaseMap({
                   tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
-                  minzoom={6}
+                  minzoom={0}
                 >
                   <Layer
                     id={layer.sourceId}
