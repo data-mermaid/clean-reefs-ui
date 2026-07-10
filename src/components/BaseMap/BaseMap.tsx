@@ -1321,6 +1321,15 @@ export default function BaseMap({
             }
             const shouldRenderSedLoadRasterTile =
               layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
+            // Sed exposure data only exists for Central Indo-Pacific. Hide the layer when the
+            // selected scope has no data (non-CIP region, or country outside CIP).
+            const isInCentralIndoPacific =
+              selectedRegion.regionType === 'global' ||
+              selectedRegion.id === 'central-indo-pacific' ||
+              (selectedRegion.regionType === 'country' &&
+                selectedRegion.parentRegionIds?.includes('central-indo-pacific'))
+            const shouldRenderSedExposureRasterTile =
+              layer.layerId !== 'sed_exposure' || isInCentralIndoPacific
             return (
               isMapLoaded && (
                 <Source
@@ -1340,7 +1349,11 @@ export default function BaseMap({
                     beforeId="benthic"
                     layout={{
                       visibility:
-                        layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',
+                        layer.isLayerOn &&
+                        shouldRenderSedLoadRasterTile &&
+                        shouldRenderSedExposureRasterTile
+                          ? 'visible'
+                          : 'none',
                     }}
                   />
                 </Source>
