@@ -81,6 +81,7 @@ interface ApplyDispersalStatsParams {
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onRegionChange: (region: RegionOption) => void
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
 }
 
 interface HandleMapClickParamProps {
@@ -93,6 +94,7 @@ interface HandleMapClickParamProps {
   requestIdRef: RefObject<number>
   onRegionChange: (region: RegionOption) => void
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
 }
 
 interface BaseMapProps {
@@ -165,6 +167,7 @@ const applyDispersalStats = ({
   setBreadcrumb,
   onRegionChange,
   regionOptions,
+  selectedRegion,
 }: ApplyDispersalStatsParams): void => {
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedDispersalWatershedStats } = useSelectedFeatureStore.getState()
@@ -189,6 +192,7 @@ const applyDispersalStats = ({
     watershedFeatures[0]?.properties,
     { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
     regionOptions,
+    selectedRegion,
   )
 
   setBreadcrumb(breadcrumb)
@@ -211,6 +215,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     requestIdRef,
     onRegionChange,
     regionOptions,
+    selectedRegion,
   } = clickParams
 
   onWatershedSelectionClear()
@@ -231,6 +236,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     setBreadcrumb,
     onRegionChange,
     regionOptions,
+    selectedRegion,
   })
 }
 
@@ -432,6 +438,8 @@ export default function BaseMap({
   selectedYearRef.current = selectedYear
   const regionOptionsRef = useRef<RegionOption[]>(regionOptions)
   regionOptionsRef.current = regionOptions
+  const selectedRegionRef = useRef<RegionOption>(selectedRegion)
+  selectedRegionRef.current = selectedRegion
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const sedExposureBoundaryClickRef = useRef<string | number | null>(null)
@@ -514,6 +522,7 @@ export default function BaseMap({
             feature.properties,
             { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
             regionOptionsRef.current,
+            selectedRegionRef.current,
           )
 
           setBreadcrumb(breadcrumb)
@@ -619,6 +628,7 @@ export default function BaseMap({
       setBreadcrumb,
       onRegionChange,
       regionOptions,
+      selectedRegion: selectedRegionRef.current,
     })
     // dispersalPoint, selectedDispersalWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
@@ -976,6 +986,7 @@ export default function BaseMap({
               setBreadcrumb,
               onRegionChange,
               regionOptions,
+              selectedRegion: selectedRegionRef.current,
             })
           })()
         }
@@ -1114,6 +1125,7 @@ export default function BaseMap({
         requestIdRef: sedExposureBoundaryRequestIdRef,
         onRegionChange,
         regionOptions: regionOptionsRef.current,
+        selectedRegion: selectedRegionRef.current,
       })
     }
 

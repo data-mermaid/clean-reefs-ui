@@ -61,6 +61,7 @@ export default function MapContainer() {
   const shouldSyncYearParam = year !== normalizedYearParam
 
   const regionParam = searchParams.get('region')
+  const parentRegionParam = searchParams.get('parentRegion')
   const initialRegion = getValidRegion(regionParam, regionOptions)
   const normalizedRegionParam = initialRegion.id
   const shouldSyncRegionParam = !regionOptionsLoading && regionParam !== normalizedRegionParam
@@ -260,12 +261,28 @@ export default function MapContainer() {
   ])
 
   // regionOptions in deps so the breadcrumb is rebuilt once real data loads and replaces the fallback.
+  // parentRegionParam encodes which group a multi-region country was selected from (e.g. Thailand
+  // under WIP vs CIP) so that context survives the URL-driven re-initialization.
   useEffect(() => {
-    setSelectedRegion(initialRegion)
-    if (!watershedParam && !dispersalPointParam) {
-      setBreadcrumb(buildBreadcrumbFromRegion(initialRegion, regionOptions))
+    let regionToSet = initialRegion
+    let parentRegion: RegionOption | undefined
+    if (parentRegionParam && initialRegion.regionType === 'country') {
+      const parentIds = initialRegion.parentRegionIds ?? []
+      if (parentIds.includes(parentRegionParam) && parentIds[0] !== parentRegionParam) {
+        regionToSet = {
+          ...initialRegion,
+          parentRegionIds: [parentRegionParam, ...parentIds.filter((id) => id !== parentRegionParam)],
+        }
+      }
+      parentRegion = regionOptions.find(
+        (r) => r.regionType === 'region' && r.id === parentRegionParam,
+      )
     }
-  }, [initialRegion, watershedParam, dispersalPointParam, regionOptions])
+    setSelectedRegion(regionToSet)
+    if (!watershedParam && !dispersalPointParam) {
+      setBreadcrumb(buildBreadcrumbFromRegion(regionToSet, regionOptions, parentRegion))
+    }
+  }, [initialRegion, watershedParam, dispersalPointParam, regionOptions, parentRegionParam])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -339,6 +356,13 @@ export default function MapContainer() {
       updateSearchParams((prev) => {
         const nextSearchParams = new URLSearchParams(prev)
         nextSearchParams.set('region', region.id)
+        // Persist the first parentRegionId so the useEffect re-initialization uses the correct
+        // region context (e.g. Thailand selected from WIP vs CIP).
+        if (region.regionType === 'country' && region.parentRegionIds?.[0]) {
+          nextSearchParams.set('parentRegion', region.parentRegionIds[0])
+        } else {
+          nextSearchParams.delete('parentRegion')
+        }
         nextSearchParams.delete('watershed')
         nextSearchParams.delete('dispersal-point')
         return nextSearchParams
