@@ -436,6 +436,7 @@ export default function BaseMap({
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
   const sedExposureBoundaryRequestIdRef = useRef(0) // Tracks the latest dispersal click fetch so earlier, slower responses don't overwrite newer ones.
+  const choroplethRequestIdRef = useRef(0)
   // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onDispersalClick)
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
@@ -667,14 +668,14 @@ export default function BaseMap({
     if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
       setWatershedFillColor(transparent)
       setWatershedChoroplethExpression(transparent)
-      return undefined
+      return
     }
     // Normalize at the current scope: region bandId for region scope, country bandId for country scope.
     const normalizationRealmId =
       selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
     const normalizationCountryId =
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
-    let cancelled = false
+    const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
       let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, normalizationCountryId)
       if (values.length === 0) {
@@ -683,7 +684,7 @@ export default function BaseMap({
       return values
     }
     fetchWithFallback().then((values) => {
-      if (cancelled) {
+      if (requestId !== choroplethRequestIdRef.current) {
         return
       }
       if (values.length === 0) {
@@ -718,7 +719,6 @@ export default function BaseMap({
       setWatershedFillColor(fillColor)
       setWatershedChoroplethExpression(fillColor)
     })
-    return () => { cancelled = true }
   }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, regionOptions])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
