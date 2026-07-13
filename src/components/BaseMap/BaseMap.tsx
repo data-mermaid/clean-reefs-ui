@@ -245,11 +245,13 @@ function WatershedLayers({
   index,
   beforeId,
   fillColor,
+  filter,
 }: {
   layer
   index
   beforeId?: string
   fillColor?: maplibregl.ExpressionSpecification | string
+  filter?: maplibregl.FilterSpecification | null
 }) {
   return (
     <Source
@@ -266,6 +268,7 @@ function WatershedLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...(filter != null ? { filter } : {})}
         paint={{
           'fill-color': fillColor ?? transparent,
           'fill-outline-color': layer.outlineColor,
@@ -279,6 +282,7 @@ function WatershedLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...(filter != null ? { filter } : {})}
         layout={{ 'line-sort-key': 5 }}
         paint={{
           'line-width': [
@@ -639,33 +643,21 @@ export default function BaseMap({
   // Filter watershed layer to the current scope.
   // At region scope, filter by country ID list so countries like Australia — whose watersheds
   // span multiple marine realms — show their full watershed coverage.
-  // At country scope, show only that country's watersheds and normalize colors within the country.
-  useEffect(() => {
-    if (!isMapLoaded || !watershedLayer) {
-      return
-    }
-    const map = mapRef.current?.getMap()
-    if (!map) {
-      return
-    }
-    let filter: maplibregl.FilterSpecification | null = null
-
-    const getRegionCountryIds = (regionId: string): number[] =>
-      regionOptionsRef.current
-        .filter((r) => r.regionType === 'country' && r.parentRegionIds?.includes(regionId) && r.bandId != null)
-        .map((r) => r.bandId as number)
-
+  // At country scope, show only that country's watersheds.
+  // Passed as a declarative prop to WatershedLayers so react-map-gl re-applies it automatically
+  // after a basemap style change (imperative setFilter would be wiped by setStyle).
+  const watershedFilter = useMemo((): maplibregl.FilterSpecification | null => {
     if (selectedRegion.regionType === 'region') {
-      const countryIds = getRegionCountryIds(selectedRegion.id)
-      if (countryIds.length > 0) {
-        filter = ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]]
-      }
-    } else if (selectedRegion.regionType === 'country' && selectedRegion.bandId != null) {
-      filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+      const countryIds = regionOptions
+        .filter((r) => r.regionType === 'country' && r.parentRegionIds?.includes(selectedRegion.id) && r.bandId != null)
+        .map((r) => r.bandId as number)
+      return countryIds.length > 0 ? ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]] : null
     }
-    map.setFilter(watershedLayer.layerId, filter)
-    map.setFilter(`${watershedLayer.layerId}-lines`, filter)
-  }, [selectedRegion, isMapLoaded, watershedLayer])
+    if (selectedRegion.regionType === 'country' && selectedRegion.bandId != null) {
+      return ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+    }
+    return null
+  }, [selectedRegion, regionOptions])
 
   // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
   // Percentile breakpoints are always derived from 2020 data at the current scope (per spec).
@@ -1254,6 +1246,7 @@ export default function BaseMap({
             index={watershedIndex}
             beforeId="shoreline-emphasis"
             fillColor={watershedFillColor}
+            filter={watershedFilter}
           />
         )}
         {/* Dispersal layers always rendered so tiles stay cached and click events fire regardless
