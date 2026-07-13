@@ -557,37 +557,44 @@ export function buildBreadcrumbFromFeature(
 ): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } {
   const countryId = featureProperties?.COUNTRY_ID as number | undefined
   const realmId = featureProperties?.REALM_ID as number | undefined
-  const country = regionOptions.find((r) => r.bandId === countryId)
+  const country = countryId !== undefined ? regionOptions.find((r) => r.bandId === countryId) : undefined
 
   const parentRegionIds = country?.parentRegionIds ?? []
-  // Derive the currently active region from selectedRegion:
-  // - If it's a region, use it directly (region scope click)
-  // - If it's a country, use parentRegionIds[0] which carries the WIP/CIP context the user
-  //   chose from the dropdown (e.g. Indonesia selected from WIP → parentRegionIds[0] = WIP)
+
+  // The active region context from selectedRegion:
+  // - region scope → use it directly
+  // - country scope → parentRegionIds[0] carries the WIP/CIP choice from the dropdown
   const currentRegionId =
-    selectedRegion?.regionType === 'region'
-      ? selectedRegion.id
-      : selectedRegion?.parentRegionIds?.[0]
-  const region =
-    (currentRegionId && parentRegionIds.includes(currentRegionId)
-      ? regionOptions.find((r) => r.regionType === 'region' && r.id === currentRegionId)
-      : undefined) ??
-    regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionIds[0]) ??
-    regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId)
-  // Return selectedRegion (if at country scope) or country with reordered parentRegionIds so
-  // onRegionChange syncs the correct WIP/CIP context back to URL without a flicker.
-  const addtlRegion =
-    selectedRegion?.regionType === 'country'
-      ? selectedRegion
-      : country && currentRegionId && country.parentRegionIds?.[0] !== currentRegionId
-        ? {
-            ...country,
-            parentRegionIds: [
-              currentRegionId,
-              ...(country.parentRegionIds ?? []).filter((id) => id !== currentRegionId),
-            ],
-          }
-        : (country ?? region)
+    selectedRegion?.regionType === 'region' ? selectedRegion.id : selectedRegion?.parentRegionIds?.[0]
+
+  // Resolve the region for the breadcrumb in priority order:
+  // 1. Current scope region, if it's a valid parent of this country
+  // 2. Country's first known parent region
+  // 3. Feature's own REALM_ID as last resort
+  let region: RegionOption | undefined
+  if (currentRegionId && parentRegionIds.includes(currentRegionId)) {
+    region = regionOptions.find((r) => r.regionType === 'region' && r.id === currentRegionId)
+  }
+  region ??= regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionIds[0])
+  if (!region && realmId !== undefined) {
+    region = regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId)
+  }
+
+  // Resolve addtlRegion — synced to URL via onRegionChange to keep scope context:
+  // - country scope: return current selectedRegion as-is (preserves WIP/CIP from dropdown)
+  // - region scope with context mismatch: return country with currentRegionId moved to front
+  // - otherwise: plain country, or region if no country found
+  let addtlRegion: RegionOption | undefined
+  if (selectedRegion?.regionType === 'country') {
+    addtlRegion = selectedRegion
+  } else if (country && currentRegionId && country.parentRegionIds?.[0] !== currentRegionId) {
+    addtlRegion = {
+      ...country,
+      parentRegionIds: [currentRegionId, ...(country.parentRegionIds ?? []).filter((id) => id !== currentRegionId)],
+    }
+  } else {
+    addtlRegion = country ?? region
+  }
 
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
   if (region) {
