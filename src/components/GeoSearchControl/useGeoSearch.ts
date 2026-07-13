@@ -79,6 +79,9 @@ export function useGeoSearch() {
           },
         },
       )
+      if (!res.ok) {
+        throw new Error(res.statusText)
+      }
       const data: NominatimResult[] = await res.json()
       if (requestId !== requestIdRef.current) {
         return
