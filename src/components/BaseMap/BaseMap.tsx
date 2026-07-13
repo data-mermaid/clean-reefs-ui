@@ -328,10 +328,12 @@ function SedExposureBoundaryLayers({
   layer,
   index,
   beforeId,
+  visible,
 }: {
   layer
   index
   beforeId?: string
+  visible: boolean
 }) {
   return (
     <Source
@@ -365,7 +367,7 @@ function SedExposureBoundaryLayers({
             polygonHighlightWidth,
             1,
           ],
-          'line-opacity': layer.isLayerOn ? 1 : 0,
+          'line-opacity': layer.isLayerOn && visible ? 1 : 0,
         }}
       />
       <Layer
@@ -624,7 +626,10 @@ export default function BaseMap({
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
 
-  // Filter watershed layer to only show features matching the selected region/country.
+  // Filter watershed layer to the countries in the current scope.
+  // Filtering by COUNTRY_ID (not REALM_ID) ensures countries like Australia — whose watersheds
+  // span multiple marine realms — show their full watershed coverage. At country scope all sibling
+  // countries in the same region are included so neighbouring watersheds remain clickable.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -634,10 +639,25 @@ export default function BaseMap({
       return
     }
     let filter: maplibregl.FilterSpecification | null = null
-    if (selectedRegion.regionType === 'region' && selectedRegion.bandId !== undefined) {
-      filter = ['==', ['get', 'REALM_ID'], selectedRegion.bandId]
-    } else if (selectedRegion.regionType === 'country' && selectedRegion.bandId !== undefined) {
-      filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+
+    const getRegionCountryIds = (regionId: string): number[] =>
+      regionOptionsRef.current
+        .filter((r) => r.regionType === 'country' && r.parentRegionIds?.includes(regionId) && r.bandId != null)
+        .map((r) => r.bandId as number)
+
+    if (selectedRegion.regionType === 'region') {
+      const countryIds = getRegionCountryIds(selectedRegion.id)
+      if (countryIds.length > 0) {
+        filter = ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]]
+      }
+    } else if (selectedRegion.regionType === 'country') {
+      const parentRegionId = selectedRegion.parentRegionIds?.[0]
+      const countryIds = parentRegionId ? getRegionCountryIds(parentRegionId) : []
+      if (countryIds.length > 0) {
+        filter = ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]]
+      } else if (selectedRegion.bandId != null) {
+        filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+      }
     }
     map.setFilter(watershedLayer.layerId, filter)
     map.setFilter(`${watershedLayer.layerId}-lines`, filter)
@@ -1139,7 +1159,7 @@ export default function BaseMap({
     selectedRegion.regionType === 'global' ||
     selectedRegion.id === 'central-indo-pacific' ||
     (selectedRegion.regionType === 'country' &&
-      selectedRegion.parentRegionIds?.includes('central-indo-pacific'))
+      (selectedRegion.parentRegionIds?.includes('central-indo-pacific') ?? false))
 
   return (
     <div className={styles['map-wrap']}>
@@ -1233,11 +1253,10 @@ export default function BaseMap({
             fillColor={watershedFillColor}
           />
         )}
-        {/* Dispersal layers always rendered so tiles stay cached across year switches; visibility toggled
-            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
-            beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
+        {/* Dispersal layers always rendered so tiles stay cached and click events fire regardless
+            of scope. visible prop controls line opacity — hides outside CIP scope while keeping
+            the transparent fill layer mounted so ocean clicks can still change scope. */}
         {isMapLoaded &&
-          sedExposureScopeValid &&
           mapLayers
             .filter((l) => l.layerId === 'sed_exposure_boundary')
             .map((l, i) => (
@@ -1246,6 +1265,7 @@ export default function BaseMap({
                 layer={l}
                 index={i}
                 beforeId="shoreline-emphasis"
+                visible={sedExposureScopeValid}
               />
             ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
