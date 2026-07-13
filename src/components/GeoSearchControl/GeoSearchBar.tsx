@@ -49,6 +49,11 @@ export default function GeoSearchBar() {
             onKeyDown={handleKeyDown}
             className={styles['geo-search-bar__input']}
             aria-label={t('geo_search.aria_label')}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={results.length > 0}
+            aria-controls="geo-search-results"
+            aria-activedescendant={activeIndex >= 0 ? `geo-search-result-${activeIndex}` : undefined}
           />
           <IconButton
             size="small"
@@ -63,6 +68,7 @@ export default function GeoSearchBar() {
           <List
             dense
             disablePadding
+            id="geo-search-results"
             className={styles['geo-search-bar__results']}
             role="listbox"
             aria-label={t('geo_search.aria_label')}
@@ -70,6 +76,7 @@ export default function GeoSearchBar() {
             {results.map((result, i) => (
               <ListItemButton
                 key={result.osm_id}
+                id={`geo-search-result-${i}`}
                 selected={i === activeIndex}
                 tabIndex={-1}
                 onClick={() => handleSelect(result)}
