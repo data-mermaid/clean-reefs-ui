@@ -36,6 +36,7 @@ export function useScrollSpy<T extends Section>(sections: T[]) {
       if (suppressTimeout.current) {
         clearTimeout(suppressTimeout.current)
       }
+      suppressObserver.current = false
     }
   }, [sections])
 
