@@ -557,10 +557,13 @@ export function buildBreadcrumbFromFeature(
   const countryId = featureProperties?.COUNTRY_ID as number | undefined
   const realmId = featureProperties?.REALM_ID as number | undefined
   const country = regionOptions.find((r) => r.bandId === countryId)
-  // Use REALM_ID from the clicked feature for exact region match; fall back to first known parentRegionId.
+  // Prefer the country's parentRegionIds[0] — this is derived from the authoritative hardcoded map
+  // and correctly overrides REALM_IDs that are wrong in the watershed PMTiles (e.g. PNG/Solomon
+  // Islands are CIP in the watershed data but are EIP). Fall back to the feature's REALM_ID when
+  // the country is unknown or has no parentRegionIds.
   const region =
-    regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId) ??
-    regionOptions.find((r) => r.regionType === 'region' && r.id === country?.parentRegionIds?.[0])
+    regionOptions.find((r) => r.regionType === 'region' && r.id === country?.parentRegionIds?.[0]) ??
+    regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId)
   const addtlRegion = country ?? region
 
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]

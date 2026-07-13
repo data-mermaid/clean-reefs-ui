@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { fetchAllBoundaryFeatures, fetchCountryRegionMap } from '../utils/pmtilesUtils'
-import { KNOWN_REGIONS, COUNTRY_REGION_MAP } from '../data/coralReefRegions'
+import { KNOWN_REGIONS } from '../data/coralReefRegions'
 import {
   defaultGlobalRegionOption,
   fallbackRegionOptions,
@@ -27,15 +27,38 @@ function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
   })
 }
 
-// countryRegionMap uses numeric COUNTRY_ID → [REALM_ID] from the watershed PMTiles.
-// mergedRegions is used to resolve REALM_ID bandIds back to region string IDs.
-// Falls back to the hardcoded COUNTRY_REGION_MAP (by slug) for countries not in the watershed data.
+// Some countries appear under multiple COUNTRY_IDs in the boundary PMTiles (e.g. Papua New Guinea
+// has both 125 and 126). The watershed PMTiles uses one specific ID. This function deduplicates
+// by slug, preferring the bandId that is present in countryRegionMap (i.e. known to the watershed
+// data). If neither or both are in the watershed, the first occurrence wins.
+function deduplicateCountries(
+  countries: RegionOption[],
+  countryRegionMap: Record<number, number[]>,
+): RegionOption[] {
+  const bySlug = new Map<string, RegionOption>()
+  for (const c of countries) {
+    const existing = bySlug.get(c.id)
+    if (!existing) {
+      bySlug.set(c.id, c)
+      continue
+    }
+    const existingInWatershed = existing.bandId !== undefined && countryRegionMap[existing.bandId] !== undefined
+    const currentInWatershed = c.bandId !== undefined && countryRegionMap[c.bandId] !== undefined
+    if (!existingInWatershed && currentInWatershed) {
+      bySlug.set(c.id, c)
+    }
+  }
+  return [...bySlug.values()]
+}
+
+// Resolves each country's parentRegionIds purely from the watershed PMTiles COUNTRY_ID → REALM_ID
+// mapping. Countries not present in the watershed data get no parentRegionIds and appear ungrouped
+// in the dropdown. Region assignments will be corrected when country_realm_details.csv is available.
 function enrichCountries(
   countries: RegionOption[],
   countryRegionMap: Record<number, number[]>,
   mergedRegions: RegionOption[],
 ): RegionOption[] {
-  const validRegionIds = new Set(mergedRegions.map((r) => r.id))
   return countries.map((c) => {
     if (c.bandId !== undefined && countryRegionMap[c.bandId]?.length) {
       const parentRegionIds = countryRegionMap[c.bandId]
@@ -45,8 +68,7 @@ function enrichCountries(
         return { ...c, parentRegionIds }
       }
     }
-    const fallbackIds = (COUNTRY_REGION_MAP[c.id] ?? []).filter((id) => validRegionIds.has(id))
-    return { ...c, parentRegionIds: fallbackIds }
+    return { ...c, parentRegionIds: [] }
   })
 }
 
@@ -59,7 +81,7 @@ const useRegionOptions = (): RegionOptionsResult => {
 
     Promise.all([
       fetchAllBoundaryFeatures('region'),
-      fetchAllBoundaryFeatures('country'),
+      fetchAllBoundaryFeatures('country', false),
       fetchCountryRegionMap(),
     ]).then(([regions, countries, countryRegionMap]) => {
       if (cancelled) {
@@ -70,7 +92,8 @@ const useRegionOptions = (): RegionOptionsResult => {
         return
       }
       const mergedRegions = mergeRegions(regions)
-      const enriched = enrichCountries(countries, countryRegionMap, mergedRegions)
+      const deduped = deduplicateCountries(countries, countryRegionMap)
+      const enriched = enrichCountries(deduped, countryRegionMap, mergedRegions)
       setRegionOptions([
         defaultGlobalRegionOption,
         ...mergedRegions,

@@ -77,8 +77,12 @@ export async function fetchBoundaryProperties(
   return null
 }
 
+// When dedup=true (default), one entry per slug is returned (first wins).
+// Pass dedup=false to return all entries including duplicates — used by
+// useRegionOptions to do watershed-aware deduplication downstream.
 export async function fetchAllBoundaryFeatures(
   regionType: 'country' | 'region',
+  dedup = true,
 ): Promise<RegionOption[]> {
   const config = boundarySourceConfig[regionType]
   if (!config) {
@@ -105,7 +109,7 @@ export async function fetchAllBoundaryFeatures(
         continue
       }
       const id = slugify(label)
-      if (seen.has(id)) {
+      if (dedup && seen.has(id)) {
         continue
       }
       seen.add(id)
