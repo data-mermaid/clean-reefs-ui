@@ -127,7 +127,20 @@ export default function RegionSelect({
           parentIds.includes(r.id) &&
           (!groupLabel || r.label === groupLabel),
       )
-      updateRegion(region, parentRegion)
+      // For countries that span multiple regions, reorder parentRegionIds so the group the
+      // user selected from is first. This context persists in selectedRegion so that watershed
+      // click breadcrumbs resolve to the same region the user consciously chose.
+      const regionWithContext =
+        parentRegion && parentIds.length > 1
+          ? {
+              ...region,
+              parentRegionIds: [
+                parentRegion.id,
+                ...parentIds.filter((id) => id !== parentRegion.id),
+              ],
+            }
+          : region
+      updateRegion(regionWithContext, parentRegion)
     } else {
       updateRegion(region)
     }
