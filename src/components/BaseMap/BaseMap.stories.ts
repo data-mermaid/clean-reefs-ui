@@ -37,6 +37,7 @@ export const Primary: Story = {
     onMapMoveEnd: () => {},
     isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
+    selectedRegion: defaultGlobalRegionOption,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -78,6 +79,7 @@ export const Loading: Story = {
     onMapMoveEnd: () => {},
     isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
+    selectedRegion: defaultGlobalRegionOption,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

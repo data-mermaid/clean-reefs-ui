@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import maplibregl from 'maplibre-gl'
 import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
 import {
@@ -22,6 +23,7 @@ type MapState = {
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
   isGeoSearchOpen: boolean
+  watershedChoroplethExpression: maplibregl.ExpressionSpecification | string
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -41,6 +43,7 @@ type MapActions = {
   turnOffSedLoadSubLayerFills: () => void
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
+  setWatershedChoroplethExpression: (expr: maplibregl.ExpressionSpecification | string) => void
   jumpToRegion: (region: RegionOption) => void
   openGeoSearch: () => void
   closeGeoSearch: () => void
@@ -139,6 +142,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   sedLoadMode: null,
   sedLoadYear: 0,
   isGeoSearchOpen: false,
+  watershedChoroplethExpression: transparent,
+  setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
   setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
@@ -203,15 +208,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    // Restore the watershed choropleth when in watershed mode so the sediment load
-    // coloring remains visible after the top-polygon highlight is cleared.
-    const baseFillExpression =
-      state.sedLoadMode === 'watershed'
-        ? buildSedLoadWatershedExpression(state.sedLoadYear)
-        : transparent
-
     set({ topWatershedIds: [] })
-    map.setPaintProperty(layerId, 'fill-color', baseFillExpression)
+    map.setPaintProperty(layerId, 'fill-color', state.watershedChoroplethExpression)
   },
   jumpToRegion: (region) => {
     const map = get().mapReference?.getMap()
@@ -237,12 +235,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
 
-    // Use the active watershed choropleth as the fallback so non-highlighted
-    // watersheds keep their sediment load colour while the top polygons are shown.
-    const baseFillExpression =
-      state.sedLoadMode === 'watershed'
-        ? buildSedLoadWatershedExpression(state.sedLoadYear)
-        : transparent
+    const baseFillExpression = state.watershedChoroplethExpression
 
     const hasSameIds =
       topWatershedIds.length === polygonIds.length &&

@@ -141,6 +141,7 @@ export default function TrendsDrawer({
       className={clsx(styles['trends-panel'], !open && styles['trends-panel--hidden'])}
       aria-label={t(drawerTitle)}
       aria-hidden={!open}
+      inert={!open || undefined}
     >
       <div className={styles['trends-panel__content']}>
         <div className={styles['panel-header']}>

@@ -106,7 +106,7 @@ describe('fetchSedExposureStatistics', () => {
     [expression]: { min: 0.0, max: 500.0, percentile_2: 1.234, percentile_98: 234.567 },
   })
 
-  it('returns rounded percentile_2/percentile_98 for global (null expression)', async () => {
+  it('returns rounded min/max for global (null expression)', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
@@ -118,10 +118,10 @@ describe('fetchSedExposureStatistics', () => {
       null,
       'cog|1',
     )
-    expect(result).toEqual({ min: 1.2, max: 234.6 })
+    expect(result).toEqual({ min: 0, max: 500 })
   })
 
-  it('returns rounded percentile_2/percentile_98 for regional expression', async () => {
+  it('returns rounded min/max for regional expression', async () => {
     const expression = 'where((cog_b9==2), cog_b1, 0)'
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
@@ -134,13 +134,13 @@ describe('fetchSedExposureStatistics', () => {
       expression,
       'cog|1,9',
     )
-    expect(result).toEqual({ min: 1.2, max: 234.6 })
+    expect(result).toEqual({ min: 0, max: 500 })
   })
 
-  it('returns null when percentiles are missing from response', async () => {
+  it('returns null when min/max are missing from response', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ cog_b1: { min: 0.0, max: 500.0 } }),
+      json: async () => ({ cog_b1: { percentile_2: 1.234, percentile_98: 234.567 } }),
     } as Response)
     const result = await fetchSedExposureStatistics(
       'gpw_sediment_exposure',
@@ -258,7 +258,7 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toBeNull()
   })
 
-  it('returns rounded percentile_2/percentile_98 for sediment load collection', async () => {
+  it('returns rounded min/max for sediment load collection', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
@@ -270,7 +270,7 @@ describe('fetchSedExposureStatistics', () => {
       null,
       'cog|1',
     )
-    expect(result).toEqual({ min: 1.2, max: 234.6 })
+    expect(result).toEqual({ min: 0, max: 500 })
   })
 
   it('sends correct path for sediment load collection', async () => {
@@ -304,20 +304,20 @@ describe('fetchSedLoadStatistics', () => {
     },
   })
 
-  it('returns rounded percentile values with min clamped to 0', async () => {
+  it('returns min/max with min clamped to 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockSedLoadStats(),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
-    expect(result).toEqual({ min: 0, max: 8.9 })
+    expect(result).toEqual({ min: 0, max: 50 })
   })
 
-  it('returns positive min as-is when percentile_2 is above 0', async () => {
+  it('returns positive min as-is when min is above 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ cog_b1: { percentile_2: 0.4, percentile_98: 34.2 } }),
+      json: async () => ({ cog_b1: { min: 0.4, max: 34.2 } }),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
@@ -339,10 +339,10 @@ describe('fetchSedLoadStatistics', () => {
     expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1')
   })
 
-  it('returns null when percentiles are missing from response', async () => {
+  it('returns null when min/max are missing from response', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ cog_b1: { min: 0, max: 50 } }),
+      json: async () => ({ cog_b1: { percentile_2: -0.23, percentile_98: 8.88 } }),
     } as Response)
     expect(await fetchSedLoadStatistics(2020)).toBeNull()
   })

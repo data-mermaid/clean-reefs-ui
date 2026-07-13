@@ -35,6 +35,7 @@ export function useGeoSearch() {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
+    ++requestIdRef.current
 
     const trimmed = query.trim()
     if (trimmed.length < MIN_QUERY_LENGTH || LAT_LON_REGEX.test(trimmed)) {
@@ -60,7 +61,7 @@ export function useGeoSearch() {
   }, [query])
 
   const fetchResults = async (trimmed: string) => {
-    const requestId = ++requestIdRef.current
+    const requestId = requestIdRef.current
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
@@ -78,6 +79,9 @@ export function useGeoSearch() {
           },
         },
       )
+      if (!res.ok) {
+        throw new Error(res.statusText)
+      }
       const data: NominatimResult[] = await res.json()
       if (requestId !== requestIdRef.current) {
         return

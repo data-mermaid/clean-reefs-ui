@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: theme.$spacingMedium 0 theme.$spacingSmall theme.$defaultSpacing;
+  padding: theme.$spacingSmall 0 theme.$spacingSmall theme.$defaultSpacing;
   opacity: 1;
   visibility: visible;
   transition:
@@ -29,7 +29,7 @@
 .trends-panel__content {
   flex: 1;
   overflow-y: auto;
-  scrollbar-gutter: stable;
+  padding-right: theme.$defaultSpacing;
 }
 
 .trends-panel--hidden {
