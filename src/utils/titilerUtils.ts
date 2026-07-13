@@ -107,17 +107,13 @@ export async function fetchSedExposureStatistics(
     const data: StatisticsResponse = await response.json()
     const statsData = data[resolvedExpression]
 
-    if (
-      !statsData ||
-      statsData.percentile_2 === undefined ||
-      statsData.percentile_98 === undefined
-    ) {
+    if (!statsData || statsData.min === undefined || statsData.max === undefined) {
       return null
     }
 
     return {
-      min: parseFloat(statsData.percentile_2.toFixed(1)),
-      max: parseFloat(statsData.percentile_98.toFixed(1)),
+      min: parseFloat(statsData.min.toFixed(1)),
+      max: parseFloat(statsData.max.toFixed(1)),
     }
   } catch {
     clearTimeout(timeoutId)
@@ -173,8 +169,8 @@ export function buildSedLoadExpression(region: RegionOption): ExpressionConfig {
 
 /**
  * Fetch statistics for a sediment load item from TiTiler.
- * Pass a region to get scope-specific percentiles; omit for global stats.
- * Clamps percentile_2 to 0 — raw values can be slightly negative due to data artifacts.
+ * Pass a region to get scope-specific min/max; omit for global stats.
+ * Clamps min to 0 — raw values can be slightly negative due to data artifacts.
  */
 export async function fetchSedLoadStatistics(
   year: number,
@@ -213,17 +209,13 @@ export async function fetchSedLoadStatistics(
     const statsKey = expression ?? 'cog_b1'
     const statsData = data[statsKey]
 
-    if (
-      !statsData ||
-      statsData.percentile_2 === undefined ||
-      statsData.percentile_98 === undefined
-    ) {
+    if (!statsData || statsData.min === undefined || statsData.max === undefined) {
       return null
     }
 
     return {
-      min: Math.max(0, parseFloat(statsData.percentile_2.toFixed(1))),
-      max: parseFloat(statsData.percentile_98.toFixed(1)),
+      min: Math.max(0, parseFloat(statsData.min.toFixed(1))),
+      max: parseFloat(statsData.max.toFixed(1)),
     }
   } catch {
     clearTimeout(timeoutId)
