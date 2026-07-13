@@ -108,6 +108,9 @@ export async function fetchAllBoundaryFeatures(
       if (typeof label !== 'string' || label.length === 0) {
         continue
       }
+      if (regionType === 'country' && typeof props['reef_exposed_2020'] !== 'number') {
+        continue
+      }
       const id = slugify(label)
       if (dedup && seen.has(id)) {
         continue
