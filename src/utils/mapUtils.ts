@@ -558,11 +558,12 @@ export function buildBreadcrumbFromFeature(
   const countryId = featureProperties?.COUNTRY_ID as number | undefined
   const realmId = featureProperties?.REALM_ID as number | undefined
   const country = regionOptions.find((r) => r.bandId === countryId)
+
   const parentRegionIds = country?.parentRegionIds ?? []
-  // Derive the currently active region from selectedRegion: use it directly if it's a region,
-  // or read parentRegionIds[0] if it's a country (which stores the user's intended region context
-  // from the dropdown selection). If that context is a valid parent of this watershed's country,
-  // keep it — don't snap to a different region just because PMTiles ordering says otherwise.
+  // Derive the currently active region from selectedRegion:
+  // - If it's a region, use it directly (region scope click)
+  // - If it's a country, use parentRegionIds[0] which carries the WIP/CIP context the user
+  //   chose from the dropdown (e.g. Indonesia selected from WIP → parentRegionIds[0] = WIP)
   const currentRegionId =
     selectedRegion?.regionType === 'region'
       ? selectedRegion.id
@@ -573,19 +574,20 @@ export function buildBreadcrumbFromFeature(
       : undefined) ??
     regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionIds[0]) ??
     regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId)
-  // Return country with currentRegionId first so onRegionChange syncs the correct parent context
-  // back to URL without triggering a CIP→WIP flicker on multi-region countries.
-  const countryWithContext =
-    country && currentRegionId && country.parentRegionIds?.[0] !== currentRegionId
-      ? {
-          ...country,
-          parentRegionIds: [
-            currentRegionId,
-            ...(country.parentRegionIds ?? []).filter((id) => id !== currentRegionId),
-          ],
-        }
-      : country
-  const addtlRegion = countryWithContext ?? region
+  // Return selectedRegion (if at country scope) or country with reordered parentRegionIds so
+  // onRegionChange syncs the correct WIP/CIP context back to URL without a flicker.
+  const addtlRegion =
+    selectedRegion?.regionType === 'country'
+      ? selectedRegion
+      : country && currentRegionId && country.parentRegionIds?.[0] !== currentRegionId
+        ? {
+            ...country,
+            parentRegionIds: [
+              currentRegionId,
+              ...(country.parentRegionIds ?? []).filter((id) => id !== currentRegionId),
+            ],
+          }
+        : (country ?? region)
 
   const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
   if (region) {

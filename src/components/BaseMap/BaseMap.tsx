@@ -636,10 +636,10 @@ export default function BaseMap({
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
 
-  // Filter watershed layer to the countries in the current scope.
-  // Filtering by COUNTRY_ID (not REALM_ID) ensures countries like Australia — whose watersheds
-  // span multiple marine realms — show their full watershed coverage. At country scope all sibling
-  // countries in the same region are included so neighbouring watersheds remain clickable.
+  // Filter watershed layer to the current scope.
+  // At region scope, filter by country ID list so countries like Australia — whose watersheds
+  // span multiple marine realms — show their full watershed coverage.
+  // At country scope, show only that country's watersheds and normalize colors within the country.
   useEffect(() => {
     if (!isMapLoaded || !watershedLayer) {
       return
@@ -660,14 +660,8 @@ export default function BaseMap({
       if (countryIds.length > 0) {
         filter = ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]]
       }
-    } else if (selectedRegion.regionType === 'country') {
-      const parentRegionId = selectedRegion.parentRegionIds?.[0]
-      const countryIds = parentRegionId ? getRegionCountryIds(parentRegionId) : []
-      if (countryIds.length > 0) {
-        filter = ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]]
-      } else if (selectedRegion.bandId != null) {
-        filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
-      }
+    } else if (selectedRegion.regionType === 'country' && selectedRegion.bandId != null) {
+      filter = ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
     }
     map.setFilter(watershedLayer.layerId, filter)
     map.setFilter(`${watershedLayer.layerId}-lines`, filter)
@@ -683,17 +677,14 @@ export default function BaseMap({
       setWatershedChoroplethExpression(transparent)
       return undefined
     }
-    // Always normalize at region scale so country and its parent region share the same color ramp.
-    // For a country, resolve its parent region's bandId via regionOptions lookup.
+    // Normalize at the current scope: region bandId for region scope, country bandId for country scope.
     const normalizationRealmId =
-      selectedRegion.regionType === 'region'
-        ? selectedRegion.bandId
-        : selectedRegion.regionType === 'country' && selectedRegion.parentRegionIds?.[0]
-          ? regionOptions.find((r) => r.id === selectedRegion.parentRegionIds![0])?.bandId
-          : undefined
+      selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const normalizationCountryId =
+      selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     let cancelled = false
     const fetchWithFallback = async () => {
-      let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, undefined)
+      let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, normalizationCountryId)
       if (values.length === 0) {
         values = await fetchWatershedSedLoadValues(2020, undefined, undefined)
       }
