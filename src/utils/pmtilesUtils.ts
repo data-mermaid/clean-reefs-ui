@@ -108,7 +108,7 @@ export async function fetchAllBoundaryFeatures(
       if (typeof label !== 'string' || label.length === 0) {
         continue
       }
-      if (regionType === 'country' && typeof props['reef_exposed_2020'] !== 'number') {
+      if (regionType === 'country' && typeof props['total_sed_load_2020'] !== 'number') {
         continue
       }
       const id = slugify(label)

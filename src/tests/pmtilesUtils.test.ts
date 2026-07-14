@@ -42,12 +42,12 @@ const makeTile = (features: { properties: Record<string, unknown> }[]) => ({
 describe('fetchAllBoundaryFeatures', () => {
   afterEach(() => jest.clearAllMocks())
 
-  it('returns only features where reef_exposed_2020 is present', async () => {
+  it('returns only features where total_sed_load_2020 is present', async () => {
     mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
     ;(VectorTile as jest.Mock).mockImplementation(() =>
       makeTile([
-        { properties: { COUNTRY_ID: 54, TERRITORY1: 'Fiji', reef_exposed_2020: 1234 } },
-        { properties: { COUNTRY_ID: 999, TERRITORY1: 'NoReef', reef_exposed_2020: null } },
+        { properties: { COUNTRY_ID: 54, TERRITORY1: 'Fiji', total_sed_load_2020: 1234 } },
+        { properties: { COUNTRY_ID: 999, TERRITORY1: 'NoReef', total_sed_load_2020: null } },
         { properties: { COUNTRY_ID: 138, TERRITORY1: 'Solomon Islands' } },
       ]),
     )
@@ -64,7 +64,7 @@ describe('fetchAllBoundaryFeatures', () => {
   it('sets extent when label exists in static map', async () => {
     mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
     ;(VectorTile as jest.Mock).mockImplementation(() =>
-      makeTile([{ properties: { COUNTRY_ID: 54, TERRITORY1: 'Fiji', reef_exposed_2020: 1234 } }]),
+      makeTile([{ properties: { COUNTRY_ID: 54, TERRITORY1: 'Fiji', total_sed_load_2020: 1234 } }]),
     )
 
     const results = await fetchAllBoundaryFeatures('country')
@@ -76,7 +76,7 @@ describe('fetchAllBoundaryFeatures', () => {
     mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
     ;(VectorTile as jest.Mock).mockImplementation(() =>
       makeTile([
-        { properties: { COUNTRY_ID: 999, TERRITORY1: 'Unknown Island', reef_exposed_2020: 1 } },
+        { properties: { COUNTRY_ID: 999, TERRITORY1: 'Unknown Island', total_sed_load_2020: 1 } },
       ]),
     )
 
@@ -109,7 +109,7 @@ describe('fetchAllBoundaryFeatures', () => {
           properties: {
             REALM_ID: 2,
             REALM: 'Central Indo-Pacific',
-            reef_exposed_2020: 5678,
+            total_sed_load_2020: 5678,
           },
         },
       ]),
@@ -128,7 +128,7 @@ describe('fetchAllBoundaryFeatures', () => {
     mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
     ;(VectorTile as jest.Mock).mockImplementation(() =>
       makeTile([
-        { properties: { COUNTRY_ID: 384, TERRITORY1: "Côte d'Ivoire", reef_exposed_2020: 1 } },
+        { properties: { COUNTRY_ID: 384, TERRITORY1: "Côte d'Ivoire", total_sed_load_2020: 1 } },
       ]),
     )
 
