@@ -9,7 +9,6 @@ import {
   createPolygonHoverHandler,
   getActiveLayers,
   getAllYearZonalStats,
-  getUpdatedBenthicColor,
   mapRegionSelected,
   mapToggleChange,
   postZonalStats,
@@ -22,7 +21,7 @@ import {
 import { FilterSpecification, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { fallbackRegionOptions } from '../data/regionData'
-import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { sedLoadColorMapping, transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
   SEDIMENT_EXPOSURE_2000_URL,
@@ -330,20 +329,6 @@ describe('map utilities', () => {
   })
 
   // ─── New test blocks ──────────────────────────────────────────────────────
-
-  describe('getUpdatedBenthicColor', () => {
-    it('returns atlasBenthicColors[layerId] when currentColors[layerId] is transparent', () => {
-      const currentColors = { coral_algae: transparent }
-      expect(getUpdatedBenthicColor('coral_algae', currentColors)).toBe(
-        atlasBenthicColors['coral_algae'],
-      )
-    })
-
-    it('returns transparent when currentColors[layerId] is not transparent', () => {
-      const currentColors = { coral_algae: '#CC6677' }
-      expect(getUpdatedBenthicColor('coral_algae', currentColors)).toBe(transparent)
-    })
-  })
 
   describe('calculateFeatureBounds', () => {
     it('returns the correct bounding box corners for a polygon feature', () => {

@@ -11,7 +11,7 @@ import {
 } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
-import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { sedLoadColorMapping, transparent } from '../data/mapData'
 import { defaultGlobalRegionOption } from '../data/regionData'
 import {
   BASE_ZONAL_STATS_API,
@@ -30,13 +30,6 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export const getUpdatedBenthicColor = (layerId: string, currentColors: Record<string, string>) => {
-  if (currentColors[layerId] === transparent) {
-    return atlasBenthicColors[layerId]
-  } else {
-    return transparent
-  }
-}
 
 export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds {
   const geometry = feature.geometry
