@@ -34,8 +34,6 @@ export default function InfoPanel({ isOpen, textKey, listKey }: InfoPanelProps) 
       <Link
         component={RouterLink}
         to="/science-and-methods"
-        target="_blank"
-        rel="noopener noreferrer"
         underline="always"
         className={styles['info-panel__read-more']}
       >
