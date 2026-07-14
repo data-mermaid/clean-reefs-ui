@@ -167,8 +167,7 @@ export default function LayerToggleCard({
   const { t } = useTranslation()
   const [infoOpen, setInfoOpen] = useState(false)
   const infoTextKey = layerInfoTextKey[layer.layerId]
-  const isSedLoadPixelMode =
-    layer.legendTitle === 'unit_labels.sediment_load_tons' && subSedLayerValue === 'pixel'
+  const isSedLoadPixelMode = layer.layerId === 'sed_load' && subSedLayerValue === 'pixel'
   const legendTitleKey = isSedLoadPixelMode
     ? 'unit_labels.sediment_load_tons_ha'
     : (layer.legendTitle ?? layer.title)
