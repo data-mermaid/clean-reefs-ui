@@ -998,6 +998,7 @@ export default function BaseMap({
     if (map) {
       setBasemapBeforeId(resolveBasemapBeforeId(map.getStyle()?.layers ?? []))
       setMapRef(mapRef.current!)
+      map.touchZoomRotate.disableRotation()
     }
 
     setIsMapLoaded(true)
