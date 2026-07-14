@@ -1165,6 +1165,8 @@ export default function BaseMap({
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
         mapStyle={mapStyleUrl}
+        dragRotate={false}
+        touchPitch={false}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         onMouseMove={handleMouseMove}
