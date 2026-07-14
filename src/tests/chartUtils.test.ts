@@ -177,8 +177,8 @@ describe('chart data utilities', () => {
   describe('mapChartConfigToData', () => {
     const mockChartSeriesConfig = {
       'charts.land_use_historical': {
-        xAxisTitle: 'unit_labels.year',
-        yAxisTitle: 'unit_labels.land_cover',
+        xAxisTitle: 'year',
+        yAxisTitle: 'unit_labels.land_cover_pct',
         legendColors: {
           bare_ground: '#D4A373',
           cropland: '#FFD700',
@@ -188,7 +188,7 @@ describe('chart data utilities', () => {
         tracePrefix: 'land_use',
       },
       'charts.sediment_load_historical': {
-        xAxisTitle: 'unit_labels.year',
+        xAxisTitle: 'year',
         yAxisTitle: 'unit_labels.sediment_load_tons',
         legendColors: {
           sediment: '#8B4513',
@@ -197,7 +197,7 @@ describe('chart data utilities', () => {
         barmode: 'group',
       },
       'charts.test_no_barmode': {
-        xAxisTitle: 'unit_labels.year',
+        xAxisTitle: 'year',
         yAxisTitle: 'unit_labels.test',
         legendColors: {
           test_category: '#000000',
@@ -211,8 +211,8 @@ describe('chart data utilities', () => {
 
       const mockTranslate = jest.fn((key: string) => {
         const translations: Record<string, string> = {
-          'unit_labels.year': 'Year',
-          'unit_labels.land_cover': 'Land cover (%)',
+          'year': 'Year',
+          'unit_labels.land_cover_pct': 'Land cover (%)',
           'unit_labels.sediment_load_tons': 'Sediment load',
           'unit_labels.test': 'Test',
           'land_use.bare_ground': 'Bare ground',
@@ -482,8 +482,8 @@ describe('export filename utilities', () => {
 // ---------------------------------------------------------------------------
 const sharedLandUseMockConfig = {
   'charts.land_use_historical': {
-    xAxisTitle: 'unit_labels.year',
-    yAxisTitle: 'unit_labels.land_cover',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.land_cover_pct',
     legendColors: {
       bare_ground: '#D4A373',
       cropland: '#FFD700',
@@ -493,14 +493,14 @@ const sharedLandUseMockConfig = {
     tracePrefix: 'land_use',
   },
   'charts.sediment_load_historical': {
-    xAxisTitle: 'unit_labels.year',
+    xAxisTitle: 'year',
     yAxisTitle: 'unit_labels.sediment_load_tons',
     legendColors: { sediment: '#8B4513' },
     width: 0.6,
     barmode: 'group',
   },
   'charts.ecosystem_extent_exposed': {
-    xAxisTitle: 'unit_labels.year',
+    xAxisTitle: 'year',
     yAxisTitle: 'unit_labels.ecosystem_extent',
     legendColors: { reef_extent: '#0077B6', coral_algae: '#48CAE4', seagrass: '#90E0EF' },
     width: 0.8,
@@ -510,14 +510,14 @@ const sharedLandUseMockConfig = {
 
 const sharedDispersalMockConfig = {
   'charts.sediment_exposure_historical': {
-    xAxisTitle: 'unit_labels.year',
+    xAxisTitle: 'year',
     yAxisTitle: 'unit_labels.sediment_exposure_tons',
     legendColors: { sediment: '#8B4513' },
     width: 0.6,
     barmode: 'group',
   },
   'charts.contributing_watersheds': {
-    xAxisTitle: 'unit_labels.year',
+    xAxisTitle: 'year',
     yAxisTitle: 'unit_labels.watersheds',
     legendColors: { w1: '#aabbcc', w2: '#bbccdd', w3: '#ccddee' },
     width: 0.8,
