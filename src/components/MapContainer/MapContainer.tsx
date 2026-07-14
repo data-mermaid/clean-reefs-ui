@@ -7,7 +7,14 @@ import Sidebar, { ActivePanel } from '../Sidebar/Sidebar'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../data/mapData'
+import {
+  layers,
+  urlControlledLayerIds,
+  sedLoadAndLandUseLayers,
+  benthicSubLayers,
+  atlasBenthicColors,
+  transparent,
+} from '../../data/mapData'
 import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_EXPOSURE_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
@@ -197,6 +204,17 @@ export default function MapContainer() {
         return { ...layer, isLayerOn: isOn }
       }),
     [mapLayers, selectedLayers, selectedYear],
+  )
+
+  const benthicFillColors = useMemo(
+    () =>
+      Object.fromEntries(
+        benthicSubLayers.map((l) => [
+          l.layerId,
+          selectedLayers.includes(l.layerId) ? atlasBenthicColors[l.layerId] : transparent,
+        ]),
+      ),
+    [selectedLayers],
   )
 
   const updateSearchParams = useCallback(
@@ -617,6 +635,7 @@ export default function MapContainer() {
         isAnyPanelOpen={activePanel !== null}
         regionOptions={regionOptions}
         selectedRegion={selectedRegion}
+        benthicFillColors={benthicFillColors}
       />
     </div>
   )

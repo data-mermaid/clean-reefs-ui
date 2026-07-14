@@ -15,14 +15,11 @@ import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
 import InfoPanel from '../InfoPanel/InfoPanel'
 import styles from './LayersDrawer.module.scss'
 import {
-  atlasBenthicColors,
   benthicSubLayers,
   parentLayerTitles,
   urlControlledLayerIds,
-  transparent,
 } from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 import BasemapSwitcher from '../BaseMapSwitcher/BaseMapSwitcher'
@@ -150,9 +147,6 @@ export default function LayersDrawer({
     [selectedLayers],
   )
 
-  const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
-  const setBenthicMapSubLayerColors = useMapStore((state) => state.setBenthicMapSubLayerColors)
-
   const toggleBoundaryLayer = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
@@ -185,24 +179,16 @@ export default function LayersDrawer({
     (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
-      toggleSubLayerFillColor(toggledLayerId)
       onLayerToggleChange(toggledLayerId, isChecked)
     },
-    [toggleSubLayerFillColor, onLayerToggleChange],
+    [onLayerToggleChange],
   )
 
   const toggleAllSubLayers = useCallback(
     (checked: boolean) => {
-      const newColors = Object.fromEntries(
-        benthicSubLayers.map((l) => [
-          l.layerId,
-          checked ? atlasBenthicColors[l.layerId] : transparent,
-        ]),
-      )
-      setBenthicMapSubLayerColors(newColors)
       benthicSubLayers.forEach((l) => onLayerToggleChange(l.layerId, checked))
     },
-    [setBenthicMapSubLayerColors, onLayerToggleChange],
+    [onLayerToggleChange],
   )
 
   const renderBoundaryGroup = useCallback(() => {

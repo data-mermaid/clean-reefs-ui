@@ -122,6 +122,7 @@ interface BaseMapProps {
   isAnyPanelOpen: boolean
   regionOptions: RegionOption[]
   selectedRegion: RegionOption
+  benthicFillColors: Record<string, string>
 }
 
 const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
@@ -416,6 +417,7 @@ export default function BaseMap({
   isAnyPanelOpen,
   regionOptions,
   selectedRegion,
+  benthicFillColors,
 }: BaseMapProps) {
   const { t } = useTranslation()
   const { isDesktopWidth, isPanelMobile } = useResponsive()
@@ -424,7 +426,6 @@ export default function BaseMap({
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
-  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)

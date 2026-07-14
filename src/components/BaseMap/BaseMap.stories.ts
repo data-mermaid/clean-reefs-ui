@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import BaseMap from './BaseMap'
-import { layers } from '../../data/mapData'
+import { layers, atlasBenthicColors } from '../../data/mapData'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
 import { defaultGlobalRegionOption, fallbackRegionOptions } from '../../data/regionData'
@@ -38,6 +38,7 @@ export const Primary: Story = {
     isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
     selectedRegion: defaultGlobalRegionOption,
+    benthicFillColors: atlasBenthicColors,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -80,6 +81,7 @@ export const Loading: Story = {
     isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
     selectedRegion: defaultGlobalRegionOption,
+    benthicFillColors: atlasBenthicColors,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')
