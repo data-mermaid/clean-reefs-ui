@@ -1,11 +1,10 @@
 import { create } from 'zustand'
 import maplibregl from 'maplibre-gl'
-import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { sedLoadColorMapping, transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
 import {
   buildSedLoadWatershedExpression,
   buildWatershedMatchExpression,
-  getUpdatedBenthicColor,
   resolveBasemapBeforeId,
 } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
@@ -18,7 +17,6 @@ type MapState = {
   watershedLayer: LayerInfo | null
   isBasemapChanging: boolean
   topWatershedIds: number[]
-  benthicMapSubLayerColors: Record<string, string>
   sedLoadMapSubLayerColors: Record<string, string>
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
@@ -34,8 +32,6 @@ type MapActions = {
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
   setSedLoadMapSubLayerColors: (colors: Record<string, string>) => void
-  setBenthicMapSubLayerColors: (colors: Record<string, string>) => void
-  toggleSubLayerFillColor: (toggledProperty: string) => void
   toggleSedLoadSubLayerFills: (
     subLayerToggledOn: 'pixel' | 'watershed',
     selectedYear: number,
@@ -137,7 +133,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     })
   },
 
-  benthicMapSubLayerColors: atlasBenthicColors,
   sedLoadMapSubLayerColors: sedLoadColorMapping,
   sedLoadMode: null,
   sedLoadYear: 0,
@@ -146,21 +141,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
-  setBenthicMapSubLayerColors: (colors) => set({ benthicMapSubLayerColors: colors }),
   setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
-  toggleSubLayerFillColor: (toggledProperty) => {
-    const state = get()
-    const map = state.mapReference?.getMap()
-    if (!map) {
-      return
-    }
-    const updatedColor = getUpdatedBenthicColor(toggledProperty, state.benthicMapSubLayerColors)
-    const updatedFillColors = {
-      ...state.benthicMapSubLayerColors,
-      [toggledProperty]: updatedColor,
-    }
-    set({ benthicMapSubLayerColors: updatedFillColors })
-  },
   toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
     const state = get()
     const map = state.mapReference?.getMap()
