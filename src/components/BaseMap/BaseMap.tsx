@@ -1168,6 +1168,8 @@ export default function BaseMap({
         mapStyle={mapStyleUrl}
         dragRotate={false}
         touchPitch={false}
+        keyboard={false}
+        maxPitch={0}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         onMouseMove={handleMouseMove}
