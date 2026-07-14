@@ -58,12 +58,14 @@
     "share_view": "Share view",
     "up_one_level": "Up one level"
   },
-  "chart_information": {
+  "unit_labels": {
     "area_exposed_ha": "Area exposed (ha)",
     "land_cover_pct": "Land cover (%)",
-    "pollution_contribution": "Pollution contribution (%)",
-    "sediment_exposure": "Sediment exposure (tonnes)",
-    "sediment_load": "Sediment load (tonnes)"
+    "pollution_contribution_pct": "Pollution contribution (%)",
+    "sediment_exposure_tons": "Sediment exposure (tons)",
+    "sediment_exposure_tons_ha": "Sediment exposure (tons/ha)",
+    "sediment_load_tons": "Sediment load (tons)",
+    "sediment_load_tons_ha": "Sediment load (tons/ha)"
   },
   "charts": {
     "contributing_watersheds": "Contributing watersheds",
@@ -181,8 +183,6 @@
     }
   },
   "sediment": "Sediment",
-  "sediment_exposure_unit": "Sediment exposure (tons/ha)",
-  "sediment_load_unit": "Sediment load (tons)",
   "select_year": "Select year",
   "share_view": {
     "copied": "Copied",
