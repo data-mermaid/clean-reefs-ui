@@ -999,6 +999,7 @@ export default function BaseMap({
     if (map) {
       setBasemapBeforeId(resolveBasemapBeforeId(map.getStyle()?.layers ?? []))
       setMapRef(mapRef.current!)
+      map.touchZoomRotate.disableRotation()
     }
 
     setIsMapLoaded(true)
@@ -1166,6 +1167,10 @@ export default function BaseMap({
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
         mapStyle={mapStyleUrl}
+        dragRotate={false}
+        touchPitch={false}
+        keyboard={false}
+        maxPitch={0}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
         onMouseMove={handleMouseMove}

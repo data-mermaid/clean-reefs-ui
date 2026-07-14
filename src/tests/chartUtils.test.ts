@@ -177,8 +177,8 @@ describe('chart data utilities', () => {
   describe('mapChartConfigToData', () => {
     const mockChartSeriesConfig = {
       'charts.land_use_historical': {
-        xAxisTitle: 'chart_information.year',
-        yAxisTitle: 'chart_information.land_cover',
+        xAxisTitle: 'year',
+        yAxisTitle: 'unit_labels.land_cover_pct',
         legendColors: {
           bare_ground: '#D4A373',
           cropland: '#FFD700',
@@ -188,8 +188,8 @@ describe('chart data utilities', () => {
         tracePrefix: 'land_use',
       },
       'charts.sediment_load_historical': {
-        xAxisTitle: 'chart_information.year',
-        yAxisTitle: 'chart_information.sediment_load',
+        xAxisTitle: 'year',
+        yAxisTitle: 'unit_labels.sediment_load_tons',
         legendColors: {
           sediment: '#8B4513',
         },
@@ -197,8 +197,8 @@ describe('chart data utilities', () => {
         barmode: 'group',
       },
       'charts.test_no_barmode': {
-        xAxisTitle: 'chart_information.year',
-        yAxisTitle: 'chart_information.test',
+        xAxisTitle: 'year',
+        yAxisTitle: 'unit_labels.test',
         legendColors: {
           test_category: '#000000',
         },
@@ -211,10 +211,10 @@ describe('chart data utilities', () => {
 
       const mockTranslate = jest.fn((key: string) => {
         const translations: Record<string, string> = {
-          'chart_information.year': 'Year',
-          'chart_information.land_cover': 'Land cover (%)',
-          'chart_information.sediment_load': 'Sediment load',
-          'chart_information.test': 'Test',
+          'year': 'Year',
+          'unit_labels.land_cover_pct': 'Land cover (%)',
+          'unit_labels.sediment_load_tons': 'Sediment load',
+          'unit_labels.test': 'Test',
           'land_use.bare_ground': 'Bare ground',
           'land_use.cropland': 'Cropland',
           bare_ground: 'Bare ground',
@@ -440,7 +440,7 @@ describe('export filename utilities', () => {
     })
 
     it('strips non-alphanumeric characters except hyphens', () => {
-      expect(formatForFilename('Sediment load (tonnes)')).toBe('sediment-load-tonnes')
+      expect(formatForFilename('Sediment load (tons)')).toBe('sediment-load-tons')
     })
   })
 
@@ -482,8 +482,8 @@ describe('export filename utilities', () => {
 // ---------------------------------------------------------------------------
 const sharedLandUseMockConfig = {
   'charts.land_use_historical': {
-    xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.land_cover',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.land_cover_pct',
     legendColors: {
       bare_ground: '#D4A373',
       cropland: '#FFD700',
@@ -493,15 +493,15 @@ const sharedLandUseMockConfig = {
     tracePrefix: 'land_use',
   },
   'charts.sediment_load_historical': {
-    xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.sediment_load',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.sediment_load_tons',
     legendColors: { sediment: '#8B4513' },
     width: 0.6,
     barmode: 'group',
   },
   'charts.ecosystem_extent_exposed': {
-    xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.ecosystem_extent',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.ecosystem_extent',
     legendColors: { reef_extent: '#0077B6', coral_algae: '#48CAE4', seagrass: '#90E0EF' },
     width: 0.8,
     barmode: 'stack',
@@ -510,15 +510,15 @@ const sharedLandUseMockConfig = {
 
 const sharedDispersalMockConfig = {
   'charts.sediment_exposure_historical': {
-    xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.sediment_exposure',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.sediment_exposure_tons',
     legendColors: { sediment: '#8B4513' },
     width: 0.6,
     barmode: 'group',
   },
   'charts.contributing_watersheds': {
-    xAxisTitle: 'chart_information.year',
-    yAxisTitle: 'chart_information.watersheds',
+    xAxisTitle: 'year',
+    yAxisTitle: 'unit_labels.watersheds',
     legendColors: { w1: '#aabbcc', w2: '#bbccdd', w3: '#ccddee' },
     width: 0.8,
     barmode: 'stack',

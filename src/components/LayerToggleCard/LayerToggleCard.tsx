@@ -167,13 +167,19 @@ export default function LayerToggleCard({
   const { t } = useTranslation()
   const [infoOpen, setInfoOpen] = useState(false)
   const infoTextKey = layerInfoTextKey[layer.layerId]
+  const isSedLoadPixelMode = layer.layerId === 'sed_load' && subSedLayerValue === 'pixel'
+  const legendTitleKey = isSedLoadPixelMode
+    ? 'unit_labels.sediment_load_tons_ha'
+    : (layer.legendTitle ?? layer.title)
 
   return (
     <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
       <div className={styles['layer-toggle-header']}>
         {layer.layerId !== 'benthic' && (
           <>
-            <Typography sx={{ fontSize: '14px' }}>{t(layer.legendTitle ?? layer.title)}</Typography>
+            <Typography sx={{ fontSize: '14px' }}>
+              {t(legendTitleKey)}
+            </Typography>
             {infoTextKey && (
               <IconButton
                 size="small"

@@ -15,7 +15,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     name: 'charts.land_use_historical',
     tracePrefix: 'land_types',
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.land_cover_pct',
+    yAxisTitle: 'unit_labels.land_cover_pct',
     width: 2,
   },
   'charts.ecosystem_extent_exposed': {
@@ -29,7 +29,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: 'benthic_map_layers',
     width: 1,
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.area_exposed_ha',
+    yAxisTitle: 'unit_labels.area_exposed_ha',
   },
   'charts.sediment_load_historical': {
     barmode: 'group',
@@ -40,7 +40,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     tracePrefix: '',
     width: 2,
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.sediment_load',
+    yAxisTitle: 'unit_labels.sediment_load_tons',
   },
   //specific to Ocean Pollution, should only populate when watershed is selected
   'charts.sediment_exposure_historical': {
@@ -50,7 +50,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     name: 'charts.sediment_exposure_historical',
     tracePrefix: '',
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.sediment_exposure',
+    yAxisTitle: 'unit_labels.sediment_exposure_tons',
     width: 2,
   },
   'charts.contributing_watersheds': {
@@ -64,7 +64,7 @@ export const chartSeriesConfig: ChartSeriesConfig = {
     name: 'charts.contributing_watersheds',
     tracePrefix: '',
     xAxisTitle: 'year',
-    yAxisTitle: 'chart_information.pollution_contribution',
+    yAxisTitle: 'unit_labels.pollution_contribution_pct',
     width: 2,
   },
 }
