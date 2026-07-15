@@ -163,6 +163,71 @@ export async function fetchWatershedSedLoadValues(
   }
 }
 
+/**
+ * Aggregates all country features from the countries PMTiles into a single flat
+ * properties object in the same key format as individual country features.
+ * Used to generate global chart data without hardcoded placeholder values.
+ *
+ * Absolute fields (sed load, ecosystem extent) are summed.
+ * Land-use percentage fields are area-weighted using each country's total_area_ha.
+ */
+export async function fetchGlobalBoundaryProperties(): Promise<Record<string, unknown> | null> {
+  const config = boundarySourceConfig['country']
+  if (!config) {
+    return null
+  }
+
+  try {
+    const layer = await getParsedLayer(config)
+    if (!layer) {
+      return null
+    }
+
+    const sums: Record<string, number> = {}
+    const weightedPctNumerators: Record<string, number> = {}
+    const weightedPctDenominators: Record<string, number> = {}
+
+    const absolutePrefixes = ['total_sed_load_', 'reef_exposed_', 'coralg_exposed_', 'seag_exposed_']
+    const pctPrefixes = [
+      'Bare_Gr_pct_',
+      'Built_pct_',
+      'Crop_pct_',
+      'HC_Forest_pct_',
+      'M_Forest_pct_',
+      'Shrub_Grass_pct_',
+    ]
+
+    for (let i = 0; i < layer.length; i++) {
+      const props = layer.feature(i).properties
+      const areaHa = typeof props['total_area_ha'] === 'number' ? props['total_area_ha'] : 0
+
+      for (const key of Object.keys(props)) {
+        const val = props[key]
+        if (typeof val !== 'number') {
+          continue
+        }
+
+        if (absolutePrefixes.some((p) => key.startsWith(p))) {
+          sums[key] = (sums[key] ?? 0) + val
+        } else if (pctPrefixes.some((p) => key.startsWith(p))) {
+          weightedPctNumerators[key] = (weightedPctNumerators[key] ?? 0) + val * areaHa
+          weightedPctDenominators[key] = (weightedPctDenominators[key] ?? 0) + areaHa
+        }
+      }
+    }
+
+    const result: Record<string, unknown> = { ...sums }
+    for (const key of Object.keys(weightedPctNumerators)) {
+      const denom = weightedPctDenominators[key]
+      result[key] = denom > 0 ? weightedPctNumerators[key] / denom : 0
+    }
+
+    return result
+  } catch {
+    return null
+  }
+}
+
 // Returns COUNTRY_ID → [REALM_ID] mapping using numeric IDs from the watershed PMTiles.
 // The new watershed schema no longer includes TERRITORY1/REALM text fields — only numeric IDs.
 export async function fetchCountryRegionMap(): Promise<Record<number, number[]>> {
