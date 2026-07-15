@@ -333,7 +333,7 @@ export async function fetchCountryRegionMap(): Promise<Record<number, number[]>>
       }
     }
 
-    const layers = await Promise.all(
+    const settled = await Promise.allSettled(
       tileCoords.map(async ([x, y]) => {
         const tileData = await pm.getZxy(2, x, y)
         if (!tileData?.data) { return null }
@@ -342,6 +342,9 @@ export async function fetchCountryRegionMap(): Promise<Record<number, number[]>>
         return vt.layers['data'] ?? null
       }),
     )
+    const layers = settled
+      .filter((r): r is PromiseFulfilledResult<VectorTileLayer | null> => r.status === 'fulfilled')
+      .map((r) => r.value)
 
     const map: Record<number, number[]> = {}
     for (const layer of layers) {
