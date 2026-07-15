@@ -41,12 +41,12 @@ function deduplicateCountries(
 function enrichCountries(
   countries: RegionOption[],
   countryRegionMap: Record<number, number[]>,
-  mergedRegions: RegionOption[],
+  regions: RegionOption[],
 ): RegionOption[] {
   return countries.flatMap((c) => {
     if (c.bandId !== undefined && countryRegionMap[c.bandId]?.length) {
       const parentRegionIds = countryRegionMap[c.bandId]
-        .map((realmId) => mergedRegions.find((r) => r.bandId === realmId)?.id)
+        .map((realmId) => regions.find((r) => r.bandId === realmId)?.id)
         .filter((id): id is string => id !== undefined)
       if (parentRegionIds.length > 0) {
         return [{ ...c, parentRegionIds }]
