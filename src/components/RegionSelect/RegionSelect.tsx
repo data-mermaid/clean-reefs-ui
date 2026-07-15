@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import styles from './RegionSelect.module.scss'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
-import { KNOWN_REGIONS } from '../../data/coralReefRegions'
 import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import { Autocomplete, TextField } from '@mui/material'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
@@ -54,8 +53,14 @@ export default function RegionSelect({
   // Countries with multiple parent regions are expanded into one entry per region.
   // Options are sorted so each group's items are consecutive (required by MUI groupBy).
   const autocompleteOptions = useMemo<AutocompleteOption[]>(() => {
+    // Build group order dynamically from the regions in regionOptions (PMTiles feature order).
     const groupOrder = new Map<string, number>([['', 0]])
-    KNOWN_REGIONS.forEach((cr, i) => groupOrder.set(cr.label, i + 1))
+    let regionIndex = 1
+    for (const option of regionOptions) {
+      if (option.regionType === 'region') {
+        groupOrder.set(option.label, regionIndex++)
+      }
+    }
 
     // Only show a region if at least one country in regionOptions belongs to it.
     const regionsWithCountries = new Set<string>()
@@ -72,7 +77,7 @@ export default function RegionSelect({
       if (option.regionType === 'global') {
         opts.push({ ...option, groupLabel: '' })
       } else if (option.regionType === 'region') {
-        if (regionsWithCountries.has(option.id) || option.bandId !== undefined) {
+        if (regionsWithCountries.has(option.id)) {
           opts.push({ ...option, groupLabel: option.label })
         }
       } else if (option.regionType === 'country') {
