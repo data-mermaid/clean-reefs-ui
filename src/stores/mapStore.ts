@@ -180,12 +180,14 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
     if (region.extent) {
-      map.fitBounds(region.extent, { bearing: 0, padding: 40 })
+      const [west, south, east, north] = region.extent
+      map.fitBounds([[west, south], [east, north]], { bearing: 0, padding: 40, duration: 800 })
     } else if (region.centerCoord) {
-      map.jumpTo({
+      map.flyTo({
         center: region.centerCoord,
         zoom: region.zoomLevel,
         bearing: 0,
+        duration: 800,
       })
     }
   },
