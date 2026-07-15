@@ -2,6 +2,7 @@ import { Skeleton, Typography } from '@mui/material'
 import styles from './GradientLegend.module.scss'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
+import { formatLegendValue } from '../../utils/chartUtils'
 
 interface GradientLegendProps {
   variation: string // active: 'sed_load' | 'sed_exposure' — planned: 'sediment-concentration' | 'reef-ecosystem-exposure'
@@ -25,7 +26,7 @@ export default function GradientLegend({
     if (isLoading) {
       return <Skeleton variant="text" width={36} />
     }
-    return <Typography>{hasValues ? value : fallback}</Typography>
+    return <Typography>{hasValues ? formatLegendValue(value!) : fallback}</Typography>
   }
 
   return (
