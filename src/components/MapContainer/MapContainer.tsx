@@ -594,8 +594,8 @@ export default function MapContainer() {
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
-        sedLoadMinValue={subSedLayerValue === 'watershed' ? sedLoadMinValue ?? undefined : undefined}
-        sedLoadMaxValue={subSedLayerValue === 'watershed' ? sedLoadMaxValue ?? undefined : undefined}
+        sedLoadMinValue={sedLoadMinValue ?? undefined}
+        sedLoadMaxValue={sedLoadMaxValue ?? undefined}
         sedLoadLoading={sedLoadLoading}
       />
       <TrendsDrawer
