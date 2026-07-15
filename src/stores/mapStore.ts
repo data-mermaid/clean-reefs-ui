@@ -1,9 +1,8 @@
 import { create } from 'zustand'
 import maplibregl from 'maplibre-gl'
-import { sedLoadColorMapping, transparent } from '../data/mapData'
+import { transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
 import {
-  buildSedLoadWatershedExpression,
   buildWatershedMatchExpression,
   resolveBasemapBeforeId,
 } from '../utils/mapUtils'
@@ -17,7 +16,6 @@ type MapState = {
   watershedLayer: LayerInfo | null
   isBasemapChanging: boolean
   topWatershedIds: number[]
-  sedLoadMapSubLayerColors: Record<string, string>
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
   isGeoSearchOpen: boolean
@@ -31,7 +29,6 @@ type MapActions = {
   applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
-  setSedLoadMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSedLoadSubLayerFills: (
     subLayerToggledOn: 'pixel' | 'watershed',
     selectedYear: number,
@@ -133,7 +130,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     })
   },
 
-  sedLoadMapSubLayerColors: sedLoadColorMapping,
   sedLoadMode: null,
   sedLoadYear: 0,
   isGeoSearchOpen: false,
@@ -141,28 +137,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
-  setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
   toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
-    const state = get()
-    const map = state.mapReference?.getMap()
-    const { topWatershedIds } = state
-
-    if (!map) {
-      return
-    }
-
     set({ sedLoadMode: subLayerToggledOn, sedLoadYear: selectedYear })
-
-    const baseFillExpression =
-      subLayerToggledOn === 'watershed'
-        ? buildSedLoadWatershedExpression(selectedYear)
-        : transparent
-
-    map.setPaintProperty(
-      'watershed',
-      'fill-color',
-      buildWatershedMatchExpression(topWatershedIds, baseFillExpression),
-    )
   },
   turnOffSedLoadSubLayerFills: () => {
     const state = get()

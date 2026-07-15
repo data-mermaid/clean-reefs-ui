@@ -11,7 +11,7 @@ import {
 } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
-import { sedLoadColorMapping, transparent } from '../data/mapData'
+import { transparent } from '../data/mapData'
 import { defaultGlobalRegionOption } from '../data/regionData'
 import {
   BASE_ZONAL_STATS_API,
@@ -373,33 +373,6 @@ export function buildWatershedMatchExpression(
   return ['match', ['get', 'watershed_id'], ...pairs, fallback]
 }
 
-/**
- * Builds the MapLibre `match` expression for the watershed choropleth
- * (sediment load threshold percentile bands). The region level is currently
- * fixed to 'country' — update when the UI exposes region-level selection.
- */
-export function buildSedLoadWatershedExpression(selectedYear: number): unknown[] {
-  const regionLevel = 'country' // TODO: pass in selected region level
-  return [
-    'match',
-    ['get', `export_threshold_${regionLevel}_${selectedYear}`],
-    '0',
-    sedLoadColorMapping['0'],
-    '1-10',
-    sedLoadColorMapping['1-10'],
-    '10-20',
-    sedLoadColorMapping['10-20'],
-    '20-50',
-    sedLoadColorMapping['20-50'],
-    '50-75',
-    sedLoadColorMapping['50-75'],
-    '75-90',
-    sedLoadColorMapping['75-90'],
-    '90-100',
-    sedLoadColorMapping['90-100'],
-    transparent,
-  ]
-}
 
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
