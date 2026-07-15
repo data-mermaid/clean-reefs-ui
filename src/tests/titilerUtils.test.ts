@@ -363,33 +363,87 @@ describe('fetchSedLoadStatistics', () => {
 describe('buildSedLoadTileUrl', () => {
   const min = 0
   const max = 8.9
-  const template = buildSedLoadTileUrl(2020, min, max)
-  const [pathPart, queryPart] = template.split('?')
-  const params = new URLSearchParams(queryPart)
 
-  it('contains MapLibre tile placeholders in path', () => {
-    expect(pathPart).toContain('{z}/{x}/{y}')
+  describe('global (no region)', () => {
+    const template = buildSedLoadTileUrl(2020, min, max)
+    const [pathPart, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('contains MapLibre tile placeholders in path', () => {
+      expect(pathPart).toContain('{z}/{x}/{y}')
+    })
+
+    it('targets the correct collection and item in the path', () => {
+      expect(pathPart).toContain(
+        `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
+      )
+    })
+
+    it('sets rescale from min to max', () => {
+      expect(params.get('rescale')).toBe(`${min},${max}`)
+    })
+
+    it('uses brbg_r colormap', () => {
+      expect(params.get('colormap_name')).toBe('brbg_r')
+    })
+
+    it('uses the cog asset key', () => {
+      expect(params.get('assets')).toBe('cog')
+    })
+
+    it('sets asset_bidx to cog|1', () => {
+      expect(params.get('asset_bidx')).toBe('cog|1')
+    })
+
+    it('does not set expression or nodata', () => {
+      expect(params.get('expression')).toBeNull()
+      expect(params.get('nodata')).toBeNull()
+    })
   })
 
-  it('targets the correct collection and item in the path', () => {
-    expect(pathPart).toContain(
-      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
-    )
+  describe('country region filter', () => {
+    const region = makeRegion({ regionType: 'country', bandId: 54 })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('sets expression with bandId * 1000 on cog_b2', () => {
+      expect(params.get('expression')).toBe('where((cog_b2==54000),cog_b1,0)')
+    })
+
+    it('sets nodata=0 to mask non-region pixels', () => {
+      expect(params.get('nodata')).toBe('0')
+    })
+
+    it('omits asset_bidx when expression is set', () => {
+      expect(params.get('asset_bidx')).toBeNull()
+    })
   })
 
-  it('sets rescale from min to max', () => {
-    expect(params.get('rescale')).toBe(`${min},${max}`)
+  describe('region filter', () => {
+    const region = makeRegion({ regionType: 'region', bandId: 2 })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('sets expression with bandId * 1000 on cog_b3', () => {
+      expect(params.get('expression')).toBe('where((cog_b3==2000),cog_b1,0)')
+    })
+
+    it('sets nodata=0 to mask non-region pixels', () => {
+      expect(params.get('nodata')).toBe('0')
+    })
   })
 
-  it('uses brbg_r colormap', () => {
-    expect(params.get('colormap_name')).toBe('brbg_r')
-  })
+  describe('global region with no bandId', () => {
+    const region = makeRegion({ regionType: 'global' })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
 
-  it('uses the cog asset key', () => {
-    expect(params.get('assets')).toBe('cog')
-  })
-
-  it('sets asset_bidx to cog|1', () => {
-    expect(params.get('asset_bidx')).toBe('cog|1')
+    it('falls back to asset_bidx=cog|1 when no bandId', () => {
+      expect(params.get('asset_bidx')).toBe('cog|1')
+      expect(params.get('expression')).toBeNull()
+    })
   })
 })

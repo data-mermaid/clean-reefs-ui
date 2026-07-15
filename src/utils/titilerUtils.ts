@@ -223,15 +223,39 @@ export async function fetchSedLoadStatistics(
   }
 }
 
-/** Build a MapLibre-compatible tile URL for a sediment load item with dynamic rescale. */
-export function buildSedLoadTileUrl(year: number, min: number, max: number): string {
+/** Build a MapLibre-compatible tile URL for a sediment load item with dynamic rescale.
+ * When a region with a bandId is provided, applies an expression to mask pixels outside
+ * that region. nodata=0 makes masked pixels transparent. */
+export function buildSedLoadTileUrl(
+  year: number,
+  min: number,
+  max: number,
+  region?: RegionOption,
+): string {
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
+
+  let expression: string | null = null
+  if (region?.bandId != null) {
+    if (region.regionType === 'country') {
+      expression = `where((cog_b2==${region.bandId * 1000}),cog_b1,0)`
+    } else if (region.regionType === 'region') {
+      expression = `where((cog_b3==${region.bandId * 1000}),cog_b1,0)`
+    }
+  }
+
   const params = new URLSearchParams({
     rescale: `${min},${max}`,
     assets: 'cog',
-    asset_bidx: 'cog|1',
     colormap_name: 'brbg_r',
   })
+
+  if (expression) {
+    params.set('expression', expression)
+    params.set('nodata', '0')
+  } else {
+    params.set('asset_bidx', 'cog|1')
+  }
+
   return `${basePath}?${params.toString()}`
 }

@@ -179,12 +179,12 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
-              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue)
+              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue, selectedRegion)
               : '',
         }
       }),
     )
-  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading])
+  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading, selectedRegion])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
