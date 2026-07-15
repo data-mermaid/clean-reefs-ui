@@ -52,6 +52,7 @@ export default function TrendsDrawer({
 
   useEffect(() => {
     return () => {
+      requestIdRef.current = -1
       if (skeletonTimerRef.current) {
         clearTimeout(skeletonTimerRef.current)
       }
@@ -66,6 +67,11 @@ export default function TrendsDrawer({
   }, [onChartsLoadingChange])
 
   useEffect(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    const currentRequestId = ++requestIdRef.current
+
     onChartsLoadingChange(true)
     const { regionType } = selectedRegion
 
@@ -76,9 +82,8 @@ export default function TrendsDrawer({
     }
 
     if (regionType === 'global') {
-      const requestId = ++requestIdRef.current
       fetchGlobalBoundaryProperties().then((properties) => {
-        if (requestId !== requestIdRef.current) {
+        if (currentRequestId !== requestIdRef.current) {
           return
         }
         setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
@@ -103,10 +108,8 @@ export default function TrendsDrawer({
         return
       }
 
-      const requestId = ++requestIdRef.current
-
       fetchBoundaryProperties(regionType, bandId).then((properties) => {
-        if (requestId !== requestIdRef.current) {
+        if (currentRequestId !== requestIdRef.current) {
           return
         }
         setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
