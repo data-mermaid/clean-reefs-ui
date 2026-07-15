@@ -223,9 +223,54 @@ export async function fetchSedLoadStatistics(
   }
 }
 
+// Generates a 256-entry RGBA colormap interpolated through the 7-stop design scale.
+// entry0Alpha controls whether uint8 value 0 is transparent (for regional filtering,
+// where the expression returns 0 for out-of-region pixels) or opaque (for global view).
+function buildSedLoadColormap(
+  entry0Alpha: 0 | 255,
+): Record<string, [number, number, number, number]> {
+  const stops: [number, [number, number, number]][] = [
+    [0.00, [1, 133, 113]],   // #018571
+    [0.17, [118, 187, 176]], // #76BBB0
+    [0.33, [209, 228, 225]], // #D1E4E1
+    [0.50, [245, 245, 245]], // #F5F5F5
+    [0.67, [228, 213, 197]], // #E4D5C5
+    [0.83, [199, 158, 116]], // #c79e74
+    [1.00, [166, 97, 26]],   // #A6611A
+  ]
+  const result: Record<string, [number, number, number, number]> = {}
+  for (let i = 0; i <= 255; i++) {
+    const t = i / 255
+    let si = stops.length - 2
+    for (let j = 0; j < stops.length - 1; j++) {
+      if (t <= stops[j + 1][0]) {
+        si = j
+        break
+      }
+    }
+    const [pos0, c0] = stops[si]
+    const [pos1, c1] = stops[si + 1]
+    const segT = Math.max(0, Math.min(1, pos1 > pos0 ? (t - pos0) / (pos1 - pos0) : 0))
+    const alpha = i === 0 ? entry0Alpha : 255
+    result[String(i)] = [
+      Math.round(c0[0] + (c1[0] - c0[0]) * segT),
+      Math.round(c0[1] + (c1[1] - c0[1]) * segT),
+      Math.round(c0[2] + (c1[2] - c0[2]) * segT),
+      alpha,
+    ]
+  }
+  return result
+}
+
+// Global: entry 0 is opaque — no out-of-region masking needed.
+const SED_LOAD_COLORMAP_GLOBAL = buildSedLoadColormap(255)
+// Regional: entry 0 is transparent — expression returns 0 for out-of-region pixels.
+const SED_LOAD_COLORMAP_REGIONAL = buildSedLoadColormap(0)
+
 /** Build a MapLibre-compatible tile URL for a sediment load item with dynamic rescale.
- * When a region with a bandId is provided, applies an expression to mask pixels outside
- * that region. nodata=0 makes masked pixels transparent. */
+ * Uses a custom 7-stop colormap. When a region with a bandId is provided, applies an
+ * expression to mask pixels outside that region — out-of-region pixels return 0, which
+ * the colormap maps to transparent (alpha=0). */
 export function buildSedLoadTileUrl(
   year: number,
   min: number,
@@ -235,26 +280,35 @@ export function buildSedLoadTileUrl(
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
 
-  let expression: string | null = null
+  const logMax = Math.log10(Math.max(max, 1))
+  const logMin = min > 0 ? Math.log10(min) : 0
+
+  let expression: string
+  let isRegional = false
   if (region?.bandId != null) {
     if (region.regionType === 'country') {
-      expression = `where((cog_b2==${region.bandId * 1000}),cog_b1,0)`
+      expression = `where((cog_b2==${region.bandId * 1000}),where(cog_b1>0,log10(cog_b1),0),0)`
+      isRegional = true
     } else if (region.regionType === 'region') {
-      expression = `where((cog_b3==${region.bandId * 1000}),cog_b1,0)`
+      expression = `where((cog_b3==${region.bandId * 1000}),where(cog_b1>0,log10(cog_b1),0),0)`
+      isRegional = true
+    } else {
+      expression = `where(cog_b1>0,log10(cog_b1),0)`
     }
+  } else {
+    expression = `where(cog_b1>0,log10(cog_b1),0)`
   }
 
+  const colormap = isRegional ? SED_LOAD_COLORMAP_REGIONAL : SED_LOAD_COLORMAP_GLOBAL
   const params = new URLSearchParams({
-    rescale: `${min},${max}`,
+    rescale: `${logMin},${logMax}`,
     assets: 'cog',
-    colormap_name: 'brbg_r',
+    colormap: JSON.stringify(colormap),
+    expression,
   })
 
-  if (expression) {
-    params.set('expression', expression)
+  if (isRegional) {
     params.set('nodata', '0')
-  } else {
-    params.set('asset_bidx', 'cog|1')
   }
 
   return `${basePath}?${params.toString()}`

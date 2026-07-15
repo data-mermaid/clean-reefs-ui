@@ -426,6 +426,7 @@ export default function BaseMap({
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
   const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
+  const setWatershedSedLoadRange = useMapStore((s) => s.setWatershedSedLoadRange)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
@@ -669,6 +670,7 @@ export default function BaseMap({
     if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
       setWatershedFillColor(transparent)
       setWatershedChoroplethExpression(transparent)
+      setWatershedSedLoadRange(null, null)
       return
     }
     // Normalize at the current scope: region bandId for region scope, country bandId for country scope.
@@ -678,9 +680,9 @@ export default function BaseMap({
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
-      let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, normalizationCountryId)
+      let values = await fetchWatershedSedLoadValues(selectedYear, normalizationRealmId, normalizationCountryId)
       if (values.length === 0) {
-        values = await fetchWatershedSedLoadValues(2020, undefined, undefined)
+        values = await fetchWatershedSedLoadValues(selectedYear, undefined, undefined)
       }
       return values
     }
@@ -691,6 +693,7 @@ export default function BaseMap({
       if (values.length === 0) {
         setWatershedFillColor(transparent)
         setWatershedChoroplethExpression(transparent)
+        setWatershedSedLoadRange(null, null)
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
@@ -717,10 +720,11 @@ export default function BaseMap({
         ],
         transparent,
       ]
+      setWatershedSedLoadRange(sorted[0], sorted[sorted.length - 1])
       setWatershedFillColor(fillColor)
       setWatershedChoroplethExpression(fillColor)
     })
-  }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, regionOptions])
+  }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, setWatershedSedLoadRange, regionOptions])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {

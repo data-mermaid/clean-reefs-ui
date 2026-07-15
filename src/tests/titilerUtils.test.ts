@@ -314,7 +314,7 @@ describe('fetchSedLoadStatistics', () => {
     expect(result).toEqual({ min: 0, max: 50 })
   })
 
-  it('returns positive min as-is when min is above 0', async () => {
+  it('returns positive min as-is when above 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({ cog_b1: { min: 0.4, max: 34.2 } }),
@@ -363,6 +363,7 @@ describe('fetchSedLoadStatistics', () => {
 describe('buildSedLoadTileUrl', () => {
   const min = 0
   const max = 8.9
+  const logMax = Math.log10(max)
 
   describe('global (no region)', () => {
     const template = buildSedLoadTileUrl(2020, min, max)
@@ -379,24 +380,26 @@ describe('buildSedLoadTileUrl', () => {
       )
     })
 
-    it('sets rescale from min to max', () => {
-      expect(params.get('rescale')).toBe(`${min},${max}`)
+    it('sets rescale in log10 space from 0 to log10(max)', () => {
+      expect(params.get('rescale')).toBe(`0,${logMax}`)
     })
 
-    it('uses brbg_r colormap', () => {
-      expect(params.get('colormap_name')).toBe('brbg_r')
+    it('uses log10 expression for global view', () => {
+      expect(params.get('expression')).toBe('where(cog_b1>0,log10(cog_b1),0)')
+    })
+
+    it('uses a global colormap where entry 0 is opaque', () => {
+      const colormap = JSON.parse(params.get('colormap') ?? '{}')
+      expect(colormap['0'][3]).toBe(255)
+      expect(colormap['255'][3]).toBe(255)
     })
 
     it('uses the cog asset key', () => {
       expect(params.get('assets')).toBe('cog')
     })
 
-    it('sets asset_bidx to cog|1', () => {
-      expect(params.get('asset_bidx')).toBe('cog|1')
-    })
-
-    it('does not set expression or nodata', () => {
-      expect(params.get('expression')).toBeNull()
+    it('does not set asset_bidx or nodata', () => {
+      expect(params.get('asset_bidx')).toBeNull()
       expect(params.get('nodata')).toBeNull()
     })
   })
@@ -407,16 +410,24 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('sets expression with bandId * 1000 on cog_b2', () => {
-      expect(params.get('expression')).toBe('where((cog_b2==54000),cog_b1,0)')
+    it('sets log10 expression with bandId * 1000 on cog_b2', () => {
+      expect(params.get('expression')).toBe(
+        'where((cog_b2==54000),where(cog_b1>0,log10(cog_b1),0),0)',
+      )
     })
 
-    it('sets nodata=0 to mask non-region pixels', () => {
+    it('sets nodata=0 to reinforce out-of-region masking', () => {
       expect(params.get('nodata')).toBe('0')
     })
 
     it('omits asset_bidx when expression is set', () => {
       expect(params.get('asset_bidx')).toBeNull()
+    })
+
+    it('uses a regional colormap where entry 0 is transparent', () => {
+      const colormap = JSON.parse(params.get('colormap') ?? '{}')
+      expect(colormap['0'][3]).toBe(0)
+      expect(colormap['255'][3]).toBe(255)
     })
   })
 
@@ -426,11 +437,13 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('sets expression with bandId * 1000 on cog_b3', () => {
-      expect(params.get('expression')).toBe('where((cog_b3==2000),cog_b1,0)')
+    it('sets log10 expression with bandId * 1000 on cog_b3', () => {
+      expect(params.get('expression')).toBe(
+        'where((cog_b3==2000),where(cog_b1>0,log10(cog_b1),0),0)',
+      )
     })
 
-    it('sets nodata=0 to mask non-region pixels', () => {
+    it('sets nodata=0 to reinforce out-of-region masking', () => {
       expect(params.get('nodata')).toBe('0')
     })
   })
@@ -441,9 +454,9 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('falls back to asset_bidx=cog|1 when no bandId', () => {
-      expect(params.get('asset_bidx')).toBe('cog|1')
-      expect(params.get('expression')).toBeNull()
+    it('uses log10 global expression when no bandId', () => {
+      expect(params.get('expression')).toBe('where(cog_b1>0,log10(cog_b1),0)')
+      expect(params.get('asset_bidx')).toBeNull()
     })
   })
 })

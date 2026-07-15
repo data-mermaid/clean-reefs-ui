@@ -51,6 +51,8 @@ export default function MapContainer() {
   const toggleSedLoadSubLayerFills = useMapStore((state) => state.toggleSedLoadSubLayerFills)
   const turnOffSedLoadSubLayerFills = useMapStore((state) => state.turnOffSedLoadSubLayerFills)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const watershedSedLoadMin = useMapStore((s) => s.watershedSedLoadMin)
+  const watershedSedLoadMax = useMapStore((s) => s.watershedSedLoadMax)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const clearSelectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -594,8 +596,16 @@ export default function MapContainer() {
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
-        sedLoadMinValue={sedLoadMinValue ?? undefined}
-        sedLoadMaxValue={sedLoadMaxValue ?? undefined}
+        sedLoadMinValue={
+          subSedLayerValue === 'watershed'
+            ? (watershedSedLoadMin ?? undefined)
+            : (sedLoadMinValue ?? undefined)
+        }
+        sedLoadMaxValue={
+          subSedLayerValue === 'watershed'
+            ? (watershedSedLoadMax ?? undefined)
+            : (sedLoadMaxValue ?? undefined)
+        }
         sedLoadLoading={sedLoadLoading}
       />
       <TrendsDrawer

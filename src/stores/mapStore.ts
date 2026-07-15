@@ -20,6 +20,8 @@ type MapState = {
   sedLoadYear: number
   isGeoSearchOpen: boolean
   watershedChoroplethExpression: maplibregl.ExpressionSpecification | string
+  watershedSedLoadMin: number | null
+  watershedSedLoadMax: number | null
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
@@ -37,6 +39,7 @@ type MapActions = {
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
   setWatershedChoroplethExpression: (expr: maplibregl.ExpressionSpecification | string) => void
+  setWatershedSedLoadRange: (min: number | null, max: number | null) => void
   jumpToRegion: (region: RegionOption) => void
   openGeoSearch: () => void
   closeGeoSearch: () => void
@@ -135,6 +138,9 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   isGeoSearchOpen: false,
   watershedChoroplethExpression: transparent,
   setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
+  watershedSedLoadMin: null,
+  watershedSedLoadMax: null,
+  setWatershedSedLoadRange: (min, max) => set({ watershedSedLoadMin: min, watershedSedLoadMax: max }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
   toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
