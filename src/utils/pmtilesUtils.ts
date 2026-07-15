@@ -5,6 +5,7 @@ import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL, WATERSHED_PMTILES_URL } fro
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from '../data/countryExtents'
 import { REGION_EXTENTS } from '../data/regionExtents'
+import { ABSOLUTE_FIELD_PREFIXES, PCT_FIELD_PREFIXES } from '../data/mapData'
 
 const pmtilesCache = new Map<string, PMTiles>()
 
@@ -187,16 +188,6 @@ export async function fetchGlobalBoundaryProperties(): Promise<Record<string, un
     const weightedPctNumerators: Record<string, number> = {}
     const weightedPctDenominators: Record<string, number> = {}
 
-    const absolutePrefixes = ['total_sed_load_', 'reef_exposed_', 'coralg_exposed_', 'seag_exposed_']
-    const pctPrefixes = [
-      'Bare_Gr_pct_',
-      'Built_pct_',
-      'Crop_pct_',
-      'HC_Forest_pct_',
-      'M_Forest_pct_',
-      'Shrub_Grass_pct_',
-    ]
-
     for (let i = 0; i < layer.length; i++) {
       const props = layer.feature(i).properties
       const areaHa = typeof props['total_area_ha'] === 'number' ? props['total_area_ha'] : 0
@@ -207,9 +198,9 @@ export async function fetchGlobalBoundaryProperties(): Promise<Record<string, un
           continue
         }
 
-        if (absolutePrefixes.some((p) => key.startsWith(p))) {
+        if (ABSOLUTE_FIELD_PREFIXES.some((p) => key.startsWith(p))) {
           sums[key] = (sums[key] ?? 0) + val
-        } else if (pctPrefixes.some((p) => key.startsWith(p))) {
+        } else if (PCT_FIELD_PREFIXES.some((p) => key.startsWith(p))) {
           weightedPctNumerators[key] = (weightedPctNumerators[key] ?? 0) + val * areaHa
           weightedPctDenominators[key] = (weightedPctDenominators[key] ?? 0) + areaHa
         }
