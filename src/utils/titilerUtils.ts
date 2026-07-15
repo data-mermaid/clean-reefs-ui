@@ -31,6 +31,10 @@ interface MinMaxValues {
   max: number
 }
 
+interface SedLoadStats extends MinMaxValues {
+  p98: number | null
+}
+
 // ─── Sed Exposure ────────────────────────────────────────────────────────────
 
 /** Build the TiTiler expression and required asset bands for the selected region. */
@@ -176,7 +180,7 @@ export async function fetchSedLoadStatistics(
   year: number,
   region?: RegionOption,
   signal?: AbortSignal,
-): Promise<MinMaxValues | null> {
+): Promise<SedLoadStats | null> {
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const { expression, assetBidx } = region
     ? buildSedLoadExpression(region)
@@ -216,6 +220,7 @@ export async function fetchSedLoadStatistics(
     return {
       min: Math.max(0, parseFloat(statsData.min.toFixed(1))),
       max: parseFloat(statsData.max.toFixed(1)),
+      p98: statsData.percentile_98 != null ? parseFloat(statsData.percentile_98.toFixed(1)) : null,
     }
   } catch {
     clearTimeout(timeoutId)
@@ -276,11 +281,12 @@ export function buildSedLoadTileUrl(
   min: number,
   max: number,
   region?: RegionOption,
+  rescaleMax?: number,
 ): string {
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
 
-  const logMax = Math.log10(Math.max(max, 1))
+  const logMax = rescaleMax != null && rescaleMax > 0 ? Math.log10(rescaleMax) : Math.log10(max)
   const logMin = min > 0 ? Math.log10(min) : 0
   const logExpr = `where(cog_b1>0,log10(cog_b1),0)`
 

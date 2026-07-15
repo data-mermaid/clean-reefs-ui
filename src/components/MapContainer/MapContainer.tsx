@@ -145,6 +145,7 @@ export default function MapContainer() {
   const {
     minValue: sedLoadMinValue,
     maxValue: sedLoadMaxValue,
+    p98Value: sedLoadP98Value,
     isLoading: sedLoadLoading,
   } = useSedLoadStatistics(latestYear, selectedRegion)
 
@@ -181,12 +182,12 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
-              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue, selectedRegion)
+              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue, selectedRegion, sedLoadP98Value ?? undefined)
               : '',
         }
       }),
     )
-  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading, selectedRegion])
+  }, [sedLoadMinValue, sedLoadMaxValue, sedLoadP98Value, selectedYear, sedLoadLoading, selectedRegion])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 

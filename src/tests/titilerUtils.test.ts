@@ -304,24 +304,24 @@ describe('fetchSedLoadStatistics', () => {
     },
   })
 
-  it('returns min/max with min clamped to 0', async () => {
+  it('returns min/max/p98 with min clamped to 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockSedLoadStats(),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
-    expect(result).toEqual({ min: 0, max: 50 })
+    expect(result).toEqual({ min: 0, max: 50, p98: 8.9 })
   })
 
-  it('returns positive min as-is when above 0', async () => {
+  it('returns positive min as-is when above 0; p98 is null when percentile_98 missing', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({ cog_b1: { min: 0.4, max: 34.2 } }),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
-    expect(result).toEqual({ min: 0.4, max: 34.2 })
+    expect(result).toEqual({ min: 0.4, max: 34.2, p98: null })
   })
 
   it('sends correct path and params for the given year', async () => {
@@ -380,8 +380,15 @@ describe('buildSedLoadTileUrl', () => {
       )
     })
 
-    it('sets rescale in log10 space from 0 to log10(max)', () => {
+    it('sets rescale in log10 space from 0 to log10(max) when no rescaleMax provided', () => {
       expect(params.get('rescale')).toBe(`0,${logMax}`)
+    })
+
+    it('uses log10(rescaleMax) for rescale when rescaleMax is provided', () => {
+      const p98 = 5.5
+      const urlWithP98 = buildSedLoadTileUrl(2020, min, max, undefined, p98)
+      const p = new URLSearchParams(urlWithP98.split('?')[1])
+      expect(p.get('rescale')).toBe(`0,${Math.log10(p98)}`)
     })
 
     it('uses log10 expression for global view', () => {
