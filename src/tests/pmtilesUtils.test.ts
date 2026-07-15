@@ -1,4 +1,4 @@
-import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
+import { fetchAllBoundaryFeatures, fetchGlobalBoundaryProperties } from '../utils/pmtilesUtils'
 
 // mockGetZxy is declared before jest.mock so the factory can close over it.
 // The pmtilesCache in pmtilesUtils reuses the first-created instance, so all
@@ -136,5 +136,93 @@ describe('fetchAllBoundaryFeatures', () => {
 
     expect(results[0].id).toBe('cote-divoire')
     expect(results[0].label).toBe("Côte d'Ivoire")
+  })
+})
+
+describe('fetchGlobalBoundaryProperties', () => {
+  afterEach(() => jest.clearAllMocks())
+
+  const twoCountries = [
+    {
+      properties: {
+        COUNTRY_ID: 54,
+        TERRITORY1: 'Fiji',
+        total_area_ha: 1000,
+        total_sed_load_2020: 100,
+        reef_exposed_2020: 500,
+        coralg_exposed_2020: 200,
+        seag_exposed_2020: 50,
+        Bare_Gr_pct_2020: 10,
+        Crop_pct_2020: 20,
+      },
+    },
+    {
+      properties: {
+        COUNTRY_ID: 138,
+        TERRITORY1: 'Solomon Islands',
+        total_area_ha: 3000,
+        total_sed_load_2020: 300,
+        reef_exposed_2020: 1500,
+        coralg_exposed_2020: 600,
+        seag_exposed_2020: 150,
+        Bare_Gr_pct_2020: 30,
+        Crop_pct_2020: 40,
+      },
+    },
+  ]
+
+  it('sums absolute values across all countries', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(twoCountries))
+
+    const result = await fetchGlobalBoundaryProperties()
+
+    expect(result?.['total_sed_load_2020']).toBe(400)
+    expect(result?.['reef_exposed_2020']).toBe(2000)
+    expect(result?.['coralg_exposed_2020']).toBe(800)
+    expect(result?.['seag_exposed_2020']).toBe(200)
+  })
+
+  it('computes area-weighted average for land-use percentages', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(twoCountries))
+
+    const result = await fetchGlobalBoundaryProperties()
+
+    // Bare_Gr_pct_2020: (10 * 1000 + 30 * 3000) / (1000 + 3000) = 100000 / 4000 = 25
+    expect(result?.['Bare_Gr_pct_2020']).toBe(25)
+    // Crop_pct_2020: (20 * 1000 + 40 * 3000) / 4000 = 140000 / 4000 = 35
+    expect(result?.['Crop_pct_2020']).toBe(35)
+  })
+
+  it('returns null when tile data is absent', async () => {
+    mockGetZxy.mockResolvedValue(null)
+
+    const result = await fetchGlobalBoundaryProperties()
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null on error', async () => {
+    mockGetZxy.mockRejectedValue(new Error('network'))
+
+    const result = await fetchGlobalBoundaryProperties()
+
+    expect(result).toBeNull()
+  })
+
+  it('skips features with missing total_area_ha when computing weighted averages', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([
+        { properties: { COUNTRY_ID: 54, Bare_Gr_pct_2020: 20, total_area_ha: 2000 } },
+        { properties: { COUNTRY_ID: 138, Bare_Gr_pct_2020: 40 } }, // no total_area_ha → treated as 0
+      ]),
+    )
+
+    const result = await fetchGlobalBoundaryProperties()
+
+    // (20 * 2000 + 40 * 0) / (2000 + 0) = 20
+    expect(result?.['Bare_Gr_pct_2020']).toBe(20)
   })
 })

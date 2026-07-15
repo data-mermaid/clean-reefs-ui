@@ -7,13 +7,12 @@ import ChartCard from '../ChartCard/ChartCard'
 import ChartCardSkeleton from '../ChartCard/ChartCardSkeleton'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
-import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
-import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
+import { fetchBoundaryProperties, fetchGlobalBoundaryProperties } from '../../utils/pmtilesUtils'
 import {
   buildChartDataFromProperties,
   getDrawerTitle,
@@ -39,9 +38,7 @@ export default function TrendsDrawer({
   onChartsLoadingChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
-  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
-    tempGlobalChartSeriesData,
-  )
+  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(null)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   const selectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -55,6 +52,7 @@ export default function TrendsDrawer({
 
   useEffect(() => {
     return () => {
+      requestIdRef.current = -1
       if (skeletonTimerRef.current) {
         clearTimeout(skeletonTimerRef.current)
       }
@@ -69,6 +67,11 @@ export default function TrendsDrawer({
   }, [onChartsLoadingChange])
 
   useEffect(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    const currentRequestId = ++requestIdRef.current
+
     onChartsLoadingChange(true)
     const { regionType } = selectedRegion
 
@@ -79,8 +82,13 @@ export default function TrendsDrawer({
     }
 
     if (regionType === 'global') {
-      setChartConfigData(tempGlobalChartSeriesData)
-      stopLoading()
+      fetchGlobalBoundaryProperties().then((properties) => {
+        if (currentRequestId !== requestIdRef.current) {
+          return
+        }
+        setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
+        stopLoading()
+      })
       return
     }
 
@@ -100,10 +108,8 @@ export default function TrendsDrawer({
         return
       }
 
-      const requestId = ++requestIdRef.current
-
       fetchBoundaryProperties(regionType, bandId).then((properties) => {
-        if (requestId !== requestIdRef.current) {
+        if (currentRequestId !== requestIdRef.current) {
           return
         }
         setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
