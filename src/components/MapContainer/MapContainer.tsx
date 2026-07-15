@@ -545,6 +545,11 @@ export default function MapContainer() {
     [updateSearchParams, showLabels],
   )
 
+  const displayedSedLoadMin =
+    subSedLayerValue === 'watershed' ? (watershedSedLoadMin ?? undefined) : (sedLoadMinValue ?? undefined)
+  const displayedSedLoadMax =
+    subSedLayerValue === 'watershed' ? (watershedSedLoadMax ?? undefined) : (sedLoadMaxValue ?? undefined)
+
   return (
     <div className={styles['MapContainer-root']}>
       <Sidebar
@@ -596,16 +601,8 @@ export default function MapContainer() {
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
-        sedLoadMinValue={
-          subSedLayerValue === 'watershed'
-            ? (watershedSedLoadMin ?? undefined)
-            : (sedLoadMinValue ?? undefined)
-        }
-        sedLoadMaxValue={
-          subSedLayerValue === 'watershed'
-            ? (watershedSedLoadMax ?? undefined)
-            : (sedLoadMaxValue ?? undefined)
-        }
+        sedLoadMinValue={displayedSedLoadMin}
+        sedLoadMaxValue={displayedSedLoadMax}
         sedLoadLoading={sedLoadLoading}
       />
       <TrendsDrawer

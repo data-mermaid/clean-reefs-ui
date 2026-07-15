@@ -26,7 +26,6 @@ export const atlasBenthicColors = {
   sand: '#DECC77',
 }
 
-
 //this is the order the parent layers will appear in the layer toggle drawer
 //currently, base layers are not implemented
 export const parentLayerTitles = {

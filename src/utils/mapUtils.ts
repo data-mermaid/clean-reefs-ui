@@ -373,7 +373,6 @@ export function buildWatershedMatchExpression(
   return ['match', ['get', 'watershed_id'], ...pairs, fallback]
 }
 
-
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   regionOptions: RegionOption[],

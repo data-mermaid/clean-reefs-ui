@@ -282,21 +282,18 @@ export function buildSedLoadTileUrl(
 
   const logMax = Math.log10(Math.max(max, 1))
   const logMin = min > 0 ? Math.log10(min) : 0
+  const logExpr = `where(cog_b1>0,log10(cog_b1),0)`
 
-  let expression: string
+  let expression = logExpr
   let isRegional = false
   if (region?.bandId != null) {
     if (region.regionType === 'country') {
-      expression = `where((cog_b2==${region.bandId * 1000}),where(cog_b1>0,log10(cog_b1),0),0)`
+      expression = `where((cog_b2==${region.bandId * 1000}),${logExpr},0)`
       isRegional = true
     } else if (region.regionType === 'region') {
-      expression = `where((cog_b3==${region.bandId * 1000}),where(cog_b1>0,log10(cog_b1),0),0)`
+      expression = `where((cog_b3==${region.bandId * 1000}),${logExpr},0)`
       isRegional = true
-    } else {
-      expression = `where(cog_b1>0,log10(cog_b1),0)`
     }
-  } else {
-    expression = `where(cog_b1>0,log10(cog_b1),0)`
   }
 
   const colormap = isRegional ? SED_LOAD_COLORMAP_REGIONAL : SED_LOAD_COLORMAP_GLOBAL
