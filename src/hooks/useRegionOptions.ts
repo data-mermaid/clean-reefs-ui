@@ -37,22 +37,22 @@ function deduplicateCountries(
 }
 
 // Resolves each country's parentRegionIds from the watershed PMTiles COUNTRY_ID → REALM_ID mapping.
-// Countries not present in the watershed data get no parentRegionIds and appear ungrouped.
+// Countries with no watershed data are excluded entirely — they have no drill-down path.
 function enrichCountries(
   countries: RegionOption[],
   countryRegionMap: Record<number, number[]>,
   mergedRegions: RegionOption[],
 ): RegionOption[] {
-  return countries.map((c) => {
+  return countries.flatMap((c) => {
     if (c.bandId !== undefined && countryRegionMap[c.bandId]?.length) {
       const parentRegionIds = countryRegionMap[c.bandId]
         .map((realmId) => mergedRegions.find((r) => r.bandId === realmId)?.id)
         .filter((id): id is string => id !== undefined)
       if (parentRegionIds.length > 0) {
-        return { ...c, parentRegionIds }
+        return [{ ...c, parentRegionIds }]
       }
     }
-    return { ...c, parentRegionIds: [] }
+    return []
   })
 }
 

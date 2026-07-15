@@ -55,7 +55,7 @@ describe('useRegionOptions', () => {
       }
       return Promise.resolve([{ id: 'fiji', regionType: 'country', label: 'Fiji', bandId: 54 }])
     })
-    mockFetchCountryRegionMap.mockResolvedValue({})
+    mockFetchCountryRegionMap.mockResolvedValue({ 54: [2] })
 
     const { result } = renderHook(() => useRegionOptions())
     await waitFor(() => expect(result.current.loading).toBe(false))

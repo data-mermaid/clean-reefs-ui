@@ -320,25 +320,43 @@ export async function fetchGlobalBoundaryProperties(): Promise<Record<string, un
 }
 
 // Returns COUNTRY_ID → [REALM_ID] mapping using numeric IDs from the watershed PMTiles.
-// The new watershed schema no longer includes TERRITORY1/REALM text fields — only numeric IDs.
+// Reads all 16 z=2 tiles in parallel — small island/coastal countries (e.g. New Caledonia)
+// have watersheds too small to appear in the z=0 global tile but are present at z=2.
 export async function fetchCountryRegionMap(): Promise<Record<number, number[]>> {
   try {
-    const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
-    if (!layer) {
-      return {}
+    const pm = getPMTiles(WATERSHED_PMTILES_URL)
+
+    const tileCoords: [number, number][] = []
+    for (let x = 0; x < 4; x++) {
+      for (let y = 0; y < 4; y++) {
+        tileCoords.push([x, y])
+      }
     }
 
+    const layers = await Promise.all(
+      tileCoords.map(async ([x, y]) => {
+        const tileData = await pm.getZxy(2, x, y)
+        if (!tileData?.data) { return null }
+        const pbf = new Pbf(new Uint8Array(tileData.data))
+        const vt = new VectorTile(pbf)
+        return vt.layers['data'] ?? null
+      }),
+    )
+
     const map: Record<number, number[]> = {}
-    for (let i = 0; i < layer.length; i++) {
-      const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
-      if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
-        continue
-      }
-      if (!map[COUNTRY_ID]) {
-        map[COUNTRY_ID] = []
-      }
-      if (!map[COUNTRY_ID].includes(REALM_ID)) {
-        map[COUNTRY_ID].push(REALM_ID)
+    for (const layer of layers) {
+      if (!layer) { continue }
+      for (let i = 0; i < layer.length; i++) {
+        const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
+        if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
+          continue
+        }
+        if (!map[COUNTRY_ID]) {
+          map[COUNTRY_ID] = []
+        }
+        if (!map[COUNTRY_ID].includes(REALM_ID)) {
+          map[COUNTRY_ID].push(REALM_ID)
+        }
       }
     }
     return map
