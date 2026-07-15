@@ -7,13 +7,12 @@ import ChartCard from '../ChartCard/ChartCard'
 import ChartCardSkeleton from '../ChartCard/ChartCardSkeleton'
 import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
-import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
-import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
+import { fetchBoundaryProperties, fetchGlobalBoundaryProperties } from '../../utils/pmtilesUtils'
 import {
   buildChartDataFromProperties,
   getDrawerTitle,
@@ -39,9 +38,7 @@ export default function TrendsDrawer({
   onChartsLoadingChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
-  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
-    tempGlobalChartSeriesData,
-  )
+  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(null)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   const selectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -79,8 +76,14 @@ export default function TrendsDrawer({
     }
 
     if (regionType === 'global') {
-      setChartConfigData(tempGlobalChartSeriesData)
-      stopLoading()
+      const requestId = ++requestIdRef.current
+      fetchGlobalBoundaryProperties().then((properties) => {
+        if (requestId !== requestIdRef.current) {
+          return
+        }
+        setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
+        stopLoading()
+      })
       return
     }
 
