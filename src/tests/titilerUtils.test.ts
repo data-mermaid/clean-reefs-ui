@@ -94,8 +94,11 @@ describe('buildSedExposureTileUrl', () => {
     expect(params.get('colormap_name')).toBe('viridis')
   })
 
-  it('clamps expression at max', () => {
-    expect(params.get('expression')).toBe(`where(cog_b1>${max},${max},cog_b1)`)
+  it('clamps expression between epsilon and max', () => {
+    const epsilon = max / 254
+    expect(params.get('expression')).toBe(
+      `where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1))`,
+    )
   })
 
   it('does not set nodata for global', () => {
@@ -119,8 +122,9 @@ describe('buildSedExposureTileUrl', () => {
     const countryParams = new URLSearchParams(countryUrl.split('?')[1])
 
     it('masks to country band b8', () => {
+      const epsilon = max / 254
       expect(countryParams.get('expression')).toBe(
-        `where((cog_b8==54),where(cog_b1>${max},${max},cog_b1),0)`,
+        `where((cog_b8==54),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
       )
     })
 
@@ -128,8 +132,8 @@ describe('buildSedExposureTileUrl', () => {
       expect(countryParams.get('asset_bidx')).toBeNull()
     })
 
-    it('sets nodata=0', () => {
-      expect(countryParams.get('nodata')).toBe('0')
+    it('does not set nodata', () => {
+      expect(countryParams.get('nodata')).toBeNull()
     })
   })
 
@@ -150,8 +154,9 @@ describe('buildSedExposureTileUrl', () => {
     const realmParams = new URLSearchParams(realmUrl.split('?')[1])
 
     it('masks to realm band b9', () => {
+      const epsilon = max / 254
       expect(realmParams.get('expression')).toBe(
-        `where((cog_b9==2),where(cog_b1>${max},${max},cog_b1),0)`,
+        `where((cog_b9==2),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
       )
     })
 
@@ -159,8 +164,8 @@ describe('buildSedExposureTileUrl', () => {
       expect(realmParams.get('asset_bidx')).toBeNull()
     })
 
-    it('sets nodata=0', () => {
-      expect(realmParams.get('nodata')).toBe('0')
+    it('does not set nodata', () => {
+      expect(realmParams.get('nodata')).toBeNull()
     })
   })
 })
