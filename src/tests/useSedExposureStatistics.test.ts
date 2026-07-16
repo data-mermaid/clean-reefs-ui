@@ -26,9 +26,9 @@ describe('useSedExposureStatistics', () => {
 
   it('starts with null values and isLoading true', () => {
     jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue({ min: 0, max: 100 })
-    const { result } = renderHook(() =>
-      useSedExposureStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const collectionId = nextCollection()
+    const region = makeRegion()
+    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -38,9 +38,9 @@ describe('useSedExposureStatistics', () => {
     jest
       .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 1.5, max: 99.9 })
-    const { result } = renderHook(() =>
-      useSedExposureStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const collectionId = nextCollection()
+    const region = makeRegion()
+    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBe(1.5)
     expect(result.current.maxValue).toBe(99.9)
@@ -48,9 +48,9 @@ describe('useSedExposureStatistics', () => {
 
   it('sets isLoading false and keeps null values when API returns null', async () => {
     jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue(null)
-    const { result } = renderHook(() =>
-      useSedExposureStatistics(nextCollection(), makeRegion(), 2000),
-    )
+    const collectionId = nextCollection()
+    const region = makeRegion()
+    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
@@ -60,8 +60,9 @@ describe('useSedExposureStatistics', () => {
     const fetchSpy = jest
       .spyOn(titilerUtils, 'fetchSedExposureStatistics')
       .mockResolvedValue({ min: 0, max: 10 })
+    const collectionId = nextCollection()
     const region = makeRegion({ regionType: 'country', bandId: 42 })
-    const { result } = renderHook(() => useSedExposureStatistics(nextCollection(), region, 2020))
+    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2020))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.any(String),
