@@ -157,7 +157,10 @@ export default function MapContainer() {
           return layer
         }
         const link =
-          !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
+          !sedExposureLoading &&
+          sedExposureMinValue !== null &&
+          sedExposureMaxValue !== null &&
+          sedExposureMaxValue > 0
             ? buildSedExposureTileUrl(
                 SED_EXPOSURE_COLLECTION_ID,
                 buildSedExposureItemId(selectedYear),
