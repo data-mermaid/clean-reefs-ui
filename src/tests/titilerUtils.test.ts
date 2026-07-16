@@ -217,7 +217,7 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toBeNull()
   })
 
-  it('omits asset_bidx for global (null expression) — passing cog|1 for single-band requests causes TiTiler to return 0 valid pixels', async () => {
+  it('sends asset_bidx=cog|1 for global (null expression)', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
@@ -230,7 +230,7 @@ describe('fetchSedExposureStatistics', () => {
       'cog|1',
     )
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
-    expect(calledUrl.searchParams.get('asset_bidx')).toBeNull()
+    expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1')
   })
 
   it('sends correct asset_bidx for country expression (band 8)', async () => {

@@ -97,11 +97,7 @@ export async function fetchSedExposureStatistics(
       `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`,
     )
     url.searchParams.append('assets', 'cog')
-    // asset_bidx is only needed when the expression reads multiple bands (regional masking).
-    // Passing it for single-band global requests causes TiTiler to return 0 valid pixels.
-    if (assetBidx !== 'cog|1') {
-      url.searchParams.append('asset_bidx', assetBidx)
-    }
+    url.searchParams.append('asset_bidx', assetBidx)
     url.searchParams.append('expression', resolvedExpression)
     url.searchParams.append('max_size', '1025')
 
