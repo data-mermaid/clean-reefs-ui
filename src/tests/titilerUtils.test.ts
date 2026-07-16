@@ -208,6 +208,21 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toEqual({ min: 0, max: 500 })
   })
 
+  it('clamps negative min to 0', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ cog_b1: { min: -0.3, max: 500.0 } }),
+    } as Response)
+
+    const result = await fetchSedExposureStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
+    expect(result).toEqual({ min: 0, max: 500 })
+  })
+
   it('returns null when min/max are missing from response', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,

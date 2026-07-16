@@ -99,7 +99,7 @@ export async function fetchSedExposureStatistics(
     url.searchParams.append('assets', 'cog')
     url.searchParams.append('asset_bidx', assetBidx)
     url.searchParams.append('expression', resolvedExpression)
-    url.searchParams.append('max_size', '1025')
+    url.searchParams.append('max_size', '2048')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })
     clearTimeout(timeoutId)
@@ -116,7 +116,7 @@ export async function fetchSedExposureStatistics(
     }
 
     return {
-      min: parseFloat(statsData.min.toFixed(1)),
+      min: Math.max(0, parseFloat(statsData.min.toFixed(1))),
       max: parseFloat(statsData.max.toFixed(1)),
     }
   } catch {
