@@ -53,6 +53,7 @@ import {
   resolveBasemapBeforeId,
   PolygonFeatureStateKey,
   getBasemapStyleUrl,
+  buildWatershedMatchExpression,
   Basemap,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
@@ -685,7 +686,15 @@ export default function BaseMap({
   // The display field changes with selectedYear so colors reflect the chosen year's actual values.
   useEffect(() => {
     if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
-      setWatershedFillColor(transparent)
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              transparent,
+            ) as maplibregl.ExpressionSpecification)
+          : transparent
+      setWatershedFillColor(finalFill)
       setWatershedChoroplethExpression(transparent)
       setWatershedSedLoadRange(null, null)
       return
@@ -752,7 +761,17 @@ export default function BaseMap({
         transparent,
       ]
       setWatershedSedLoadRange(sorted[0], sorted[sorted.length - 1])
-      setWatershedFillColor(fillColor)
+      // If dispersal top watersheds are active, bake their highlight colors into the paint
+      // expression so the React re-render doesn't overwrite the imperative setPaintProperty.
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              fillColor,
+            ) as maplibregl.ExpressionSpecification)
+          : fillColor
+      setWatershedFillColor(finalFill)
       setWatershedChoroplethExpression(fillColor)
     })
   }, [
