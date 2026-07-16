@@ -37,7 +37,7 @@ import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
-import useRasterStatistics from '../../hooks/useRasterStatistics'
+import useSedExposureStatistics from '../../hooks/useSedExposureStatistics'
 import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
@@ -140,7 +140,7 @@ export default function MapContainer() {
     minValue: sedExposureMinValue,
     maxValue: sedExposureMaxValue,
     isLoading: sedExposureLoading,
-  } = useRasterStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
+  } = useSedExposureStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,
@@ -156,20 +156,19 @@ export default function MapContainer() {
         if (layer.layerId !== 'sed_exposure' || layer.year !== selectedYear) {
           return layer
         }
-        return {
-          ...layer,
-          link:
-            !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
-              ? buildSedExposureTileUrl(
-                  SED_EXPOSURE_COLLECTION_ID,
-                  buildSedExposureItemId(selectedYear),
-                  sedExposureMaxValue,
-                )
-              : '',
-        }
+        const link =
+          !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
+            ? buildSedExposureTileUrl(
+                SED_EXPOSURE_COLLECTION_ID,
+                buildSedExposureItemId(selectedYear),
+                sedExposureMaxValue,
+                selectedRegion,
+              )
+            : ''
+        return { ...layer, link }
       }),
     )
-  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading])
+  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading, selectedRegion])
 
   // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -182,12 +181,25 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
-              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue, selectedRegion, sedLoadP98Value ?? undefined)
+              ? buildSedLoadTileUrl(
+                  selectedYear,
+                  sedLoadMinValue,
+                  sedLoadMaxValue,
+                  selectedRegion,
+                  sedLoadP98Value ?? undefined,
+                )
               : '',
         }
       }),
     )
-  }, [sedLoadMinValue, sedLoadMaxValue, sedLoadP98Value, selectedYear, sedLoadLoading, selectedRegion])
+  }, [
+    sedLoadMinValue,
+    sedLoadMaxValue,
+    sedLoadP98Value,
+    selectedYear,
+    sedLoadLoading,
+    selectedRegion,
+  ])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -292,7 +304,10 @@ export default function MapContainer() {
       if (parentIds.includes(parentRegionParam) && parentIds[0] !== parentRegionParam) {
         regionToSet = {
           ...initialRegion,
-          parentRegionIds: [parentRegionParam, ...parentIds.filter((id) => id !== parentRegionParam)],
+          parentRegionIds: [
+            parentRegionParam,
+            ...parentIds.filter((id) => id !== parentRegionParam),
+          ],
         }
       }
       parentRegion = regionOptions.find(
@@ -547,9 +562,13 @@ export default function MapContainer() {
   )
 
   const displayedSedLoadMin =
-    subSedLayerValue === 'watershed' ? (watershedSedLoadMin ?? undefined) : (sedLoadMinValue ?? undefined)
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMin ?? undefined)
+      : (sedLoadMinValue ?? undefined)
   const displayedSedLoadMax =
-    subSedLayerValue === 'watershed' ? (watershedSedLoadMax ?? undefined) : (sedLoadMaxValue ?? undefined)
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMax ?? undefined)
+      : (sedLoadMaxValue ?? undefined)
 
   return (
     <div className={styles['MapContainer-root']}>

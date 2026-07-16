@@ -97,7 +97,11 @@ export async function fetchSedExposureStatistics(
       `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/statistics`,
     )
     url.searchParams.append('assets', 'cog')
-    url.searchParams.append('asset_bidx', assetBidx)
+    // asset_bidx is only needed when the expression reads multiple bands (regional masking).
+    // Passing it for single-band global requests causes TiTiler to return 0 valid pixels.
+    if (assetBidx !== 'cog|1') {
+      url.searchParams.append('asset_bidx', assetBidx)
+    }
     url.searchParams.append('expression', resolvedExpression)
     url.searchParams.append('max_size', '1025')
 
@@ -125,23 +129,84 @@ export async function fetchSedExposureStatistics(
   }
 }
 
-/**
- * Build a MapLibre-compatible tile URL template for sed exposure with dynamic rescale.
- * Uses {z}/{x}/{y} placeholders that MapLibre fills in when fetching tiles.
- * The expression clamps values at max so nothing renders out of range.
- * NOTE: multi-band expression filtering (per country/region) is not supported by the
- * /collections/.../items/.../tiles/ endpoint — the tile always shows full CIP coverage.
- * Raised as Q6 in design-questions-draft.md.
- */
-export function buildSedExposureTileUrl(collectionId: string, itemId: string, max: number): string {
+// Generates a 256-entry RGBA viridis colormap.
+// entry0Alpha controls whether uint8 value 0 is transparent (for regional filtering,
+// where the expression returns 0 for out-of-region pixels) or opaque (for global view).
+function buildSedExposureColormap(
+  entry0Alpha: 0 | 255,
+): Record<string, [number, number, number, number]> {
+  const stops: [number, [number, number, number]][] = [
+    [0.00, [68, 1, 84]],    // #440154
+    [0.25, [58, 82, 139]],  // #3a528b
+    [0.50, [32, 144, 140]], // #20908c
+    [0.75, [94, 201, 97]],  // #5ec961
+    [1.00, [253, 231, 36]], // #fde724
+  ]
+  const result: Record<string, [number, number, number, number]> = {}
+  for (let i = 0; i <= 255; i++) {
+    const t = i / 255
+    let si = stops.length - 2
+    for (let j = 0; j < stops.length - 1; j++) {
+      if (t <= stops[j + 1][0]) {
+        si = j
+        break
+      }
+    }
+    const [pos0, c0] = stops[si]
+    const [pos1, c1] = stops[si + 1]
+    const segT = Math.max(0, Math.min(1, pos1 > pos0 ? (t - pos0) / (pos1 - pos0) : 0))
+    const alpha = i === 0 ? entry0Alpha : 255
+    result[String(i)] = [
+      Math.round(c0[0] + (c1[0] - c0[0]) * segT),
+      Math.round(c0[1] + (c1[1] - c0[1]) * segT),
+      Math.round(c0[2] + (c1[2] - c0[2]) * segT),
+      alpha,
+    ]
+  }
+  return result
+}
+
+// Regional only: entry 0 is transparent — expression returns 0 for out-of-region pixels.
+const SED_EXPOSURE_COLORMAP_REGIONAL = buildSedExposureColormap(0)
+
+export function buildSedExposureTileUrl(
+  collectionId: string,
+  itemId: string,
+  max: number,
+  region?: RegionOption,
+): string {
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
+  const clampExpr = `where(cog_b1>${max},${max},cog_b1)`
+
+  let expression = clampExpr
+  let isRegional = false
+
+  if (region?.bandId != null) {
+    if (region.regionType === 'country') {
+      expression = `where((cog_b8==${region.bandId}),${clampExpr},0)`
+      isRegional = true
+    } else if (region.regionType === 'region') {
+      expression = `where((cog_b9==${region.bandId}),${clampExpr},0)`
+      isRegional = true
+    }
+  }
+
   const params = new URLSearchParams({
     rescale: `0,${max}`,
     assets: 'cog',
-    colormap_name: 'viridis',
-    asset_bidx: 'cog|1',
-    expression: `where(cog_b1>${max},${max},cog_b1)`,
+    expression,
   })
+
+  if (isRegional) {
+    // Custom colormap with transparent entry 0 — out-of-region pixels get value 0 from the expression.
+    params.set('colormap', JSON.stringify(SED_EXPOSURE_COLORMAP_REGIONAL))
+    params.set('nodata', '0')
+  } else {
+    // Built-in viridis keeps the URL short for global tiles; restrict to band 1 to avoid loading all 9.
+    params.set('colormap_name', 'viridis')
+    params.set('asset_bidx', 'cog|1')
+  }
+
   return `${basePath}?${params.toString()}`
 }
 

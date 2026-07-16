@@ -97,6 +97,72 @@ describe('buildSedExposureTileUrl', () => {
   it('clamps expression at max', () => {
     expect(params.get('expression')).toBe(`where(cog_b1>${max},${max},cog_b1)`)
   })
+
+  it('does not set nodata for global', () => {
+    expect(params.get('nodata')).toBeNull()
+  })
+
+  describe('country region', () => {
+    const countryRegion = {
+      bandId: 54,
+      regionType: 'country' as const,
+      id: 'fiji',
+      label: 'Fiji',
+      parentRegionIds: [],
+    }
+    const countryUrl = buildSedExposureTileUrl(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      max,
+      countryRegion,
+    )
+    const countryParams = new URLSearchParams(countryUrl.split('?')[1])
+
+    it('masks to country band b8', () => {
+      expect(countryParams.get('expression')).toBe(
+        `where((cog_b8==54),where(cog_b1>${max},${max},cog_b1),0)`,
+      )
+    })
+
+    it('omits asset_bidx so TiTiler resolves bands from the expression', () => {
+      expect(countryParams.get('asset_bidx')).toBeNull()
+    })
+
+    it('sets nodata=0', () => {
+      expect(countryParams.get('nodata')).toBe('0')
+    })
+  })
+
+  describe('region type', () => {
+    const realmRegion = {
+      bandId: 2,
+      regionType: 'region' as const,
+      id: 'cip',
+      label: 'CIP',
+      parentRegionIds: [],
+    }
+    const realmUrl = buildSedExposureTileUrl(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      max,
+      realmRegion,
+    )
+    const realmParams = new URLSearchParams(realmUrl.split('?')[1])
+
+    it('masks to realm band b9', () => {
+      expect(realmParams.get('expression')).toBe(
+        `where((cog_b9==2),where(cog_b1>${max},${max},cog_b1),0)`,
+      )
+    })
+
+    it('omits asset_bidx so TiTiler resolves bands from the expression', () => {
+      expect(realmParams.get('asset_bidx')).toBeNull()
+    })
+
+    it('sets nodata=0', () => {
+      expect(realmParams.get('nodata')).toBe('0')
+    })
+  })
 })
 
 describe('fetchSedExposureStatistics', () => {
@@ -151,7 +217,7 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toBeNull()
   })
 
-  it('sends correct asset_bidx for global (null expression)', async () => {
+  it('omits asset_bidx for global (null expression) — passing cog|1 for single-band requests causes TiTiler to return 0 valid pixels', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
@@ -164,7 +230,7 @@ describe('fetchSedExposureStatistics', () => {
       'cog|1',
     )
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
-    expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1')
+    expect(calledUrl.searchParams.get('asset_bidx')).toBeNull()
   })
 
   it('sends correct asset_bidx for country expression (band 8)', async () => {

@@ -19,7 +19,7 @@ interface CachedStats {
 
 const statsCache = new Map<string, CachedStats>()
 
-const useRasterStatistics = (
+const useSedExposureStatistics = (
   collectionId: string,
   selectedRegion: RegionOption,
   latestYear: number,
@@ -70,4 +70,4 @@ const useRasterStatistics = (
   return { minValue, maxValue, isLoading }
 }
 
-export default useRasterStatistics
+export default useSedExposureStatistics
