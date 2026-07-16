@@ -136,11 +136,11 @@ function buildSedExposureColormap(
   entry0Alpha: 0 | 255,
 ): Record<string, [number, number, number, number]> {
   const stops: [number, [number, number, number]][] = [
-    [0.00, [68, 1, 84]],    // #440154
-    [0.25, [58, 82, 139]],  // #3a528b
-    [0.50, [32, 144, 140]], // #20908c
-    [0.75, [94, 201, 97]],  // #5ec961
-    [1.00, [253, 231, 36]], // #fde724
+    [0.0, [68, 1, 84]], // #440154
+    [0.25, [58, 82, 139]], // #3a528b
+    [0.5, [32, 144, 140]], // #20908c
+    [0.75, [94, 201, 97]], // #5ec961
+    [1.0, [253, 231, 36]], // #fde724
   ]
   const result: Record<string, [number, number, number, number]> = {}
   for (let i = 0; i <= 255; i++) {
@@ -300,13 +300,13 @@ function buildSedLoadColormap(
   entry0Alpha: 0 | 255,
 ): Record<string, [number, number, number, number]> {
   const stops: [number, [number, number, number]][] = [
-    [0.00, [1, 133, 113]],   // #018571
+    [0.0, [1, 133, 113]], // #018571
     [0.17, [118, 187, 176]], // #76BBB0
     [0.33, [209, 228, 225]], // #D1E4E1
-    [0.50, [245, 245, 245]], // #F5F5F5
+    [0.5, [245, 245, 245]], // #F5F5F5
     [0.67, [228, 213, 197]], // #E4D5C5
     [0.83, [199, 158, 116]], // #c79e74
-    [1.00, [166, 97, 26]],   // #A6611A
+    [1.0, [166, 97, 26]], // #A6611A
   ]
   const result: Record<string, [number, number, number, number]> = {}
   for (let i = 0; i <= 255; i++) {
@@ -351,9 +351,10 @@ export function buildSedLoadTileUrl(
   const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
 
-  const logMax = rescaleMax != null && rescaleMax > 0 ? Math.log10(rescaleMax) : Math.log10(max)
-  const logMin = min > 0 ? Math.log10(min) : 0
-  const logExpr = `where(cog_b1>0,log10(cog_b1),0)`
+  const logMax =
+    rescaleMax != null && rescaleMax > 0 ? Math.log10(rescaleMax + 1) : Math.log10(max + 1)
+  const logMin = Math.log10(min + 1)
+  const logExpr = `log10(cog_b1+1)`
 
   let expression = logExpr
   let isRegional = false

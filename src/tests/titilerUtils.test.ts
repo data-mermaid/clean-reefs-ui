@@ -429,7 +429,7 @@ describe('fetchSedLoadStatistics', () => {
 describe('buildSedLoadTileUrl', () => {
   const min = 0
   const max = 8.9
-  const logMax = Math.log10(max)
+  const logMax = Math.log10(max + 1)
 
   describe('global (no region)', () => {
     const template = buildSedLoadTileUrl(2020, min, max)
@@ -450,15 +450,15 @@ describe('buildSedLoadTileUrl', () => {
       expect(params.get('rescale')).toBe(`0,${logMax}`)
     })
 
-    it('uses log10(rescaleMax) for rescale when rescaleMax is provided', () => {
+    it('uses log10(rescaleMax+1) for rescale when rescaleMax is provided', () => {
       const p98 = 5.5
       const urlWithP98 = buildSedLoadTileUrl(2020, min, max, undefined, p98)
       const p = new URLSearchParams(urlWithP98.split('?')[1])
-      expect(p.get('rescale')).toBe(`0,${Math.log10(p98)}`)
+      expect(p.get('rescale')).toBe(`0,${Math.log10(p98 + 1)}`)
     })
 
-    it('uses log10 expression for global view', () => {
-      expect(params.get('expression')).toBe('where(cog_b1>0,log10(cog_b1),0)')
+    it('uses log1p expression for global view', () => {
+      expect(params.get('expression')).toBe('log10(cog_b1+1)')
     })
 
     it('uses a global colormap where entry 0 is opaque', () => {
@@ -483,10 +483,8 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('sets log10 expression with bandId * 1000 on cog_b2', () => {
-      expect(params.get('expression')).toBe(
-        'where((cog_b2==54000),where(cog_b1>0,log10(cog_b1),0),0)',
-      )
+    it('sets log1p expression with bandId * 1000 on cog_b2', () => {
+      expect(params.get('expression')).toBe('where((cog_b2==54000),log10(cog_b1+1),0)')
     })
 
     it('sets nodata=0 to reinforce out-of-region masking', () => {
@@ -510,10 +508,8 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('sets log10 expression with bandId * 1000 on cog_b3', () => {
-      expect(params.get('expression')).toBe(
-        'where((cog_b3==2000),where(cog_b1>0,log10(cog_b1),0),0)',
-      )
+    it('sets log1p expression with bandId * 1000 on cog_b3', () => {
+      expect(params.get('expression')).toBe('where((cog_b3==2000),log10(cog_b1+1),0)')
     })
 
     it('sets nodata=0 to reinforce out-of-region masking', () => {
@@ -527,8 +523,8 @@ describe('buildSedLoadTileUrl', () => {
     const [, queryPart] = template.split('?')
     const params = new URLSearchParams(queryPart)
 
-    it('uses log10 global expression when no bandId', () => {
-      expect(params.get('expression')).toBe('where(cog_b1>0,log10(cog_b1),0)')
+    it('uses log1p global expression when no bandId', () => {
+      expect(params.get('expression')).toBe('log10(cog_b1+1)')
       expect(params.get('asset_bidx')).toBeNull()
     })
   })
