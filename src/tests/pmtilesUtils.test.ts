@@ -1,4 +1,4 @@
-import { fetchAllBoundaryFeatures } from '../utils/pmtilesUtils'
+import { fetchAllBoundaryFeatures, fetchWatershedIdsForRegion } from '../utils/pmtilesUtils'
 
 // mockGetZxy is declared before jest.mock so the factory can close over it.
 // The pmtilesCache in pmtilesUtils reuses the first-created instance, so all
@@ -136,5 +136,68 @@ describe('fetchAllBoundaryFeatures', () => {
 
     expect(results[0].id).toBe('cote-divoire')
     expect(results[0].label).toBe("Côte d'Ivoire")
+  })
+})
+
+describe('fetchWatershedIdsForRegion', () => {
+  afterEach(() => jest.clearAllMocks())
+
+  const watershedFeatures = [
+    { properties: { watershed_id: 1, REALM_ID: 2, COUNTRY_ID: 54 } },
+    { properties: { watershed_id: 2, REALM_ID: 2, COUNTRY_ID: 138 } },
+    { properties: { watershed_id: 3, REALM_ID: 5, COUNTRY_ID: 54 } },
+    { properties: { watershed_id: 4, REALM_ID: 5, COUNTRY_ID: 99 } },
+  ]
+
+  it('returns all watershed_ids when no filter is provided', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(watershedFeatures))
+
+    const ids = await fetchWatershedIdsForRegion()
+
+    expect(ids).toEqual([1, 2, 3, 4])
+  })
+
+  it('filters by realmId', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(watershedFeatures))
+
+    const ids = await fetchWatershedIdsForRegion(2)
+
+    expect(ids).toEqual([1, 2])
+  })
+
+  it('filters by countryId', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(watershedFeatures))
+
+    const ids = await fetchWatershedIdsForRegion(undefined, 54)
+
+    expect(ids).toEqual([1, 3])
+  })
+
+  it('filters by both realmId and countryId', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() => makeTile(watershedFeatures))
+
+    const ids = await fetchWatershedIdsForRegion(2, 54)
+
+    expect(ids).toEqual([1])
+  })
+
+  it('returns empty array when tile data is absent', async () => {
+    mockGetZxy.mockResolvedValue(null)
+
+    const ids = await fetchWatershedIdsForRegion(2)
+
+    expect(ids).toEqual([])
+  })
+
+  it('returns empty array on error', async () => {
+    mockGetZxy.mockRejectedValue(new Error('network'))
+
+    const ids = await fetchWatershedIdsForRegion(2)
+
+    expect(ids).toEqual([])
   })
 })

@@ -68,7 +68,7 @@ import {
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
-import { fetchWatershedSedLoadValues } from '../../utils/pmtilesUtils'
+import { fetchWatershedSedLoadValues, fetchWatershedIdsForRegion } from '../../utils/pmtilesUtils'
 import { transparent } from '../../data/mapData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 import GeoSearchControl from '../GeoSearchControl/GeoSearchControl'
@@ -339,11 +339,23 @@ function SedExposureBoundaryLayers({
   layer,
   index,
   beforeId,
+  watershedIds,
 }: {
   layer
   index
   beforeId?: string
+  watershedIds: number[]
 }) {
+  const filterProp =
+    watershedIds.length > 0
+      ? {
+          filter: [
+            'in',
+            ['get', 'watershed_id'],
+            ['literal', watershedIds.map(String)],
+          ] as maplibregl.FilterSpecification,
+        }
+      : {}
   return (
     <Source
       id={layer.sourceId}
@@ -359,6 +371,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...filterProp}
         paint={{
           'line-color': [
             'case',
@@ -386,6 +399,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...filterProp}
         paint={{ 'fill-color': transparent }}
       />
     </Source>
@@ -437,6 +451,7 @@ export default function BaseMap({
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
   const sedExposureBoundaryRequestIdRef = useRef(0) // Tracks the latest dispersal click fetch so earlier, slower responses don't overwrite newer ones.
   const choroplethRequestIdRef = useRef(0)
+  const sedExposureFilterRequestIdRef = useRef(0)
   // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onDispersalClick)
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
@@ -466,7 +481,7 @@ export default function BaseMap({
   const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
     null,
   )
-
+  const [sedExposureWatershedIds, setSedExposureWatershedIds] = useState<number[]>([])
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
   const showLoading = showLoadingIndicator && !(isPanelMobile && isAnyPanelOpen)
 
@@ -749,6 +764,22 @@ export default function BaseMap({
     setWatershedSedLoadRange,
     regionOptions,
   ])
+
+  useEffect(() => {
+    if (selectedRegion.bandId == null) {
+      setSedExposureWatershedIds([])
+      return
+    }
+    const requestId = ++sedExposureFilterRequestIdRef.current
+    const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
+    fetchWatershedIdsForRegion(realmId, countryId, selectedRegion.extent).then((ids) => {
+      if (requestId !== sedExposureFilterRequestIdRef.current) {
+        return
+      }
+      setSedExposureWatershedIds(ids)
+    })
+  }, [selectedRegion.bandId, selectedRegion.regionType, selectedRegion.extent])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -1285,6 +1316,7 @@ export default function BaseMap({
                 layer={l}
                 index={i}
                 beforeId="shoreline-emphasis"
+                watershedIds={sedExposureWatershedIds}
               />
             ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
