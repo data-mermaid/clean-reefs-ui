@@ -2,10 +2,7 @@ import { create } from 'zustand'
 import maplibregl from 'maplibre-gl'
 import { transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
-import {
-  buildWatershedMatchExpression,
-  resolveBasemapBeforeId,
-} from '../utils/mapUtils'
+import { buildWatershedMatchExpression, resolveBasemapBeforeId } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../types/MapDataTypes'
 import { useSelectedFeatureStore } from './selectedFeatureStore'
@@ -140,7 +137,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
   watershedSedLoadMin: null,
   watershedSedLoadMax: null,
-  setWatershedSedLoadRange: (min, max) => set({ watershedSedLoadMin: min, watershedSedLoadMax: max }),
+  setWatershedSedLoadRange: (min, max) =>
+    set({ watershedSedLoadMin: min, watershedSedLoadMax: max }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
   toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
@@ -181,13 +179,18 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }
     if (region.extent) {
       const [west, south, east, north] = region.extent
-      map.fitBounds([[west, south], [east, north]], { bearing: 0, padding: 40, duration: 800 })
+      map.fitBounds(
+        [
+          [west, south],
+          [east, north],
+        ],
+        { bearing: 0, padding: 40 },
+      )
     } else if (region.centerCoord) {
       map.flyTo({
         center: region.centerCoord,
         zoom: region.zoomLevel,
         bearing: 0,
-        duration: 800,
       })
     }
   },
