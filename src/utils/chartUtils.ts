@@ -321,7 +321,11 @@ export const formatLegendValue = (n: number): string => {
     return `${(n / 1_000_000).toFixed(1)}M`
   }
   if (n >= 1_000) {
-    return `${(n / 1_000).toFixed(1)}k`
+    const thousands = Number((n / 1_000).toFixed(1))
+    if (thousands >= 1_000) {
+      return `${(n / 1_000_000).toFixed(1)}M`
+    }
+    return `${thousands.toFixed(1)}k`
   }
   return String(n)
 }

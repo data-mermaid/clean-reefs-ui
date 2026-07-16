@@ -212,7 +212,7 @@ describe('chart data utilities', () => {
 
       const mockTranslate = jest.fn((key: string) => {
         const translations: Record<string, string> = {
-          'year': 'Year',
+          year: 'Year',
           'unit_labels.land_cover_pct': 'Land cover (%)',
           'unit_labels.sediment_load_tons': 'Sediment load',
           'unit_labels.test': 'Test',
@@ -730,7 +730,10 @@ describe('formatLegendValue', () => {
     expect(formatLegendValue(1000)).toBe('1.0k')
     expect(formatLegendValue(1200)).toBe('1.2k')
     expect(formatLegendValue(14500)).toBe('14.5k')
-    expect(formatLegendValue(999999)).toBe('1000.0k')
+  })
+
+  it('promotes to millions when rounded thousands value reaches 1000', () => {
+    expect(formatLegendValue(999_999)).toBe('1.0M')
   })
 
   it('abbreviates millions with one decimal and M suffix', () => {
