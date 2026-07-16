@@ -640,7 +640,6 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
-
   // Filter watershed layer to the current scope.
   // At region scope, filter by country ID list so countries like Australia — whose watersheds
   // span multiple marine realms — show their full watershed coverage.
@@ -650,7 +649,12 @@ export default function BaseMap({
   const watershedFilter = useMemo((): maplibregl.FilterSpecification | null => {
     if (selectedRegion.regionType === 'region') {
       const countryIds = regionOptions
-        .filter((r) => r.regionType === 'country' && r.parentRegionIds?.includes(selectedRegion.id) && r.bandId != null)
+        .filter(
+          (r) =>
+            r.regionType === 'country' &&
+            r.parentRegionIds?.includes(selectedRegion.id) &&
+            r.bandId != null,
+        )
         .map((r) => r.bandId as number)
       return countryIds.length > 0 ? ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]] : null
     }
@@ -678,8 +682,15 @@ export default function BaseMap({
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
-      let values = await fetchWatershedSedLoadValues(selectedYear, normalizationRealmId, normalizationCountryId)
-      if (values.length === 0) {
+      let values = await fetchWatershedSedLoadValues(
+        selectedYear,
+        normalizationRealmId,
+        normalizationCountryId,
+      )
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined)
+      ) {
         values = await fetchWatershedSedLoadValues(selectedYear, undefined, undefined)
       }
       return values
@@ -708,13 +719,20 @@ export default function BaseMap({
           'interpolate',
           ['linear'],
           ['log10', ['max', 1, ['get', field]]],
-          log10min, '#018571',
-          log10min + span * 0.15, '#76BBB0',
-          log10min + span * 0.33, '#D1E4E1',
-          log10min + span * 0.5, '#F5F5F5',
-          log10min + span * 0.67, '#E4D5C5',
-          log10min + span * 0.85, '#c79e74',
-          log10min + span, '#A6611A',
+          log10min,
+          '#018571',
+          log10min + span * 0.15,
+          '#76BBB0',
+          log10min + span * 0.33,
+          '#D1E4E1',
+          log10min + span * 0.5,
+          '#F5F5F5',
+          log10min + span * 0.67,
+          '#E4D5C5',
+          log10min + span * 0.85,
+          '#c79e74',
+          log10min + span,
+          '#A6611A',
         ],
         transparent,
       ]
@@ -722,7 +740,15 @@ export default function BaseMap({
       setWatershedFillColor(fillColor)
       setWatershedChoroplethExpression(fillColor)
     })
-  }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, setWatershedSedLoadRange, regionOptions])
+  }, [
+    sedLoadSubLayerValue,
+    selectedRegion,
+    selectedYear,
+    isSedLoadOn,
+    setWatershedChoroplethExpression,
+    setWatershedSedLoadRange,
+    regionOptions,
+  ])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
