@@ -11,6 +11,7 @@ type MapState = {
   mapReference: MapRef | null
   basemapBeforeId: string | undefined
   watershedLayer: LayerInfo | null
+  sedExposureBoundaryLayer: LayerInfo | null
   isBasemapChanging: boolean
   topWatershedIds: number[]
   sedLoadMode: 'pixel' | 'watershed' | null
@@ -25,6 +26,7 @@ type MapActions = {
   setBasemapBeforeId: (id: string | undefined) => void
   setTopWatershedIds: (polygonIds: number[]) => void
   setWatershedLayer: (layer: LayerInfo | null) => void
+  setSedExposureBoundaryLayer: (layer: LayerInfo | null) => void
   applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
@@ -49,6 +51,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
   watershedLayer: null,
   setWatershedLayer: (layer) => set({ watershedLayer: layer }),
+  sedExposureBoundaryLayer: null,
+  setSedExposureBoundaryLayer: (layer) => set({ sedExposureBoundaryLayer: layer }),
   isBasemapChanging: false,
   topWatershedIds: [],
   setTopWatershedIds: (polygonIds) => set({ topWatershedIds: polygonIds }),
@@ -99,7 +103,12 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     map.once('idle', () => {
       const { selectedFeature } = useSelectedFeatureStore.getState()
-      const { topWatershedIds, watershedLayer, setTopPolygonsFill } = get()
+      const {
+        topWatershedIds,
+        watershedLayer,
+        sedExposureBoundaryLayer: plumeLayer,
+        setTopPolygonsFill,
+      } = get()
 
       const canRestoreSelectedFeature =
         selectedFeature?.id != null &&
@@ -115,6 +124,17 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
           },
           { select: true },
         )
+        // Re-apply the linked plume outline highlight that gets cleared by the style reload.
+        if (plumeLayer && map.getSource(plumeLayer.sourceId) != null) {
+          map.setFeatureState(
+            {
+              source: plumeLayer.sourceId,
+              sourceLayer: plumeLayer.sourceFileName,
+              id: selectedFeature.id,
+            },
+            { linkedSelect: true },
+          )
+        }
         return
       }
 

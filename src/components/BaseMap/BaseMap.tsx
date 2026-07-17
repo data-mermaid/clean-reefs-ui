@@ -438,6 +438,7 @@ export default function BaseMap({
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
+  const setSedExposureBoundaryLayer = useMapStore((s) => s.setSedExposureBoundaryLayer)
   const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
   const setWatershedSedLoadRange = useMapStore((s) => s.setWatershedSedLoadRange)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
@@ -799,6 +800,11 @@ export default function BaseMap({
       setSedExposureWatershedIds(ids)
     })
   }, [selectedRegion.bandId, selectedRegion.regionType, selectedRegion.extent])
+
+  // Keep mapStore in sync so restoreActiveSelection can re-apply linkedSelect after a basemap change.
+  useEffect(() => {
+    setSedExposureBoundaryLayer(sedExposureBoundaryLayer ?? null)
+  }, [sedExposureBoundaryLayer, setSedExposureBoundaryLayer])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
