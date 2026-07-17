@@ -53,6 +53,7 @@ import {
   resolveBasemapBeforeId,
   PolygonFeatureStateKey,
   getBasemapStyleUrl,
+  buildWatershedMatchExpression,
   Basemap,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
@@ -68,7 +69,7 @@ import {
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
-import { fetchWatershedSedLoadValues } from '../../utils/pmtilesUtils'
+import { fetchWatershedSedLoadValues, fetchWatershedIdsForRegion } from '../../utils/pmtilesUtils'
 import { transparent } from '../../data/mapData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
 import GeoSearchControl from '../GeoSearchControl/GeoSearchControl'
@@ -339,13 +340,23 @@ function SedExposureBoundaryLayers({
   layer,
   index,
   beforeId,
-  visible,
+  watershedIds,
 }: {
   layer
   index
   beforeId?: string
-  visible: boolean
+  watershedIds: number[]
 }) {
+  const filterProp =
+    watershedIds.length > 0
+      ? {
+          filter: [
+            'in',
+            ['get', 'watershed_id'],
+            ['literal', watershedIds.map(String)],
+          ] as maplibregl.FilterSpecification,
+        }
+      : {}
   return (
     <Source
       id={layer.sourceId}
@@ -361,6 +372,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...filterProp}
         paint={{
           'line-color': [
             'case',
@@ -378,7 +390,7 @@ function SedExposureBoundaryLayers({
             polygonHighlightWidth,
             1,
           ],
-          'line-opacity': layer.isLayerOn && visible ? 1 : 0,
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -388,6 +400,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
+        {...filterProp}
         paint={{ 'fill-color': transparent }}
       />
     </Source>
@@ -425,7 +438,9 @@ export default function BaseMap({
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
+  const setSedExposureBoundaryLayer = useMapStore((s) => s.setSedExposureBoundaryLayer)
   const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
+  const setWatershedSedLoadRange = useMapStore((s) => s.setWatershedSedLoadRange)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
@@ -438,6 +453,7 @@ export default function BaseMap({
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
   const sedExposureBoundaryRequestIdRef = useRef(0) // Tracks the latest dispersal click fetch so earlier, slower responses don't overwrite newer ones.
   const choroplethRequestIdRef = useRef(0)
+  const sedExposureFilterRequestIdRef = useRef(0)
   // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onDispersalClick)
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
@@ -467,7 +483,7 @@ export default function BaseMap({
   const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
     null,
   )
-
+  const [sedExposureWatershedIds, setSedExposureWatershedIds] = useState<number[]>([])
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
   const showLoading = showLoadingIndicator && !(isPanelMobile && isAnyPanelOpen)
 
@@ -641,7 +657,6 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
 
-
   // Filter watershed layer to the current scope.
   // At region scope, filter by country ID list so countries like Australia — whose watersheds
   // span multiple marine realms — show their full watershed coverage.
@@ -651,7 +666,12 @@ export default function BaseMap({
   const watershedFilter = useMemo((): maplibregl.FilterSpecification | null => {
     if (selectedRegion.regionType === 'region') {
       const countryIds = regionOptions
-        .filter((r) => r.regionType === 'country' && r.parentRegionIds?.includes(selectedRegion.id) && r.bandId != null)
+        .filter(
+          (r) =>
+            r.regionType === 'country' &&
+            r.parentRegionIds?.includes(selectedRegion.id) &&
+            r.bandId != null,
+        )
         .map((r) => r.bandId as number)
       return countryIds.length > 0 ? ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]] : null
     }
@@ -667,8 +687,17 @@ export default function BaseMap({
   // The display field changes with selectedYear so colors reflect the chosen year's actual values.
   useEffect(() => {
     if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
-      setWatershedFillColor(transparent)
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              transparent,
+            ) as maplibregl.ExpressionSpecification)
+          : transparent
+      setWatershedFillColor(finalFill)
       setWatershedChoroplethExpression(transparent)
+      setWatershedSedLoadRange(null, null)
       return
     }
     // Normalize at the current scope: region bandId for region scope, country bandId for country scope.
@@ -678,9 +707,16 @@ export default function BaseMap({
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
-      let values = await fetchWatershedSedLoadValues(2020, normalizationRealmId, normalizationCountryId)
-      if (values.length === 0) {
-        values = await fetchWatershedSedLoadValues(2020, undefined, undefined)
+      let values = await fetchWatershedSedLoadValues(
+        selectedYear,
+        normalizationRealmId,
+        normalizationCountryId,
+      )
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined)
+      ) {
+        values = await fetchWatershedSedLoadValues(selectedYear, undefined, undefined)
       }
       return values
     }
@@ -691,6 +727,7 @@ export default function BaseMap({
       if (values.length === 0) {
         setWatershedFillColor(transparent)
         setWatershedChoroplethExpression(transparent)
+        setWatershedSedLoadRange(null, null)
         return
       }
       const sorted = [...values].sort((a, b) => a - b)
@@ -707,20 +744,67 @@ export default function BaseMap({
           'interpolate',
           ['linear'],
           ['log10', ['max', 1, ['get', field]]],
-          log10min, '#018571',
-          log10min + span * 0.15, '#76BBB0',
-          log10min + span * 0.33, '#D1E4E1',
-          log10min + span * 0.5, '#F5F5F5',
-          log10min + span * 0.67, '#E4D5C5',
-          log10min + span * 0.85, '#c79e74',
-          log10min + span, '#A6611A',
+          log10min,
+          '#018571',
+          log10min + span * 0.15,
+          '#76BBB0',
+          log10min + span * 0.33,
+          '#D1E4E1',
+          log10min + span * 0.5,
+          '#F5F5F5',
+          log10min + span * 0.67,
+          '#E4D5C5',
+          log10min + span * 0.85,
+          '#c79e74',
+          log10min + span,
+          '#A6611A',
         ],
         transparent,
       ]
-      setWatershedFillColor(fillColor)
+      setWatershedSedLoadRange(sorted[0], sorted[sorted.length - 1])
+      // If dispersal top watersheds are active, bake their highlight colors into the paint
+      // expression so the React re-render doesn't overwrite the imperative setPaintProperty.
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              fillColor,
+            ) as maplibregl.ExpressionSpecification)
+          : fillColor
+      setWatershedFillColor(finalFill)
       setWatershedChoroplethExpression(fillColor)
     })
-  }, [sedLoadSubLayerValue, selectedRegion, selectedYear, isSedLoadOn, setWatershedChoroplethExpression, regionOptions])
+  }, [
+    sedLoadSubLayerValue,
+    selectedRegion,
+    selectedYear,
+    isSedLoadOn,
+    setWatershedChoroplethExpression,
+    setWatershedSedLoadRange,
+    regionOptions,
+  ])
+
+  useEffect(() => {
+    if (selectedRegion.bandId == null) {
+      setSedExposureWatershedIds([])
+      return
+    }
+    const requestId = ++sedExposureFilterRequestIdRef.current
+    const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
+    fetchWatershedIdsForRegion(realmId, countryId, selectedRegion.extent).then((ids) => {
+      if (requestId !== sedExposureFilterRequestIdRef.current) {
+        return
+      }
+      setSedExposureWatershedIds(ids)
+    })
+  }, [selectedRegion.bandId, selectedRegion.regionType, selectedRegion.extent])
+
+  // Keep mapStore in sync so restoreActiveSelection can re-apply linkedSelect after a basemap change.
+  useEffect(() => {
+    setSedExposureBoundaryLayer(sedExposureBoundaryLayer ?? null)
+  }, [sedExposureBoundaryLayer, setSedExposureBoundaryLayer])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -1148,16 +1232,6 @@ export default function BaseMap({
       })
   }
 
-  // Sed exposure tiles always render the full CIP dataset — the tile endpoint does not support
-  // per-country band filtering (returns 502). Temporary solution: show for global, CIP region,
-  // and CIP countries; hide for non-CIP scopes. CIP country selections will still bleed data
-  // from other CIP countries. See Q6 in design-questions-draft.md.
-  const sedExposureScopeValid =
-    selectedRegion.regionType === 'global' ||
-    selectedRegion.id === 'central-indo-pacific' ||
-    (selectedRegion.regionType === 'country' &&
-      (selectedRegion.parentRegionIds?.includes('central-indo-pacific') ?? false))
-
   return (
     <div className={styles['map-wrap']}>
       {!isMapLoaded && <LoadingState isOverlay={true} />}
@@ -1267,7 +1341,7 @@ export default function BaseMap({
                 layer={l}
                 index={i}
                 beforeId="shoreline-emphasis"
-                visible={sedExposureScopeValid}
+                watershedIds={sedExposureWatershedIds}
               />
             ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
@@ -1359,8 +1433,7 @@ export default function BaseMap({
             }
             const shouldRenderSedLoadRasterTile =
               layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
-            const shouldRenderSedExposureRasterTile =
-              layer.layerId !== 'sed_exposure' || sedExposureScopeValid
+            const isSedExposure = layer.layerId === 'sed_exposure'
             return (
               isMapLoaded && (
                 <Source
@@ -1370,7 +1443,7 @@ export default function BaseMap({
                   tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
-                  minzoom={0}
+                  minzoom={isSedExposure ? 4 : 0}
                 >
                   <Layer
                     id={layer.sourceId}
@@ -1378,13 +1451,10 @@ export default function BaseMap({
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
+                    minzoom={isSedExposure ? 4 : 0}
                     layout={{
                       visibility:
-                        layer.isLayerOn &&
-                        shouldRenderSedLoadRasterTile &&
-                        shouldRenderSedExposureRasterTile
-                          ? 'visible'
-                          : 'none',
+                        layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',
                     }}
                   />
                 </Source>

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
-import { STAC_API_BASE_URL, STAC_API_TIMEOUT, SED_EXPOSURE_COLLECTION_ID } from '../constants'
-import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../data/mapData'
+import {
+  STAC_API_BASE_URL,
+  STAC_API_TIMEOUT,
+  SED_EXPOSURE_COLLECTION_ID,
+  FALLBACK_AVAILABLE_YEARS,
+  FALLBACK_LATEST_YEAR,
+} from '../constants'
 
 interface AvailableYears {
   availableYears: number[]

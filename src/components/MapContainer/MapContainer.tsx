@@ -37,7 +37,7 @@ import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
-import useRasterStatistics from '../../hooks/useRasterStatistics'
+import useSedExposureStatistics from '../../hooks/useSedExposureStatistics'
 import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
@@ -51,6 +51,8 @@ export default function MapContainer() {
   const toggleSedLoadSubLayerFills = useMapStore((state) => state.toggleSedLoadSubLayerFills)
   const turnOffSedLoadSubLayerFills = useMapStore((state) => state.turnOffSedLoadSubLayerFills)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const watershedSedLoadMin = useMapStore((s) => s.watershedSedLoadMin)
+  const watershedSedLoadMax = useMapStore((s) => s.watershedSedLoadMax)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const clearSelectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -138,11 +140,12 @@ export default function MapContainer() {
     minValue: sedExposureMinValue,
     maxValue: sedExposureMaxValue,
     isLoading: sedExposureLoading,
-  } = useRasterStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
+  } = useSedExposureStatistics(selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,
     maxValue: sedLoadMaxValue,
+    p98Value: sedLoadP98Value,
     isLoading: sedLoadLoading,
   } = useSedLoadStatistics(latestYear, selectedRegion)
 
@@ -153,20 +156,22 @@ export default function MapContainer() {
         if (layer.layerId !== 'sed_exposure' || layer.year !== selectedYear) {
           return layer
         }
-        return {
-          ...layer,
-          link:
-            !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
-              ? buildSedExposureTileUrl(
-                  SED_EXPOSURE_COLLECTION_ID,
-                  buildSedExposureItemId(selectedYear),
-                  sedExposureMaxValue,
-                )
-              : '',
-        }
+        const link =
+          !sedExposureLoading &&
+          sedExposureMinValue !== null &&
+          sedExposureMaxValue !== null &&
+          sedExposureMaxValue > 0
+            ? buildSedExposureTileUrl(
+                SED_EXPOSURE_COLLECTION_ID,
+                buildSedExposureItemId(selectedYear),
+                sedExposureMaxValue,
+                selectedRegion,
+              )
+            : ''
+        return { ...layer, link }
       }),
     )
-  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading])
+  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading, selectedRegion])
 
   // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -179,12 +184,25 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
-              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue)
+              ? buildSedLoadTileUrl(
+                  selectedYear,
+                  sedLoadMinValue,
+                  sedLoadMaxValue,
+                  selectedRegion,
+                  sedLoadP98Value ?? undefined,
+                )
               : '',
         }
       }),
     )
-  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading])
+  }, [
+    sedLoadMinValue,
+    sedLoadMaxValue,
+    sedLoadP98Value,
+    selectedYear,
+    sedLoadLoading,
+    selectedRegion,
+  ])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -289,7 +307,10 @@ export default function MapContainer() {
       if (parentIds.includes(parentRegionParam) && parentIds[0] !== parentRegionParam) {
         regionToSet = {
           ...initialRegion,
-          parentRegionIds: [parentRegionParam, ...parentIds.filter((id) => id !== parentRegionParam)],
+          parentRegionIds: [
+            parentRegionParam,
+            ...parentIds.filter((id) => id !== parentRegionParam),
+          ],
         }
       }
       parentRegion = regionOptions.find(
@@ -543,6 +564,15 @@ export default function MapContainer() {
     [updateSearchParams, showLabels],
   )
 
+  const displayedSedLoadMin =
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMin ?? undefined)
+      : (sedLoadMinValue ?? undefined)
+  const displayedSedLoadMax =
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMax ?? undefined)
+      : (sedLoadMaxValue ?? undefined)
+
   return (
     <div className={styles['MapContainer-root']}>
       <Sidebar
@@ -594,8 +624,8 @@ export default function MapContainer() {
         sedExposureMinValue={sedExposureMinValue ?? undefined}
         sedExposureMaxValue={sedExposureMaxValue ?? undefined}
         sedExposureLoading={sedExposureLoading}
-        sedLoadMinValue={subSedLayerValue === 'watershed' ? sedLoadMinValue ?? undefined : undefined}
-        sedLoadMaxValue={subSedLayerValue === 'watershed' ? sedLoadMaxValue ?? undefined : undefined}
+        sedLoadMinValue={displayedSedLoadMin}
+        sedLoadMaxValue={displayedSedLoadMax}
         sedLoadLoading={sedLoadLoading}
       />
       <TrendsDrawer

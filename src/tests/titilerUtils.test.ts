@@ -94,8 +94,79 @@ describe('buildSedExposureTileUrl', () => {
     expect(params.get('colormap_name')).toBe('viridis')
   })
 
-  it('clamps expression at max', () => {
-    expect(params.get('expression')).toBe(`where(cog_b1>${max},${max},cog_b1)`)
+  it('clamps expression between epsilon and max', () => {
+    const epsilon = max / 254
+    expect(params.get('expression')).toBe(
+      `where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1))`,
+    )
+  })
+
+  it('does not set nodata for global', () => {
+    expect(params.get('nodata')).toBeNull()
+  })
+
+  describe('country region', () => {
+    const countryRegion = {
+      bandId: 54,
+      regionType: 'country' as const,
+      id: 'fiji',
+      label: 'Fiji',
+      parentRegionIds: [],
+    }
+    const countryUrl = buildSedExposureTileUrl(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      max,
+      countryRegion,
+    )
+    const countryParams = new URLSearchParams(countryUrl.split('?')[1])
+
+    it('masks to country band b8', () => {
+      const epsilon = max / 254
+      expect(countryParams.get('expression')).toBe(
+        `where((cog_b8==54),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
+      )
+    })
+
+    it('omits asset_bidx so TiTiler resolves bands from the expression', () => {
+      expect(countryParams.get('asset_bidx')).toBeNull()
+    })
+
+    it('does not set nodata', () => {
+      expect(countryParams.get('nodata')).toBeNull()
+    })
+  })
+
+  describe('region type', () => {
+    const realmRegion = {
+      bandId: 2,
+      regionType: 'region' as const,
+      id: 'cip',
+      label: 'CIP',
+      parentRegionIds: [],
+    }
+    const realmUrl = buildSedExposureTileUrl(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      max,
+      realmRegion,
+    )
+    const realmParams = new URLSearchParams(realmUrl.split('?')[1])
+
+    it('masks to realm band b9', () => {
+      const epsilon = max / 254
+      expect(realmParams.get('expression')).toBe(
+        `where((cog_b9==2),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
+      )
+    })
+
+    it('omits asset_bidx so TiTiler resolves bands from the expression', () => {
+      expect(realmParams.get('asset_bidx')).toBeNull()
+    })
+
+    it('does not set nodata', () => {
+      expect(realmParams.get('nodata')).toBeNull()
+    })
   })
 })
 
@@ -137,6 +208,21 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toEqual({ min: 0, max: 500 })
   })
 
+  it('clamps negative min to 0', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ cog_b1: { min: -0.3, max: 500.0 } }),
+    } as Response)
+
+    const result = await fetchSedExposureStatistics(
+      'gpw_sediment_exposure',
+      'gpw_sediment_exposure_2020',
+      null,
+      'cog|1',
+    )
+    expect(result).toEqual({ min: 0, max: 500 })
+  })
+
   it('returns null when min/max are missing from response', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
@@ -151,7 +237,7 @@ describe('fetchSedExposureStatistics', () => {
     expect(result).toBeNull()
   })
 
-  it('sends correct asset_bidx for global (null expression)', async () => {
+  it('sends asset_bidx=cog|1 for global (null expression)', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockStats('cog_b1'),
@@ -304,24 +390,24 @@ describe('fetchSedLoadStatistics', () => {
     },
   })
 
-  it('returns min/max with min clamped to 0', async () => {
+  it('returns min/max/p98 with min clamped to 0', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => mockSedLoadStats(),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
-    expect(result).toEqual({ min: 0, max: 50 })
+    expect(result).toEqual({ min: 0, max: 50, p98: 8.9 })
   })
 
-  it('returns positive min as-is when min is above 0', async () => {
+  it('returns positive min as-is when above 0; p98 is null when percentile_98 missing', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({ cog_b1: { min: 0.4, max: 34.2 } }),
     } as Response)
 
     const result = await fetchSedLoadStatistics(2020)
-    expect(result).toEqual({ min: 0.4, max: 34.2 })
+    expect(result).toEqual({ min: 0.4, max: 34.2, p98: null })
   })
 
   it('sends correct path and params for the given year', async () => {
@@ -363,33 +449,103 @@ describe('fetchSedLoadStatistics', () => {
 describe('buildSedLoadTileUrl', () => {
   const min = 0
   const max = 8.9
-  const template = buildSedLoadTileUrl(2020, min, max)
-  const [pathPart, queryPart] = template.split('?')
-  const params = new URLSearchParams(queryPart)
+  const logMax = Math.log10(max + 1)
 
-  it('contains MapLibre tile placeholders in path', () => {
-    expect(pathPart).toContain('{z}/{x}/{y}')
+  describe('global (no region)', () => {
+    const template = buildSedLoadTileUrl(2020, min, max)
+    const [pathPart, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('contains MapLibre tile placeholders in path', () => {
+      expect(pathPart).toContain('{z}/{x}/{y}')
+    })
+
+    it('targets the correct collection and item in the path', () => {
+      expect(pathPart).toContain(
+        `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
+      )
+    })
+
+    it('sets rescale in log10 space from 0 to log10(max) when no rescaleMax provided', () => {
+      expect(params.get('rescale')).toBe(`0,${logMax}`)
+    })
+
+    it('uses log10(rescaleMax+1) for rescale when rescaleMax is provided', () => {
+      const p98 = 5.5
+      const urlWithP98 = buildSedLoadTileUrl(2020, min, max, undefined, p98)
+      const p = new URLSearchParams(urlWithP98.split('?')[1])
+      expect(p.get('rescale')).toBe(`0,${Math.log10(p98 + 1)}`)
+    })
+
+    it('uses log1p expression for global view', () => {
+      expect(params.get('expression')).toBe('log10(cog_b1+1)')
+    })
+
+    it('uses a global colormap where entry 0 is opaque', () => {
+      const colormap = JSON.parse(params.get('colormap') ?? '{}')
+      expect(colormap['0'][3]).toBe(255)
+      expect(colormap['255'][3]).toBe(255)
+    })
+
+    it('uses the cog asset key', () => {
+      expect(params.get('assets')).toBe('cog')
+    })
+
+    it('does not set asset_bidx or nodata', () => {
+      expect(params.get('asset_bidx')).toBeNull()
+      expect(params.get('nodata')).toBeNull()
+    })
   })
 
-  it('targets the correct collection and item in the path', () => {
-    expect(pathPart).toContain(
-      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
-    )
+  describe('country region filter', () => {
+    const region = makeRegion({ regionType: 'country', bandId: 54 })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('sets log1p expression with bandId * 1000 on cog_b2', () => {
+      expect(params.get('expression')).toBe('where((cog_b2==54000),log10(cog_b1+1),0)')
+    })
+
+    it('sets nodata=0 to reinforce out-of-region masking', () => {
+      expect(params.get('nodata')).toBe('0')
+    })
+
+    it('omits asset_bidx when expression is set', () => {
+      expect(params.get('asset_bidx')).toBeNull()
+    })
+
+    it('uses a regional colormap where entry 0 is transparent', () => {
+      const colormap = JSON.parse(params.get('colormap') ?? '{}')
+      expect(colormap['0'][3]).toBe(0)
+      expect(colormap['255'][3]).toBe(255)
+    })
   })
 
-  it('sets rescale from min to max', () => {
-    expect(params.get('rescale')).toBe(`${min},${max}`)
+  describe('region filter', () => {
+    const region = makeRegion({ regionType: 'region', bandId: 2 })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
+
+    it('sets log1p expression with bandId * 1000 on cog_b3', () => {
+      expect(params.get('expression')).toBe('where((cog_b3==2000),log10(cog_b1+1),0)')
+    })
+
+    it('sets nodata=0 to reinforce out-of-region masking', () => {
+      expect(params.get('nodata')).toBe('0')
+    })
   })
 
-  it('uses brbg_r colormap', () => {
-    expect(params.get('colormap_name')).toBe('brbg_r')
-  })
+  describe('global region with no bandId', () => {
+    const region = makeRegion({ regionType: 'global' })
+    const template = buildSedLoadTileUrl(2020, min, max, region)
+    const [, queryPart] = template.split('?')
+    const params = new URLSearchParams(queryPart)
 
-  it('uses the cog asset key', () => {
-    expect(params.get('assets')).toBe('cog')
-  })
-
-  it('sets asset_bidx to cog|1', () => {
-    expect(params.get('asset_bidx')).toBe('cog|1')
+    it('uses log1p global expression when no bandId', () => {
+      expect(params.get('expression')).toBe('log10(cog_b1+1)')
+      expect(params.get('asset_bidx')).toBeNull()
+    })
   })
 })

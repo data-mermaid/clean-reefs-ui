@@ -3,6 +3,7 @@ import {
   LulcAndSedimentSeriesData,
   mapChartConfigToData,
   formatForFilename,
+  formatLegendValue,
   buildExportFilename,
   getRegionLabel,
   getDrawerTitle,
@@ -211,7 +212,7 @@ describe('chart data utilities', () => {
 
       const mockTranslate = jest.fn((key: string) => {
         const translations: Record<string, string> = {
-          'year': 'Year',
+          year: 'Year',
           'unit_labels.land_cover_pct': 'Land cover (%)',
           'unit_labels.sediment_load_tons': 'Sediment load',
           'unit_labels.test': 'Test',
@@ -715,5 +716,29 @@ describe('updateDispersalChartData', () => {
     expect(arg).toHaveLength(2)
     expect(arg[0].chartName).toBe('sediment_exposure_historical')
     expect(arg[1].chartName).toBe('contributing_watersheds')
+  })
+})
+
+describe('formatLegendValue', () => {
+  it('returns raw string for values under 1000', () => {
+    expect(formatLegendValue(0)).toBe('0')
+    expect(formatLegendValue(764)).toBe('764')
+    expect(formatLegendValue(999)).toBe('999')
+  })
+
+  it('abbreviates thousands with one decimal and k suffix', () => {
+    expect(formatLegendValue(1000)).toBe('1.0k')
+    expect(formatLegendValue(1200)).toBe('1.2k')
+    expect(formatLegendValue(14500)).toBe('14.5k')
+  })
+
+  it('promotes to millions when rounded thousands value reaches 1000', () => {
+    expect(formatLegendValue(999_999)).toBe('1.0M')
+  })
+
+  it('abbreviates millions with one decimal and M suffix', () => {
+    expect(formatLegendValue(1_000_000)).toBe('1.0M')
+    expect(formatLegendValue(12_000_000)).toBe('12.0M')
+    expect(formatLegendValue(1_347_460)).toBe('1.3M')
   })
 })

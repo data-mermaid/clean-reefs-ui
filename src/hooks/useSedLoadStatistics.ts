@@ -6,12 +6,14 @@ import { RegionOption } from '../types/RegionDataTypes'
 interface SedLoadStatistics {
   minValue: number | null
   maxValue: number | null
+  p98Value: number | null
   isLoading: boolean
 }
 
 interface CachedStats {
   min: number
   max: number
+  p98: number | null
 }
 
 const statsCache = new Map<string, CachedStats>()
@@ -19,6 +21,7 @@ const statsCache = new Map<string, CachedStats>()
 const useSedLoadStatistics = (latestYear: number, selectedRegion: RegionOption): SedLoadStatistics => {
   const [minValue, setMinValue] = useState<number | null>(null)
   const [maxValue, setMaxValue] = useState<number | null>(null)
+  const [p98Value, setP98Value] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -28,6 +31,7 @@ const useSedLoadStatistics = (latestYear: number, selectedRegion: RegionOption):
     if (cached) {
       setMinValue(cached.min)
       setMaxValue(cached.max)
+      setP98Value(cached.p98)
       setIsLoading(false)
       return undefined
     }
@@ -47,6 +51,7 @@ const useSedLoadStatistics = (latestYear: number, selectedRegion: RegionOption):
         statsCache.set(cacheKey, result)
         setMinValue(result.min)
         setMaxValue(result.max)
+        setP98Value(result.p98)
       }
       setIsLoading(false)
     })
@@ -57,7 +62,7 @@ const useSedLoadStatistics = (latestYear: number, selectedRegion: RegionOption):
     }
   }, [latestYear, selectedRegion])
 
-  return { minValue, maxValue, isLoading }
+  return { minValue, maxValue, p98Value, isLoading }
 }
 
 export default useSedLoadStatistics

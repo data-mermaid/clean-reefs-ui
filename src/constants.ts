@@ -71,6 +71,8 @@ export const LULC_COLORMAP: Record<string, number[]> = {
 }
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_EXPOSURE_COLLECTION_ID = 'gpw_sediment_exposure'
+export const SED_EXPOSURE_STATS_BASE_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure'
 export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
 
 /******STAC API******/
@@ -105,3 +107,24 @@ export const polygonOutlineHoverColor = 'hsl(300deg, 41%, 63%)'
 export const polygonOutlineSelectColor = 'hsl(300deg, 81%, 43%)'
 export const polygonHighlightWidth = 3
 export const topContributingWatershedColorFills = ['#FFA600', '#D86D83', '#7A5195']
+
+/******YEARS******/
+export const FALLBACK_AVAILABLE_YEARS = [2020, 2015, 2010, 2005, 2000]
+export const FALLBACK_LATEST_YEAR = 2020
+
+/******FIELD PREFIXES******/
+export const ABSOLUTE_FIELD_PREFIXES = [
+  'total_sed_load_',
+  'reef_exposed_',
+  'coralg_exposed_',
+  'seag_exposed_',
+] as const
+
+export const PCT_FIELD_PREFIXES = [
+  'Bare_Gr_pct_',
+  'Built_pct_',
+  'Crop_pct_',
+  'HC_Forest_pct_',
+  'M_Forest_pct_',
+  'Shrub_Grass_pct_',
+] as const

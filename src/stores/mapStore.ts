@@ -1,12 +1,8 @@
 import { create } from 'zustand'
 import maplibregl from 'maplibre-gl'
-import { sedLoadColorMapping, transparent } from '../data/mapData'
+import { transparent } from '../data/mapData'
 import { MapRef } from 'react-map-gl/maplibre'
-import {
-  buildSedLoadWatershedExpression,
-  buildWatershedMatchExpression,
-  resolveBasemapBeforeId,
-} from '../utils/mapUtils'
+import { buildWatershedMatchExpression, resolveBasemapBeforeId } from '../utils/mapUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import { LayerInfo } from '../types/MapDataTypes'
 import { useSelectedFeatureStore } from './selectedFeatureStore'
@@ -15,23 +11,25 @@ type MapState = {
   mapReference: MapRef | null
   basemapBeforeId: string | undefined
   watershedLayer: LayerInfo | null
+  sedExposureBoundaryLayer: LayerInfo | null
   isBasemapChanging: boolean
   topWatershedIds: number[]
-  sedLoadMapSubLayerColors: Record<string, string>
   sedLoadMode: 'pixel' | 'watershed' | null
   sedLoadYear: number
   isGeoSearchOpen: boolean
   watershedChoroplethExpression: maplibregl.ExpressionSpecification | string
+  watershedSedLoadMin: number | null
+  watershedSedLoadMax: number | null
 }
 type MapActions = {
   setMapRef: (map: MapRef) => void
   setBasemapBeforeId: (id: string | undefined) => void
   setTopWatershedIds: (polygonIds: number[]) => void
   setWatershedLayer: (layer: LayerInfo | null) => void
+  setSedExposureBoundaryLayer: (layer: LayerInfo | null) => void
   applyLabelVisibility: (show: boolean) => void
   prepareBasemapChange: (showLabels: boolean) => void
   restoreActiveSelection: () => void
-  setSedLoadMapSubLayerColors: (colors: Record<string, string>) => void
   toggleSedLoadSubLayerFills: (
     subLayerToggledOn: 'pixel' | 'watershed',
     selectedYear: number,
@@ -40,6 +38,7 @@ type MapActions = {
   setTopPolygonsFill: (layerId: string, polygonIds: number[]) => void
   clearTopPolygonsFill: (layerId: string) => void
   setWatershedChoroplethExpression: (expr: maplibregl.ExpressionSpecification | string) => void
+  setWatershedSedLoadRange: (min: number | null, max: number | null) => void
   jumpToRegion: (region: RegionOption) => void
   openGeoSearch: () => void
   closeGeoSearch: () => void
@@ -52,6 +51,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
   setBasemapBeforeId: (id) => set({ basemapBeforeId: id }),
   watershedLayer: null,
   setWatershedLayer: (layer) => set({ watershedLayer: layer }),
+  sedExposureBoundaryLayer: null,
+  setSedExposureBoundaryLayer: (layer) => set({ sedExposureBoundaryLayer: layer }),
   isBasemapChanging: false,
   topWatershedIds: [],
   setTopWatershedIds: (polygonIds) => set({ topWatershedIds: polygonIds }),
@@ -102,7 +103,12 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     map.once('idle', () => {
       const { selectedFeature } = useSelectedFeatureStore.getState()
-      const { topWatershedIds, watershedLayer, setTopPolygonsFill } = get()
+      const {
+        topWatershedIds,
+        watershedLayer,
+        sedExposureBoundaryLayer: plumeLayer,
+        setTopPolygonsFill,
+      } = get()
 
       const canRestoreSelectedFeature =
         selectedFeature?.id != null &&
@@ -118,6 +124,17 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
           },
           { select: true },
         )
+        // Re-apply the linked plume outline highlight that gets cleared by the style reload.
+        if (plumeLayer && map.getSource(plumeLayer.sourceId) != null) {
+          map.setFeatureState(
+            {
+              source: plumeLayer.sourceId,
+              sourceLayer: plumeLayer.sourceFileName,
+              id: selectedFeature.id,
+            },
+            { linkedSelect: true },
+          )
+        }
         return
       }
 
@@ -133,36 +150,19 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     })
   },
 
-  sedLoadMapSubLayerColors: sedLoadColorMapping,
   sedLoadMode: null,
   sedLoadYear: 0,
   isGeoSearchOpen: false,
   watershedChoroplethExpression: transparent,
   setWatershedChoroplethExpression: (expr) => set({ watershedChoroplethExpression: expr }),
+  watershedSedLoadMin: null,
+  watershedSedLoadMax: null,
+  setWatershedSedLoadRange: (min, max) =>
+    set({ watershedSedLoadMin: min, watershedSedLoadMax: max }),
   openGeoSearch: () => set({ isGeoSearchOpen: true }),
   closeGeoSearch: () => set({ isGeoSearchOpen: false }),
-  setSedLoadMapSubLayerColors: (colors) => set({ sedLoadMapSubLayerColors: colors }),
   toggleSedLoadSubLayerFills: (subLayerToggledOn: 'pixel' | 'watershed', selectedYear: number) => {
-    const state = get()
-    const map = state.mapReference?.getMap()
-    const { topWatershedIds } = state
-
-    if (!map) {
-      return
-    }
-
     set({ sedLoadMode: subLayerToggledOn, sedLoadYear: selectedYear })
-
-    const baseFillExpression =
-      subLayerToggledOn === 'watershed'
-        ? buildSedLoadWatershedExpression(selectedYear)
-        : transparent
-
-    map.setPaintProperty(
-      'watershed',
-      'fill-color',
-      buildWatershedMatchExpression(topWatershedIds, baseFillExpression),
-    )
   },
   turnOffSedLoadSubLayerFills: () => {
     const state = get()
@@ -198,9 +198,16 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
       return
     }
     if (region.extent) {
-      map.fitBounds(region.extent, { bearing: 0, padding: 40 })
+      const [west, south, east, north] = region.extent
+      map.fitBounds(
+        [
+          [west, south],
+          [east, north],
+        ],
+        { bearing: 0, padding: 40 },
+      )
     } else if (region.centerCoord) {
-      map.jumpTo({
+      map.flyTo({
         center: region.centerCoord,
         zoom: region.zoomLevel,
         bearing: 0,
