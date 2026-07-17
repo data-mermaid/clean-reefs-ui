@@ -3,120 +3,98 @@
  */
 import { renderHook, waitFor } from '@testing-library/react'
 import useSedExposureStatistics from '../hooks/useSedExposureStatistics'
-import * as titilerUtils from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 
-// Avoid importing LngLat directly — maplibre-gl uses browser APIs unavailable in jsdom
 const makeRegion = (overrides: Partial<RegionOption> = {}): RegionOption =>
   ({
     id: 'test',
     regionType: 'global',
     label: 'Global',
-    centerCoord: { lng: 0, lat: 0 },
-    zoomLevel: 2,
     ...overrides,
   }) as RegionOption
 
-// Unique collection IDs prevent cross-test cache hits within the same jest run
-let uid = 0
-const nextCollection = () => `test_collection_${uid++}`
+const mockFetch = jest.fn()
+global.fetch = mockFetch
+
+const makeOkResponse = (data: object) =>
+  Promise.resolve({ ok: true, json: () => Promise.resolve(data) } as Response)
+
+// Use unique years per test to avoid cross-test cache hits (statsCache is module-level).
+let yearSeed = 3000
+const nextYear = () => yearSeed++
 
 describe('useSedExposureStatistics', () => {
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => mockFetch.mockReset())
 
   it('starts with null values and isLoading true', () => {
-    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue({ min: 0, max: 100 })
-    const collectionId = nextCollection()
-    const region = makeRegion()
-    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '1': { min: 0, max: 100 } } }))
+    const { result } = renderHook(() => useSedExposureStatistics(makeRegion(), nextYear()))
     expect(result.current.isLoading).toBe(true)
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
   })
 
   it('returns min/max and clears loading after a successful fetch', async () => {
-    jest
-      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
-      .mockResolvedValue({ min: 1.5, max: 99.9 })
-    const collectionId = nextCollection()
-    const region = makeRegion()
-    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '1': { min: 1.5, max: 99.9 } } }))
+    const { result } = renderHook(() => useSedExposureStatistics(makeRegion(), nextYear()))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBe(1.5)
     expect(result.current.maxValue).toBe(99.9)
   })
 
-  it('sets isLoading false and keeps null values when API returns null', async () => {
-    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue(null)
-    const collectionId = nextCollection()
-    const region = makeRegion()
-    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2000))
+  it('sets isLoading false and keeps null values when CDN returns a non-ok response', async () => {
+    mockFetch.mockReturnValue(Promise.resolve({ ok: false } as Response))
+    const { result } = renderHook(() => useSedExposureStatistics(makeRegion(), nextYear()))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.minValue).toBeNull()
     expect(result.current.maxValue).toBeNull()
   })
 
-  it('passes expression and assetBidx derived from region to fetchSedExposureStatistics', async () => {
-    const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
-      .mockResolvedValue({ min: 0, max: 10 })
-    const collectionId = nextCollection()
+  it('fetches the country stats URL and uses bandId as the index key', async () => {
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '42': { min: 2.0, max: 88.8 } } }))
     const region = makeRegion({ regionType: 'country', bandId: 42 })
-    const { result } = renderHook(() => useSedExposureStatistics(collectionId, region, 2020))
+    const { result } = renderHook(() => useSedExposureStatistics(region, nextYear()))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    expect(fetchSpy).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      'where((cog_b8==42), cog_b1, 0)',
-      'cog|1,8',
-      expect.any(AbortSignal),
-    )
+    expect(String(mockFetch.mock.calls[0][0])).toContain('sediment_exposure_countries_')
+    expect(result.current.minValue).toBe(2)
+    expect(result.current.maxValue).toBe(88.8)
   })
 
-  it('uses the provided latestYear to build the item ID', async () => {
-    const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
-      .mockResolvedValue({ min: 0, max: 10 })
-    const collectionId = nextCollection()
-    const { result } = renderHook(() => useSedExposureStatistics(collectionId, makeRegion(), 2020))
+  it('includes the provided year in the CDN URL', async () => {
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '1': { min: 0, max: 10 } } }))
+    const year = nextYear()
+    const { result } = renderHook(() => useSedExposureStatistics(makeRegion(), year))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    expect(fetchSpy.mock.calls[0][1]).toBe('gpw_sediment_exposure_2020')
+    expect(String(mockFetch.mock.calls[0][0])).toContain(`gpw_sediment_exposure_${year}`)
   })
 
   it('serves a cached result synchronously without re-fetching', async () => {
-    const fetchSpy = jest
-      .spyOn(titilerUtils, 'fetchSedExposureStatistics')
-      .mockResolvedValue({ min: 5, max: 50 })
-    const collectionId = nextCollection()
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '1': { min: 5, max: 50 } } }))
     const region = makeRegion()
+    const year = nextYear()
 
     // First render — populates cache
-    const { result: r1, unmount } = renderHook(() =>
-      useSedExposureStatistics(collectionId, region, 2020),
-    )
+    const { result: r1, unmount } = renderHook(() => useSedExposureStatistics(region, year))
     await waitFor(() => expect(r1.current.isLoading).toBe(false))
     unmount()
 
-    // Second render with same params — should hit cache immediately (isLoading stays false)
-    const { result: r2 } = renderHook(() => useSedExposureStatistics(collectionId, region, 2020))
+    // Second render with same params — should hit cache immediately
+    const { result: r2 } = renderHook(() => useSedExposureStatistics(region, year))
     expect(r2.current.isLoading).toBe(false)
     expect(r2.current.minValue).toBe(5)
     expect(r2.current.maxValue).toBe(50)
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
   it('resets to loading and re-fetches when year changes', async () => {
-    jest.spyOn(titilerUtils, 'fetchSedExposureStatistics').mockResolvedValue({ min: 10, max: 200 })
-    const collectionId = nextCollection()
+    mockFetch.mockReturnValue(makeOkResponse({ index: { '1': { min: 10, max: 200 } } }))
     const region = makeRegion()
-    let latestYear = 2020
+    let latestYear = nextYear()
 
-    const { result, rerender } = renderHook(() =>
-      useSedExposureStatistics(collectionId, region, latestYear),
-    )
+    const { result, rerender } = renderHook(() => useSedExposureStatistics(region, latestYear))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    latestYear = 2015
+    latestYear = nextYear()
     rerender()
     expect(result.current.isLoading).toBe(true)
     await waitFor(() => expect(result.current.isLoading).toBe(false))

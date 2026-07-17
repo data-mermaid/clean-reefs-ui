@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import styles from './RegionSelect.module.scss'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
-import { KNOWN_REGIONS } from '../../data/coralReefRegions'
 import { buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import { Autocomplete, TextField } from '@mui/material'
 import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
@@ -11,7 +10,6 @@ import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import Box from '@mui/material/Box'
-import { useMapStore } from '../../stores/mapStore'
 
 // Extends RegionOption with a resolved group label for Autocomplete groupBy.
 // Countries spanning multiple regions appear as separate entries (one per group).
@@ -37,7 +35,6 @@ export default function RegionSelect({
   regionOptionsLoading,
 }: RegionSelectProps) {
   const { t } = useTranslation()
-  const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const rootRef = useRef<HTMLDivElement>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [popperWidth, setPopperWidth] = useState<number | undefined>()
@@ -54,8 +51,13 @@ export default function RegionSelect({
   // Countries with multiple parent regions are expanded into one entry per region.
   // Options are sorted so each group's items are consecutive (required by MUI groupBy).
   const autocompleteOptions = useMemo<AutocompleteOption[]>(() => {
+    // Build group order by REALM_ID ascending so region groups appear in a consistent order
+    // regardless of the order features come out of the PMTiles tile.
     const groupOrder = new Map<string, number>([['', 0]])
-    KNOWN_REGIONS.forEach((cr, i) => groupOrder.set(cr.label, i + 1))
+    const sortedRegions = regionOptions
+      .filter((o) => o.regionType === 'region')
+      .sort((a, b) => (a.bandId ?? 0) - (b.bandId ?? 0))
+    sortedRegions.forEach((o, i) => groupOrder.set(o.label, i + 1))
 
     // Only show a region if at least one country in regionOptions belongs to it.
     const regionsWithCountries = new Set<string>()
@@ -72,7 +74,7 @@ export default function RegionSelect({
       if (option.regionType === 'global') {
         opts.push({ ...option, groupLabel: '' })
       } else if (option.regionType === 'region') {
-        if (regionsWithCountries.has(option.id) || option.bandId !== undefined) {
+        if (regionsWithCountries.has(option.id)) {
           opts.push({ ...option, groupLabel: option.label })
         }
       } else if (option.regionType === 'country') {
@@ -103,9 +105,6 @@ export default function RegionSelect({
   }, [regionOptions])
 
   const updateRegion = (region: RegionOption, parentRegion?: RegionOption) => {
-    if (region.regionType !== 'global') {
-      jumpToRegion(region)
-    }
     onRegionChange(region)
     setBreadcrumb(buildBreadcrumbFromRegion(region, regionOptions, parentRegion))
   }

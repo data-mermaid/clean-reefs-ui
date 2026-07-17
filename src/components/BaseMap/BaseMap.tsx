@@ -707,11 +707,26 @@ export default function BaseMap({
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
+      // Primary: z=0 tile, filtered by scope. Covers ~91 countries.
       let values = await fetchWatershedSedLoadValues(
         selectedYear,
         normalizationRealmId,
         normalizationCountryId,
       )
+      // Fallback 1: z=6 tiles from extent — covers countries absent from z=0.
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined) &&
+        selectedRegion.extent
+      ) {
+        values = await fetchWatershedSedLoadValues(
+          selectedYear,
+          normalizationRealmId,
+          normalizationCountryId,
+          selectedRegion.extent,
+        )
+      }
+      // Fallback 2: global normalization when country/region has no watershed data at all.
       if (
         values.length === 0 &&
         (normalizationRealmId !== undefined || normalizationCountryId !== undefined)
@@ -1433,7 +1448,6 @@ export default function BaseMap({
             }
             const shouldRenderSedLoadRasterTile =
               layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
-            const isSedExposure = layer.layerId === 'sed_exposure'
             return (
               isMapLoaded && (
                 <Source
@@ -1443,7 +1457,7 @@ export default function BaseMap({
                   tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
-                  minzoom={isSedExposure ? 4 : 0}
+                  minzoom={5}
                 >
                   <Layer
                     id={layer.sourceId}
@@ -1451,7 +1465,7 @@ export default function BaseMap({
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
-                    minzoom={isSedExposure ? 4 : 0}
+                    minzoom={5}
                     layout={{
                       visibility:
                         layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',

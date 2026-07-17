@@ -102,7 +102,6 @@ export async function fetchSedExposureStatistics(
     url.searchParams.append('max_size', '2048')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })
-    clearTimeout(timeoutId)
 
     if (!response.ok) {
       return null
@@ -120,8 +119,9 @@ export async function fetchSedExposureStatistics(
       max: parseFloat(statsData.max.toFixed(1)),
     }
   } catch {
-    clearTimeout(timeoutId)
     return null
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 
@@ -271,7 +271,6 @@ export async function fetchSedLoadStatistics(
     url.searchParams.append('max_size', '1025')
 
     const response = await fetch(url.toString(), { signal: combinedSignal })
-    clearTimeout(timeoutId)
 
     if (!response.ok) {
       return null
@@ -291,8 +290,9 @@ export async function fetchSedLoadStatistics(
       p98: statsData.percentile_98 != null ? parseFloat(statsData.percentile_98.toFixed(1)) : null,
     }
   } catch {
-    clearTimeout(timeoutId)
     return null
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 

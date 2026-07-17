@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { RegionOption } from '../types/RegionDataTypes'
 import { fetchAllBoundaryFeatures, fetchCountryRegionMap } from '../utils/pmtilesUtils'
-import { KNOWN_REGIONS } from '../data/coralReefRegions'
 import {
   defaultGlobalRegionOption,
   fallbackRegionOptions,
@@ -11,20 +10,6 @@ import {
 interface RegionOptionsResult {
   regionOptions: RegionOption[]
   loading: boolean
-}
-
-// Ensure all 5 coral reef regions are present: use the API version (with bandId + extent)
-// when available, otherwise fall back to a minimal entry from KNOWN_REGIONS so that
-// COUNTRY_REGION_MAP parent lookups always resolve.
-function mergeRegions(apiRegions: RegionOption[]): RegionOption[] {
-  return KNOWN_REGIONS.map((knownRegion) => {
-    const fallback: RegionOption = {
-      id: knownRegion.id,
-      regionType: 'region',
-      label: knownRegion.label,
-    }
-    return apiRegions.find((r) => r.id === knownRegion.id) ?? fallback
-  })
 }
 
 // Some countries appear under multiple COUNTRY_IDs in the boundary PMTiles (e.g. Papua New Guinea
@@ -51,24 +36,23 @@ function deduplicateCountries(
   return [...bySlug.values()]
 }
 
-// Resolves each country's parentRegionIds purely from the watershed PMTiles COUNTRY_ID → REALM_ID
-// mapping. Countries not present in the watershed data get no parentRegionIds and appear ungrouped
-// in the dropdown. Region assignments will be corrected when country_realm_details.csv is available.
+// Resolves each country's parentRegionIds from the watershed PMTiles COUNTRY_ID → REALM_ID mapping.
+// Countries with no watershed data are excluded entirely — they have no drill-down path.
 function enrichCountries(
   countries: RegionOption[],
   countryRegionMap: Record<number, number[]>,
-  mergedRegions: RegionOption[],
+  regions: RegionOption[],
 ): RegionOption[] {
-  return countries.map((c) => {
+  return countries.flatMap((c) => {
     if (c.bandId !== undefined && countryRegionMap[c.bandId]?.length) {
       const parentRegionIds = countryRegionMap[c.bandId]
-        .map((realmId) => mergedRegions.find((r) => r.bandId === realmId)?.id)
+        .map((realmId) => regions.find((r) => r.bandId === realmId)?.id)
         .filter((id): id is string => id !== undefined)
       if (parentRegionIds.length > 0) {
-        return { ...c, parentRegionIds }
+        return [{ ...c, parentRegionIds }]
       }
     }
-    return { ...c, parentRegionIds: [] }
+    return []
   })
 }
 
@@ -91,12 +75,11 @@ const useRegionOptions = (): RegionOptionsResult => {
         setLoading(false)
         return
       }
-      const mergedRegions = mergeRegions(regions)
       const deduped = deduplicateCountries(countries, countryRegionMap)
-      const enriched = enrichCountries(deduped, countryRegionMap, mergedRegions)
+      const enriched = enrichCountries(deduped, countryRegionMap, regions)
       setRegionOptions([
         defaultGlobalRegionOption,
-        ...mergedRegions,
+        ...regions,
         ...enriched,
         ...watershedAndDispersalRegions,
       ])

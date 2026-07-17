@@ -86,19 +86,17 @@ describe('buildSedExposureTileUrl', () => {
     )
   })
 
-  it('sets rescale from 0 to max by default', () => {
-    expect(params.get('rescale')).toBe(`0,${max}`)
+  it('sets rescale to log10(max+1)', () => {
+    const logMax = Math.log10(max + 1)
+    expect(params.get('rescale')).toBe(`0,${logMax}`)
   })
 
   it('uses viridis colormap by default', () => {
     expect(params.get('colormap_name')).toBe('viridis')
   })
 
-  it('clamps expression between epsilon and max', () => {
-    const epsilon = max / 254
-    expect(params.get('expression')).toBe(
-      `where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1))`,
-    )
+  it('applies log10 transform to global expression', () => {
+    expect(params.get('expression')).toBe('log10(cog_b1+1)')
   })
 
   it('does not set nodata for global', () => {
@@ -122,9 +120,10 @@ describe('buildSedExposureTileUrl', () => {
     const countryParams = new URLSearchParams(countryUrl.split('?')[1])
 
     it('masks to country band b8', () => {
-      const epsilon = max / 254
+      const logMax = Math.log10(max + 1)
+      const logEpsilon = logMax / 127
       expect(countryParams.get('expression')).toBe(
-        `where((cog_b8==54),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
+        `where((cog_b8==54),where(log10(cog_b1+1)<${logEpsilon},${logEpsilon},log10(cog_b1+1)),0)`,
       )
     })
 
@@ -154,9 +153,10 @@ describe('buildSedExposureTileUrl', () => {
     const realmParams = new URLSearchParams(realmUrl.split('?')[1])
 
     it('masks to realm band b9', () => {
-      const epsilon = max / 254
+      const logMax = Math.log10(max + 1)
+      const logEpsilon = logMax / 127
       expect(realmParams.get('expression')).toBe(
-        `where((cog_b9==2),where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1)),0)`,
+        `where((cog_b9==2),where(log10(cog_b1+1)<${logEpsilon},${logEpsilon},log10(cog_b1+1)),0)`,
       )
     })
 

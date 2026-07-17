@@ -1,5 +1,6 @@
 import {
   fetchAllBoundaryFeatures,
+  fetchCountryRegionMap,
   fetchGlobalBoundaryProperties,
   fetchWatershedIdsForRegion,
 } from '../utils/pmtilesUtils'
@@ -291,5 +292,90 @@ describe('fetchGlobalBoundaryProperties', () => {
 
     // (20 * 2000 + 40 * 0) / (2000 + 0) = 20
     expect(result?.['Bare_Gr_pct_2020']).toBe(20)
+  })
+})
+
+describe('fetchCountryRegionMap', () => {
+  afterEach(() => jest.clearAllMocks())
+
+  it('merges country→realm entries across all 16 z=2 tiles', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    // First tile has Fiji (54→2), second tile has New Caledonia (136→2), rest are empty
+    let call = 0
+    ;(VectorTile as jest.Mock).mockImplementation(() => {
+      call++
+      if (call === 1) {
+        return makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }])
+      }
+      if (call === 2) {
+        return makeTile([{ properties: { COUNTRY_ID: 136, REALM_ID: 2 } }])
+      }
+      return makeTile([])
+    })
+
+    const result = await fetchCountryRegionMap()
+
+    expect(result[54]).toEqual([2])
+    expect(result[136]).toEqual([2])
+
+    expect(mockGetZxy).toHaveBeenCalledTimes(16)
+    for (let x = 0; x < 4; x++) {
+      for (let y = 0; y < 4; y++) {
+        expect(mockGetZxy).toHaveBeenCalledWith(2, x, y)
+      }
+    }
+  })
+
+  it('deduplicates realm IDs when the same country appears in multiple tiles', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }]),
+    )
+
+    const result = await fetchCountryRegionMap()
+
+    expect(result[54]).toEqual([2])
+  })
+
+  it('skips a rejected tile and still returns data from the rest', async () => {
+    let call = 0
+    mockGetZxy.mockImplementation(() => {
+      call++
+      if (call === 1) {
+        return Promise.reject(new Error('network'))
+      }
+      return Promise.resolve({ data: new ArrayBuffer(0) })
+    })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }]),
+    )
+
+    const result = await fetchCountryRegionMap()
+
+    expect(result[54]).toEqual([2])
+  })
+
+  it('returns empty map when all tiles return no data', async () => {
+    mockGetZxy.mockResolvedValue(null)
+
+    const result = await fetchCountryRegionMap()
+
+    expect(result).toEqual({})
+  })
+
+  it('ignores tiles where feature decoding fails and returns data from the rest', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    let call = 0
+    ;(VectorTile as jest.Mock).mockImplementation(() => {
+      call++
+      if (call === 1) {
+        throw new Error('corrupt tile')
+      }
+      return makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }])
+    })
+
+    const result = await fetchCountryRegionMap()
+
+    expect(result[54]).toEqual([2])
   })
 })
