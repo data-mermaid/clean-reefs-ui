@@ -707,11 +707,26 @@ export default function BaseMap({
       selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
     const requestId = ++choroplethRequestIdRef.current
     const fetchWithFallback = async () => {
+      // Primary: z=0 tile, filtered by scope. Covers ~91 countries.
       let values = await fetchWatershedSedLoadValues(
         selectedYear,
         normalizationRealmId,
         normalizationCountryId,
       )
+      // Fallback 1: z=6 tiles from extent — covers countries absent from z=0.
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined) &&
+        selectedRegion.extent
+      ) {
+        values = await fetchWatershedSedLoadValues(
+          selectedYear,
+          normalizationRealmId,
+          normalizationCountryId,
+          selectedRegion.extent,
+        )
+      }
+      // Fallback 2: global normalization when country/region has no watershed data at all.
       if (
         values.length === 0 &&
         (normalizationRealmId !== undefined || normalizationCountryId !== undefined)

@@ -145,27 +145,48 @@ export async function fetchWatershedSedLoadValues(
   year: number,
   realmId?: number,
   countryId?: number,
+  extent?: [number, number, number, number],
 ): Promise<number[]> {
   try {
-    const layer = await getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data' })
-    if (!layer) {
-      return []
-    }
     const field = `total_sed_load_${year}`
+    const seen = new Set<number>()
     const values: number[] = []
-    for (let i = 0; i < layer.length; i++) {
-      const props = layer.feature(i).properties
-      if (realmId !== undefined && props['REALM_ID'] !== realmId) {
-        continue
-      }
-      if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
-        continue
-      }
-      const val = props[field]
-      if (typeof val === 'number' && val > 0) {
-        values.push(val)
-      }
-    }
+    // With an extent, fetch z=6 tiles so small island countries are covered.
+    // Without an extent (global scope), fall back to z=0.
+    const tilesToFetch = extent
+      ? bboxToTiles(extent, 6)
+      : ([[0, 0, 0]] as [number, number, number][])
+    await Promise.all(
+      tilesToFetch.map(([z, x, y]) =>
+        getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data', z, x, y })
+          .then((layer) => {
+            if (!layer) {
+              return
+            }
+            for (let i = 0; i < layer.length; i++) {
+              const props = layer.feature(i).properties
+              if (realmId !== undefined && props['REALM_ID'] !== realmId) {
+                continue
+              }
+              if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
+                continue
+              }
+              const id = props['watershed_id']
+              if (typeof id === 'number') {
+                if (seen.has(id)) {
+                  continue
+                }
+                seen.add(id)
+              }
+              const val = props[field]
+              if (typeof val === 'number' && val > 0) {
+                values.push(val)
+              }
+            }
+          })
+          .catch(() => {}),
+      ),
+    )
     return values
   } catch {
     return []
