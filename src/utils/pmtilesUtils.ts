@@ -36,9 +36,12 @@ async function getParsedLayer(config: {
   url: string
   sourceLayer: string
   filterProp?: string
+  z?: number
+  x?: number
+  y?: number
 }): Promise<VectorTileLayer | null> {
   const pm = getPMTiles(config.url)
-  const tileData = await pm.getZxy(0, 0, 0)
+  const tileData = await pm.getZxy(config.z ?? 0, config.x ?? 0, config.y ?? 0)
   if (!tileData?.data) {
     return null
   }
@@ -324,8 +327,6 @@ export async function fetchGlobalBoundaryProperties(): Promise<Record<string, un
 // have watersheds too small to appear in the z=0 global tile but are present at z=2.
 export async function fetchCountryRegionMap(): Promise<Record<number, number[]>> {
   try {
-    const pm = getPMTiles(WATERSHED_PMTILES_URL)
-
     const tileCoords: [number, number][] = []
     for (let x = 0; x < 4; x++) {
       for (let y = 0; y < 4; y++) {
@@ -335,30 +336,47 @@ export async function fetchCountryRegionMap(): Promise<Record<number, number[]>>
 
     const settled = await Promise.allSettled(
       tileCoords.map(async ([x, y]) => {
-        const tileData = await pm.getZxy(2, x, y)
-        if (!tileData?.data) { return null }
-        const pbf = new Pbf(new Uint8Array(tileData.data))
-        const vt = new VectorTile(pbf)
-        return vt.layers['data'] ?? null
+        const fragment: Record<number, number[]> = {}
+        const layer = await getParsedLayer({
+          url: WATERSHED_PMTILES_URL,
+          sourceLayer: 'data',
+          z: 2,
+          x,
+          y,
+        })
+        if (!layer) {
+          return fragment
+        }
+        for (let i = 0; i < layer.length; i++) {
+          const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
+          if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
+            continue
+          }
+          if (!fragment[COUNTRY_ID]) {
+            fragment[COUNTRY_ID] = []
+          }
+          if (!fragment[COUNTRY_ID].includes(REALM_ID)) {
+            fragment[COUNTRY_ID].push(REALM_ID)
+          }
+        }
+        return fragment
       }),
     )
-    const layers = settled
-      .filter((r): r is PromiseFulfilledResult<VectorTileLayer | null> => r.status === 'fulfilled')
-      .map((r) => r.value)
 
     const map: Record<number, number[]> = {}
-    for (const layer of layers) {
-      if (!layer) { continue }
-      for (let i = 0; i < layer.length; i++) {
-        const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
-        if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
-          continue
+    for (const result of settled) {
+      if (result.status !== 'fulfilled') {
+        continue
+      }
+      for (const [countryId, realmIds] of Object.entries(result.value)) {
+        const id = Number(countryId)
+        if (!map[id]) {
+          map[id] = []
         }
-        if (!map[COUNTRY_ID]) {
-          map[COUNTRY_ID] = []
-        }
-        if (!map[COUNTRY_ID].includes(REALM_ID)) {
-          map[COUNTRY_ID].push(REALM_ID)
+        for (const realmId of realmIds) {
+          if (!map[id].includes(realmId)) {
+            map[id].push(realmId)
+          }
         }
       }
     }
