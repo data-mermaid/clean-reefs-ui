@@ -140,7 +140,7 @@ export default function MapContainer() {
     minValue: sedExposureMinValue,
     maxValue: sedExposureMaxValue,
     isLoading: sedExposureLoading,
-  } = useSedExposureStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
+  } = useSedExposureStatistics(selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,

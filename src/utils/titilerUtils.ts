@@ -172,38 +172,37 @@ export function buildSedExposureTileUrl(
   region?: RegionOption,
 ): string {
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${collectionId}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
-  // epsilon: smallest value that rescales to colormap index ≥ 1 so in-region near-zero values
-  // (including slightly-negative data artifacts) never land on transparent entry 0.
-  // max/255 maps to index exactly 1.0; /254 adds a small buffer against floating-point rounding.
-  // Out-of-region sentinel is 0, which maps to entry 0 (transparent) — kept distinct from epsilon.
-  const epsilon = max / 254
-  const clampExpr = `where(cog_b1>${max},${max},where(cog_b1<${epsilon},${epsilon},cog_b1))`
+  const logMax = Math.log10(max + 1)
+  // Regional: clamp the log10 output to at least logMax/127 so the result always maps to
+  // colormap index ≥ 2 — safely above the transparent entry 0 (out-of-region sentinel).
+  // Clamping in log-space (after log10) avoids the large raw epsilon that turns low-exposure
+  // pixels green. log10() appears twice in the expression but is the simplest form TiTiler accepts.
+  const logEpsilon = logMax / 127
+  const logExprGlobal = `log10(cog_b1+1)`
+  const logExprRegional = `where(log10(cog_b1+1)<${logEpsilon},${logEpsilon},log10(cog_b1+1))`
 
-  let expression = clampExpr
+  let expression = logExprGlobal
   let isRegional = false
 
   if (region?.bandId != null) {
     if (region.regionType === 'country') {
-      expression = `where((cog_b8==${region.bandId}),${clampExpr},0)`
+      expression = `where((cog_b8==${region.bandId}),${logExprRegional},0)`
       isRegional = true
     } else if (region.regionType === 'region') {
-      expression = `where((cog_b9==${region.bandId}),${clampExpr},0)`
+      expression = `where((cog_b9==${region.bandId}),${logExprRegional},0)`
       isRegional = true
     }
   }
 
   const params = new URLSearchParams({
-    rescale: `0,${max}`,
+    rescale: `0,${logMax}`,
     assets: 'cog',
     expression,
   })
 
   if (isRegional) {
-    // Entry 0 is transparent — out-of-region pixels get sentinel 0 from the expression.
-    // In-region values are clamped to [epsilon, max] so they always map to index ≥ 1.
     params.set('colormap', JSON.stringify(SED_EXPOSURE_COLORMAP_REGIONAL))
   } else {
-    // Built-in viridis keeps the URL short for global tiles; restrict to band 1 to avoid loading all 9.
     params.set('colormap_name', 'viridis')
     params.set('asset_bidx', 'cog|1')
   }

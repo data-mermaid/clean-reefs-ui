@@ -71,6 +71,8 @@ export const LULC_COLORMAP: Record<string, number[]> = {
 }
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
 export const SED_EXPOSURE_COLLECTION_ID = 'gpw_sediment_exposure'
+export const SED_EXPOSURE_STATS_BASE_URL =
+  'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure'
 export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
 
 /******STAC API******/
