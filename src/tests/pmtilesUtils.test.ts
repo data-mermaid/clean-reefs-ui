@@ -317,6 +317,13 @@ describe('fetchCountryRegionMap', () => {
 
     expect(result[54]).toEqual([2])
     expect(result[136]).toEqual([2])
+
+    expect(mockGetZxy).toHaveBeenCalledTimes(16)
+    for (let x = 0; x < 4; x++) {
+      for (let y = 0; y < 4; y++) {
+        expect(mockGetZxy).toHaveBeenCalledWith(2, x, y)
+      }
+    }
   })
 
   it('deduplicates realm IDs when the same country appears in multiple tiles', async () => {
@@ -356,11 +363,19 @@ describe('fetchCountryRegionMap', () => {
     expect(result).toEqual({})
   })
 
-  it('returns empty map on unexpected error', async () => {
-    mockGetZxy.mockRejectedValue(new Error('fatal'))
+  it('ignores tiles where feature decoding fails and returns data from the rest', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    let call = 0
+    ;(VectorTile as jest.Mock).mockImplementation(() => {
+      call++
+      if (call === 1) {
+        throw new Error('corrupt tile')
+      }
+      return makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }])
+    })
 
     const result = await fetchCountryRegionMap()
 
-    expect(result).toEqual({})
+    expect(result[54]).toEqual([2])
   })
 })
