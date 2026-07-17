@@ -395,3 +395,19 @@ export const defaultLayersToShow = urlControlledLayerIds.filter(
 
 export const FALLBACK_AVAILABLE_YEARS = [2020, 2015, 2010, 2005, 2000]
 export const FALLBACK_LATEST_YEAR = 2020
+
+export const ABSOLUTE_FIELD_PREFIXES = [
+  'total_sed_load_',
+  'reef_exposed_',
+  'coralg_exposed_',
+  'seag_exposed_',
+] as const
+
+export const PCT_FIELD_PREFIXES = [
+  'Bare_Gr_pct_',
+  'Built_pct_',
+  'Crop_pct_',
+  'HC_Forest_pct_',
+  'M_Forest_pct_',
+  'Shrub_Grass_pct_',
+] as const

@@ -5,6 +5,7 @@ import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL, WATERSHED_PMTILES_URL } fro
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from '../data/countryExtents'
 import { REGION_EXTENTS } from '../data/regionExtents'
+import { ABSOLUTE_FIELD_PREFIXES, PCT_FIELD_PREFIXES } from '../data/mapData'
 
 const pmtilesCache = new Map<string, PMTiles>()
 
@@ -255,6 +256,61 @@ export async function fetchWatershedIdsForRegion(
     return [...seen]
   } catch {
     return []
+  }
+}
+
+/**
+ * Aggregates all country features from the countries PMTiles into a single flat
+ * properties object in the same key format as individual country features.
+ * Used to generate global chart data without hardcoded placeholder values.
+ *
+ * Absolute fields (sed load, ecosystem extent) are summed.
+ * Land-use percentage fields are area-weighted using each country's total_area_ha.
+ */
+export async function fetchGlobalBoundaryProperties(): Promise<Record<string, unknown> | null> {
+  const config = boundarySourceConfig['country']
+  if (!config) {
+    return null
+  }
+
+  try {
+    const layer = await getParsedLayer(config)
+    if (!layer) {
+      return null
+    }
+
+    const sums: Record<string, number> = {}
+    const weightedPctNumerators: Record<string, number> = {}
+    const weightedPctDenominators: Record<string, number> = {}
+
+    for (let i = 0; i < layer.length; i++) {
+      const props = layer.feature(i).properties
+      const areaHa = typeof props['total_area_ha'] === 'number' ? props['total_area_ha'] : 0
+
+      for (const key of Object.keys(props)) {
+        const val = props[key]
+        if (typeof val !== 'number') {
+          continue
+        }
+
+        if (ABSOLUTE_FIELD_PREFIXES.some((p) => key.startsWith(p))) {
+          sums[key] = (sums[key] ?? 0) + val
+        } else if (PCT_FIELD_PREFIXES.some((p) => key.startsWith(p))) {
+          weightedPctNumerators[key] = (weightedPctNumerators[key] ?? 0) + val * areaHa
+          weightedPctDenominators[key] = (weightedPctDenominators[key] ?? 0) + areaHa
+        }
+      }
+    }
+
+    const result: Record<string, unknown> = { ...sums }
+    for (const key of Object.keys(weightedPctNumerators)) {
+      const denom = weightedPctDenominators[key]
+      result[key] = denom > 0 ? weightedPctNumerators[key] / denom : 0
+    }
+
+    return result
+  } catch {
+    return null
   }
 }
 
