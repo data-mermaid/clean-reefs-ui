@@ -53,14 +53,13 @@ export default function RegionSelect({
   // Countries with multiple parent regions are expanded into one entry per region.
   // Options are sorted so each group's items are consecutive (required by MUI groupBy).
   const autocompleteOptions = useMemo<AutocompleteOption[]>(() => {
-    // Build group order dynamically from the regions in regionOptions (PMTiles feature order).
+    // Build group order by REALM_ID ascending so region groups appear in a consistent order
+    // regardless of the order features come out of the PMTiles tile.
     const groupOrder = new Map<string, number>([['', 0]])
-    let regionIndex = 1
-    for (const option of regionOptions) {
-      if (option.regionType === 'region') {
-        groupOrder.set(option.label, regionIndex++)
-      }
-    }
+    const sortedRegions = regionOptions
+      .filter((o) => o.regionType === 'region')
+      .sort((a, b) => (a.bandId ?? 0) - (b.bandId ?? 0))
+    sortedRegions.forEach((o, i) => groupOrder.set(o.label, i + 1))
 
     // Only show a region if at least one country in regionOptions belongs to it.
     const regionsWithCountries = new Set<string>()
