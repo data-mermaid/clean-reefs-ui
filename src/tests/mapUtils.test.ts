@@ -1,6 +1,5 @@
 import {
   buildBenthicFillExpression,
-  buildSedLoadWatershedExpression,
   buildWatershedMatchExpression,
   calculateFeatureBounds,
   clearPolygonHover,
@@ -9,7 +8,6 @@ import {
   createPolygonHoverHandler,
   getActiveLayers,
   getAllYearZonalStats,
-  getUpdatedBenthicColor,
   mapRegionSelected,
   mapToggleChange,
   postZonalStats,
@@ -22,7 +20,7 @@ import {
 import { FilterSpecification, Map, MapGeoJSONFeature, MapLayerMouseEvent } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { fallbackRegionOptions } from '../data/regionData'
-import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { transparent } from '../data/mapData'
 import {
   BASE_ZONAL_STATS_API,
   SEDIMENT_EXPOSURE_2000_URL,
@@ -292,58 +290,14 @@ describe('map utilities', () => {
     })
 
     it('accepts an expression array as the fallback', () => {
-      const choropleth = buildSedLoadWatershedExpression(2020)
+      const choropleth = ['interpolate', ['linear'], ['get', 'value'], 0, '#018571', 100, '#a6611a']
       const result = buildWatershedMatchExpression([974529], choropleth) as unknown[]
       expect(result[0]).toBe('match')
       expect(result[result.length - 1]).toBe(choropleth)
     })
   })
 
-  describe('buildSedLoadWatershedExpression', () => {
-    it('returns a match expression with the correct property key for the given year', () => {
-      const result = buildSedLoadWatershedExpression(2020) as unknown[]
-      expect(result[0]).toBe('match')
-      expect(result[1]).toEqual(['get', 'export_threshold_country_2020'])
-    })
-
-    it('interpolates the year into the property name', () => {
-      const result2000 = buildSedLoadWatershedExpression(2000) as unknown[]
-      const result2015 = buildSedLoadWatershedExpression(2015) as unknown[]
-      expect(result2000[1]).toEqual(['get', 'export_threshold_country_2000'])
-      expect(result2015[1]).toEqual(['get', 'export_threshold_country_2015'])
-    })
-
-    it('maps every sedLoadColorMapping band to the correct colour', () => {
-      const result = buildSedLoadWatershedExpression(2020)
-      const bands = ['0', '1-10', '10-20', '20-50', '50-75', '75-90', '90-100']
-      bands.forEach((band) => {
-        const bandIndex = result.indexOf(band)
-        expect(bandIndex).toBeGreaterThan(-1)
-        expect(result[bandIndex + 1]).toBe(sedLoadColorMapping[band])
-      })
-    })
-
-    it('uses transparent as the final fallback', () => {
-      const result = buildSedLoadWatershedExpression(2020)
-      expect(result[result.length - 1]).toBe(transparent)
-    })
-  })
-
   // ─── New test blocks ──────────────────────────────────────────────────────
-
-  describe('getUpdatedBenthicColor', () => {
-    it('returns atlasBenthicColors[layerId] when currentColors[layerId] is transparent', () => {
-      const currentColors = { coral_algae: transparent }
-      expect(getUpdatedBenthicColor('coral_algae', currentColors)).toBe(
-        atlasBenthicColors['coral_algae'],
-      )
-    })
-
-    it('returns transparent when currentColors[layerId] is not transparent', () => {
-      const currentColors = { coral_algae: '#CC6677' }
-      expect(getUpdatedBenthicColor('coral_algae', currentColors)).toBe(transparent)
-    })
-  })
 
   describe('calculateFeatureBounds', () => {
     it('returns the correct bounding box corners for a polygon feature', () => {

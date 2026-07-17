@@ -1,10 +1,9 @@
 @use '../../styles/theme';
 
 .GradientLegend {
-  background-color: theme.$grey;
+  background-color: theme.$greyWhite;
   border-radius: theme.$borderRadius;
   padding: theme.$defaultSpacing;
-  max-width: 300px;
 
   h3 {
     line-height: 1;
@@ -54,12 +53,17 @@
   );
 }
 
-.sed_load {
-  background: #003c30;
+.sed_load,
+.sed_load_watershed {
+  background: #018571;
   background: linear-gradient(
     90deg,
-    rgba(0, 60, 48, 1) 0%,
-    rgba(245, 244, 244, 1) 50%,
-    rgba(84, 48, 5, 1) 100%
+    #018571 0%,
+    #76bbb0 17%,
+    #d1e4e1 33%,
+    #f5f5f5 50%,
+    #e4d5c5 67%,
+    #c79e74 83%,
+    #a6611a 100%
   );
 }

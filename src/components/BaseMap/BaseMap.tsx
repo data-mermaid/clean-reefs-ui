@@ -11,6 +11,7 @@ import React, {
 import * as maptilersdk from '@maptiler/sdk'
 import {
   Layer,
+  GeolocateControl,
   Map as MapGL,
   MapRef,
   Marker,
@@ -33,6 +34,7 @@ import { cogProtocol } from '@geomatico/maplibre-cog-protocol'
 import useResponsive from '../../hooks/useResponsive'
 import { usePrevious } from '../../hooks/usePrevious'
 import LoadingState from '../LoadingState/LoadingState'
+import CoordinatesDisplayControl from '../CoordinatesDisplay/CoordinatesDisplayControl'
 import { RegionOption } from '../../types/RegionDataTypes'
 import {
   calculateFeatureBounds,
@@ -40,6 +42,7 @@ import {
   clearPolygonHover,
   clearPolygonSelect,
   createPolygonClickHandler,
+  buildBreadcrumbFromFeature,
   createPolygonHoverHandler,
   querySourceFeatureWhenReady,
   querySourceFeatureAtPointWhenReady,
@@ -50,6 +53,7 @@ import {
   resolveBasemapBeforeId,
   PolygonFeatureStateKey,
   getBasemapStyleUrl,
+  buildWatershedMatchExpression,
   Basemap,
 } from '../../utils/mapUtils'
 import { SourceDataEvent } from '../../types/MapLayerErrorTypes'
@@ -61,15 +65,14 @@ import {
   polygonHighlightWidth,
   polygonOutlineHoverColor,
   polygonOutlineSelectColor,
-  SNACKBAR_BOTTOM_GAP,
-  TRENDS_DRAWER_PEEK_HEIGHT,
 } from '../../constants'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { LayerInfo, ZonalStatsBand } from '../../types/MapDataTypes'
 import { useMapStore } from '../../stores/mapStore'
+import { fetchWatershedSedLoadValues, fetchWatershedIdsForRegion } from '../../utils/pmtilesUtils'
 import { transparent } from '../../data/mapData'
-import { defaultGlobalRegionOption } from '../../data/regionData'
 import crosshairCursorUrl from '../../assets/crosshair-cursor.svg?url'
+import GeoSearchControl from '../GeoSearchControl/GeoSearchControl'
 
 interface ApplyDispersalStatsParams {
   map: maplibregl.Map
@@ -79,6 +82,7 @@ interface ApplyDispersalStatsParams {
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   onRegionChange: (region: RegionOption) => void
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
 }
 
 interface HandleMapClickParamProps {
@@ -91,6 +95,7 @@ interface HandleMapClickParamProps {
   requestIdRef: RefObject<number>
   onRegionChange: (region: RegionOption) => void
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
 }
 
 interface BaseMapProps {
@@ -109,35 +114,19 @@ interface BaseMapProps {
   hasExplicitViewState: boolean
   setBreadcrumb: Dispatch<SetStateAction<RegionOption[]>>
   showLabels: boolean
+  showCoastlines: boolean
+  showRivers: boolean
   initialViewState:
     | { longitude: number; latitude: number; zoom: number }
     | { bounds: [number, number, number, number]; fitBoundsOptions: { padding: number } }
   onMapMoveEnd: (viewState: { latitude: number; longitude: number; zoom: number }) => void
-  isAnyDrawerOpen: boolean
+  isAnyPanelOpen: boolean
   regionOptions: RegionOption[]
+  selectedRegion: RegionOption
+  benthicFillColors: Record<string, string>
 }
 
 const dispersalCrosshairCursor = `url("${crosshairCursorUrl}") 10 10, crosshair`
-
-const getRegionById = (id: number | undefined, regionOptions: RegionOption[]) =>
-  regionOptions.find((opt) => opt.bandId === id)
-
-const buildBreadcrumb = (
-  featureProperties: Record<string, unknown> | null | undefined,
-  subRegion: RegionOption,
-  regionOptions: RegionOption[],
-): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } => {
-  const countryOrRegionId = (featureProperties?.COUNTRY_ID ?? featureProperties?.REALM_ID) as
-    | number
-    | undefined
-  const addtlRegion = getRegionById(countryOrRegionId, regionOptions)
-  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
-  if (addtlRegion) {
-    breadcrumb.push(addtlRegion)
-  }
-  breadcrumb.push(subRegion)
-  return { breadcrumb, addtlRegion }
-}
 
 const handleSourceData = (
   e: SourceDataEvent,
@@ -180,6 +169,7 @@ const applyDispersalStats = ({
   setBreadcrumb,
   onRegionChange,
   regionOptions,
+  selectedRegion,
 }: ApplyDispersalStatsParams): void => {
   const { setTopPolygonsFill } = useMapStore.getState()
   const { setSelectedDispersalWatershedStats } = useSelectedFeatureStore.getState()
@@ -200,10 +190,11 @@ const applyDispersalStats = ({
     sourceLayer: watershedLayer.sourceFileName,
     filter: ['in', ['get', 'watershed_id'], ['literal', topContributingWatershedIds]],
   })
-  const { breadcrumb, addtlRegion } = buildBreadcrumb(
+  const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
     watershedFeatures[0]?.properties,
     { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
     regionOptions,
+    selectedRegion,
   )
 
   setBreadcrumb(breadcrumb)
@@ -226,6 +217,7 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     requestIdRef,
     onRegionChange,
     regionOptions,
+    selectedRegion,
   } = clickParams
 
   onWatershedSelectionClear()
@@ -246,10 +238,23 @@ const handleMapClick = async (e: MapMouseEvent, clickParams: HandleMapClickParam
     setBreadcrumb,
     onRegionChange,
     regionOptions,
+    selectedRegion,
   })
 }
 
-function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: string }) {
+function WatershedLayers({
+  layer,
+  index,
+  beforeId,
+  fillColor,
+  filter,
+}: {
+  layer
+  index
+  beforeId?: string
+  fillColor?: maplibregl.ExpressionSpecification | string
+  filter?: maplibregl.FilterSpecification | null
+}) {
   return (
     <Source
       id={layer.sourceId}
@@ -265,12 +270,11 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
+        {...(filter != null ? { filter } : {})}
         paint={{
-          'fill-color': transparent,
+          'fill-color': fillColor ?? transparent,
           'fill-outline-color': layer.outlineColor,
+          'fill-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -280,10 +284,8 @@ function WatershedLayers({ layer, index, beforeId }: { layer; index; beforeId?: 
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-          'line-sort-key': 5,
-        }}
+        {...(filter != null ? { filter } : {})}
+        layout={{ 'line-sort-key': 5 }}
         paint={{
           'line-width': [
             'case',
@@ -322,12 +324,10 @@ function PmTileLayers({ layer, index }) {
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId="watershed"
-        layout={{
-          visibility: layer.isLayerOn ? 'visible' : 'none',
-        }}
         paint={{
           'line-color': layer.outlineColor,
           'line-dasharray': layer.outlineStyle ? [0, 2, 5] : [2, 0],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
     </Source>
@@ -340,11 +340,23 @@ function SedExposureBoundaryLayers({
   layer,
   index,
   beforeId,
+  watershedIds,
 }: {
   layer
   index
   beforeId?: string
+  watershedIds: number[]
 }) {
+  const filterProp =
+    watershedIds.length > 0
+      ? {
+          filter: [
+            'in',
+            ['get', 'watershed_id'],
+            ['literal', watershedIds.map(String)],
+          ] as maplibregl.FilterSpecification,
+        }
+      : {}
   return (
     <Source
       id={layer.sourceId}
@@ -360,7 +372,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        {...filterProp}
         paint={{
           'line-color': [
             'case',
@@ -378,6 +390,7 @@ function SedExposureBoundaryLayers({
             polygonHighlightWidth,
             1,
           ],
+          'line-opacity': layer.isLayerOn ? 1 : 0,
         }}
       />
       <Layer
@@ -387,7 +400,7 @@ function SedExposureBoundaryLayers({
         source={layer.sourceId}
         source-layer={layer.sourceFileName}
         beforeId={beforeId}
-        layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+        {...filterProp}
         paint={{ 'fill-color': transparent }}
       />
     </Source>
@@ -410,18 +423,24 @@ export default function BaseMap({
   hasExplicitViewState,
   setBreadcrumb,
   showLabels,
+  showCoastlines,
+  showRivers,
   initialViewState,
   onMapMoveEnd,
-  isAnyDrawerOpen,
+  isAnyPanelOpen,
   regionOptions,
+  selectedRegion,
+  benthicFillColors,
 }: BaseMapProps) {
   const { t } = useTranslation()
-  const { isDesktopWidth, isMobileWidth } = useResponsive()
+  const { isDesktopWidth, isPanelMobile } = useResponsive()
 
   const setMapRef = useMapStore((s) => s.setMapRef)
   const applyLabelVisibility = useMapStore((s) => s.applyLabelVisibility)
   const setWatershedLayer = useMapStore((s) => s.setWatershedLayer)
-  const benthicFillColors = useMapStore((s) => s.benthicMapSubLayerColors)
+  const setSedExposureBoundaryLayer = useMapStore((s) => s.setSedExposureBoundaryLayer)
+  const setWatershedChoroplethExpression = useMapStore((s) => s.setWatershedChoroplethExpression)
+  const setWatershedSedLoadRange = useMapStore((s) => s.setWatershedSedLoadRange)
   const basemapBeforeId = useMapStore((s) => s.basemapBeforeId)
   const setBasemapBeforeId = useMapStore((s) => s.setBasemapBeforeId)
   const setSelectedFeature = useSelectedFeatureStore((s) => s.setSelectedFeature)
@@ -433,12 +452,16 @@ export default function BaseMap({
   const polygonHoverBoundRef = useRef<((e) => void) | null>(null)
   const polygonClickBoundRef = useRef<((e) => void) | null>(null)
   const sedExposureBoundaryRequestIdRef = useRef(0) // Tracks the latest dispersal click fetch so earlier, slower responses don't overwrite newer ones.
+  const choroplethRequestIdRef = useRef(0)
+  const sedExposureFilterRequestIdRef = useRef(0)
   // Latest-ref pattern: written every render so MapLibre closures registered once (e.g. onDispersalClick)
   // always read the current value without needing to re-register the listener.
   const selectedYearRef = useRef<number>(selectedYear)
   selectedYearRef.current = selectedYear
   const regionOptionsRef = useRef<RegionOption[]>(regionOptions)
   regionOptionsRef.current = regionOptions
+  const selectedRegionRef = useRef<RegionOption>(selectedRegion)
+  selectedRegionRef.current = selectedRegion
   const dispersalPointRef = useRef(dispersalPoint)
   dispersalPointRef.current = dispersalPoint
   const sedExposureBoundaryClickRef = useRef<string | number | null>(null)
@@ -453,14 +476,24 @@ export default function BaseMap({
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [layerErrors, setLayerErrors] = useState<Record<string, string>>({})
   const [isLoadingTiles, setIsLoadingTiles] = useState(false)
+  const [watershedFillColor, setWatershedFillColor] = useState<
+    maplibregl.ExpressionSpecification | string
+  >(transparent)
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false)
-
+  const [mouseCoordinates, setMouseCoordinates] = useState<{ lat: number; lng: number } | null>(
+    null,
+  )
+  const [sedExposureWatershedIds, setSedExposureWatershedIds] = useState<number[]>([])
   const mapLayersLoadingError = useMemo(() => Object.keys(layerErrors).length > 0, [layerErrors])
-  const showLoading = showLoadingIndicator && !(isMobileWidth && isAnyDrawerOpen)
+  const showLoading = showLoadingIndicator && !(isPanelMobile && isAnyPanelOpen)
 
   const watershedLayer = useMemo(
     () => mapLayers.find((l) => l.layerId === 'watershed'),
     [mapLayers],
+  )
+  const isSedLoadOn = useMemo(
+    () => mapLayers.some((l) => l.layerId === 'sed_load' && l.isLayerOn && l.year === selectedYear),
+    [mapLayers, selectedYear],
   )
   const watershedIndex = watershedLayer ? mapLayers.indexOf(watershedLayer) : -1
   const sedExposureBoundaryLayer = useMemo(
@@ -507,10 +540,11 @@ export default function BaseMap({
         if (map) {
           // Breadcrumb: Global > [Country] > Watershed
           // Country is omitted if it can't be determined from the feature
-          const { breadcrumb, addtlRegion } = buildBreadcrumb(
+          const { breadcrumb, addtlRegion } = buildBreadcrumbFromFeature(
             feature.properties,
             { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
-            regionOptions,
+            regionOptionsRef.current,
+            selectedRegionRef.current,
           )
 
           setBreadcrumb(breadcrumb)
@@ -543,7 +577,6 @@ export default function BaseMap({
       onRegionChange,
       onWatershedChange,
       clearDispersalSelection,
-      regionOptions,
     ],
   )
 
@@ -617,11 +650,176 @@ export default function BaseMap({
       setBreadcrumb,
       onRegionChange,
       regionOptions,
+      selectedRegion: selectedRegionRef.current,
     })
     // dispersalPoint, selectedDispersalWatershedStats, onRegionChange is intentionally omitted: it changes on every pan/zoom due to React Router
     // this effect only fires on year changes (only selectedYear should trigger a re-apply)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, isMapLoaded, watershedLayer, setBreadcrumb, regionOptions])
+
+  // Filter watershed layer to the current scope.
+  // At region scope, filter by country ID list so countries like Australia — whose watersheds
+  // span multiple marine realms — show their full watershed coverage.
+  // At country scope, show only that country's watersheds.
+  // Passed as a declarative prop to WatershedLayers so react-map-gl re-applies it automatically
+  // after a basemap style change (imperative setFilter would be wiped by setStyle).
+  const watershedFilter = useMemo((): maplibregl.FilterSpecification | null => {
+    if (selectedRegion.regionType === 'region') {
+      const countryIds = regionOptions
+        .filter(
+          (r) =>
+            r.regionType === 'country' &&
+            r.parentRegionIds?.includes(selectedRegion.id) &&
+            r.bandId != null,
+        )
+        .map((r) => r.bandId as number)
+      return countryIds.length > 0 ? ['in', ['get', 'COUNTRY_ID'], ['literal', countryIds]] : null
+    }
+    if (selectedRegion.regionType === 'country' && selectedRegion.bandId != null) {
+      return ['==', ['get', 'COUNTRY_ID'], selectedRegion.bandId]
+    }
+    return null
+  }, [selectedRegion, regionOptions])
+
+  // Color watershed polygons by sediment load percentile buckets when watershed sub-layer is active.
+  // Percentile breakpoints are always derived from 2020 data at the current scope (per spec).
+  // Values < 1 ton are excluded from the percentile calculation and get their own color bucket.
+  // The display field changes with selectedYear so colors reflect the chosen year's actual values.
+  useEffect(() => {
+    if (sedLoadSubLayerValue !== 'watershed' || !isSedLoadOn) {
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              transparent,
+            ) as maplibregl.ExpressionSpecification)
+          : transparent
+      setWatershedFillColor(finalFill)
+      setWatershedChoroplethExpression(transparent)
+      setWatershedSedLoadRange(null, null)
+      return
+    }
+    // Normalize at the current scope: region bandId for region scope, country bandId for country scope.
+    const normalizationRealmId =
+      selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const normalizationCountryId =
+      selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
+    const requestId = ++choroplethRequestIdRef.current
+    const fetchWithFallback = async () => {
+      // Primary: z=0 tile, filtered by scope. Covers ~91 countries.
+      let values = await fetchWatershedSedLoadValues(
+        selectedYear,
+        normalizationRealmId,
+        normalizationCountryId,
+      )
+      // Fallback 1: z=6 tiles from extent — covers countries absent from z=0.
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined) &&
+        selectedRegion.extent
+      ) {
+        values = await fetchWatershedSedLoadValues(
+          selectedYear,
+          normalizationRealmId,
+          normalizationCountryId,
+          selectedRegion.extent,
+        )
+      }
+      // Fallback 2: global normalization when country/region has no watershed data at all.
+      if (
+        values.length === 0 &&
+        (normalizationRealmId !== undefined || normalizationCountryId !== undefined)
+      ) {
+        values = await fetchWatershedSedLoadValues(selectedYear, undefined, undefined)
+      }
+      return values
+    }
+    fetchWithFallback().then((values) => {
+      if (requestId !== choroplethRequestIdRef.current) {
+        return
+      }
+      if (values.length === 0) {
+        setWatershedFillColor(transparent)
+        setWatershedChoroplethExpression(transparent)
+        setWatershedSedLoadRange(null, null)
+        return
+      }
+      const sorted = [...values].sort((a, b) => a - b)
+      const log10min = Math.log10(Math.max(1, sorted[0]))
+      const log10max = Math.log10(sorted[sorted.length - 1])
+      const span = log10max - log10min || 1
+      const field = `total_sed_load_${selectedYear}`
+      // Smooth log10 interpolation across 7 colour stops.
+      // case wrapper makes zero/missing values transparent instead of clamping to first stop.
+      const fillColor: maplibregl.ExpressionSpecification = [
+        'case',
+        ['>', ['coalesce', ['get', field], 0], 0],
+        [
+          'interpolate',
+          ['linear'],
+          ['log10', ['max', 1, ['get', field]]],
+          log10min,
+          '#018571',
+          log10min + span * 0.15,
+          '#76BBB0',
+          log10min + span * 0.33,
+          '#D1E4E1',
+          log10min + span * 0.5,
+          '#F5F5F5',
+          log10min + span * 0.67,
+          '#E4D5C5',
+          log10min + span * 0.85,
+          '#c79e74',
+          log10min + span,
+          '#A6611A',
+        ],
+        transparent,
+      ]
+      setWatershedSedLoadRange(sorted[0], sorted[sorted.length - 1])
+      // If dispersal top watersheds are active, bake their highlight colors into the paint
+      // expression so the React re-render doesn't overwrite the imperative setPaintProperty.
+      const { topWatershedIds: activeIds } = useMapStore.getState()
+      const finalFill =
+        activeIds.length > 0
+          ? (buildWatershedMatchExpression(
+              activeIds,
+              fillColor,
+            ) as maplibregl.ExpressionSpecification)
+          : fillColor
+      setWatershedFillColor(finalFill)
+      setWatershedChoroplethExpression(fillColor)
+    })
+  }, [
+    sedLoadSubLayerValue,
+    selectedRegion,
+    selectedYear,
+    isSedLoadOn,
+    setWatershedChoroplethExpression,
+    setWatershedSedLoadRange,
+    regionOptions,
+  ])
+
+  useEffect(() => {
+    if (selectedRegion.bandId == null) {
+      setSedExposureWatershedIds([])
+      return
+    }
+    const requestId = ++sedExposureFilterRequestIdRef.current
+    const realmId = selectedRegion.regionType === 'region' ? selectedRegion.bandId : undefined
+    const countryId = selectedRegion.regionType === 'country' ? selectedRegion.bandId : undefined
+    fetchWatershedIdsForRegion(realmId, countryId, selectedRegion.extent).then((ids) => {
+      if (requestId !== sedExposureFilterRequestIdRef.current) {
+        return
+      }
+      setSedExposureWatershedIds(ids)
+    })
+  }, [selectedRegion.bandId, selectedRegion.regionType, selectedRegion.extent])
+
+  // Keep mapStore in sync so restoreActiveSelection can re-apply linkedSelect after a basemap change.
+  useEffect(() => {
+    setSedExposureBoundaryLayer(sedExposureBoundaryLayer ?? null)
+  }, [sedExposureBoundaryLayer, setSedExposureBoundaryLayer])
 
   // Re-sync label visibility when showLabels changes (e.g. browser back/forward) or on initial load.
   useEffect(() => {
@@ -846,20 +1044,21 @@ export default function BaseMap({
         // Guard against race condition: skip if the user already clicked a new dispersal
         if (sedExposureBoundaryClickRef.current == null) {
           const currentSedExposureBoundaryLayer = sedExposureBoundaryLayerRef.current
-          const restoredId = feature.id
-          if (currentSedExposureBoundaryLayer && restoredId != null) {
-            const featureId = isNaN(Number(restoredId)) ? restoredId : Number(restoredId)
+          let restoredFeatureId: string | number | null = null
+          if (currentSedExposureBoundaryLayer && feature.id != null) {
+            restoredFeatureId = isNaN(Number(feature.id)) ? feature.id : Number(feature.id)
             setPolygonSelect(
               map,
               sedExposureBoundaryClickRef,
               currentSedExposureBoundaryLayer,
-              featureId,
+              restoredFeatureId,
             )
           }
 
           void (async () => {
             const allYearStats = await getAllYearZonalStats(initialDispersalPoint)
-            if (sedExposureBoundaryClickRef.current != null) {
+            // Bail only if the user clicked a *different* dispersal after restoration started.
+            if (sedExposureBoundaryClickRef.current !== restoredFeatureId) {
               return
             }
             applyDispersalStats({
@@ -870,6 +1069,7 @@ export default function BaseMap({
               setBreadcrumb,
               onRegionChange,
               regionOptions,
+              selectedRegion: selectedRegionRef.current,
             })
           })()
         }
@@ -880,6 +1080,17 @@ export default function BaseMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapLoaded, initialDispersalPoint, watershedLayer, sedExposureBoundaryLayer])
 
+  const handleMouseMove = (e: { lngLat: { lat: number; lng: number } }) => {
+    const lat = Math.round(e.lngLat.lat * 1e5) / 1e5
+    const lng = Math.round(e.lngLat.lng * 1e5) / 1e5
+    setMouseCoordinates((prev) => {
+      if (prev?.lat === lat && prev?.lng === lng) {
+        return prev
+      }
+      return { lat, lng }
+    })
+  }
+
   const handleMapLoad = () => {
     const map = mapRef.current?.getMap()
     // Populate store values BEFORE setIsMapLoaded so they're available when
@@ -887,6 +1098,7 @@ export default function BaseMap({
     if (map) {
       setBasemapBeforeId(resolveBasemapBeforeId(map.getStyle()?.layers ?? []))
       setMapRef(mapRef.current!)
+      map.touchZoomRotate.disableRotation()
     }
 
     setIsMapLoaded(true)
@@ -997,6 +1209,7 @@ export default function BaseMap({
         requestIdRef: sedExposureBoundaryRequestIdRef,
         onRegionChange,
         regionOptions: regionOptionsRef.current,
+        selectedRegion: selectedRegionRef.current,
       })
     }
 
@@ -1043,16 +1256,27 @@ export default function BaseMap({
         style={{ width: '100%', height: '100%' }}
         initialViewState={initialViewState}
         mapStyle={mapStyleUrl}
+        dragRotate={false}
+        touchPitch={false}
+        keyboard={false}
+        maxPitch={0}
         onLoad={() => handleMapLoad()}
         onMoveEnd={handleMoveEnd}
-        attributionControl={false}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setMouseCoordinates(null)}
       >
-        {isDesktopWidth && (
-          <>
-            <ScaleControl position="bottom-right" />
-            <NavigationControl position="bottom-right" showCompass={false} />
-          </>
-        )}
+        <GeolocateControl
+          position="bottom-right"
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+        />
+        <NavigationControl position="bottom-right" showCompass={false} />
+        <GeoSearchControl />
+        <ScaleControl position="bottom-right" />
+        <CoordinatesDisplayControl
+          lat={mouseCoordinates?.lat ?? null}
+          lng={mouseCoordinates?.lng ?? null}
+        />
         {dispersalPoint && (
           <Marker longitude={dispersalPoint.lng} latitude={dispersalPoint.lat} anchor="center">
             <div className={styles['dispersal-marker']} />
@@ -1073,6 +1297,7 @@ export default function BaseMap({
             source-layer="water"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'ocean']}
+            layout={{ visibility: showCoastlines ? 'visible' : 'none' }}
             paint={{
               'line-color': '#000',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 5, 1, 10, 1.75, 15, 2.5],
@@ -1087,6 +1312,7 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
               'line-color': 'white',
               'line-width': 3,
@@ -1101,8 +1327,9 @@ export default function BaseMap({
             source-layer="waterway"
             beforeId={basemapBeforeId}
             filter={['==', ['get', 'class'], 'river']}
+            layout={{ visibility: showRivers ? 'visible' : 'none' }}
             paint={{
-              'line-color': 'darkblue',
+              'line-color': '#00008b',
               'line-width': ['interpolate', ['linear'], ['zoom'], 0, 1.5, 6, 2, 11, 2.5, 16, 3],
             }}
           />
@@ -1113,11 +1340,13 @@ export default function BaseMap({
             layer={watershedLayer}
             index={watershedIndex}
             beforeId="shoreline-emphasis"
+            fillColor={watershedFillColor}
+            filter={watershedFilter}
           />
         )}
-        {/* Dispersal layers always rendered so tiles stay cached across year switches; visibility toggled
-            via layout.visibility. Layer IDs are sourceId-based to avoid collisions across years.
-            beforeId="shoreline-emphasis" ensures correct z-ordering (lines first/lower, fill second/higher). */}
+        {/* Dispersal layers always rendered so tiles stay cached and click events fire regardless
+            of scope. visible prop controls line opacity — hides outside CIP scope while keeping
+            the transparent fill layer mounted so ocean clicks can still change scope. */}
         {isMapLoaded &&
           mapLayers
             .filter((l) => l.layerId === 'sed_exposure_boundary')
@@ -1127,6 +1356,7 @@ export default function BaseMap({
                 layer={l}
                 index={i}
                 beforeId="shoreline-emphasis"
+                watershedIds={sedExposureWatershedIds}
               />
             ))}
         {/* Benthic rendered before the main loop so rastertile layers can reference it via beforeId.
@@ -1216,6 +1446,8 @@ export default function BaseMap({
             if (!layer.link) {
               return null
             }
+            const shouldRenderSedLoadRasterTile =
+              layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
             return (
               isMapLoaded && (
                 <Source
@@ -1225,7 +1457,7 @@ export default function BaseMap({
                   tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
-                  minzoom={6}
+                  minzoom={5}
                 >
                   <Layer
                     id={layer.sourceId}
@@ -1233,7 +1465,11 @@ export default function BaseMap({
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
-                    layout={{ visibility: layer.isLayerOn ? 'visible' : 'none' }}
+                    minzoom={5}
+                    layout={{
+                      visibility:
+                        layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',
+                    }}
                   />
                 </Source>
               )
@@ -1272,14 +1508,6 @@ export default function BaseMap({
       <Snackbar
         open={showLoading || mapLayersLoadingError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        // Mobile: clear the TrendsDrawer's bottom peek with a small gap.
-        sx={{
-          '&.MuiSnackbar-root': {
-            bottom: isMobileWidth
-              ? `${TRENDS_DRAWER_PEEK_HEIGHT + SNACKBAR_BOTTOM_GAP}px`
-              : undefined,
-          },
-        }}
       >
         <div className={styles['snackbar-stack']}>
           {showLoading && (

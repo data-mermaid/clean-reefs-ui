@@ -1,20 +1,21 @@
 @use '../../styles/theme';
 .Legend {
-  display: block;
-  background-color: theme.$grey;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$defaultSpacing;
+  background-color: theme.$greyWhite;
   border-radius: theme.$borderRadius;
   padding: theme.$defaultSpacing;
-  max-width: 300px;
 }
 .Legend__item {
   display: block;
-  background-color: theme.$grey;
-  width: 15px;
-  height: 15px;
+  width: theme.$legendSwatchWidth;
+  height: theme.$legendSwatchHeight;
   border: 1px solid black;
 }
 
 .Legend__row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }

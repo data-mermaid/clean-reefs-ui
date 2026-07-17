@@ -1,19 +1,15 @@
-import { type MouseEvent, useState } from 'react'
+import { type MouseEvent, useEffect, useState } from 'react'
+import { Link as InternalLink, useLocation, useNavigate } from 'react-router'
 
-import AppBar from '@mui/material/AppBar'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import ShareIcon from '@mui/icons-material/Share'
-import { Menu, MenuItem, Link } from '@mui/material'
+import { Chip, Menu, MenuItem, Link, Typography } from '@mui/material'
 import type { PopoverOrigin } from '@mui/material'
 
 import { useTranslation } from 'react-i18next'
 
 import styles from './NavigationHeader.module.scss'
-import useResponsive from '../../hooks/useResponsive'
 import ShareModal from '../ShareModal/ShareModal'
 
 const menuOriginConfig: {
@@ -22,26 +18,47 @@ const menuOriginConfig: {
 } = {
   anchorOrigin: {
     vertical: 'bottom',
-    horizontal: 'left',
+    horizontal: 'right',
   },
   transformOrigin: {
     vertical: 'top',
-    horizontal: 'left',
+    horizontal: 'right',
   },
 }
 
-export default function Header() {
+interface NavItem {
+  label: string
+  href: string
+  internalLink: boolean
+}
+
+export default function NavigationHeader() {
   const { t } = useTranslation()
-  const { isMobileWidth } = useResponsive()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isMapPage = location.pathname === '/'
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [menuSnapshot, setMenuSnapshot] = useState<NavItem[]>([])
 
-  const navItems = [
-    { label: t('science_and_methods'), href: '#' },
-    { label: t('contact'), href: '#' },
+  // Save map URL on every location change while on map, but only once params
+  // are present — avoids overwriting with bare "/" before MapContainer restores them.
+  useEffect(() => {
+    if (isMapPage && location.search) {
+      sessionStorage.setItem('lastMapUrl', location.pathname + location.search)
+    }
+  }, [isMapPage, location])
+
+  const lastMapUrl = sessionStorage.getItem('lastMapUrl') || '/'
+
+  const navItems: NavItem[] = [
+    ...(!isMapPage ? [{ label: t('back_to_map'), href: lastMapUrl, internalLink: true }] : []),
+    { label: t('science_and_methods'), href: '/science-and-methods', internalLink: true },
+    { label: t('about'), href: '/about', internalLink: true },
   ]
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
+    setMenuSnapshot(navItems)
     setAnchorElNav(event.currentTarget)
   }
 
@@ -49,63 +66,96 @@ export default function Header() {
     setAnchorElNav(null)
   }
 
+  const handleMobileNavClick = (item: NavItem) => {
+    handleCloseNavMenu()
+    if (item.internalLink) {
+      navigate(item.href)
+    } else if (item.href !== '#') {
+      window.open(item.href, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
-    <AppBar position="sticky" className={styles['MuiAppBar-root']}>
-      <Toolbar className={styles['MuiToolbar-root']}>
-        <Typography className={styles['logo']}>GPW</Typography>
-        <div className={styles['navigation-container']}>
-          <IconButton aria-label={t('buttons.share_view')} onClick={() => setShareOpen(true)}>
-            <ShareIcon className={styles['header-icon']} />
+    <header className={styles['header']}>
+      <div className={styles['header__brand']}>
+        <Typography className={styles['header__wordmark']}>{t('app_title')}</Typography>
+        <Chip
+          label={t('beta')}
+          size="small"
+          classes={{ root: styles['header__beta-chip'], label: styles['header__beta-chip-label'] }}
+        />
+      </div>
+      <div className={styles['header__actions']}>
+        {isMapPage && (
+          <>
+            <IconButton
+              aria-label={t('buttons.share_view')}
+              className={styles['header__action-button']}
+              onClick={() => setShareOpen(true)}
+            >
+              <ShareIcon className={styles['header__action-icon']} />
+            </IconButton>
+            <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+          </>
+        )}
+        {navItems.map((item) => {
+          const isActive = item.internalLink && location.pathname === item.href
+          const className = `${styles['header__nav-link']}${isActive ? ` ${styles['header__nav-link--active']}` : ''}`
+
+          return (
+            <Link
+              key={item.label}
+              {...(item.internalLink
+                ? { component: InternalLink, to: item.href }
+                : item.href !== '#'
+                  ? { href: item.href, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: item.href })}
+              className={className}
+            >
+              {item.label}
+            </Link>
+          )
+        })}
+        <div className={styles['header__hamburger']}>
+          <IconButton
+            aria-label={t('toggle_navigation_menu')}
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            aria-expanded={Boolean(anchorElNav)}
+            className={styles['header__action-button']}
+            onClick={handleOpenNavMenu}
+          >
+            <MenuIcon className={styles['header__action-icon']} />
           </IconButton>
-          <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
-          {!isMobileWidth && (
-            <Box className={styles['navigation-desktop-menu-box']}>
-              {navItems.map((item) => (
-                <Link
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles['navigation-item-link']}
-                  key={item.label}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </Box>
-          )}
-          {isMobileWidth && (
-            <Box className={styles['navigation-mobile-menu-box']}>
-              <IconButton
-                aria-label={t('toggle_navigation_menu')}
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-              >
-                <MenuIcon className={styles['header-icon']} />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                {...menuOriginConfig}
-                keepMounted
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                slotProps={{
-                  paper: {
-                    className: styles['navigation-mobile-menu'],
-                  },
-                }}
-              >
-                {navItems.map((item) => (
-                  <MenuItem key={item.label} onClick={handleCloseNavMenu}>
-                    <Typography className={styles['navigation-menu-item']}>{item.label}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-          )}
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            {...menuOriginConfig}
+            keepMounted
+            disableScrollLock
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            slotProps={{
+              paper: {
+                className: styles['header__mobile-menu'],
+              },
+            }}
+          >
+            {menuSnapshot.map((item) => {
+              const isActive = item.internalLink && location.pathname === item.href
+              return (
+                <MenuItem key={item.label} onClick={() => handleMobileNavClick(item)}>
+                  <Typography
+                    className={`${styles['header__mobile-menu-item']}${isActive ? ` ${styles['header__mobile-menu-item--active']}` : ''}`}
+                  >
+                    {item.label}
+                  </Typography>
+                </MenuItem>
+              )
+            })}
+          </Menu>
         </div>
-      </Toolbar>
-    </AppBar>
+      </div>
+    </header>
   )
 }

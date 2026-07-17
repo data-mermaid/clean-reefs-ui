@@ -1,9 +1,5 @@
-import {
-  FALLBACK_AVAILABLE_YEARS,
-  FALLBACK_LATEST_YEAR,
-  defaultLayersToShow,
-  urlControlledLayerIds,
-} from '../data/mapData'
+import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../constants'
+import { defaultLayersToShow, urlControlledLayerIds } from '../data/mapData'
 import { defaultGlobalRegionOption, fallbackRegionOptions } from '../data/regionData'
 import { RegionOption } from '../types/RegionDataTypes'
 import { VALID_BASEMAPS, Basemap } from './mapUtils'
@@ -103,6 +99,14 @@ export function getValidDispersalPoint(
 
 export function getValidLabels(labelsFromSearchParam: string | null): boolean {
   return labelsFromSearchParam !== 'false'
+}
+
+export function getValidCoastlines(param: string | null): boolean {
+  return param !== 'false'
+}
+
+export function getValidRivers(param: string | null): boolean {
+  return param !== 'false'
 }
 
 export function getValidBasemap(basemapFromSearchParam: string | null): Basemap {

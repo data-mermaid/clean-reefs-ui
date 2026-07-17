@@ -1,146 +1,212 @@
 @use '../../styles/theme';
-@use '../../styles/muiComponents';
 
-.RegionSelect-root {
+
+.region-select {
   display: flex;
   align-items: center;
-  border-right: none;
-  border-color: transparent;
+  background-color: theme.$greyWhite;
   border-radius: theme.$borderRadius;
-  justify-content: space-between;
-  background-color: theme.$greyWhite;
-
-  @include theme.mobileDownBreakPoint {
-    flex-shrink: 3;
-    flex-grow: 3;
-  }
-}
-
-.breadcrumbs-container {
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: calc(100% - theme.$mapUtilButtonHeight);
-
-  width: 100%;
-}
-
-.mobile-ellipses {
-  max-width: 2ch;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  height: theme.$mapUtilButtonHeight;
   overflow: hidden;
-  height: 100%;
-  cursor: pointer;
+  width: auto;
 
-  @include theme.mobileUpBreakPoint {
-    max-width: 100%;
+  @include theme.panelMobileDown {
+    width: 100%;
   }
 }
 
-.breadcrumb {
-  background-color: theme.$greyWhite;
+.region-select--open {
+  width: theme.$panelWidth;
+
+  @include theme.panelMobileDown {
+    width: 100%;
+  }
+}
+
+.region-select__up-button {
+  flex-shrink: 0;
+  border-radius: 0;
+  width: theme.$mapUtilButtonHeight;
+  height: theme.$mapUtilButtonHeight;
+
+  &:disabled {
+    opacity: 0.3;
+  }
+}
+
+.region-select__center {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  cursor: pointer;
-  border: none;
-  margin: 0;
+  overflow: hidden;
+}
+
+.region-select__breadcrumb {
+  display: flex;
+  align-items: center;
   height: 100%;
-  white-space: nowrap;
-
-  > button {
-    padding: theme.$defaultSpacing;
-    background-color: theme.$greyWhite;
-    border: none;
-    display: flex;
-
-    //mobile
-    flex-wrap: wrap;
-    align-items: center;
-    height: 100%;
-
-    @include theme.mobileDownBreakPoint {
-      padding: theme.$defaultSpacing theme.$spacingXSmall;
-    }
-
-    &:hover {
-      background-color: theme.$hoverGrey;
-    }
-  }
-
-  //current state is not interactive
-  &:last-of-type {
-    cursor: default;
-    &:hover {
-      button {
-        background-color: theme.$greyWhite;
-      }
-    }
-  }
-  &:first-of-type {
-    button {
-      border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
-    }
-  }
-
-  &:first-of-type {
-    border-radius: theme.$borderRadius 0 0 theme.$borderRadius;
-  }
-  &:not(:first-of-type) {
-    padding-left: 0;
-  }
+  overflow: hidden;
+  padding: 0 theme.$spacingXSmall;
+  gap: 0;
 }
 
-.MuiSelect-root {
-  @include muiComponents.muiSelectRoot;
-  text-align: center;
-
-  & .MuiSelect-clearIndicator {
-    & svg {
-      font-size: theme.$svgSizeSmall;
-    }
-  }
-
-  & .MuiSelect-popupIndicator {
-    & svg {
-      font-size: theme.$svgSizeMedium;
-    }
-  }
-}
-
-.MuiSelect-select {
-  @include muiComponents.muiSelectValue;
-
-  & {
-    padding: theme.$defaultSpacing 0 theme.$defaultSpacing theme.$spacingSmall;
-  }
-}
-
-.MuiPaper-root {
-  @include muiComponents.muiSelectPaper;
-  width: calc(100% - theme.$spacingXSmall * 2);
-  margin: theme.$spacingXSmall;
-  left: 0 !important;
-  max-width: calc(100% - theme.$spacingXSmall * 2);
-  @include theme.mobileUpBreakPoint {
-    margin-right: 30px;
-    left: calc(50vw - 160px) !important;
-    width: 330px;
-  }
-}
-
-.MuiList-root {
-  @include muiComponents.muiSelectList;
-}
-
-.MuiMenuItem-root {
-  @include muiComponents.muiSelectMenuItem;
-}
-
-.group-header {
+.region-select__crumb {
+  background: none;
+  border: none;
+  padding: theme.$spacingXSmall theme.$spacingSmall;
+  font-size: theme.$textSizeSmall;
   color: theme.$textColor;
-  font-size: theme.$textSizeMedium;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  &:hover:not(:disabled) {
+    background-color: theme.$hoverGrey;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.region-select__crumb--middle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  line-height: theme.$mapUtilButtonHeight;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.region-select__crumb--last {
   font-weight: theme.$semiBold;
+  color: theme.$textColor;
+}
+
+.region-select__separator {
+  color: theme.$textSecondary;
+  font-size: theme.$textSizeSmall;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.region-select__chevron {
+  flex-shrink: 0;
+  border-radius: 0;
+  width: theme.$mapUtilButtonHeight;
+  height: theme.$mapUtilButtonHeight;
+}
+
+.region-select__icon {
+  font-size: theme.$svgSizeSmall;
+}
+
+.region-select__up-icon {
+  font-size: theme.$svgSizeSmall;
+  transform: rotate(90deg);
+}
+
+.region-select__autocomplete {
+  width: 100%;
+
+  // Strip the default MUI fieldset border and padding
+  :global(.MuiOutlinedInput-notchedOutline) {
+    border: none;
+  }
+
+  // Hide the built-in popup indicator — we have our own chevron outside
+  :global(.MuiAutocomplete-endAdornment) {
+    display: none;
+  }
+}
+
+.region-select__search-input {
+  width: 100%;
+
+  :global(.MuiInputBase-root) {
+    background-color: theme.$greyWhite;
+    font-size: theme.$textSizeSmall;
+    padding-right: 0 !important;
+
+    // Prevent mobile browsers from zooming in on input focus
+    @include theme.panelMobileDown {
+      font-size: 16px;
+    }
+  }
+
+  :global(.MuiInputBase-input) {
+    padding: theme.$spacingXSmall theme.$spacingSmall;
+  }
+}
+
+// Applied to the Popper via slotProps.popper.className
+.region-select__popper {
+  z-index: theme.$zDropdown;
+
+  :global(.MuiPaper-root) {
+    border-radius: theme.$borderRadius;
+    margin-top: theme.$spacingXSmall;
+  }
+
+  :global(.MuiAutocomplete-listbox) {
+    padding: 0;
+    max-height: 320px;
+  }
+}
+
+.region-select__group-header {
+  color: theme.$textSecondary;
+  font-size: theme.$textSizeXSmall;
+  font-weight: theme.$semiBold;
+  text-transform: uppercase;
+  padding: theme.$spacingSmall theme.$defaultSpacing theme.$spacingXXSmall;
+  background-color: theme.$greyWhite;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.region-select__group-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.region-select__option {
+  font-size: theme.$textSizeSmall;
+  color: theme.$textColor;
+  padding: theme.$spacingSmall theme.$defaultSpacing;
+  cursor: pointer;
+
+  &:hover {
+    background-color: theme.$hoverGrey;
+  }
+}
+
+.region-select__option--global {
+  font-weight: theme.$semiBold;
+}
+
+.region-select__option--region {
+  font-weight: theme.$semiBold;
+  padding-left: theme.$defaultSpacing;
+}
+
+.region-select__option--country {
+  padding-left: theme.$spacingMedium;
+}
+
+.region-select__option--selected {
+  background-color: theme.$primary !important;
+  color: theme.$white;
+
+  &:hover {
+    background-color: theme.$primary;
+    opacity: 0.9;
+  }
 }

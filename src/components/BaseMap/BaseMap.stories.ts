@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import BaseMap from './BaseMap'
-import { layers } from '../../data/mapData'
+import { layers, atlasBenthicColors } from '../../data/mapData'
 import { expect, waitFor } from 'storybook/test'
 import i18next from 'i18next'
 import { defaultGlobalRegionOption, fallbackRegionOptions } from '../../data/regionData'
@@ -27,14 +27,18 @@ export const Primary: Story = {
     selectedYear: 2000,
     hasExplicitViewState: false,
     showLabels: true,
+    showCoastlines: true,
+    showRivers: true,
     setBreadcrumb: () => {},
     initialViewState: {
       bounds: defaultGlobalRegionOption.extent!,
       fitBoundsOptions: { padding: 40 },
     },
     onMapMoveEnd: () => {},
-    isAnyDrawerOpen: false,
+    isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
+    selectedRegion: defaultGlobalRegionOption,
+    benthicFillColors: atlasBenthicColors,
   },
   play: async ({ canvas }) => {
     // ensure story behaves as "desktop"
@@ -66,14 +70,18 @@ export const Loading: Story = {
     selectedYear: 2000,
     hasExplicitViewState: false,
     showLabels: true,
+    showCoastlines: true,
+    showRivers: true,
     setBreadcrumb: () => {},
     initialViewState: {
       bounds: defaultGlobalRegionOption.extent!,
       fitBoundsOptions: { padding: 40 },
     },
     onMapMoveEnd: () => {},
-    isAnyDrawerOpen: false,
+    isAnyPanelOpen: false,
     regionOptions: fallbackRegionOptions,
+    selectedRegion: defaultGlobalRegionOption,
+    benthicFillColors: atlasBenthicColors,
   },
   // play: async ({ canvasElement }) => {
   //   const loadingText = i18next.t('loading')

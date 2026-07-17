@@ -1,29 +1,37 @@
 /** Theme colors **/
 $primary: #003f5c;
 $primaryLight: #a3b8c8;
-$secondary: #dddce4;
-$secondaryLight: #f5f5f5;
 $white: #ffffff;
 $grey: #dedfe3;
-$greyWhite: #fafbfc;
+$greyWhite: #f1f2f3;
 $hoverGrey: #f1f2f3;
-$accentBlue: #334bff;
-$activeSelection: #f00;
-$selectionHover: #f006;
+$hoverBlue: #e3f2fd;
+$primaryAccent: #1976d2;
+$activeSelection: hsl(300deg, 100%, 50%);
+$colorError: #d32f2f;
+$mapOverlayBg: rgba(0, 0, 0, 0.55);
+$riversColor: #00008b;
+
+/** Legend swatch dimensions **/
+$legendSwatchWidth: 20px;
+$legendSwatchHeight: 15px;
 
 /** Fonts, font styling, text **/
 $textColor: #393939;
 $textSecondary: #6a6a6a;
+$textDark: #212121;
 $defaultFonts: 'Titillium Web', 'Open Sans', sans-serif;
 $light: 300;
 $regular: 400;
 $semiBold: 600;
-$bold: 900;
+$bold: 700;
 
 $textSizeXSmall: 12px;
 $textSizeSmall: 14px;
 $defaultTextSize: 16px;
 $textSizeMedium: $defaultTextSize;
+$textSizeSemiLarge: 19px;
+$textSizeLarge: 26px;
 $textSizeXLarge: 52px;
 
 $svgSizeSmall: 20px;
@@ -32,32 +40,50 @@ $svgSizeMedium: 26px;
 /** Layout, spacing **/
 $defaultSpacing: 10px;
 $spacingXXSmall: 3px;
+$gapSpacing: 4px;
 $spacingXSmall: 5px;
 $spacingSmall: 8px;
 $spacingMedium: 16px;
-$spacingLarge: 24px;
+$spacingLarge: 48px;
 
 $borderRadius: 4px;
+$borderWidth: 2px;
+
 /** Z-indexes **/
-$layersDrawer: 4;
-$baseMap: 1;
+$zBaseMap: 1;
+$zSidebar: 20;
+$zPanel: 25;
+$zControl: 30;
+$zTopBar: 35;
+$zDropdown: 40;
 
 /** Component dimensions **/
-$headerHeight: 54px;
+$headerHeight: 36px;
 $mapUtilButtonHeight: 44px;
-$drawerPullerHeight: 6px;
-$closedBottomDrawerHeight: 120px;
+$yearSelectorHeight: 30px;
 $loadingStateDefaultHeight: 200px;
-
-$regionSelectWidth: 300px;
-$drawerWidth: 350px;
-$drawerPullerWidth: 90px;
 $chartCardMaxWidth: 500px;
+$geoLookupPopupMinWidth: 300px;
 $iconButtonWidthHeight: 22px;
+$sidebarButtonSize: 36px;
+
+/** Layout primitives (C235 redesign) **/
+$sidebarWidth: 48px;
+$panelWidth: 315px;
+$panelLeftDefault: 56px;
+$panelBottomGap: 8px;
+$panelMobileGutter: 8px;
+$mapControlButtonSize: 29px;
+$markerSize: 15px;
+
+// Derived top offsets — anchored to $headerHeight so C236 only changes that token.
+$breadcrumbTop: $headerHeight + 8px;
+$yearSelectTop: $breadcrumbTop + $mapUtilButtonHeight + $spacingSmall;
+$panelTop: $yearSelectTop + $yearSelectorHeight + $spacingSmall;
 
 /** Breakpoints **/
 $breakpointMobile: 768px;
-$breakpointTablet: 1024px;
+$breakpointPanel: 640px;
 
 /** Mixins **/
 @mixin mobileUpBreakPoint {
@@ -67,6 +93,16 @@ $breakpointTablet: 1024px;
 }
 @mixin mobileDownBreakPoint {
   @media (max-width: $breakpointMobile) {
+    @content;
+  }
+}
+@mixin panelMobileUp {
+  @media (min-width: #{$breakpointPanel + 1px}) {
+    @content;
+  }
+}
+@mixin panelMobileDown {
+  @media (max-width: $breakpointPanel) {
     @content;
   }
 }

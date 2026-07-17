@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import TrendsDrawer from './TrendsDrawer'
@@ -15,12 +14,18 @@ export const Primary: Story = {
     selectedRegion: defaultGlobalRegionOption,
     selectedYear: 2020,
     open: true,
-    onOpenChange: () => {},
-    onUpOneLevelChange: () => {},
+    isChartsLoading: false,
+    onChartsLoadingChange: () => {},
   },
-  render: (args) => {
-    const [open, setOpen] = useState(args.open)
-    return <TrendsDrawer {...args} open={open} onOpenChange={setOpen} />
+}
+
+export const Loading: Story = {
+  args: {
+    selectedRegion: defaultGlobalRegionOption,
+    selectedYear: 2020,
+    open: true,
+    isChartsLoading: true,
+    onChartsLoadingChange: () => {},
   },
 }
 

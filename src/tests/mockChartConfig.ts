@@ -7,5 +7,5 @@ export const mockChartConfig: ChartProperties = {
   chartName: 'land_use_historical',
   chartSeriesData: mockChartData as Partial<PlotData>[],
   xAxisTitle: 'year',
-  yAxisTitle: 'chart_information.land_cover_pct',
+  yAxisTitle: 'unit_labels.land_cover_pct',
 }

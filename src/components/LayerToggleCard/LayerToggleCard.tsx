@@ -3,22 +3,33 @@ import {
   FormControl,
   FormControlLabel,
   FormControlLabelProps,
+  IconButton,
   Radio,
   RadioGroup,
   Switch,
   Typography,
 } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import GradientLegend from '../GradientLegend/GradientLegend'
 import Legend from '../Legend/Legend'
 import styles from '../LayerToggleCard/LayerToggleCard.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LayerInfo, SubLayerInfo } from '../../types/MapDataTypes'
 import LayerToggleLegend from '../LayerToggleLegend/LayerToggleLegend'
+import InfoPanel from '../InfoPanel/InfoPanel'
+import { useState } from 'react'
+
+const layerInfoTextKey: Record<string, string> = {
+  sed_load: 'info_text.sediment_load_legend',
+  sed_exposure: 'info_text.sediment_exposure',
+  lulc: 'info_text.land_use',
+}
 
 interface LayerToggleCardProps {
   layer: LayerInfo
   toggleLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleAllSubLayers: (checked: boolean) => void
   mapSubLayers?: SubLayerInfo[]
   selectedYear: number
   subSedLayerValue: 'pixel' | 'watershed'
@@ -34,6 +45,7 @@ interface LayerToggleCardProps {
 const getLayerToggleDetails = (
   layer: LayerInfo,
   toggleSubLayer: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  toggleAllSubLayers: (checked: boolean) => void,
   subSedLayerValue: 'pixel' | 'watershed',
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void,
   mapSubLayers?: SubLayerInfo[],
@@ -64,7 +76,7 @@ const getLayerToggleDetails = (
       toggleCardDetails = layer.isLayerOn && (
         <>
           <GradientLegend
-            variation={layerId}
+            variation={subSedLayerValue === 'watershed' ? 'sed_load_watershed' : layerId}
             minValue={sedLoadMinValue}
             maxValue={sedLoadMaxValue}
             isLoading={sedLoadLoading}
@@ -78,7 +90,11 @@ const getLayerToggleDetails = (
       break
     case 'benthic':
       toggleCardDetails = layer.isLayerOn && mapSubLayers && (
-        <LayerToggleLegend mapSubLayers={mapSubLayers} toggleSubLayer={toggleSubLayer} />
+        <LayerToggleLegend
+          mapSubLayers={mapSubLayers}
+          toggleSubLayer={toggleSubLayer}
+          toggleAllSubLayers={toggleAllSubLayers}
+        />
       )
       break
     default:
@@ -136,6 +152,7 @@ export default function LayerToggleCard({
   layer,
   toggleLayer,
   toggleSubLayer,
+  toggleAllSubLayers,
   selectedYear,
   mapSubLayers,
   subSedLayerValue,
@@ -148,16 +165,33 @@ export default function LayerToggleCard({
   sedLoadLoading,
 }: LayerToggleCardProps) {
   const { t } = useTranslation()
+  const [infoOpen, setInfoOpen] = useState(false)
+  const infoTextKey = layerInfoTextKey[layer.layerId]
+  const isSedLoadPixelMode = layer.layerId === 'sed_load' && subSedLayerValue === 'pixel'
+  const legendTitleKey = isSedLoadPixelMode
+    ? 'unit_labels.sediment_load_tons_ha'
+    : (layer.legendTitle ?? layer.title)
 
   return (
     <Card className={styles['layer-card']} key={`${layer.sourceId}-switch`}>
       <div className={styles['layer-toggle-header']}>
         {layer.layerId !== 'benthic' && (
           <>
-            <Typography className={styles['layer-card_title']}>
-              {t(layer.legendTitle ?? layer.title)}
+            <Typography sx={{ fontSize: '14px' }}>
+              {t(legendTitleKey)}
             </Typography>
-            {layer.year && <Typography>{selectedYear}</Typography>}
+            {infoTextKey && (
+              <IconButton
+                size="small"
+                onClick={() => setInfoOpen((v) => !v)}
+                aria-label={t(infoOpen ? 'buttons.hide_info' : 'buttons.show_info')}
+                aria-expanded={infoOpen}
+              >
+                <InfoOutlined sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            )}
+            <div style={{ flex: 1 }} />
+            {layer.year && <Typography sx={{ fontSize: '14px' }}>{selectedYear}</Typography>}
             <Switch
               className={styles['MuiSwitch-root']}
               id={layer.layerId}
@@ -167,9 +201,11 @@ export default function LayerToggleCard({
           </>
         )}
       </div>
+      {infoTextKey && <InfoPanel isOpen={infoOpen} textKey={infoTextKey} />}
       {getLayerToggleDetails(
         layer,
         toggleSubLayer,
+        toggleAllSubLayers,
         subSedLayerValue,
         onSedSubLayerChange,
         mapSubLayers,

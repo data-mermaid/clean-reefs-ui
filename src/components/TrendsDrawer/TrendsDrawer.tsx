@@ -1,24 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
-import { IconButton, Typography } from '@mui/material'
-import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
-import { getUpOneLevelLabel } from '../../utils/chartUtils'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Typography } from '@mui/material'
+import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
-import CloseIcon from '@mui/icons-material/Close'
-import UpOneLevelIcon from '../../assets/up-one-level.svg'
 import styles from './TrendsDrawer.module.scss'
-import useResponsive from '../../hooks/useResponsive'
-import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
 import ChartCard from '../ChartCard/ChartCard'
-import { RegionOption, RegionType } from '../../types/RegionDataTypes'
+import ChartCardSkeleton from '../ChartCard/ChartCardSkeleton'
+import { RegionOption } from '../../types/RegionDataTypes'
 import { ChartProperties, ChartSeriesName } from '../../types/ChartDataTypes'
-import { tempGlobalChartSeriesData } from '../../data/tempGlobalChartSeriesData'
 import { SelectedFeatureContext } from '../../contexts/SelectedFeatureContext'
 import { MapGeoJSONFeature } from 'maplibre-gl'
 
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { chartsByRegionType } from '../../data/chartSeriesData'
-import { TRENDS_DRAWER_PEEK_HEIGHT } from '../../constants'
-import { fetchBoundaryProperties } from '../../utils/pmtilesUtils'
+import { fetchBoundaryProperties, fetchGlobalBoundaryProperties } from '../../utils/pmtilesUtils'
 import {
   buildChartDataFromProperties,
   getDrawerTitle,
@@ -32,25 +26,19 @@ interface TrendsDrawerProps {
   selectedRegion: RegionOption
   selectedYear: number
   open: boolean
-  onOpenChange: (open: boolean) => void
-  onUpOneLevelChange: (regionType: RegionType) => void
+  isChartsLoading: boolean
+  onChartsLoadingChange: (isLoading: boolean) => void
 }
 
 export default function TrendsDrawer({
   selectedRegion,
   selectedYear,
   open,
-  onOpenChange,
-  onUpOneLevelChange,
+  isChartsLoading,
+  onChartsLoadingChange,
 }: TrendsDrawerProps) {
   const { t } = useTranslation()
-  const { isMobileWidth } = useResponsive()
-  const openDrawer = () => onOpenChange(true)
-  const closeDrawer = () => onOpenChange(false)
-  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(
-    tempGlobalChartSeriesData,
-  )
-  const [isChartDataLoading, setIsChartDataLoading] = useState(false)
+  const [chartConfigData, setChartConfigData] = useState<ChartProperties[] | null>(null)
 
   const selectedFeature = useSelectedFeatureStore((s) => s.selectedFeature)
   const selectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -59,26 +47,55 @@ export default function TrendsDrawer({
 
   // Tracks the latest fetch so earlier, slower responses don't overwrite newer ones.
   const requestIdRef = useRef(0)
+  // Enforces a minimum 500ms skeleton display so the user sees the transition.
+  const skeletonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
-    setIsChartDataLoading(true)
+    return () => {
+      requestIdRef.current = -1
+      if (skeletonTimerRef.current) {
+        clearTimeout(skeletonTimerRef.current)
+      }
+    }
+  }, [])
+
+  const stopLoading = useCallback(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    skeletonTimerRef.current = setTimeout(() => onChartsLoadingChange(false), 500)
+  }, [onChartsLoadingChange])
+
+  useEffect(() => {
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current)
+    }
+    const currentRequestId = ++requestIdRef.current
+
+    onChartsLoadingChange(true)
     const { regionType } = selectedRegion
 
     if (selectedDispersalWatershedStats) {
       updateDispersalChartData(selectedDispersalWatershedStats, setChartConfigData)
-      setIsChartDataLoading(false)
+      stopLoading()
       return
     }
 
     if (regionType === 'global') {
-      setChartConfigData(tempGlobalChartSeriesData)
-      setIsChartDataLoading(false)
+      fetchGlobalBoundaryProperties().then((properties) => {
+        if (currentRequestId !== requestIdRef.current) {
+          return
+        }
+        setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
+        stopLoading()
+      })
       return
     }
 
     // Watershed: selectedFeature from map click takes priority
     if (selectedFeature) {
       updateChartData(selectedFeature as MapGeoJSONFeature, setChartConfigData)
-      setIsChartDataLoading(false)
+      stopLoading()
       return
     }
 
@@ -87,26 +104,29 @@ export default function TrendsDrawer({
       const { bandId } = selectedRegion
       if (bandId == null) {
         setChartConfigData(null)
-        setIsChartDataLoading(false)
+        stopLoading()
         return
       }
 
-      const requestId = ++requestIdRef.current
-
       fetchBoundaryProperties(regionType, bandId).then((properties) => {
-        if (requestId !== requestIdRef.current) {
+        if (currentRequestId !== requestIdRef.current) {
           return
         }
-        const data = properties ? buildChartDataFromProperties(properties) : null
-        setChartConfigData(data)
-        setIsChartDataLoading(false)
+        setChartConfigData(properties ? buildChartDataFromProperties(properties) : null)
+        stopLoading()
       })
       return
     }
 
     setChartConfigData(null)
-    setIsChartDataLoading(false)
-  }, [selectedFeature, selectedRegion, selectedDispersalWatershedStats])
+    stopLoading()
+  }, [
+    selectedFeature,
+    selectedRegion,
+    selectedDispersalWatershedStats,
+    stopLoading,
+    onChartsLoadingChange,
+  ])
 
   // When a feature is selected via map click, derive the region type from
   // its source rather than selectedRegion (which stays as the parent country).
@@ -123,48 +143,32 @@ export default function TrendsDrawer({
   )
 
   return (
-    <StyledSwipeableDrawer
-      anchor={isMobileWidth ? 'bottom' : 'right'}
-      open={open}
-      onOpen={openDrawer}
-      onClose={closeDrawer}
-      swipeAreaWidth={TRENDS_DRAWER_PEEK_HEIGHT}
+    <section
+      className={clsx(styles['trends-panel'], !open && styles['trends-panel--hidden'])}
+      aria-label={t(drawerTitle)}
+      aria-hidden={!open}
+      inert={!open || undefined}
     >
-      <div className={styles['drawer-header']}>
-        {open && (
-          <div className={styles['drawer-header__title']}>
-            {effectiveRegionType !== 'global' && (
-              <StyledIconButtonWithTooltip
-                aria-label={t('buttons.up_one_level')}
-                tooltipText={getUpOneLevelLabel(effectiveRegionType, selectedRegion)}
-                tooltipPlacement="top"
-                onClick={() => onUpOneLevelChange(effectiveRegionType)}
-              >
-                <img src={UpOneLevelIcon} alt="" />
-              </StyledIconButtonWithTooltip>
-            )}
-            <h2>{t(drawerTitle)}</h2>
-          </div>
-        )}
-        {open && isMobileWidth && (
-          <IconButton aria-label={t('buttons.close')} onClick={closeDrawer}>
-            <CloseIcon sx={{ fontSize: '35px', lineHeight: 1 }} />
-          </IconButton>
-        )}
-      </div>
+      <div className={styles['trends-panel__content']}>
+        <div className={styles['panel-header']}>
+          <h2>{t(drawerTitle)}</h2>
+        </div>
 
-      <div className={styles[`charts-container--${open ? 'open' : 'closed'}`]}>
-        {filteredChartData?.length ? (
-          filteredChartData.map((chart) => {
-            return (
+        <div className={styles['charts-container']}>
+          {isChartsLoading ? (
+            // filteredChartData already reflects incoming data here because React 18 batches
+            // onChartsLoadingChange(true) and setChartConfigData() from the same effect into
+            // one render. This avoids a skeleton count jump when rapidly switching selections.
+            Array.from({ length: filteredChartData?.length ?? allowedCharts.length }, (_, i) => (
+              <ChartCardSkeleton key={i} />
+            ))
+          ) : filteredChartData?.length ? (
+            filteredChartData.map((chart) => (
               <SelectedFeatureContext.Provider
                 key={chart.chartName}
                 value={selectedFeature as MapGeoJSONFeature}
               >
                 <ChartCard
-                  key={chart.chartName}
-                  open={open}
-                  {...(isMobileWidth && !open ? { onClick: openDrawer } : {})}
                   regionType={effectiveRegionType}
                   regionLabel={getRegionLabel(
                     effectiveRegionType,
@@ -173,17 +177,18 @@ export default function TrendsDrawer({
                   )}
                   selectedYear={selectedYear}
                   chartConfigData={chart}
-                  isChartDataLoading={isChartDataLoading}
+                  isChartDataLoading={isChartsLoading}
+                  isVisible={open}
                 />
               </SelectedFeatureContext.Provider>
-            )
-          })
-        ) : (
-          <Typography className={styles['chart-card__no-data-label']}>
-            {t('charts.no_data_available')}
-          </Typography>
-        )}
+            ))
+          ) : (
+            <Typography className={styles['no-data-label']}>
+              {t('charts.no_data_available')}
+            </Typography>
+          )}
+        </div>
       </div>
-    </StyledSwipeableDrawer>
+    </section>
   )
 }

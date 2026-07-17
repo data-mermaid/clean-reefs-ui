@@ -8,18 +8,65 @@
   background-color: theme.$white;
   width: 100%;
   height: 100%;
-  z-index: theme.$baseMap;
+  z-index: theme.$zBaseMap;
 }
 
+// Stack all bottom-right controls in a single flex column, 10px from the right/bottom edges.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 :global(.maplibregl-ctrl-bottom-right) {
-  right: theme.$drawerWidth;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+}
+
+// NavigationControl and GeolocateControl are both .maplibregl-ctrl-group — DOM order determines which is on top.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-group) {
+  order: 1;
+}
+
+// Geo search sits between geolocate (order 1) and scale (order 3).
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-geo-search) {
+  order: 2;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-scale) {
+  order: 3;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .custom-ctrl-coordinates-display) {
+  order: 4;
+}
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-attrib) {
+  order: 5;
+  margin-top: 0 !important;
+}
+
+// Restyle MapLibre's built-in scale bar to match the mockup style.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl-bottom-right .maplibregl-ctrl-scale) {
+  background: theme.$mapOverlayBg;
+  border-top: none;
+  border-left: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-bottom: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  border-right: theme.$borderWidth solid rgba(theme.$white, 0.75);
+  padding: theme.$spacingXXSmall theme.$spacingSmall theme.$spacingXXSmall;
+  text-align: center;
+  min-width: 40px;
+  color: theme.$white;
+  font-size: theme.$textSizeSmall;
 }
 
 .dispersal-marker {
-  width: 15px;
-  height: 15px;
+  width: theme.$markerSize;
+  height: theme.$markerSize;
   border: 2px solid theme.$activeSelection;
-  border-radius: 5px;
+  border-radius: theme.$borderRadius;
   background: transparent;
   pointer-events: none;
 }
@@ -46,4 +93,39 @@
   flex-direction: column;
   align-items: stretch;
   gap: theme.$spacingSmall;
+}
+
+// Replace MapLibre's default geolocate icon with the classic Material Icons
+// my_location (24x24 viewBox, evenly-stroked outer circle). Two SVG variants
+// (different fill colors) so the shape stays the same across states — only the
+// colour changes when tracking is active. SVGs are fully URL-encoded so the
+// data URIs don't contain raw <, >, or " characters (keeps SCSS language
+// servers happy when parsing the file).
+$my-location-svg-prefix: 'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20fill%3D%22%23';
+$my-location-svg-suffix: '%22%3E%3Cpath%20d%3D%22M12%208c-2.21%200-4%201.79-4%204s1.79%204%204%204%204-1.79%204-4-1.79-4-4-4zm8.94%203A8.994%208.994%200%200%200%2013%203.06V1h-2v2.06A8.994%208.994%200%200%200%203.06%2011H1v2h2.06A8.994%208.994%200%200%200%2011%2020.94V23h2v-2.06A8.994%208.994%200%200%200%2020.94%2013H23v-2h-2.06zM12%2019c-3.87%200-7-3.13-7-7s3.13-7%207-7%207%203.13%207%207-3.13%207-7%207z%22%2F%3E%3C%2Fsvg%3E';
+
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(.maplibregl-ctrl button.maplibregl-ctrl-geolocate .maplibregl-ctrl-icon) {
+  background-image: url('#{$my-location-svg-prefix}5f6368#{$my-location-svg-suffix}');
+  background-size: theme.$svgSizeSmall theme.$svgSizeSmall;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+// MapLibre's own active/background icon rules use a double-class selector
+// (.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active), so match that
+// specificity here or they win and our icon gets overridden mid-tracking.
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(
+  .maplibregl-ctrl
+    button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-active
+    .maplibregl-ctrl-icon
+),
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:global(
+  .maplibregl-ctrl
+    button.maplibregl-ctrl-geolocate.maplibregl-ctrl-geolocate-background
+    .maplibregl-ctrl-icon
+) {
+  background-image: url('#{$my-location-svg-prefix}1976d2#{$my-location-svg-suffix}');
 }

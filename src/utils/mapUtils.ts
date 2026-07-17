@@ -11,7 +11,8 @@ import {
 } from 'maplibre-gl'
 import { RefObject } from 'react'
 import { BaseMapStyleUrl, LayerInfo, SubLayerInfo } from '../types/MapDataTypes'
-import { atlasBenthicColors, sedLoadColorMapping, transparent } from '../data/mapData'
+import { transparent } from '../data/mapData'
+import { defaultGlobalRegionOption } from '../data/regionData'
 import {
   BASE_ZONAL_STATS_API,
   SEDIMENT_EXPOSURE_2000_URL,
@@ -29,13 +30,6 @@ export function getActiveLayers(mapLayers: LayerInfo[]): string[] {
   return mapLayers.filter((layer) => layer.isLayerOn).map((layer) => layer.layerId)
 }
 
-export const getUpdatedBenthicColor = (layerId: string, currentColors: Record<string, string>) => {
-  if (currentColors[layerId] === transparent) {
-    return atlasBenthicColors[layerId]
-  } else {
-    return transparent
-  }
-}
 
 export function calculateFeatureBounds(feature: MapGeoJSONFeature): LngLatBounds {
   const geometry = feature.geometry
@@ -379,34 +373,6 @@ export function buildWatershedMatchExpression(
   return ['match', ['get', 'watershed_id'], ...pairs, fallback]
 }
 
-/**
- * Builds the MapLibre `match` expression for the watershed choropleth
- * (sediment load threshold percentile bands). The region level is currently
- * fixed to 'country' — update when the UI exposes region-level selection.
- */
-export function buildSedLoadWatershedExpression(selectedYear: number): unknown[] {
-  const regionLevel = 'country' // TODO: pass in selected region level
-  return [
-    'match',
-    ['get', `export_threshold_${regionLevel}_${selectedYear}`],
-    '0',
-    sedLoadColorMapping['0'],
-    '1-10',
-    sedLoadColorMapping['1-10'],
-    '10-20',
-    sedLoadColorMapping['10-20'],
-    '20-50',
-    sedLoadColorMapping['20-50'],
-    '50-75',
-    sedLoadColorMapping['50-75'],
-    '75-90',
-    sedLoadColorMapping['75-90'],
-    '90-100',
-    sedLoadColorMapping['90-100'],
-    transparent,
-  ]
-}
-
 export function mapRegionSelected(
   feature: MapGeoJSONFeature,
   regionOptions: RegionOption[],
@@ -529,4 +495,79 @@ export function getBasemapStyleUrl(selectedBasemap: Basemap, apiKey: string): Ba
   const styleBase = basemapOptions[selectedBasemap] ?? SATELLITE_STYLE
 
   return `${styleBase}?key=${apiKey}` as BaseMapStyleUrl
+}
+
+export function buildBreadcrumbFromRegion(
+  region: RegionOption,
+  regionOptions: RegionOption[],
+  parentRegion?: RegionOption,
+): RegionOption[] {
+  if (region.regionType === 'global') {
+    return [region]
+  }
+  if (region.regionType === 'country') {
+    const parent =
+      parentRegion ??
+      regionOptions.find((r) => r.regionType === 'region' && r.id === region.parentRegionIds?.[0])
+    return [defaultGlobalRegionOption, ...(parent ? [parent] : []), region]
+  }
+  return [defaultGlobalRegionOption, region]
+}
+
+export function buildBreadcrumbFromFeature(
+  featureProperties: Record<string, unknown> | null | undefined,
+  subRegion: RegionOption,
+  regionOptions: RegionOption[],
+  selectedRegion?: RegionOption,
+): { breadcrumb: RegionOption[]; addtlRegion: RegionOption | undefined } {
+  const countryId = featureProperties?.COUNTRY_ID as number | undefined
+  const realmId = featureProperties?.REALM_ID as number | undefined
+  const country = countryId !== undefined ? regionOptions.find((r) => r.bandId === countryId) : undefined
+
+  const parentRegionIds = country?.parentRegionIds ?? []
+
+  // The active region context from selectedRegion:
+  // - region scope → use it directly
+  // - country scope → parentRegionIds[0] carries the WIP/CIP choice from the dropdown
+  const currentRegionId =
+    selectedRegion?.regionType === 'region' ? selectedRegion.id : selectedRegion?.parentRegionIds?.[0]
+
+  // Resolve the region for the breadcrumb in priority order:
+  // 1. Current scope region, if it's a valid parent of this country
+  // 2. Country's first known parent region
+  // 3. Feature's own REALM_ID as last resort
+  let region: RegionOption | undefined
+  if (currentRegionId && parentRegionIds.includes(currentRegionId)) {
+    region = regionOptions.find((r) => r.regionType === 'region' && r.id === currentRegionId)
+  }
+  region ??= regionOptions.find((r) => r.regionType === 'region' && r.id === parentRegionIds[0])
+  if (!region && realmId !== undefined) {
+    region = regionOptions.find((r) => r.regionType === 'region' && r.bandId === realmId)
+  }
+
+  // Resolve addtlRegion — synced to URL via onRegionChange to keep scope context:
+  // - country scope: return current selectedRegion as-is (preserves WIP/CIP from dropdown)
+  // - region scope with context mismatch: return country with currentRegionId moved to front
+  // - otherwise: plain country, or region if no country found
+  let addtlRegion: RegionOption | undefined
+  if (selectedRegion?.regionType === 'country') {
+    addtlRegion = selectedRegion
+  } else if (country && currentRegionId && country.parentRegionIds?.[0] !== currentRegionId) {
+    addtlRegion = {
+      ...country,
+      parentRegionIds: [currentRegionId, ...(country.parentRegionIds ?? []).filter((id) => id !== currentRegionId)],
+    }
+  } else {
+    addtlRegion = country ?? region
+  }
+
+  const breadcrumb: RegionOption[] = [defaultGlobalRegionOption]
+  if (region) {
+    breadcrumb.push(region)
+  }
+  if (country) {
+    breadcrumb.push(country)
+  }
+  breadcrumb.push(subRegion)
+  return { breadcrumb, addtlRegion }
 }

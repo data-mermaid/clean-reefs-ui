@@ -12,8 +12,13 @@ export const defaultGlobalRegionOption: RegionOption = {
   id: 'global',
   regionType: 'global',
   label: 'Global',
-  extent: COUNTRY_EXTENTS['Fiji'],
+  extent: [-180, -40, 180, 40],
 }
+
+export const watershedAndDispersalRegions: RegionOption[] = [
+  { id: 'watershed', regionType: 'watershed', label: 'Watershed' },
+  { id: 'dispersal', regionType: 'dispersal', label: 'Dispersal' },
+]
 
 export const fallbackRegionOptions: RegionOption[] = [
   defaultGlobalRegionOption,
@@ -38,14 +43,5 @@ export const fallbackRegionOptions: RegionOption[] = [
     bandId: 2,
     extent: REGION_EXTENTS['Central Indo-Pacific'],
   },
-  {
-    id: 'watershed',
-    regionType: 'watershed',
-    label: 'Watershed',
-  },
-  {
-    id: 'dispersal',
-    regionType: 'dispersal',
-    label: 'Dispersal',
-  },
+  ...watershedAndDispersalRegions,
 ]

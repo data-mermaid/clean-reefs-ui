@@ -1,14 +1,25 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
-import LayersIcon from '@mui/icons-material/Layers'
+import {
+  CSSProperties,
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, Typography } from '@mui/material'
-import StyledSwipeableDrawer from '../StyledSwipeableDrawer/StyledSwipeableDrawer'
-import StyledButtonWithTooltip from '../StyledButtonWithTooltip/StyledButtonWithTooltip'
+import { Card, IconButton, Switch, Typography } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import clsx from 'clsx'
 import LayerToggleCard from '../LayerToggleCard/LayerToggleCard'
+import InfoPanel from '../InfoPanel/InfoPanel'
 import styles from './LayersDrawer.module.scss'
-import { benthicSubLayers, parentLayerTitles, urlControlledLayerIds } from '../../data/mapData'
+import {
+  benthicSubLayers,
+  parentLayerTitles,
+  urlControlledLayerIds,
+} from '../../data/mapData'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { useMapStore } from '../../stores/mapStore'
 import { mapToggleChange, Basemap } from '../../utils/mapUtils'
 import { sortBoundaryLayers } from '../../utils/sortUtils'
 import BasemapSwitcher from '../BaseMapSwitcher/BaseMapSwitcher'
@@ -27,10 +38,13 @@ interface LayersDrawerProps {
   onSedSubLayerChange: (subLayerValue: 'pixel' | 'watershed') => void
   subSedLayerValue: 'pixel' | 'watershed'
   open: boolean
-  onOpenChange: (open: boolean) => void
   showLabels: boolean
   onLabelsChange: (show: boolean) => void
   onBasemapChange: (basemap: Basemap) => void
+  showCoastlines: boolean
+  onCoastlinesChange: (show: boolean) => void
+  showRivers: boolean
+  onRiversChange: (show: boolean) => void
   sedExposureMinValue?: number
   sedExposureMaxValue?: number
   sedExposureLoading?: boolean
@@ -39,24 +53,60 @@ interface LayersDrawerProps {
   sedLoadLoading?: boolean
 }
 
-interface BoundaryLegendCardProps {
+interface BoundaryToggleCardProps {
   layers: LayerInfo[]
+  toggleLayer: (event: ChangeEvent<HTMLInputElement>) => void
+  showCoastlines: boolean
+  onCoastlinesChange: (show: boolean) => void
 }
 
-function BoundaryLegendCard({ layers }: BoundaryLegendCardProps) {
+function BoundaryToggleCard({
+  layers,
+  toggleLayer,
+  showCoastlines,
+  onCoastlinesChange,
+}: BoundaryToggleCardProps) {
   const { t } = useTranslation()
 
   return (
     <Card className={styles['boundary-legend-card']}>
       {[...layers].sort(sortBoundaryLayers).map((layer) => (
         <div className={styles['boundary-legend-row']} key={layer.sourceId}>
-          <Typography className={styles['boundary-layer-title']}>{t(layer.title)}</Typography>
-          <div
-            className={styles['boundary-layer-legend']}
-            style={{ '--outline-color': layer.outlineColor } as React.CSSProperties}
-          />
+          <Typography id={`${layer.layerId}-title`} className={styles['boundary-layer-title']}>
+            {t(layer.title)}
+          </Typography>
+          <div className={styles['boundary-toggle-right']}>
+            <div
+              className={styles['boundary-layer-legend']}
+              style={{ '--outline-color': layer.outlineColor } as CSSProperties}
+            />
+            <Switch
+              className={styles['MuiSwitch-root']}
+              id={layer.layerId}
+              checked={layer.isLayerOn}
+              onChange={toggleLayer}
+              aria-labelledby={`${layer.layerId}-title`}
+            />
+          </div>
         </div>
       ))}
+      <div className={styles['boundary-legend-row']}>
+        <Typography id="coastlinesTitle" className={styles['boundary-layer-title']}>
+          {t('boundary_map_layers.coastlines')}
+        </Typography>
+        <div className={styles['boundary-toggle-right']}>
+          <div
+            className={styles['boundary-layer-legend']}
+            style={{ '--outline-color': '#000' } as CSSProperties}
+          />
+          <Switch
+            className={styles['MuiSwitch-root']}
+            checked={showCoastlines}
+            onChange={(e) => onCoastlinesChange(e.target.checked)}
+            aria-labelledby="coastlinesTitle"
+          />
+        </div>
+      </div>
     </Card>
   )
 }
@@ -71,10 +121,13 @@ export default function LayersDrawer({
   onSedSubLayerChange,
   subSedLayerValue,
   open,
-  onOpenChange,
   showLabels,
   onLabelsChange,
   onBasemapChange,
+  showCoastlines,
+  onCoastlinesChange,
+  showRivers,
+  onRiversChange,
   sedExposureMinValue,
   sedExposureMaxValue,
   sedExposureLoading,
@@ -83,10 +136,7 @@ export default function LayersDrawer({
   sedLoadLoading,
 }: LayersDrawerProps) {
   const { t } = useTranslation()
-
-  const toggleDrawer = (newOpen: boolean) => () => {
-    onOpenChange(newOpen)
-  }
+  const [boundariesInfoOpen, setBoundariesInfoOpen] = useState(false)
 
   const mapSubLayers = useMemo(
     () =>
@@ -97,10 +147,18 @@ export default function LayersDrawer({
     [selectedLayers],
   )
 
-  const toggleSubLayerFillColor = useMapStore((state) => state.toggleSubLayerFillColor)
+  const toggleBoundaryLayer = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const toggledLayerId = event.target.id
+      const isChecked = event.target.checked
+      // Boundary layers are now URL-controlled; isLayerOn is derived from URL via urlSyncedMapLayers
+      onLayerToggleChange(toggledLayerId, isChecked)
+    },
+    [onLayerToggleChange],
+  )
 
   const toggleLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
       const isUrlControlled = urlControlledLayerIds.includes(toggledLayerId)
@@ -118,39 +176,57 @@ export default function LayersDrawer({
   )
 
   const toggleSubLayer = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const toggledLayerId = event.target.id
       const isChecked = event.target.checked
-      toggleSubLayerFillColor(toggledLayerId)
       onLayerToggleChange(toggledLayerId, isChecked)
     },
-    [toggleSubLayerFillColor, onLayerToggleChange],
+    [onLayerToggleChange],
   )
 
-  const renderLayerGroup = useCallback(
-    (parentGroup: string): React.ReactNode[] => {
-      if (parentGroup === 'boundaries') {
-        const boundaryLayers = mapLayers.filter(
-          (layer) => layer.parentLayerType === 'boundaries' && layer.isLayerOn,
-        )
-        return boundaryLayers.length > 0
-          ? [<BoundaryLegendCard key="boundary-legend" layers={boundaryLayers} />]
-          : []
-      }
+  const toggleAllSubLayers = useCallback(
+    (checked: boolean) => {
+      benthicSubLayers.forEach((l) => onLayerToggleChange(l.layerId, checked))
+    },
+    [onLayerToggleChange],
+  )
 
-      if (parentGroup === 'base') {
-        return [
-          <BasemapSwitcher
-            key="basemap-switcher"
-            showLabels={showLabels}
-            selectedBasemap={selectedBasemap}
-            onLabelsChange={onLabelsChange}
-            onBasemapChange={onBasemapChange}
+  const renderBoundaryGroup = useCallback(() => {
+    const boundaryLayers = mapLayers.filter(
+      (layer) =>
+        layer.parentLayerType === 'boundaries' && (!layer.year || layer.year === selectedYear),
+    )
+    return boundaryLayers.length > 0
+      ? [
+          <BoundaryToggleCard
+            key="boundary-toggle"
+            layers={boundaryLayers}
+            toggleLayer={toggleBoundaryLayer}
+            showCoastlines={showCoastlines}
+            onCoastlinesChange={onCoastlinesChange}
           />,
         ]
-      }
+      : []
+  }, [mapLayers, selectedYear, toggleBoundaryLayer, showCoastlines, onCoastlinesChange])
 
-      return mapLayers
+  const renderBaseGroup = useCallback(
+    () => [
+      <BasemapSwitcher
+        key="basemap-switcher"
+        showLabels={showLabels}
+        selectedBasemap={selectedBasemap}
+        onLabelsChange={onLabelsChange}
+        onBasemapChange={onBasemapChange}
+        showRivers={showRivers}
+        onRiversChange={onRiversChange}
+      />,
+    ],
+    [showLabels, selectedBasemap, onLabelsChange, onBasemapChange, showRivers, onRiversChange],
+  )
+
+  const renderDataLayerGroup = useCallback(
+    (parentGroup: string) =>
+      mapLayers
         .filter(
           (layer) =>
             layer.parentLayerType === parentGroup &&
@@ -163,6 +239,7 @@ export default function LayersDrawer({
             layer={layer}
             toggleLayer={toggleLayer}
             toggleSubLayer={toggleSubLayer}
+            toggleAllSubLayers={toggleAllSubLayers}
             mapSubLayers={mapSubLayers}
             selectedYear={selectedYear}
             subSedLayerValue={subSedLayerValue}
@@ -174,20 +251,16 @@ export default function LayersDrawer({
             sedLoadMaxValue={sedLoadMaxValue}
             sedLoadLoading={sedLoadLoading}
           />
-        ))
-    },
+        )),
     [
       mapLayers,
       selectedYear,
       toggleLayer,
       toggleSubLayer,
+      toggleAllSubLayers,
       mapSubLayers,
       subSedLayerValue,
       onSedSubLayerChange,
-      showLabels,
-      onLabelsChange,
-      selectedBasemap,
-      onBasemapChange,
       sedExposureMinValue,
       sedExposureMaxValue,
       sedExposureLoading,
@@ -197,38 +270,58 @@ export default function LayersDrawer({
     ],
   )
 
+  const getLayerNodes = useCallback(
+    (key: string) => {
+      if (key === 'boundaries') {
+        return renderBoundaryGroup()
+      }
+      if (key === 'base') {
+        return renderBaseGroup()
+      }
+      return renderDataLayerGroup(key)
+    },
+    [renderBoundaryGroup, renderBaseGroup, renderDataLayerGroup],
+  )
+
   return (
-    <div className={styles['LayersDrawer-root']}>
-      {!open && (
-        <StyledButtonWithTooltip
-          aria-label={t('buttons.open_menu')}
-          tooltipText={t('buttons.open_menu')}
-          onClick={toggleDrawer(true)}
-          className={styles['layer-toggle-button']}
-        >
-          <LayersIcon />
-        </StyledButtonWithTooltip>
-      )}
-      <StyledSwipeableDrawer
-        open={open}
-        anchor="left"
-        onClose={toggleDrawer(false)}
-        onOpen={toggleDrawer(true)}
-      >
+    <aside
+      className={clsx(styles['layers-panel'], !open && styles['layers-panel--hidden'])}
+      aria-label={t('layers')}
+      aria-hidden={!open}
+    >
+      <div className={styles['layers-panel__content']}>
         {Object.entries(parentLayerTitles).map(([key, value]) => {
-          const layerNodes = renderLayerGroup(key)
+          const layerNodes = getLayerNodes(key)
+
           if (layerNodes.length === 0) {
             return null
           }
 
           return (
             <div key={key}>
-              <h2 style={{ padding: '8px' }}>{t(value)}</h2>
+              <div className={styles['layer-group-header']}>
+                <h2 className={styles['layer-group-title']}>{t(value)}</h2>
+                {key === 'boundaries' && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setBoundariesInfoOpen((v) => !v)}
+                    aria-label={t(boundariesInfoOpen ? 'buttons.hide_info' : 'buttons.show_info')}
+                    aria-expanded={boundariesInfoOpen}
+                  >
+                    <InfoOutlined sx={{ fontSize: '1rem' }} />
+                  </IconButton>
+                )}
+              </div>
+              {key === 'boundaries' && (
+                <div className={styles['boundaries-info-panel']}>
+                  <InfoPanel isOpen={boundariesInfoOpen} listKey="info_text.boundaries_items" />
+                </div>
+              )}
               {layerNodes}
             </div>
           )
         })}
-      </StyledSwipeableDrawer>
-    </div>
+      </div>
+    </aside>
   )
 }

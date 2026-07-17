@@ -3,14 +3,22 @@ import { useSearchParams } from 'react-router'
 import LayersDrawer from '../LayersDrawer/LayersDrawer'
 import BaseMap from '../BaseMap/BaseMap'
 import RegionSelect from '../RegionSelect/RegionSelect'
+import Sidebar, { ActivePanel } from '../Sidebar/Sidebar'
 import styles from './MapContainer.module.scss'
 import TrendsDrawer from '../TrendsDrawer/TrendsDrawer'
 import YearSelect from '../YearSelect/YearSelect'
-import { layers, urlControlledLayerIds, sedLoadAndLandUseLayers } from '../../data/mapData'
+import {
+  layers,
+  urlControlledLayerIds,
+  sedLoadAndLandUseLayers,
+  benthicSubLayers,
+  atlasBenthicColors,
+  transparent,
+} from '../../data/mapData'
 import { LAT_LNG_PRECISION, ZOOM_PRECISION, SED_EXPOSURE_COLLECTION_ID } from '../../constants'
 import { RegionOption, RegionType } from '../../types/RegionDataTypes'
 import { LayerInfo } from '../../types/MapDataTypes'
-import { Basemap } from '../../utils/mapUtils'
+import { Basemap, buildBreadcrumbFromRegion } from '../../utils/mapUtils'
 import {
   getValidLatLng,
   getValidLayers,
@@ -21,12 +29,15 @@ import {
   getValidDispersalPoint,
   getValidLabels,
   getValidBasemap,
+  getValidCoastlines,
+  getValidRivers,
 } from '../../utils/routeUtils'
 import { useMapStore } from '../../stores/mapStore'
+import GeoSearchBar from '../GeoSearchControl/GeoSearchBar'
 import { useSelectedFeatureStore } from '../../stores/selectedFeatureStore'
 import { defaultGlobalRegionOption } from '../../data/regionData'
 import useResponsive from '../../hooks/useResponsive'
-import useRasterStatistics from '../../hooks/useRasterStatistics'
+import useSedExposureStatistics from '../../hooks/useSedExposureStatistics'
 import useSedLoadStatistics from '../../hooks/useSedLoadStatistics'
 import useAvailableYears from '../../hooks/useAvailableYears'
 import useRegionOptions from '../../hooks/useRegionOptions'
@@ -40,6 +51,8 @@ export default function MapContainer() {
   const toggleSedLoadSubLayerFills = useMapStore((state) => state.toggleSedLoadSubLayerFills)
   const turnOffSedLoadSubLayerFills = useMapStore((state) => state.turnOffSedLoadSubLayerFills)
   const clearTopPolygonsFill = useMapStore((s) => s.clearTopPolygonsFill)
+  const watershedSedLoadMin = useMapStore((s) => s.watershedSedLoadMin)
+  const watershedSedLoadMax = useMapStore((s) => s.watershedSedLoadMax)
   const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const clearSelectedFeature = useSelectedFeatureStore((s) => s.clearSelectedFeature)
   const clearSelectedDispersalWatershedStats = useSelectedFeatureStore(
@@ -57,6 +70,7 @@ export default function MapContainer() {
   const shouldSyncYearParam = year !== normalizedYearParam
 
   const regionParam = searchParams.get('region')
+  const parentRegionParam = searchParams.get('parentRegion')
   const initialRegion = getValidRegion(regionParam, regionOptions)
   const normalizedRegionParam = initialRegion.id
   const shouldSyncRegionParam = !regionOptionsLoading && regionParam !== normalizedRegionParam
@@ -69,11 +83,21 @@ export default function MapContainer() {
   const labelsParam = searchParams.get('labels')
   const showLabels = getValidLabels(labelsParam)
   const normalizedLabelsParam = showLabels ? 'true' : 'false'
-  const shouldSyncLabelsParam = labelsParam !== null && labelsParam !== normalizedLabelsParam
+  const shouldSyncLabelsParam = labelsParam !== normalizedLabelsParam
 
   const basemapParam = searchParams.get('basemap')
   const selectedBasemap = getValidBasemap(basemapParam)
   const shouldSyncBasemapParam = basemapParam !== selectedBasemap
+
+  const coastlinesParam = searchParams.get('coastlines')
+  const showCoastlines = getValidCoastlines(coastlinesParam)
+  const normalizedCoastlinesParam = showCoastlines ? 'true' : 'false'
+  const shouldSyncCoastlinesParam = coastlinesParam !== normalizedCoastlinesParam
+
+  const riversParam = searchParams.get('rivers')
+  const showRivers = getValidRivers(riversParam)
+  const normalizedRiversParam = showRivers ? 'true' : 'false'
+  const shouldSyncRiversParam = riversParam !== normalizedRiversParam
 
   const watershedParam = searchParams.get('watershed')
   const dispersalPointParam = searchParams.get('dispersal-point')
@@ -92,12 +116,20 @@ export default function MapContainer() {
     getValidDispersalPoint(searchParams.get('dispersal-point')),
   )
 
-  const { isMobileWidth } = useResponsive()
+  const { isPanelMobile } = useResponsive()
+  const isGeoSearchOpen = useMapStore((s) => s.isGeoSearchOpen)
+
   const [mapLayers, setMapLayers] = useState<LayerInfo[]>(layers)
-  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('pixel')
+  const [subSedLayerValue, setSubLayerValue] = useState<'pixel' | 'watershed'>('watershed')
   const [selectedRegion, setSelectedRegion] = useState<RegionOption>(initialRegion)
-  const [layersDrawerOpen, setLayersDrawerOpen] = useState(false)
-  const [trendsDrawerOpen, setTrendsDrawerOpen] = useState(!isMobileWidth)
+  const [activePanel, setActivePanel] = useState<ActivePanel>(() =>
+    isPanelMobile ? null : 'graphs',
+  )
+  const [isChartsLoading, setIsChartsLoading] = useState(false)
+
+  const togglePanel = useCallback((panel: Exclude<ActivePanel, null>) => {
+    setActivePanel((prev) => (prev === panel ? null : panel))
+  }, [])
   const [breadcrumb, setBreadcrumb] = useState<RegionOption[]>(
     initialRegion.regionType !== 'global'
       ? [defaultGlobalRegionOption, initialRegion]
@@ -108,13 +140,14 @@ export default function MapContainer() {
     minValue: sedExposureMinValue,
     maxValue: sedExposureMaxValue,
     isLoading: sedExposureLoading,
-  } = useRasterStatistics(SED_EXPOSURE_COLLECTION_ID, selectedRegion, latestYear)
+  } = useSedExposureStatistics(selectedRegion, latestYear)
 
   const {
     minValue: sedLoadMinValue,
     maxValue: sedLoadMaxValue,
+    p98Value: sedLoadP98Value,
     isLoading: sedLoadLoading,
-  } = useSedLoadStatistics(latestYear)
+  } = useSedLoadStatistics(latestYear, selectedRegion)
 
   // Update the active sed_exposure tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -123,20 +156,22 @@ export default function MapContainer() {
         if (layer.layerId !== 'sed_exposure' || layer.year !== selectedYear) {
           return layer
         }
-        return {
-          ...layer,
-          link:
-            !sedExposureLoading && sedExposureMinValue !== null && sedExposureMaxValue !== null
-              ? buildSedExposureTileUrl(
-                  SED_EXPOSURE_COLLECTION_ID,
-                  buildSedExposureItemId(selectedYear),
-                  sedExposureMaxValue,
-                )
-              : '',
-        }
+        const link =
+          !sedExposureLoading &&
+          sedExposureMinValue !== null &&
+          sedExposureMaxValue !== null &&
+          sedExposureMaxValue > 0
+            ? buildSedExposureTileUrl(
+                SED_EXPOSURE_COLLECTION_ID,
+                buildSedExposureItemId(selectedYear),
+                sedExposureMaxValue,
+                selectedRegion,
+              )
+            : ''
+        return { ...layer, link }
       }),
     )
-  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading])
+  }, [sedExposureMinValue, sedExposureMaxValue, selectedYear, sedExposureLoading, selectedRegion])
 
   // Update the active sed_load tile URL when min/max values change; clear link when stats are unavailable
   useEffect(() => {
@@ -149,12 +184,25 @@ export default function MapContainer() {
           ...layer,
           link:
             !sedLoadLoading && sedLoadMinValue !== null && sedLoadMaxValue !== null
-              ? buildSedLoadTileUrl(selectedYear, sedLoadMinValue, sedLoadMaxValue)
+              ? buildSedLoadTileUrl(
+                  selectedYear,
+                  sedLoadMinValue,
+                  sedLoadMaxValue,
+                  selectedRegion,
+                  sedLoadP98Value ?? undefined,
+                )
               : '',
         }
       }),
     )
-  }, [sedLoadMinValue, sedLoadMaxValue, selectedYear, sedLoadLoading])
+  }, [
+    sedLoadMinValue,
+    sedLoadMaxValue,
+    sedLoadP98Value,
+    selectedYear,
+    sedLoadLoading,
+    selectedRegion,
+  ])
 
   const latestSearchParamsRef = useRef(new URLSearchParams(searchParams))
 
@@ -174,6 +222,17 @@ export default function MapContainer() {
         return { ...layer, isLayerOn: isOn }
       }),
     [mapLayers, selectedLayers, selectedYear],
+  )
+
+  const benthicFillColors = useMemo(
+    () =>
+      Object.fromEntries(
+        benthicSubLayers.map((l) => [
+          l.layerId,
+          selectedLayers.includes(l.layerId) ? atlasBenthicColors[l.layerId] : transparent,
+        ]),
+      ),
+    [selectedLayers],
   )
 
   const updateSearchParams = useCallback(
@@ -198,7 +257,9 @@ export default function MapContainer() {
       !shouldSyncRegionParam &&
       !shouldSyncLayersParam &&
       !shouldSyncLabelsParam &&
-      !shouldSyncBasemapParam
+      !shouldSyncBasemapParam &&
+      !shouldSyncCoastlinesParam &&
+      !shouldSyncRiversParam
     ) {
       return
     }
@@ -211,6 +272,8 @@ export default function MapContainer() {
         nextSearchParams.set('layers', normalizedLayersParam)
         nextSearchParams.set('labels', normalizedLabelsParam)
         nextSearchParams.set('basemap', selectedBasemap)
+        nextSearchParams.set('coastlines', normalizedCoastlinesParam)
+        nextSearchParams.set('rivers', normalizedRiversParam)
         return nextSearchParams
       },
       { replace: true },
@@ -222,23 +285,43 @@ export default function MapContainer() {
     normalizedLayersParam,
     normalizedLabelsParam,
     selectedBasemap,
+    normalizedCoastlinesParam,
+    normalizedRiversParam,
     shouldSyncYearParam,
     shouldSyncRegionParam,
     shouldSyncLayersParam,
     shouldSyncLabelsParam,
     shouldSyncBasemapParam,
+    shouldSyncCoastlinesParam,
+    shouldSyncRiversParam,
   ])
 
+  // regionOptions in deps so the breadcrumb is rebuilt once real data loads and replaces the fallback.
+  // parentRegionParam encodes which group a multi-region country was selected from (e.g. Thailand
+  // under WIP vs CIP) so that context survives the URL-driven re-initialization.
   useEffect(() => {
-    setSelectedRegion(initialRegion)
-    if (!watershedParam && !dispersalPointParam) {
-      setBreadcrumb(
-        initialRegion.regionType !== 'global'
-          ? [defaultGlobalRegionOption, initialRegion]
-          : [initialRegion],
+    let regionToSet = initialRegion
+    let parentRegion: RegionOption | undefined
+    if (parentRegionParam && initialRegion.regionType === 'country') {
+      const parentIds = initialRegion.parentRegionIds ?? []
+      if (parentIds.includes(parentRegionParam) && parentIds[0] !== parentRegionParam) {
+        regionToSet = {
+          ...initialRegion,
+          parentRegionIds: [
+            parentRegionParam,
+            ...parentIds.filter((id) => id !== parentRegionParam),
+          ],
+        }
+      }
+      parentRegion = regionOptions.find(
+        (r) => r.regionType === 'region' && r.id === parentRegionParam,
       )
     }
-  }, [initialRegion, watershedParam, dispersalPointParam])
+    setSelectedRegion(regionToSet)
+    if (!watershedParam && !dispersalPointParam) {
+      setBreadcrumb(buildBreadcrumbFromRegion(regionToSet, regionOptions, parentRegion))
+    }
+  }, [initialRegion, watershedParam, dispersalPointParam, regionOptions, parentRegionParam])
 
   const handleRegionChange = useCallback(
     (region: RegionOption) => {
@@ -312,6 +395,13 @@ export default function MapContainer() {
       updateSearchParams((prev) => {
         const nextSearchParams = new URLSearchParams(prev)
         nextSearchParams.set('region', region.id)
+        // Persist the first parentRegionId so the useEffect re-initialization uses the correct
+        // region context (e.g. Thailand selected from WIP vs CIP).
+        if (region.regionType === 'country' && region.parentRegionIds?.[0]) {
+          nextSearchParams.set('parentRegion', region.parentRegionIds[0])
+        } else {
+          nextSearchParams.delete('parentRegion')
+        }
         nextSearchParams.delete('watershed')
         nextSearchParams.delete('dispersal-point')
         return nextSearchParams
@@ -416,9 +506,11 @@ export default function MapContainer() {
         handleWatershedSelectionClear()
         break
       case 'country':
-      case 'region':
-        handleRegionDropdownChange(defaultGlobalRegionOption)
+      case 'region': {
+        const parent = breadcrumb[breadcrumb.length - 2] ?? defaultGlobalRegionOption
+        handleRegionDropdownChange(parent)
         break
+      }
       case 'dispersal':
         handleDispersalSelectionClear()
         break
@@ -430,6 +522,28 @@ export default function MapContainer() {
       updateSearchParams((prevSearchParams) => {
         const nextSearchParams = new URLSearchParams(prevSearchParams)
         nextSearchParams.set('labels', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
+  const handleCoastlinesChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('coastlines', show ? 'true' : 'false')
+        return nextSearchParams
+      })
+    },
+    [updateSearchParams],
+  )
+
+  const handleRiversChange = useCallback(
+    (show: boolean) => {
+      updateSearchParams((prevSearchParams) => {
+        const nextSearchParams = new URLSearchParams(prevSearchParams)
+        nextSearchParams.set('rivers', show ? 'true' : 'false')
         return nextSearchParams
       })
     },
@@ -450,52 +564,77 @@ export default function MapContainer() {
     [updateSearchParams, showLabels],
   )
 
+  const displayedSedLoadMin =
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMin ?? undefined)
+      : (sedLoadMinValue ?? undefined)
+  const displayedSedLoadMax =
+    subSedLayerValue === 'watershed'
+      ? (watershedSedLoadMax ?? undefined)
+      : (sedLoadMaxValue ?? undefined)
+
   return (
     <div className={styles['MapContainer-root']}>
-      <div className={styles['layer-controls']}>
-        <LayersDrawer
-          mapLayers={urlSyncedMapLayers}
-          setMapLayers={setMapLayers}
-          selectedYear={selectedYear}
-          selectedLayers={selectedLayers}
-          selectedBasemap={selectedBasemap}
-          onLayerToggleChange={handleLayerToggleChange}
-          onSedSubLayerChange={handleSedSubLayerChange}
-          subSedLayerValue={subSedLayerValue}
-          open={layersDrawerOpen}
-          onOpenChange={setLayersDrawerOpen}
-          showLabels={showLabels}
-          onLabelsChange={handleLabelsChange}
-          onBasemapChange={handleBasemapChange}
-          sedExposureMinValue={sedExposureMinValue ?? undefined}
-          sedExposureMaxValue={sedExposureMaxValue ?? undefined}
-          sedExposureLoading={sedExposureLoading}
-          sedLoadMinValue={sedLoadMinValue ?? undefined}
-          sedLoadMaxValue={sedLoadMaxValue ?? undefined}
-          sedLoadLoading={sedLoadLoading}
-        />
+      <Sidebar
+        activePanel={activePanel}
+        onTogglePanel={togglePanel}
+        isChartsLoading={isChartsLoading}
+      />
+      <div className={styles['breadcrumb-slot']}>
         <RegionSelect
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionDropdownChange}
+          onUpOneLevelChange={handleUpOneLevelChange}
           breadcrumb={breadcrumb}
           setBreadcrumb={setBreadcrumb}
           regionOptions={regionOptions}
           regionOptionsLoading={regionOptionsLoading}
         />
+      </div>
+      <div className={styles['year-slot']}>
         <YearSelect
           selectedYear={selectedYear}
           onChange={handleYearChange}
           availableYears={availableYears}
           disabled={yearsLoading}
         />
-        <TrendsDrawer
-          selectedRegion={selectedRegion}
-          selectedYear={selectedYear}
-          open={trendsDrawerOpen}
-          onOpenChange={setTrendsDrawerOpen}
-          onUpOneLevelChange={handleUpOneLevelChange}
-        />
       </div>
+      {isGeoSearchOpen && isPanelMobile && (
+        <div className={styles['search-slot']}>
+          <GeoSearchBar />
+        </div>
+      )}
+      <LayersDrawer
+        mapLayers={urlSyncedMapLayers}
+        setMapLayers={setMapLayers}
+        selectedYear={selectedYear}
+        selectedLayers={selectedLayers}
+        selectedBasemap={selectedBasemap}
+        onLayerToggleChange={handleLayerToggleChange}
+        onSedSubLayerChange={handleSedSubLayerChange}
+        subSedLayerValue={subSedLayerValue}
+        open={activePanel === 'layers'}
+        showLabels={showLabels}
+        onLabelsChange={handleLabelsChange}
+        onBasemapChange={handleBasemapChange}
+        showCoastlines={showCoastlines}
+        onCoastlinesChange={handleCoastlinesChange}
+        showRivers={showRivers}
+        onRiversChange={handleRiversChange}
+        sedExposureMinValue={sedExposureMinValue ?? undefined}
+        sedExposureMaxValue={sedExposureMaxValue ?? undefined}
+        sedExposureLoading={sedExposureLoading}
+        sedLoadMinValue={displayedSedLoadMin}
+        sedLoadMaxValue={displayedSedLoadMax}
+        sedLoadLoading={sedLoadLoading}
+      />
+      <TrendsDrawer
+        selectedRegion={selectedRegion}
+        selectedYear={selectedYear}
+        open={activePanel === 'graphs'}
+        isChartsLoading={isChartsLoading}
+        onChartsLoadingChange={setIsChartsLoading}
+      />
       <BaseMap
         mapLayers={urlSyncedMapLayers}
         sedLoadSubLayerValue={subSedLayerValue}
@@ -512,6 +651,8 @@ export default function MapContainer() {
         hasExplicitViewState={hasExplicitViewState}
         setBreadcrumb={setBreadcrumb}
         showLabels={showLabels}
+        showCoastlines={showCoastlines}
+        showRivers={showRivers}
         initialViewState={
           hasExplicitViewState
             ? { longitude: lng!, latitude: lat!, zoom: zoom! }
@@ -521,8 +662,10 @@ export default function MapContainer() {
               }
         }
         onMapMoveEnd={handleMapMoveEnd}
-        isAnyDrawerOpen={layersDrawerOpen || trendsDrawerOpen}
+        isAnyPanelOpen={activePanel !== null}
         regionOptions={regionOptions}
+        selectedRegion={selectedRegion}
+        benthicFillColors={benthicFillColors}
       />
     </div>
   )

@@ -3,7 +3,7 @@
  */
 import { renderHook, waitFor } from '@testing-library/react'
 import useAvailableYears from '../hooks/useAvailableYears'
-import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../data/mapData'
+import { FALLBACK_AVAILABLE_YEARS, FALLBACK_LATEST_YEAR } from '../constants'
 
 const makeStacResponse = (years: number[]) => ({
   features: years.map((y) => ({

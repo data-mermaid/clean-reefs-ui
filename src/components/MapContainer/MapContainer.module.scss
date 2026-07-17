@@ -5,28 +5,44 @@
   height: 100%;
 }
 
-.layer-controls {
-  max-width: 100%;
-  position: relative;
-  z-index: theme.$layersDrawer;
-  display: flex;
-  justify-content: space-between;
-  gap: theme.$spacingXSmall;
-  padding: theme.$spacingXSmall;
-  pointer-events: none;
+.breadcrumb-slot {
+  position: fixed;
+  top: theme.$breadcrumbTop;
+  left: theme.$panelLeftDefault;
+  z-index: theme.$zControl;
 
-  @media (min-width: theme.$breakpointTablet) {
-    max-width: 100%;
-    position: relative;
-    justify-content: center;
-    z-index: theme.$layersDrawer;
-    align-items: center;
-    padding: theme.$spacingSmall;
-    gap: theme.$spacingMedium;
-  }
-
-  > div {
-    pointer-events: auto;
+  @include theme.panelMobileDown {
+    right: theme.$panelMobileGutter;
     display: flex;
+
+    > * {
+      flex: 1;
+      min-width: 0;
+    }
   }
+}
+
+.year-slot {
+  position: fixed;
+  top: theme.$yearSelectTop;
+  left: theme.$panelLeftDefault;
+  z-index: theme.$zControl;
+
+  @include theme.panelMobileDown {
+    right: theme.$panelMobileGutter;
+    display: flex;
+
+    > * {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+.search-slot {
+  position: fixed;
+  top: theme.$panelTop;
+  left: theme.$panelLeftDefault;
+  right: theme.$panelMobileGutter;
+  z-index: theme.$zControl;
 }

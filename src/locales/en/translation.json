@@ -1,87 +1,32 @@
 {
-  "buttons": {
-    "cancel": "Cancel",
-    "close": "Close",
-    "copy": "Copy",
-    "go": "Go",
-    "open_menu": "Open menu",
-    "share_view": "Share view",
-    "reload_page": "Reload page",
-    "download_chart": "Download plot as a png",
-    "up_one_level": "Up one level"
-  },
-  "chart_information": {
-    "area_exposed_ha": "Area exposed (ha)",
-    "land_cover_pct": "Land cover (%)",
-    "pollution_contribution": "Pollution contribution (%)",
-    "sediment_exposure": "Sediment exposure (tonnes)",
-    "sediment_load": "Sediment load (tonnes)"
-  },
-
-  "charts": {
-    "contributing_watersheds": "Contributing watersheds",
-    "ecosystem_extent_exposed": "Ecosystem extent exposed to pollution",
-    "land_use_historical": "Land use",
-    "no_data_available": "No data available for selected region.",
-    "sediment_exposure_historical": "Sediment exposure",
-    "sediment_load_historical": "Sediment load",
-    "w1": "W1",
-    "w2": "W2",
-    "w3": "W3",
-    "w4": "W4"
-  },
-  "land_types": {
-    "bare_ground": "Bare ground",
-    "built_up": "Built-up",
-    "cropland": "Cropland",
-    "high_canopy_forest": "High canopy forest",
-    "mixed_forest": "Mixed forest",
-    "shrubland_grassland": "Shrubland / grassland",
-    "surface_water": "Surface water",
-    "sediment": "Sediment"
-  },
-  "map_layer_groups": {
-    "base_map": "Basemap",
-    "benthic_layers": "Benthic layers",
-    "boundaries": "Boundaries",
-    "land_pollution_layers": "Pollution layers",
-    "land_use_cover": "Land use / Land cover",
-    "ocean_pollution_layers": "Ocean pollution layers",
-    "watershed_boundaries": "Watershed boundaries",
-    "regional_boundaries": "Regional boundaries",
-    "country_boundaries": "Country boundaries"
-  },
-  "map_layers": {
-    "sediment_exposure": "Sediment exposure",
-    "sediment_load": "Sediment load"
-  },
-  "share_view": {
-    "title": "Share this view of GPW",
-    "copied": "Copied!",
-    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
-    "url_label": "Shareable URL"
-  },
-  "regions": {
-    "coral_reef_regions": "Coral reef regions",
-    "countries_with_coral": "Countries with coral reefs",
-    "country": "Country",
-    "global": "Global",
-    "no_countries_match": "No countries match your search",
-    "no_regions_match": "No regions match your search",
-    "region": "Region",
-    "select_region": "Select region",
-    "watershed": "Watershed",
-    "dispersal": "Dispersal"
-  },
   "agricultural_nutrients": "Agricultural nutrients",
+  "info_text": {
+    "sediment_load_chart": "The amount of eroded soil that is delivered to streams, summarised at the watershed, country, region, or global levels.",
+    "sediment_load_legend": "The amount of eroded soil that is delivered to streams from each land pixel or from across the entire watershed.",
+    "sediment_exposure": "The concentration of the sediment load in the ocean.",
+    "land_use": "Land cover/ land use classes summarised from the Global Land Cover and Land Use Change Dataset (GLAD).",
+    "contributing_watersheds": "The three watersheds contributing the most sediment to the selected ocean pixel, and their percentage contribution to the total sediment exposure at the pixel.",
+    "ecosystem_extent": "Area of reef extent, coral/algae, and seagrass exposed to sediment pollution.",
+    "benthic": "Coral reef benthic habitats defined by the Allen Coral Atlas.",
+    "boundaries_items": [
+      "Watershed boundaries from HydroBASINS.",
+      "Plume boundaries modelled by CoaSTED.",
+      "Regional boundaries are Marine Ecoregions Of the World",
+      "Country boundaries are exclusive economic zones."
+    ]
+  },
+  "read_more": "Read more",
   "all_data": "All data",
-  "base_map": "Basemap",
-  "benthic_layers": "Benthic layers",
-  "boundaries": "Boundaries",
+  "app_title": "Global Pollution Watch",
   "area_exposed_ha": "Area exposed (ha)",
-  "scale_low": "Low",
-  "scale_high": "High",
+  "back_to_map": "Back to map",
+  "base_map": "Basemap",
+  "base_map_layers": {
+    "rivers": "Rivers"
+  },
+  "benthic_layers": "Benthic layers",
   "benthic_map_layers": {
+    "all": "All benthic layers",
     "coral_algae": "Coral/Algae",
     "microalgal_mats": "Microalgal mats",
     "reef_extent": "Reef extent",
@@ -90,44 +35,165 @@
     "sand": "Sand",
     "seagrass": "Seagrass"
   },
+  "beta": "Beta",
+  "boundaries": "Boundaries",
   "boundary_map_layers": {
-    "watershed": "Watershed",
+    "coastlines": "Coast lines",
     "country": "Country",
-    "regional": "Regional"
+    "regional": "Regional",
+    "watershed": "Watershed"
   },
-  "contact": "Contact",
+  "buttons": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "copy": "Copy",
+    "download_chart": "Download plot as a png",
+    "show_chart_info": "Show chart information",
+    "hide_chart_info": "Hide chart information",
+    "show_info": "Show information",
+    "hide_info": "Hide information",
+    "go": "Go",
+    "open_menu": "Open menu",
+    "reload_page": "Reload page",
+    "share_view": "Share view",
+    "up_one_level": "Up one level"
+  },
+  "unit_labels": {
+    "area_exposed_ha": "Area exposed (ha)",
+    "land_cover_pct": "Land cover (%)",
+    "pollution_contribution_pct": "Pollution contribution (%)",
+    "sediment_exposure_tons": "Sediment exposure (tons)",
+    "sediment_exposure_tons_ha": "Sediment exposure (tons/ha)",
+    "sediment_load_tons": "Sediment load (tons)",
+    "sediment_load_tons_ha": "Sediment load (tons/ha)"
+  },
+  "charts": {
+    "contributing_watersheds": "Contributing watersheds",
+    "ecosystem_extent_exposed": "Ecosystem extent exposed\nto pollution",
+    "land_use_historical": "Land use / Land cover",
+    "no_data_available": "No data available for selected region.",
+    "sediment_exposure_historical": "Sediment exposure",
+    "sediment_load_historical": "Sediment load",
+    "w1": "W1",
+    "w2": "W2",
+    "w3": "W3",
+    "w4": "W4"
+  },
   "concentration": "Concentration",
+  "about": "About",
+  "about_page": {
+    "sections": {
+      "contact_us": "Contact Us"
+    },
+    "para1": "Global Pollution Watch (GPW) is an open-source pollution mapping and risk assessment tool which can support managers, scientists, and citizen scientists to identify and address land-based pollution risks impacting tropical coastal environments.",
+    "para2": "In over 100 countries with watersheds draining into tropical waters, the tool quantifies and maps pollution loads generated on land as well as pollution exposure in downstream coastal environments across 20 years (2000-2020). Pollution loads and exposures are based on the results of spatially explicit models developed from globally available datasets.",
+    "para3": "Under the beta version of Global Pollution Watch, users can explore the generation and impact of sediment pollution from land use change and deforestation. Sediment pollution data is available for watersheds > 500 hectares that drain into tropical waters, and is modelled using linked land-sea models. On land, sediment load is modelled using the sediment delivery ratio model within the Natural Capital Project's <invest>InVEST®</invest> toolkit, and in the sea, sediment exposure in coastal waters is modelled using a newly developed marine pollution transport model, CoaSTED. See Science & Methods for further details.",
+    "para4": "Global Pollution Watch is developed by the <em>Wildlife Conservation Society</em>, <em>Fluvio</em>, <em>Sparkgeo – Applied Geospatial</em>, and <em>The University of Queensland</em>; powered by MERMAID; and funded by <em>G20 CORDAP (Coral Research & Development Accelerator Platform)</em>.",
+    "contact_para": "We would love your feedback, please contact us at <email>info@globalpollutionwatch.org</email>."
+  },
   "coral_reef": "Coral reef",
   "dark": "Dark",
   "domestic_wastewater": "Domestic wastewater",
   "exposure": "Exposure",
+  "geo_search": {
+    "aria_label": "Search location",
+    "close": "Close",
+    "no_results": "No results found.",
+    "placeholder": "Address, country, or latitude, longitude",
+    "search_failed": "Search failed."
+  },
   "global_trends": "Global trends",
-  "watershed_information": "Watershed Information",
   "google_satellite": "Google satellite",
+  "graphs": "Graphs",
   "high_concentration": "High concentration",
   "high_sediment": "High sediment",
   "labels": "Labels",
+  "land_types": {
+    "bare_ground": "Bare ground",
+    "built_up": "Built-up",
+    "cropland": "Cropland",
+    "high_canopy_forest": "High canopy forest",
+    "mixed_forest": "Mixed forest",
+    "sediment": "Sediment",
+    "shrubland_grassland": "Shrubland / grassland",
+    "surface_water": "Surface water"
+  },
   "land_use": "Land use",
   "large_area": "Large area",
+  "layers": "Layers",
   "light": "Light",
   "loading": "Loading",
   "low_concentration": "Low concentration",
   "low_sediment": "Low sediment",
+  "map_layer_groups": {
+    "base_map": "Basemap",
+    "benthic_layers": "Benthic layers",
+    "boundaries": "Boundaries",
+    "country_boundaries": "Country boundaries",
+    "land_pollution_layers": "Pollution layers",
+    "land_use_cover": "Land use / Land cover",
+    "ocean_pollution_layers": "Ocean pollution layers",
+    "regional_boundaries": "Regional boundaries",
+    "watershed_boundaries": "Watershed boundaries"
+  },
+  "map_layers": {
+    "sediment_exposure": "Sediment exposure",
+    "sediment_load": "Sediment load"
+  },
+  "map_layers_did_not_load": "Some map layers didn't load",
+  "map_layers_loading": "Loading map layers...",
+  "ocean_pollution": "Ocean Pollution",
   "ocean_pollution_dispersal": "Ocean pollution dispersal",
   "pixel_value": "Pixel value",
   "pollution_export": "Pollution export",
   "reef_extent_exposure": "Reef ecosystem extent exposure",
-  "science_and_methods": "Science and methods",
+  "regions": {
+    "coral_reef_regions": "Coral reef regions",
+    "countries_with_coral": "Countries with coral reefs",
+    "country": "Country",
+    "dispersal": "Dispersal",
+    "global": "Global",
+    "no_countries_match": "No countries match your search",
+    "no_regions_match": "No regions match your search",
+    "region": "Region",
+    "search_placeholder": "Search countries & regions...",
+    "close_region_selector": "Close region selector",
+    "open_region_selector": "Open region selector",
+    "select_region": "Select region",
+    "watershed": "Watershed"
+  },
+  "coordinates": {
+    "lat": "Lat",
+    "lon": "Lon"
+  },
+  "satellite": "Satellite",
+  "scale_high": "High",
+  "scale_low": "Low",
+  "science_and_methods": "Science and Methods",
+  "science_and_methods_page": {
+    "subtitle": "How GPW data is collected and processed",
+    "sections": {
+      "overview": "Overview",
+      "data_sources": "Data sources",
+      "spatial_resolution": "Spatial resolution",
+      "methodology": "Methodology",
+      "coral_reef_regions": "Coral reef regions",
+      "validation": "Validation",
+      "citing_this_platform": "Citing this platform"
+    }
+  },
   "sediment": "Sediment",
-  "sediment_load_unit": "Sediment load (unit)",
-  "sediment_exposure_unit": "Sediment exposure (unit)",
-  "small_area": "Small area",
-  "type_to_filter": "Type to filter",
-  "year": "Year",
-  "toggle_navigation_menu": "Toggle navigation menu",
   "select_year": "Select year",
-  "map_layers_did_not_load": "Some map layers didn't load",
-  "map_layers_loading": "Loading map layers...",
-  "ocean_pollution": "Ocean Pollution",
-  "satellite": "Satellite"
+  "share_view": {
+    "copied": "Copied",
+    "copy_failed": "Couldn't copy. Press Ctrl/Cmd+C to copy.",
+    "title": "Share this view of GPW",
+    "url_label": "Shareable URL"
+  },
+  "sidebar": "Sidebar",
+  "small_area": "Small area",
+  "toggle_navigation_menu": "Toggle navigation menu",
+  "type_to_filter": "Type to filter",
+  "watershed_information": "Watershed Information",
+  "year": "Year"
 }

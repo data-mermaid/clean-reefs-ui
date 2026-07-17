@@ -13,7 +13,6 @@ type Story = StoryObj<typeof meta>
 
 export const Primary: Story = {
   args: {
-    open: true,
     chartConfigData: mockChartConfig,
     isChartDataLoading: false,
   },
@@ -21,7 +20,6 @@ export const Primary: Story = {
 
 export const Loading: Story = {
   args: {
-    open: true,
     chartConfigData: null,
     isChartDataLoading: true,
   },
@@ -29,25 +27,12 @@ export const Loading: Story = {
 
 export const NoData: Story = {
   args: {
-    open: true,
     chartConfigData: null,
     isChartDataLoading: false,
   },
   play: async ({ canvas }) => {
     const noGraphText = i18next.t('charts.no_data_available')
     await expect(canvas.queryByText(noGraphText)).toBeInTheDocument()
-  },
-}
-
-export const Closed: Story = {
-  args: {
-    open: false,
-    chartConfigData: null,
-    isChartDataLoading: false,
-  },
-  play: async ({ canvas }) => {
-    const noGraphText = i18next.t('charts.no_data_available')
-    expect(canvas.queryByText(noGraphText)).toBe(null)
   },
 }
 

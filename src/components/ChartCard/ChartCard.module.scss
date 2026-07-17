@@ -6,37 +6,27 @@
 }
 
 .chart-card__header {
-  padding: 10px;
-  width: 100%;
-}
-
-.chart-card__header--open {
   position: absolute;
   top: 0;
   z-index: 1;
-  width: 80%;
+  width: 100%;
   padding: theme.$defaultSpacing;
-}
+  pointer-events: none;
 
-.chart-card__header--closed {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  > * {
+    pointer-events: auto;
+  }
 }
 
 .chart-card__header--no-data {
+  position: static;
+  width: 100%;
   padding: 10px;
 }
 
 .chart-card__plot {
   display: block;
   margin: 0 auto;
-
-  // Nudge the custom modebar (camera button) down so it doesn't sit flush with the card top
-  :global(.modebar.modebar--custom) {
-    margin-top: 12px;
-  }
 
   // Override Plotly's pointer cursor on the drag layer when axes are fixed-range
   :global(.plot-container .draglayer .nsewdrag.cursor-pointer) {
@@ -51,10 +41,28 @@
   color: theme.$textSecondary;
 }
 
+.chart-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: theme.$spacingXXSmall;
+}
+
+.chart-card__title-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .chart-card__chart-label {
+  display: inline;
   font-size: theme.$textSizeSmall;
   font-weight: theme.$semiBold;
   line-height: 1.2;
+  white-space: pre-line;
+}
+
+.chart-card__info-panel {
+  margin-bottom: theme.$spacingLarge;
+  padding-top: theme.$spacingXXSmall;
 }
 
 .chart-card__no-data-label {

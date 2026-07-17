@@ -7,20 +7,36 @@
 .formControlLabelRoot {
   margin-left: 0;
   justify-content: space-between;
+
+  :global(.MuiFormControlLabel-label) {
+    font-size: theme.$textSizeSmall;
+  }
 }
 
 .basemap-card {
   margin: theme.$defaultSpacing;
   padding: theme.$defaultSpacing;
-  background-color: theme.$greyWhite;
+  background-color: theme.$white;
 }
 
 .basemap-card_title {
   flex-grow: 1;
+  font-size: theme.$textSizeSmall;
 }
 
 .basemap-toggle-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.basemap-toggle-right {
+  display: flex;
+  align-items: center;
+}
+
+.rivers-legend {
+  width: theme.$legendSwatchWidth;
+  height: theme.$legendSwatchHeight;
+  background-color: theme.$riversColor;
 }

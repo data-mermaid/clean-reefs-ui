@@ -1,33 +1,43 @@
-import React, { MouseEventHandler, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './ChartCard.module.scss'
 import createPlotlyComponent from 'react-plotly.js/factory'
 import Plotly from 'plotly.js-basic-dist'
-import { Card, Typography } from '@mui/material'
+import { Card, IconButton, Typography } from '@mui/material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined'
+import StyledIconButtonWithTooltip from '../StyledIconButtonWithTooltip/StyledIconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { plotlyTheme } from './plotlyTheme'
 import LoadingState from '../LoadingState/LoadingState'
 import { ChartProperties } from '../../types/ChartDataTypes'
 import { buildExportFilename } from '../../utils/chartUtils'
+import InfoPanel from '../InfoPanel/InfoPanel'
+
+const chartInfoTextKey: Record<string, string> = {
+  sediment_load_historical: 'info_text.sediment_load_chart',
+  sediment_exposure_historical: 'info_text.sediment_exposure',
+  land_use_historical: 'info_text.land_use',
+  contributing_watersheds: 'info_text.contributing_watersheds',
+  ecosystem_extent_exposed: 'info_text.ecosystem_extent',
+}
 
 const Plot = createPlotlyComponent(Plotly)
 
 interface ChartCardProps {
-  open: boolean
-  onClick?: MouseEventHandler<HTMLDivElement> | undefined
   regionType?: string
   regionLabel?: string
   selectedYear?: number
   chartConfigData: ChartProperties | null
   isChartDataLoading: boolean
+  isVisible?: boolean
 }
 
-const getCardHeaderClassNames = (isOpen: boolean, chartConfigData: ChartProperties | null) => {
+const getCardHeaderClassNames = (chartConfigData: ChartProperties | null) => {
   const baseClass = styles['chart-card__header']
   if (!chartConfigData) {
     return `${baseClass} ${styles['chart-card__header--no-data']}`
   }
-
-  return `${baseClass} ${styles[`chart-card__header--${isOpen ? 'open' : 'closed'}`]}`
+  return baseClass
 }
 
 const getSelectedBarIndex = (
@@ -53,35 +63,35 @@ const getSelectedBarIndex = (
 }
 
 export default function ChartCard({
-  open = true,
-  onClick,
   regionType = 'global',
   regionLabel = '',
   selectedYear,
   chartConfigData,
   isChartDataLoading,
+  isVisible = true,
 }: ChartCardProps) {
   const { t } = useTranslation()
   const chartRef = useRef<HTMLDivElement>(null)
+  const plotRef = useRef<Plotly.PlotlyHTMLElement | null>(null)
   const filenameRef = useRef('chart-export')
-  const [pendingScrollAfterOpen, setPendingScrollAfterOpen] = useState(false)
+  const downloadInProgressRef = useRef(false)
+  const [infoOpen, setInfoOpen] = useState(false)
+  const [headerHeight, setHeaderHeight] = useState(0)
+  const infoTextKey = chartConfigData ? chartInfoTextKey[chartConfigData.chartName] : undefined
 
   useEffect(() => {
-    let animationFrameId: number | null = null
-
-    if (open && pendingScrollAfterOpen) {
-      animationFrameId = window.requestAnimationFrame(() => {
-        chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        setPendingScrollAfterOpen(false)
-      })
+    const el = chartRef.current
+    if (!el) {
+      return undefined
     }
-
+    const observer = new ResizeObserver((entries) => {
+      setHeaderHeight(entries[0].contentRect.height)
+    })
+    observer.observe(el)
     return () => {
-      if (animationFrameId !== null) {
-        window.cancelAnimationFrame(animationFrameId)
-      }
+      observer.disconnect()
     }
-  }, [open, pendingScrollAfterOpen])
+  }, [])
 
   const selectedBarIndex = useMemo(
     () => getSelectedBarIndex(chartConfigData, selectedYear),
@@ -91,42 +101,43 @@ export default function ChartCard({
   // Keep filename in a ref so the modebar click handler always uses the
   // latest value — react-plotly.js doesn't re-register buttons on config changes.
   filenameRef.current = chartConfigData
-    ? buildExportFilename(regionType, regionLabel, t(`charts.${chartConfigData.chartName}`))
+    ? buildExportFilename(
+        regionType,
+        regionLabel,
+        String(t(`charts.${chartConfigData.chartName}`)).replace(/\n/g, ' '),
+      )
     : 'chart-export'
 
   const plotConfig = useMemo(() => {
     return {
       ...plotlyTheme.config,
-      // Replace built-in camera button with a custom one that removes
-      // the selected-year opacity highlighting before exporting
-      modeBarButtonsToRemove: ['toImage'] as Plotly.ModeBarDefaultButtons[],
-      modeBarButtonsToAdd: [
-        {
-          name: 'downloadPng',
-          title: t('buttons.download_chart'),
-          icon: Plotly.Icons.camera,
-          click: async (gd: Plotly.PlotlyHTMLElement) => {
-            // Save per-bar opacity arrays (used to dim non-selected years)
-            const originalOpacities = gd.data.map(
-              (trace) => (trace as Plotly.PlotData).marker?.opacity,
-            )
-
-            // Temporarily set all bars to full opacity for the export
-            await Plotly.restyle(gd, { 'marker.opacity': 1 })
-            await Plotly.downloadImage(gd, {
-              format: 'png',
-              width: null,
-              height: null,
-              filename: filenameRef.current,
-            })
-            // Restore the original highlighting
-            // restyle distributes array values across traces — not reflected in @types/plotly.js
-            await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
-          },
-        },
-      ],
+      displayModeBar: false,
     }
-  }, [t])
+  }, [])
+
+  const handleDownload = async () => {
+    const gd = plotRef.current
+    if (!gd || downloadInProgressRef.current) {
+      return
+    }
+    downloadInProgressRef.current = true
+    const originalOpacities = gd.data.map((trace) => (trace as Plotly.PlotData).marker?.opacity)
+    try {
+      await Plotly.restyle(gd, { 'marker.opacity': 1 })
+      await Plotly.downloadImage(gd, {
+        format: 'png',
+        width: null,
+        height: null,
+        filename: filenameRef.current,
+      })
+    } finally {
+      try {
+        await Plotly.restyle(gd, { 'marker.opacity': originalOpacities } as Plotly.Data)
+      } finally {
+        downloadInProgressRef.current = false
+      }
+    }
+  }
 
   const renderChartContent = () => {
     if (isChartDataLoading) {
@@ -159,6 +170,13 @@ export default function ChartCard({
             config={plotConfig}
             layout={{
               ...plotlyTheme.layout,
+              height:
+                (plotlyTheme.layout?.height ?? 450) +
+                Math.max(0, headerHeight - (plotlyTheme.layout?.margin?.t ?? 80)),
+              margin: {
+                ...plotlyTheme.layout?.margin,
+                t: Math.max(plotlyTheme.layout?.margin?.t ?? 80, headerHeight),
+              },
               barmode: chartConfigData.barmode,
               yaxis: {
                 ...plotlyTheme.layout?.yaxis,
@@ -177,6 +195,9 @@ export default function ChartCard({
               showlegend: chartConfigData.chartSeriesData.length > 1,
             }}
             style={{ width: '100%', height: '100%' }}
+            onInitialized={(_figure, graphDiv) => {
+              plotRef.current = graphDiv as Plotly.PlotlyHTMLElement
+            }}
           />
         </Suspense>
       )
@@ -189,26 +210,45 @@ export default function ChartCard({
   }
 
   return (
-    <Card
-      onClick={(event) => {
-        if (onClick) {
-          onClick(event)
-          setPendingScrollAfterOpen(true)
-        }
-      }}
-      className={styles['chart-card']}
-    >
-      <div className={getCardHeaderClassNames(open, chartConfigData)} ref={chartRef}>
+    <Card className={styles['chart-card']}>
+      <div className={getCardHeaderClassNames(chartConfigData)} ref={chartRef}>
         <Typography className={styles['chart-card__region-label']}>
           {t(`regions.${regionType}`)}
         </Typography>
         {chartConfigData && (
-          <Typography className={styles['chart-card__chart-label']}>
-            {t(`charts.${chartConfigData.chartName}`)}
-          </Typography>
+          <div className={styles['chart-card__title-row']}>
+            <div className={styles['chart-card__title-content']}>
+              <Typography component="span" className={styles['chart-card__chart-label']}>
+                {t(`charts.${chartConfigData.chartName}`)}
+              </Typography>
+              {infoTextKey && (
+                <IconButton
+                  size="small"
+                  onClick={() => setInfoOpen((v) => !v)}
+                  aria-label={t(infoOpen ? 'buttons.hide_chart_info' : 'buttons.show_chart_info')}
+                  aria-expanded={infoOpen}
+                >
+                  <InfoOutlined sx={{ fontSize: '1rem' }} />
+                </IconButton>
+              )}
+            </div>
+            <StyledIconButtonWithTooltip
+              size="small"
+              tooltipText={t('buttons.download_chart')}
+              onClick={handleDownload}
+              aria-label={t('buttons.download_chart')}
+            >
+              <PhotoCameraOutlined sx={{ fontSize: '1rem' }} />
+            </StyledIconButtonWithTooltip>
+          </div>
+        )}
+        {infoTextKey && infoOpen && (
+          <div className={styles['chart-card__info-panel']}>
+            <InfoPanel isOpen textKey={infoTextKey} />
+          </div>
         )}
       </div>
-      {open && renderChartContent()}
+      {isVisible ? renderChartContent() : null}
     </Card>
   )
 }

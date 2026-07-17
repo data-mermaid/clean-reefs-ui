@@ -1,0 +1,189 @@
+@use '../../styles/theme';
+
+$desktop-sidebar-width: 200px;
+$mobile-sidebar-expanded-width: 240px;
+$sidebar-item-height: 35px;
+$section-nav-indent: 30px;
+$section-margin-bottom: 40px;
+$content-max-width: 800px;
+
+.science-page {
+  padding-top: theme.$headerHeight;
+  display: grid;
+  grid-template-columns: $desktop-sidebar-width 1fr;
+  min-height: 100vh;
+  background-color: theme.$white;
+
+  @include theme.panelMobileDown {
+    grid-template-columns: 1fr;
+  }
+}
+
+.science-page__sidebar {
+  position: sticky;
+  top: theme.$headerHeight;
+  height: calc(100vh - theme.$headerHeight);
+  overflow-y: auto;
+  border-right: 1px solid theme.$grey;
+  background-color: theme.$white;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingMedium;
+  padding: theme.$spacingMedium theme.$spacingSmall;
+
+  @include theme.panelMobileDown {
+    position: fixed;
+    top: theme.$headerHeight;
+    left: 0;
+    height: calc(100vh - theme.$headerHeight);
+    width: theme.$sidebarWidth;
+    overflow: hidden;
+    padding: 0;
+    gap: 0;
+    align-items: flex-start;
+    z-index: theme.$zPanel;
+    transition:
+      width 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  &.science-page__sidebar--open {
+    @include theme.panelMobileDown {
+      width: $mobile-sidebar-expanded-width;
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+.science-page__back-button {
+  width: 100%;
+  text-transform: none;
+  font-size: theme.$textSizeSmall;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  height: $sidebar-item-height;
+
+  @include theme.panelMobileDown {
+    width: $mobile-sidebar-expanded-width;
+    border-radius: 0;
+  }
+}
+
+.science-page__back-button-text {
+  @include theme.panelMobileDown {
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .science-page__sidebar--open & {
+    @include theme.panelMobileDown {
+      opacity: 1;
+      transition: opacity 0.15s ease 0.15s;
+    }
+  }
+}
+
+// TOC toggle: mobile only — pinned to $sidebarWidth so icon x never shifts
+.science-page__toc-toggle {
+  display: none;
+  width: theme.$sidebarWidth;
+  height: $sidebar-item-height;
+  flex-shrink: 0;
+  border-radius: 0;
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  @include theme.panelMobileDown {
+    display: flex;
+  }
+}
+
+// Section nav: visible on desktop; fades in/out on mobile via opacity
+.science-page__section-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: $section-nav-indent;
+
+  @include theme.panelMobileDown {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+  }
+
+  .science-page__sidebar--open & {
+    @include theme.panelMobileDown {
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 0.15s ease 0.15s;
+    }
+  }
+}
+
+.science-page__nav-link {
+  display: flex;
+  align-items: center;
+  height: $sidebar-item-height;
+  width: 100%;
+  font-size: theme.$textSizeSmall;
+  color: theme.$textSecondary;
+  text-decoration: none;
+  padding: 0 theme.$spacingSmall;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    background-color: theme.$hoverGrey;
+    border-left-color: rgba(theme.$primaryAccent, 0.4);
+  }
+}
+
+.science-page__nav-link--active {
+  color: theme.$primaryAccent;
+  border-left-color: theme.$primaryAccent;
+  background-color: rgba(theme.$primaryAccent, 0.1);
+}
+
+.science-page__content {
+  grid-column: 2;
+  padding: theme.$spacingLarge theme.$spacingLarge 40vh;
+  max-width: $content-max-width;
+
+  @include theme.panelMobileDown {
+    grid-column: 1;
+    padding-left: calc(theme.$sidebarWidth + theme.$spacingMedium);
+    padding-right: theme.$spacingMedium;
+  }
+}
+
+h1.science-page__title {
+  font-size: theme.$textSizeLarge;
+  font-weight: theme.$semiBold;
+  color: theme.$textColor;
+  margin: 0 0 theme.$spacingSmall;
+}
+
+.science-page__subtitle {
+  font-size: theme.$textSizeMedium;
+  color: theme.$textSecondary;
+  margin: 0 0 theme.$spacingLarge;
+}
+
+.science-page__section {
+  margin-bottom: $section-margin-bottom;
+}
+
+h2.science-page__section-heading {
+  font-size: theme.$textSizeSemiLarge;
+  font-weight: theme.$semiBold;
+  color: theme.$textColor;
+  margin: 0 0 theme.$spacingSmall;
+}
+
+.science-page__section-divider {
+  border: none;
+  border-bottom: 1px solid theme.$grey;
+  margin: 0 0 theme.$spacingMedium;
+}

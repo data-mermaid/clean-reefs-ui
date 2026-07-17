@@ -1,33 +1,64 @@
 @use '../../styles/theme';
 
-.drawer-header {
-  position: sticky;
-  left: 0;
+.trends-panel {
+  position: fixed;
+  top: theme.$panelTop;
+  bottom: theme.$panelBottomGap;
+  left: theme.$panelLeftDefault;
+  width: theme.$panelWidth;
+  z-index: theme.$zPanel;
+  background-color: theme.$grey;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  overflow: hidden;
+  padding: theme.$spacingSmall 0 theme.$spacingSmall theme.$defaultSpacing;
+  opacity: 1;
   visibility: visible;
-  margin-bottom: theme.$defaultSpacing;
+  transition:
+    opacity 150ms ease-out,
+    visibility 0s linear 0s;
+
+  @include theme.panelMobileDown {
+    right: theme.$panelMobileGutter;
+    width: auto;
+  }
 }
 
-.drawer-header__title {
+.trends-panel__content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: theme.$defaultSpacing;
+}
+
+.trends-panel--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease-out,
+    visibility 0s linear 150ms;
+}
+
+.panel-header {
   display: flex;
   align-items: center;
   gap: theme.$spacingXSmall;
+  margin-bottom: theme.$defaultSpacing;
 }
 
-.charts-container--open {
+.charts-container {
   display: flex;
   flex-direction: column;
   gap: theme.$defaultSpacing;
+  padding-bottom: theme.$defaultSpacing;
 }
 
-.charts-container--closed {
-  margin-top: theme.$defaultSpacing;
-  min-width: 100%;
-  width: max-content;
-  overflow-x: auto;
-  display: flex;
-  flex-wrap: nowrap;
-  gap: theme.$defaultSpacing;
+.no-data-label {
+  font-size: theme.$textSizeSmall;
+  font-weight: theme.$light;
+  font-style: italic;
+  color: theme.$textSecondary;
+  padding: theme.$defaultSpacing;
 }
