@@ -10,7 +10,6 @@ import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import Box from '@mui/material/Box'
-import { useMapStore } from '../../stores/mapStore'
 
 // Extends RegionOption with a resolved group label for Autocomplete groupBy.
 // Countries spanning multiple regions appear as separate entries (one per group).
@@ -36,7 +35,6 @@ export default function RegionSelect({
   regionOptionsLoading,
 }: RegionSelectProps) {
   const { t } = useTranslation()
-  const jumpToRegion = useMapStore((s) => s.jumpToRegion)
   const rootRef = useRef<HTMLDivElement>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [popperWidth, setPopperWidth] = useState<number | undefined>()
@@ -107,9 +105,6 @@ export default function RegionSelect({
   }, [regionOptions])
 
   const updateRegion = (region: RegionOption, parentRegion?: RegionOption) => {
-    if (region.regionType !== 'global') {
-      jumpToRegion(region)
-    }
     onRegionChange(region)
     setBreadcrumb(buildBreadcrumbFromRegion(region, regionOptions, parentRegion))
   }
