@@ -125,19 +125,14 @@ export async function fetchSedExposureStatistics(
   }
 }
 
-// Generates a 256-entry RGBA viridis colormap.
-// entry0Alpha controls whether uint8 value 0 is transparent (for regional filtering,
-// where the expression returns 0 for out-of-region pixels) or opaque (for global view).
-function buildSedExposureColormap(
+type ColorStop = [number, [number, number, number]]
+
+// Interpolates a set of color stops into a 256-entry RGBA colormap.
+// entry0Alpha controls whether uint8 value 0 is transparent (out-of-region sentinel) or opaque.
+function buildRgbaColormap(
+  stops: ColorStop[],
   entry0Alpha: 0 | 255,
 ): Record<string, [number, number, number, number]> {
-  const stops: [number, [number, number, number]][] = [
-    [0.0, [68, 1, 84]], // #440154
-    [0.25, [58, 82, 139]], // #3a528b
-    [0.5, [32, 144, 140]], // #20908c
-    [0.75, [94, 201, 97]], // #5ec961
-    [1.0, [253, 231, 36]], // #fde724
-  ]
   const result: Record<string, [number, number, number, number]> = {}
   for (let i = 0; i <= 255; i++) {
     const t = i / 255
@@ -162,8 +157,16 @@ function buildSedExposureColormap(
   return result
 }
 
+const SED_EXPOSURE_STOPS: ColorStop[] = [
+  [0.0, [68, 1, 84]], // #440154
+  [0.25, [58, 82, 139]], // #3a528b
+  [0.5, [32, 144, 140]], // #20908c
+  [0.75, [94, 201, 97]], // #5ec961
+  [1.0, [253, 231, 36]], // #fde724
+]
+
 // Regional only: entry 0 is transparent — expression returns 0 for out-of-region pixels.
-const SED_EXPOSURE_COLORMAP_REGIONAL = buildSedExposureColormap(0)
+const SED_EXPOSURE_COLORMAP_REGIONAL = buildRgbaColormap(SED_EXPOSURE_STOPS, 0)
 
 export function buildSedExposureTileUrl(
   collectionId: string,
@@ -293,49 +296,20 @@ export async function fetchSedLoadStatistics(
   }
 }
 
-// Generates a 256-entry RGBA colormap interpolated through the 7-stop design scale.
-// entry0Alpha controls whether uint8 value 0 is transparent (for regional filtering,
-// where the expression returns 0 for out-of-region pixels) or opaque (for global view).
-function buildSedLoadColormap(
-  entry0Alpha: 0 | 255,
-): Record<string, [number, number, number, number]> {
-  const stops: [number, [number, number, number]][] = [
-    [0.0, [1, 133, 113]], // #018571
-    [0.17, [118, 187, 176]], // #76BBB0
-    [0.33, [209, 228, 225]], // #D1E4E1
-    [0.5, [245, 245, 245]], // #F5F5F5
-    [0.67, [228, 213, 197]], // #E4D5C5
-    [0.83, [199, 158, 116]], // #c79e74
-    [1.0, [166, 97, 26]], // #A6611A
-  ]
-  const result: Record<string, [number, number, number, number]> = {}
-  for (let i = 0; i <= 255; i++) {
-    const t = i / 255
-    let si = stops.length - 2
-    for (let j = 0; j < stops.length - 1; j++) {
-      if (t <= stops[j + 1][0]) {
-        si = j
-        break
-      }
-    }
-    const [pos0, c0] = stops[si]
-    const [pos1, c1] = stops[si + 1]
-    const segT = Math.max(0, Math.min(1, pos1 > pos0 ? (t - pos0) / (pos1 - pos0) : 0))
-    const alpha = i === 0 ? entry0Alpha : 255
-    result[String(i)] = [
-      Math.round(c0[0] + (c1[0] - c0[0]) * segT),
-      Math.round(c0[1] + (c1[1] - c0[1]) * segT),
-      Math.round(c0[2] + (c1[2] - c0[2]) * segT),
-      alpha,
-    ]
-  }
-  return result
-}
+const SED_LOAD_STOPS: ColorStop[] = [
+  [0.0, [1, 133, 113]], // #018571
+  [0.17, [118, 187, 176]], // #76BBB0
+  [0.33, [209, 228, 225]], // #D1E4E1
+  [0.5, [245, 245, 245]], // #F5F5F5
+  [0.67, [228, 213, 197]], // #E4D5C5
+  [0.83, [199, 158, 116]], // #c79e74
+  [1.0, [166, 97, 26]], // #A6611A
+]
 
 // Global: entry 0 is opaque — no out-of-region masking needed.
-const SED_LOAD_COLORMAP_GLOBAL = buildSedLoadColormap(255)
+const SED_LOAD_COLORMAP_GLOBAL = buildRgbaColormap(SED_LOAD_STOPS, 255)
 // Regional: entry 0 is transparent — expression returns 0 for out-of-region pixels.
-const SED_LOAD_COLORMAP_REGIONAL = buildSedLoadColormap(0)
+const SED_LOAD_COLORMAP_REGIONAL = buildRgbaColormap(SED_LOAD_STOPS, 0)
 
 /** Build a MapLibre-compatible tile URL for a sediment load item with dynamic rescale.
  * Uses a custom 7-stop colormap. When a region with a bandId is provided, applies an
