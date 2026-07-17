@@ -1448,7 +1448,6 @@ export default function BaseMap({
             }
             const shouldRenderSedLoadRasterTile =
               layer.layerId !== 'sed_load' || sedLoadSubLayerValue === 'pixel'
-            const isSedExposure = layer.layerId === 'sed_exposure'
             return (
               isMapLoaded && (
                 <Source
@@ -1458,7 +1457,7 @@ export default function BaseMap({
                   tiles={[layer.link]}
                   tileSize={256}
                   maxzoom={16}
-                  minzoom={isSedExposure ? 4 : 0}
+                  minzoom={5}
                 >
                   <Layer
                     id={layer.sourceId}
@@ -1466,7 +1465,7 @@ export default function BaseMap({
                     key={`${layer.sourceId}-${index}`}
                     source={layer.sourceId}
                     beforeId="benthic"
-                    minzoom={isSedExposure ? 4 : 0}
+                    minzoom={5}
                     layout={{
                       visibility:
                         layer.isLayerOn && shouldRenderSedLoadRasterTile ? 'visible' : 'none',
