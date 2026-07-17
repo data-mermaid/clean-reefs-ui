@@ -35,7 +35,6 @@ function slugify(label: string): string {
 async function getParsedLayer(config: {
   url: string
   sourceLayer: string
-  filterProp?: string
   z?: number
   x?: number
   y?: number
@@ -193,31 +192,6 @@ export async function fetchWatershedSedLoadValues(
   }
 }
 
-function collectWatershedIds(
-  tileData: ArrayBuffer,
-  realmId: number | undefined,
-  countryId: number | undefined,
-  into: Set<number>,
-): void {
-  const layer = new VectorTile(new Pbf(new Uint8Array(tileData))).layers['data']
-  if (!layer) {
-    return
-  }
-  for (let i = 0; i < layer.length; i++) {
-    const props = layer.feature(i).properties
-    if (realmId !== undefined && props['REALM_ID'] !== realmId) {
-      continue
-    }
-    if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
-      continue
-    }
-    const id = props['watershed_id']
-    if (typeof id === 'number') {
-      into.add(id)
-    }
-  }
-}
-
 // Returns all [z, x, y] slippy-map tiles that cover the given [west, south, east, north] extent
 // at zoom level z. toX uses the standard (lon+180)/360*n formula, normalised via modulo so
 // longitudes > 180 (antimeridian crossing) wrap correctly. toY uses the Web Mercator projection
@@ -267,7 +241,6 @@ export async function fetchWatershedIdsForRegion(
   extent?: [number, number, number, number],
 ): Promise<number[]> {
   try {
-    const pm = getPMTiles(WATERSHED_PMTILES_URL)
     const seen = new Set<number>()
 
     // With an extent, fetch z=6 tiles in parallel — gives a complete feature set (~4–20 tiles per country).
@@ -275,9 +248,25 @@ export async function fetchWatershedIdsForRegion(
     const tilesToFetch = extent ? bboxToTiles(extent, 6) : [[0, 0, 0] as [number, number, number]]
     await Promise.all(
       tilesToFetch.map(([z, x, y]) =>
-        pm
-          .getZxy(z, x, y)
-          .then((tile) => tile?.data && collectWatershedIds(tile.data, realmId, countryId, seen))
+        getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data', z, x, y })
+          .then((layer) => {
+            if (!layer) {
+              return
+            }
+            for (let i = 0; i < layer.length; i++) {
+              const props = layer.feature(i).properties
+              if (realmId !== undefined && props['REALM_ID'] !== realmId) {
+                continue
+              }
+              if (countryId !== undefined && props['COUNTRY_ID'] !== countryId) {
+                continue
+              }
+              const id = props['watershed_id']
+              if (typeof id === 'number') {
+                seen.add(id)
+              }
+            }
+          })
           .catch(() => {}),
       ),
     )
