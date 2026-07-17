@@ -1,11 +1,16 @@
 import { PMTiles, FetchSource } from 'pmtiles'
 import Pbf from 'pbf'
 import { VectorTile, VectorTileLayer } from '@mapbox/vector-tile'
-import { REGIONS_PMTILES_URL, COUNTRIES_PMTILES_URL, WATERSHED_PMTILES_URL } from '../constants'
+import {
+  REGIONS_PMTILES_URL,
+  COUNTRIES_PMTILES_URL,
+  WATERSHED_PMTILES_URL,
+  ABSOLUTE_FIELD_PREFIXES,
+  PCT_FIELD_PREFIXES,
+} from '../constants'
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
 import { COUNTRY_EXTENTS } from '../data/countryExtents'
 import { REGION_EXTENTS } from '../data/regionExtents'
-import { ABSOLUTE_FIELD_PREFIXES, PCT_FIELD_PREFIXES } from '../data/mapData'
 
 const pmtilesCache = new Map<string, PMTiles>()
 
