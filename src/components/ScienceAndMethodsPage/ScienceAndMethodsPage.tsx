@@ -23,11 +23,26 @@ function RefText({ text }: { text: string }) {
   return (
     <>
       {parts.map((part, i) => {
-        const match = part.match(/^\[(\d+)(?:[,\-–]\d+)*\]$/)
-        if (match) {
-          const refNum = match[1]
+        const commaMatch = part.match(/^\[(\d+(?:,\d+)+)\]$/)
+        if (commaMatch) {
+          const nums = commaMatch[1].split(',')
           return (
-            <a key={i} href={`#ref-${refNum}`}>
+            <span key={i}>
+              {'['}
+              {nums.map((n, j) => (
+                <span key={n}>
+                  <a href={`#ref-${n}`}>{n}</a>
+                  {j < nums.length - 1 ? ',' : ''}
+                </span>
+              ))}
+              {']'}
+            </span>
+          )
+        }
+        const rangeMatch = part.match(/^\[(\d+)(?:[-–]\d+)*\]$/)
+        if (rangeMatch) {
+          return (
+            <a key={i} href={`#ref-${rangeMatch[1]}`}>
               {part}
             </a>
           )
