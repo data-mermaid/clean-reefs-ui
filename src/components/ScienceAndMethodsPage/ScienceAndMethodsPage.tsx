@@ -238,10 +238,10 @@ export default function ScienceAndMethodsPage() {
           <p>
             <RefText text={t('science_and_methods_page.sediment_load.para4')} />
           </p>
-          <p className={styles['science-page__table-caption']}>
-            {t('science_and_methods_page.sediment_load.table1_caption')}
-          </p>
           <table className={styles['science-page__table']}>
+            <caption className={styles['science-page__table-caption']}>
+              {t('science_and_methods_page.sediment_load.table1_caption')}
+            </caption>
             <colgroup>
               <col style={{ width: '30%' }} />
               <col style={{ width: '70%' }} />
@@ -268,10 +268,10 @@ export default function ScienceAndMethodsPage() {
               </tr>
             </tfoot>
           </table>
-          <p className={styles['science-page__table-caption']}>
-            {t('science_and_methods_page.sediment_load.table2_caption')}
-          </p>
           <table className={styles['science-page__table']}>
+            <caption className={styles['science-page__table-caption']}>
+              {t('science_and_methods_page.sediment_load.table2_caption')}
+            </caption>
             <colgroup>
               <col style={{ width: '14%' }} />
               <col style={{ width: '28%' }} />
@@ -319,10 +319,10 @@ export default function ScienceAndMethodsPage() {
           <p>{t('science_and_methods_page.sediment_exposure.para1')}</p>
           <p>{t('science_and_methods_page.sediment_exposure.para2')}</p>
           <p>{t('science_and_methods_page.sediment_exposure.para3')}</p>
-          <p className={styles['science-page__table-caption']}>
-            {t('science_and_methods_page.sediment_exposure.table_caption')}
-          </p>
           <table className={styles['science-page__table']}>
+            <caption className={styles['science-page__table-caption']}>
+              {t('science_and_methods_page.sediment_exposure.table_caption')}
+            </caption>
             <thead>
               <tr>
                 <th>{t('science_and_methods_page.sediment_exposure.table_header_data')}</th>
