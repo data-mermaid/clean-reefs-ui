@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-$desktop-sidebar-width: 200px;
+$desktop-sidebar-width: 300px;
 $mobile-sidebar-expanded-width: 240px;
 $sidebar-item-height: 35px;
 $section-nav-indent: 30px;
@@ -186,4 +186,91 @@ h2.science-page__section-heading {
   border: none;
   border-bottom: 1px solid theme.$grey;
   margin: 0 0 theme.$spacingMedium;
+}
+
+.science-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: theme.$textSizeSmall;
+  margin-bottom: theme.$spacingMedium;
+
+  th,
+  td {
+    border: 1px solid theme.$grey;
+    padding: theme.$spacingSmall;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    background-color: theme.$hoverGrey;
+    font-weight: theme.$semiBold;
+  }
+
+  tfoot td {
+    font-style: italic;
+    color: theme.$textSecondary;
+    border-top: 2px solid theme.$grey;
+  }
+}
+
+.science-page__table-caption {
+  font-weight: theme.$semiBold;
+  margin-bottom: theme.$spacingSmall;
+}
+
+.science-page__list {
+  margin: 0 0 theme.$spacingMedium theme.$spacingLarge;
+  padding: 0;
+  list-style: disc;
+
+  li {
+    margin-bottom: 4px;
+  }
+}
+
+.science-page__definition-list {
+  margin: 0 0 theme.$spacingMedium;
+}
+
+.science-page__definition-item {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: theme.$spacingSmall;
+  padding: theme.$spacingSmall;
+  border: 1px solid theme.$grey;
+  border-top: none;
+
+  &:first-child {
+    border-top: 1px solid theme.$grey;
+  }
+
+  dt {
+    font-weight: theme.$semiBold;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.science-page__note {
+  font-style: italic;
+  color: theme.$textSecondary;
+  margin-bottom: theme.$spacingMedium;
+}
+
+.science-page__references {
+  padding-left: theme.$spacingLarge;
+
+  li {
+    margin-bottom: theme.$spacingSmall;
+    font-size: theme.$textSizeSmall;
+    line-height: 1.5;
+
+    a {
+      color: theme.$primaryAccent;
+      word-break: break-all;
+    }
+  }
 }
