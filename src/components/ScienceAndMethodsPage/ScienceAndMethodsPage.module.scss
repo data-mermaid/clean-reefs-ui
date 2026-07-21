@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-$desktop-sidebar-width: 300px;
+$desktop-sidebar-width: clamp(200px, 25%, 300px);
 $mobile-sidebar-expanded-width: 240px;
 $sidebar-item-height: 35px;
 $section-nav-indent: 30px;
@@ -10,7 +10,7 @@ $content-max-width: 800px;
 .science-page {
   padding-top: theme.$headerHeight;
   display: grid;
-  grid-template-columns: clamp(200px, 25%, 300px) 1fr;
+  grid-template-columns: $desktop-sidebar-width 1fr;
   min-height: 100vh;
   background-color: theme.$white;
 
