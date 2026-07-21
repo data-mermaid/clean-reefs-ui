@@ -10,7 +10,7 @@ $content-max-width: 800px;
 .about-page {
   padding-top: theme.$headerHeight;
   display: grid;
-  grid-template-columns: $desktop-sidebar-width 1fr;
+  grid-template-columns: clamp(200px, 25%, 300px) 1fr;
   min-height: 100vh;
   background-color: theme.$white;
 
