@@ -1,11 +1,42 @@
 import { Link as InternalLink } from 'react-router'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
 import { useScrollSpy } from '../../hooks/useScrollSpy'
+import { atlasBenthicColors } from '../../data/mapData'
 import styles from './ScienceAndMethodsPage.module.scss'
+
+const landUseColors: Record<string, string> = {
+  shrubland_grassland: '#B0B006',
+  mixed_forest: '#609C30',
+  high_canopy_forest: '#065106',
+  cropland: '#FF7D00',
+  built_up: '#64DCDC',
+  bare_ground: '#FEFECC',
+}
+
+// Replaces [N], [N,M], [N–N] patterns with links to #ref-N (first number in bracket).
+function RefText({ text }: { text: string }) {
+  const parts = text.split(/(\[\d+(?:[,\-–]\d+)*\])/g)
+  return (
+    <>
+      {parts.map((part, i) => {
+        const match = part.match(/^\[(\d+)(?:[,\-–]\d+)*\]$/)
+        if (match) {
+          const refNum = match[1]
+          return (
+            <a key={i} href={`#ref-${refNum}`}>
+              {part}
+            </a>
+          )
+        }
+        return part
+      })}
+    </>
+  )
+}
 
 interface LandUseClass {
   nameKey: string
@@ -51,6 +82,19 @@ const sections = [
   { id: 'contributing-watersheds', labelKey: 'charts.contributing_watersheds' },
   { id: 'references', labelKey: 'science_and_methods_page.sections.references' },
 ]
+
+const TABLE2_FIRST_NOTE_ROWSPAN = 8
+
+function getCoastedRowspan(rows: CoastedTableRow[], i: number): number {
+  if (!rows[i].parameter) { return 0 }
+  let span = 1
+  let j = i + 1
+  while (j < rows.length && !rows[j].parameter) {
+    span++
+    j++
+  }
+  return span
+}
 
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
@@ -137,15 +181,28 @@ export default function ScienceAndMethodsPage() {
         <section id="land-use" className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>{t('land_use')}</h2>
           <hr className={styles['science-page__section-divider']} />
-          <p>{t('science_and_methods_page.land_use.para1')}</p>
-          <dl className={styles['science-page__definition-list']}>
-            {landUseClasses.map((cls) => (
-              <div key={cls.nameKey} className={styles['science-page__definition-item']}>
-                <dt>{t(cls.nameKey as Parameters<typeof t>[0])}</dt>
-                <dd>{cls.description}</dd>
-              </div>
-            ))}
-          </dl>
+          <p>
+            <RefText text={t('science_and_methods_page.land_use.para1')} />
+          </p>
+          <ul className={styles['science-page__legend']}>
+            {landUseClasses.map((cls) => {
+              const colorKey = cls.nameKey.split('.')[1]
+              const color = landUseColors[colorKey] ?? '#ccc'
+              return (
+                <li key={cls.nameKey} className={styles['science-page__legend-item']}>
+                  <span
+                    className={styles['science-page__legend-swatch']}
+                    style={{ backgroundColor: color }}
+                  />
+                  <span>
+                    <strong>{t(cls.nameKey as Parameters<typeof t>[0])}</strong>
+                    {' — '}
+                    {cls.description}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
           <p>{t('science_and_methods_page.land_use.missing_coverage_intro')}</p>
           <ul className={styles['science-page__list']}>
             {missingCountries.map((country) => (
@@ -158,14 +215,37 @@ export default function ScienceAndMethodsPage() {
         <section id="sediment-load" className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>{t('map_layers.sediment_load')}</h2>
           <hr className={styles['science-page__section-divider']} />
-          <p>{t('science_and_methods_page.sediment_load.para1')}</p>
-          <p>{t('science_and_methods_page.sediment_load.para2')}</p>
+          <p>
+            <RefText text={t('science_and_methods_page.sediment_load.para1')} />
+          </p>
+          <p>
+            <Trans
+              i18nKey="science_and_methods_page.sediment_load.para2"
+              components={{
+                invest: (
+                  <a
+                    href="https://naturalcapitalproject.stanford.edu/software/invest"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="InVEST® toolkit (opens in a new tab)"
+                  />
+                ),
+                ref4: <a href="#ref-4" aria-label="Jump to reference 4" />,
+              }}
+            />
+          </p>
           <p>{t('science_and_methods_page.sediment_load.para3')}</p>
-          <p>{t('science_and_methods_page.sediment_load.para4')}</p>
+          <p>
+            <RefText text={t('science_and_methods_page.sediment_load.para4')} />
+          </p>
           <p className={styles['science-page__table-caption']}>
             {t('science_and_methods_page.sediment_load.table1_caption')}
           </p>
           <table className={styles['science-page__table']}>
+            <colgroup>
+              <col style={{ width: '30%' }} />
+              <col style={{ width: '70%' }} />
+            </colgroup>
             <thead>
               <tr>
                 <th>{t('science_and_methods_page.sediment_load.table1_header_data')}</th>
@@ -175,8 +255,10 @@ export default function ScienceAndMethodsPage() {
             <tbody>
               {table1Rows.map((row) => (
                 <tr key={row.data}>
-                  <td>{row.data}</td>
-                  <td>{row.parameterisation}</td>
+                  <th scope="row">{row.data}</th>
+                  <td>
+                    <RefText text={row.parameterisation} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -190,6 +272,13 @@ export default function ScienceAndMethodsPage() {
             {t('science_and_methods_page.sediment_load.table2_caption')}
           </p>
           <table className={styles['science-page__table']}>
+            <colgroup>
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '28%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '38%' }} />
+            </colgroup>
             <thead>
               <tr>
                 <th>{t('science_and_methods_page.sediment_load.table2_header_subclasses')}</th>
@@ -200,13 +289,23 @@ export default function ScienceAndMethodsPage() {
               </tr>
             </thead>
             <tbody>
-              {table2Rows.map((row) => (
+              {table2Rows.map((row, i) => (
                 <tr key={row.glad_subclasses}>
                   <td>{row.glad_subclasses}</td>
                   <td>{row.description}</td>
-                  <td>{row.c_factor}</td>
+                  <td>
+                    <RefText text={row.c_factor} />
+                  </td>
                   <td>{row.p_factor}</td>
-                  <td>{row.notes}</td>
+                  {i === 0 ? (
+                    <td rowSpan={TABLE2_FIRST_NOTE_ROWSPAN}>
+                      <RefText text={row.notes} />
+                    </td>
+                  ) : i < TABLE2_FIRST_NOTE_ROWSPAN ? null : (
+                    <td>
+                      <RefText text={row.notes} />
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -233,13 +332,25 @@ export default function ScienceAndMethodsPage() {
               </tr>
             </thead>
             <tbody>
-              {sedExpTableRows.map((row, i) => (
-                <tr key={i}>
-                  <td>{row.parameter}</td>
-                  <td>{row.sub_parameter}</td>
-                  <td>{row.value}</td>
-                </tr>
-              ))}
+              {sedExpTableRows.map((row, i) => {
+                const span = getCoastedRowspan(sedExpTableRows, i)
+                const hasParam = row.parameter !== ''
+                const isGroupContinuation = !hasParam
+                return (
+                  <tr key={i}>
+                    {isGroupContinuation ? null : (
+                      <td
+                        rowSpan={span > 1 ? span : undefined}
+                        className={`${styles['science-page__table-bold-cell']} ${styles['science-page__table-cell--center']}`}
+                      >
+                        {row.parameter}
+                      </td>
+                    )}
+                    <td>{row.sub_parameter}</td>
+                    <td>{row.value}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
@@ -248,16 +359,31 @@ export default function ScienceAndMethodsPage() {
         <section id="benthic-layers" className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>{t('benthic_layers')}</h2>
           <hr className={styles['science-page__section-divider']} />
-          <p>{t('science_and_methods_page.benthic_layers.para1')}</p>
-          <dl className={styles['science-page__definition-list']}>
-            {benthicClasses.map((cls) => (
-              <div key={cls.nameKey} className={styles['science-page__definition-item']}>
-                <dt>{t(cls.nameKey as Parameters<typeof t>[0])}</dt>
-                <dd>{cls.description}</dd>
-              </div>
-            ))}
-          </dl>
-          <p>{t('science_and_methods_page.benthic_layers.outro')}</p>
+          <p>
+            <RefText text={t('science_and_methods_page.benthic_layers.para1')} />
+          </p>
+          <ul className={styles['science-page__legend']}>
+            {benthicClasses.map((cls) => {
+              const colorKey = cls.nameKey.split('.')[1] as keyof typeof atlasBenthicColors
+              const color = atlasBenthicColors[colorKey] ?? '#ccc'
+              return (
+                <li key={cls.nameKey} className={styles['science-page__legend-item']}>
+                  <span
+                    className={styles['science-page__legend-swatch']}
+                    style={{ backgroundColor: color }}
+                  />
+                  <span>
+                    <strong>{t(cls.nameKey as Parameters<typeof t>[0])}</strong>
+                    {' — '}
+                    {cls.description}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+          <p>
+            <RefText text={t('science_and_methods_page.benthic_layers.outro')} />
+          </p>
         </section>
 
         <section id="ecosystem-extent" className={styles['science-page__section']}>
@@ -281,11 +407,13 @@ export default function ScienceAndMethodsPage() {
           <hr className={styles['science-page__section-divider']} />
           <ol className={styles['science-page__references']}>
             {references.map((ref, i) => (
-              <li key={i}>
+              <li key={i} id={`ref-${i + 1}`}>
                 {ref.citation}{' '}
-                <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                  {ref.url}
-                </a>
+                {ref.url && (
+                  <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                    {ref.url}
+                  </a>
+                )}
               </li>
             ))}
           </ol>

@@ -173,6 +173,7 @@ h1.science-page__title {
 
 .science-page__section {
   margin-bottom: $section-margin-bottom;
+  scroll-margin-top: calc(theme.$headerHeight + theme.$spacingMedium);
 }
 
 h2.science-page__section-heading {
@@ -199,7 +200,7 @@ h2.science-page__section-heading {
     border: 1px solid theme.$grey;
     padding: theme.$spacingSmall;
     text-align: left;
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   thead th {
@@ -260,6 +261,39 @@ h2.science-page__section-heading {
   margin-bottom: theme.$spacingMedium;
 }
 
+.science-page__legend {
+  list-style: none;
+  margin: 0 0 theme.$spacingMedium;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacingSmall;
+}
+
+.science-page__legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: theme.$spacingSmall;
+  font-size: theme.$textSizeSmall;
+}
+
+.science-page__legend-swatch {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  margin-top: 1px;
+}
+
+.science-page__table-bold-cell {
+  font-weight: theme.$semiBold;
+}
+
+.science-page__table-cell--center {
+  vertical-align: middle;
+}
+
 .science-page__references {
   padding-left: theme.$spacingLarge;
 
@@ -267,6 +301,7 @@ h2.science-page__section-heading {
     margin-bottom: theme.$spacingSmall;
     font-size: theme.$textSizeSmall;
     line-height: 1.5;
+    scroll-margin-top: calc(theme.$headerHeight + theme.$spacingMedium);
 
     a {
       color: theme.$primaryAccent;
