@@ -485,10 +485,10 @@
       "outro": "See the Allen Coral Atlas [22] for further information."
     },
     "ecosystem_extent": {
-      "para1": "'Ecosystem extent exposed to pollution' is the area/extent of coral/algae, seagrass, and reef ecosystems exposed to pollution, summarised in hectares. We calculate this by overlaying the corresponding benthic habitats (see Benthic layers) with the extent of ocean exposed to sediment pollution (see Sediment exposure) to isolate the area of each ecosystem exposed to pollution."
+      "para1": "Ecosystem extent exposed to pollution is the area/extent of coral/algae, seagrass, and reef ecosystems exposed to pollution, summarised in hectares. We calculate this by overlaying the corresponding benthic habitats (see Benthic layers) with the extent of ocean exposed to sediment pollution (see Sediment exposure) to isolate the area of each ecosystem exposed to pollution."
     },
     "contributing_watersheds": {
-      "para1": "The top three 'contributing watersheds' represented in the tool are the three watersheds contributing the most sediment to the selected ocean pixel. We also provide the percentage contribution from each of these watersheds to the total sediment exposure at the pixel. We estimate this using a newly developed marine pollution transport model, CoaSTED, which models the transport of sediment loads from each watershed into the adjacent coastal waters. See Sediment exposure for further details."
+      "para1": "The top three contributing watersheds represented in the tool are the three watersheds contributing the most sediment to the selected ocean pixel. We also provide the percentage contribution from each of these watersheds to the total sediment exposure at the pixel. We estimate this using a newly developed marine pollution transport model, CoaSTED, which models the transport of sediment loads from each watershed into the adjacent coastal waters. See Sediment exposure for further details."
     },
     "references": {
       "items": [

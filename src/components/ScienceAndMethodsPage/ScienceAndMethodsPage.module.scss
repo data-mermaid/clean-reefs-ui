@@ -230,30 +230,6 @@ h2.science-page__section-heading {
   }
 }
 
-.science-page__definition-list {
-  margin: 0 0 theme.$spacingMedium;
-}
-
-.science-page__definition-item {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: theme.$spacingSmall;
-  padding: theme.$spacingSmall;
-  border: 1px solid theme.$grey;
-  border-top: none;
-
-  &:first-child {
-    border-top: 1px solid theme.$grey;
-  }
-
-  dt {
-    font-weight: theme.$semiBold;
-  }
-
-  dd {
-    margin: 0;
-  }
-}
 
 .science-page__note {
   font-style: italic;
