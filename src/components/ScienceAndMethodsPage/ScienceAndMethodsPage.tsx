@@ -21,7 +21,7 @@ import {
 } from '../../data/scienceMethodsData'
 import styles from './ScienceAndMethodsPage.module.scss'
 
-// Replaces [N], [N,M], [N–N] patterns with links to #ref-N (first number in bracket).
+// [N,M] → each number linked individually; [N–M] → single link to first number; [N] → single link.
 function RefText({ text }: { text: string }) {
   const parts = text.split(/(\[\d+(?:[,\-–]\d+)*\])/g)
   return (
