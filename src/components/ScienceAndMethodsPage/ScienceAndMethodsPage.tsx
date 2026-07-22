@@ -6,6 +6,14 @@ import TocIcon from '@mui/icons-material/Toc'
 
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 import { atlasBenthicColors } from '../../data/mapData'
+import {
+  table1Rows,
+  table2Rows,
+  sedExpTableRows,
+  references,
+  type Table2Row,
+  type CoastedTableRow,
+} from '../../data/scienceMethodsData'
 import styles from './ScienceAndMethodsPage.module.scss'
 
 const landUseColors: Record<string, string> = {
@@ -58,33 +66,9 @@ interface LandUseClass {
   description: string
 }
 
-interface Table1Row {
-  data: string
-  parameterisation: string
-}
-
-interface Table2Row {
-  glad_subclasses: string
-  description: string
-  c_factor: string
-  p_factor: string
-  notes: string
-}
-
-interface CoastedTableRow {
-  parameter: string
-  sub_parameter: string
-  value: string
-}
-
 interface BenthicClass {
   nameKey: string
   description: string
-}
-
-interface Reference {
-  citation: string
-  url: string
 }
 
 const sections = [
@@ -98,16 +82,19 @@ const sections = [
   { id: 'references', labelKey: 'science_and_methods_page.sections.references' },
 ]
 
-const TABLE2_FIRST_NOTE_ROWSPAN = 8
-
 function getCoastedRowspan(rows: CoastedTableRow[], i: number): number {
   if (!rows[i].parameter) { return 0 }
   let span = 1
   let j = i + 1
-  while (j < rows.length && !rows[j].parameter) {
-    span++
-    j++
-  }
+  while (j < rows.length && !rows[j].parameter) { span++; j++ }
+  return span
+}
+
+function getTable2NotesSpan(rows: Table2Row[], i: number): number {
+  if (rows[i].notes === null) { return 0 }
+  let span = 1
+  let j = i + 1
+  while (j < rows.length && rows[j].notes === null) { span++; j++ }
   return span
 }
 
@@ -122,22 +109,9 @@ export default function ScienceAndMethodsPage() {
   const missingCountries = t('science_and_methods_page.land_use.missing_coverage_countries', {
     returnObjects: true,
   }) as string[]
-  const table1Rows = t('science_and_methods_page.sediment_load.table1_rows', {
-    returnObjects: true,
-  }) as Table1Row[]
-  const table2Rows = t('science_and_methods_page.sediment_load.table2_rows', {
-    returnObjects: true,
-  }) as Table2Row[]
-  const sedExpTableRows = t('science_and_methods_page.sediment_exposure.table_rows', {
-    returnObjects: true,
-  }) as CoastedTableRow[]
   const benthicClasses = t('science_and_methods_page.benthic_layers.classes', {
     returnObjects: true,
   }) as BenthicClass[]
-  const references = t('science_and_methods_page.references.items', {
-    returnObjects: true,
-  }) as Reference[]
-
   return (
     <div className={styles['science-page']}>
       <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
@@ -312,15 +286,15 @@ export default function ScienceAndMethodsPage() {
                     <RefText text={row.c_factor} />
                   </td>
                   <td>{row.p_factor}</td>
-                  {i === 0 ? (
-                    <td rowSpan={TABLE2_FIRST_NOTE_ROWSPAN}>
-                      <RefText text={row.notes} />
-                    </td>
-                  ) : i < TABLE2_FIRST_NOTE_ROWSPAN ? null : (
-                    <td>
-                      <RefText text={row.notes} />
-                    </td>
-                  )}
+                  {(() => {
+                    const span = getTable2NotesSpan(table2Rows, i)
+                    if (span === 0) { return null }
+                    return (
+                      <td rowSpan={span > 1 ? span : undefined}>
+                        <RefText text={row.notes ?? ''} />
+                      </td>
+                    )
+                  })()}
                 </tr>
               ))}
             </tbody>
