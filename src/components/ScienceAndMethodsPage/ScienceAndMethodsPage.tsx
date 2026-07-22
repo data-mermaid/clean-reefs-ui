@@ -6,6 +6,7 @@ import TocIcon from '@mui/icons-material/Toc'
 
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 import { atlasBenthicColors } from '../../data/mapData'
+import { chartSeriesConfig } from '../../data/chartSeriesData'
 import {
   table1Rows,
   table2Rows,
@@ -16,14 +17,7 @@ import {
 } from '../../data/scienceMethodsData'
 import styles from './ScienceAndMethodsPage.module.scss'
 
-const landUseColors: Record<string, string> = {
-  shrubland_grassland: '#B0B006',
-  mixed_forest: '#609C30',
-  high_canopy_forest: '#065106',
-  cropland: '#FF7D00',
-  built_up: '#64DCDC',
-  bare_ground: '#FEFECC',
-}
+const landUseColors = chartSeriesConfig['charts.land_use_historical'].legendColors
 
 // Replaces [N], [N,M], [N–N] patterns with links to #ref-N (first number in bracket).
 function RefText({ text }: { text: string }) {
