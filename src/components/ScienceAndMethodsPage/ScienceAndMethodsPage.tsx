@@ -6,18 +6,20 @@ import TocIcon from '@mui/icons-material/Toc'
 
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 import { atlasBenthicColors } from '../../data/mapData'
-import { chartSeriesConfig } from '../../data/chartSeriesData'
 import {
   table1Rows,
   table2Rows,
   sedExpTableRows,
   references,
-  type Table2Row,
-  type CoastedTableRow,
+  landUseColors,
+  SECTION_IDS,
+  sections,
+  sectionLabel,
+  getCoastedRowspan,
+  getTable2NotesSpan,
+  type NameKeyClass,
 } from '../../data/scienceMethodsData'
 import styles from './ScienceAndMethodsPage.module.scss'
-
-const landUseColors = chartSeriesConfig['charts.land_use_historical'].legendColors
 
 // Replaces [N], [N,M], [N–N] patterns with links to #ref-N (first number in bracket).
 function RefText({ text }: { text: string }) {
@@ -55,42 +57,7 @@ function RefText({ text }: { text: string }) {
   )
 }
 
-interface LandUseClass {
-  nameKey: string
-  description: string
-}
 
-interface BenthicClass {
-  nameKey: string
-  description: string
-}
-
-const sections = [
-  { id: 'note-to-users', labelKey: 'science_and_methods_page.sections.note_to_users' },
-  { id: 'land-use', labelKey: 'land_use' },
-  { id: 'sediment-load', labelKey: 'map_layers.sediment_load' },
-  { id: 'sediment-exposure', labelKey: 'map_layers.sediment_exposure' },
-  { id: 'benthic-layers', labelKey: 'benthic_layers' },
-  { id: 'ecosystem-extent', labelKey: 'science_and_methods_page.sections.ecosystem_extent' },
-  { id: 'contributing-watersheds', labelKey: 'charts.contributing_watersheds' },
-  { id: 'references', labelKey: 'science_and_methods_page.sections.references' },
-]
-
-function getCoastedRowspan(rows: CoastedTableRow[], i: number): number {
-  if (!rows[i].parameter) { return 0 }
-  let span = 1
-  let j = i + 1
-  while (j < rows.length && !rows[j].parameter) { span++; j++ }
-  return span
-}
-
-function getTable2NotesSpan(rows: Table2Row[], i: number): number {
-  if (rows[i].notes === null) { return 0 }
-  let span = 1
-  let j = i + 1
-  while (j < rows.length && rows[j].notes === null) { span++; j++ }
-  return span
-}
 
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
@@ -99,13 +66,13 @@ export default function ScienceAndMethodsPage() {
 
   const landUseClasses = t('science_and_methods_page.land_use.classes', {
     returnObjects: true,
-  }) as LandUseClass[]
+  }) as NameKeyClass[]
   const missingCountries = t('science_and_methods_page.land_use.missing_coverage_countries', {
     returnObjects: true,
   }) as string[]
   const benthicClasses = t('science_and_methods_page.benthic_layers.classes', {
     returnObjects: true,
-  }) as BenthicClass[]
+  }) as NameKeyClass[]
   return (
     <div className={styles['science-page']}>
       <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
@@ -153,16 +120,16 @@ export default function ScienceAndMethodsPage() {
         <h1 className={styles['science-page__title']}>{t('science_and_methods')}</h1>
         <p className={styles['science-page__subtitle']}>{t('science_and_methods_page.subtitle')}</p>
 
-        <section id="note-to-users" className={styles['science-page__section']}>
+        <section id={SECTION_IDS.noteToUsers} className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>
-            {t('science_and_methods_page.sections.note_to_users')}
+            {t(sectionLabel[SECTION_IDS.noteToUsers])}
           </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.note_to_users.para1')}</p>
         </section>
 
-        <section id="land-use" className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t('land_use')}</h2>
+        <section id={SECTION_IDS.landUse} className={styles['science-page__section']}>
+          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.landUse])}</h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.land_use.para1')} />
@@ -195,8 +162,8 @@ export default function ScienceAndMethodsPage() {
           <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
         </section>
 
-        <section id="sediment-load" className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t('map_layers.sediment_load')}</h2>
+        <section id={SECTION_IDS.sedimentLoad} className={styles['science-page__section']}>
+          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.sedimentLoad])}</h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.sediment_load.para1')} />
@@ -296,8 +263,8 @@ export default function ScienceAndMethodsPage() {
           <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
         </section>
 
-        <section id="sediment-exposure" className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t('map_layers.sediment_exposure')}</h2>
+        <section id={SECTION_IDS.sedimentExposure} className={styles['science-page__section']}>
+          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.sedimentExposure])}</h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.sediment_exposure.para1')}</p>
           <p>{t('science_and_methods_page.sediment_exposure.para2')}</p>
@@ -339,8 +306,8 @@ export default function ScienceAndMethodsPage() {
           <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
         </section>
 
-        <section id="benthic-layers" className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t('benthic_layers')}</h2>
+        <section id={SECTION_IDS.benthicLayers} className={styles['science-page__section']}>
+          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.benthicLayers])}</h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.benthic_layers.para1')} />
@@ -369,23 +336,23 @@ export default function ScienceAndMethodsPage() {
           </p>
         </section>
 
-        <section id="ecosystem-extent" className={styles['science-page__section']}>
+        <section id={SECTION_IDS.ecosystemExtent} className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>
-            {t('science_and_methods_page.sections.ecosystem_extent')}
+            {t(sectionLabel[SECTION_IDS.ecosystemExtent])}
           </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.ecosystem_extent.para1')}</p>
         </section>
 
-        <section id="contributing-watersheds" className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t('charts.contributing_watersheds')}</h2>
+        <section id={SECTION_IDS.contributingWatersheds} className={styles['science-page__section']}>
+          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.contributingWatersheds])}</h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.contributing_watersheds.para1')}</p>
         </section>
 
-        <section id="references" className={styles['science-page__section']}>
+        <section id={SECTION_IDS.references} className={styles['science-page__section']}>
           <h2 className={styles['science-page__section-heading']}>
-            {t('science_and_methods_page.sections.references')}
+            {t(sectionLabel[SECTION_IDS.references])}
           </h2>
           <hr className={styles['science-page__section-divider']} />
           <ol className={styles['science-page__references']}>

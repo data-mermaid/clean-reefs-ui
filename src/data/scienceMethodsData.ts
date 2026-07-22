@@ -1,3 +1,10 @@
+import { chartSeriesConfig } from './chartSeriesData'
+
+export interface NameKeyClass {
+  nameKey: string
+  description: string
+}
+
 export interface Table1Row {
   data: string
   parameterisation: string
@@ -318,3 +325,45 @@ export const references: Reference[] = [
     url: 'https://doi.org/10.5281/ZENODO.3833242',
   },
 ]
+
+export const landUseColors = chartSeriesConfig['charts.land_use_historical'].legendColors
+
+export const SECTION_IDS = {
+  noteToUsers: 'note-to-users',
+  landUse: 'land-use',
+  sedimentLoad: 'sediment-load',
+  sedimentExposure: 'sediment-exposure',
+  benthicLayers: 'benthic-layers',
+  ecosystemExtent: 'ecosystem-extent',
+  contributingWatersheds: 'contributing-watersheds',
+  references: 'references',
+} as const
+
+export const sections = [
+  { id: SECTION_IDS.noteToUsers, labelKey: 'science_and_methods_page.sections.note_to_users' },
+  { id: SECTION_IDS.landUse, labelKey: 'land_use' },
+  { id: SECTION_IDS.sedimentLoad, labelKey: 'map_layers.sediment_load' },
+  { id: SECTION_IDS.sedimentExposure, labelKey: 'map_layers.sediment_exposure' },
+  { id: SECTION_IDS.benthicLayers, labelKey: 'benthic_layers' },
+  { id: SECTION_IDS.ecosystemExtent, labelKey: 'science_and_methods_page.sections.ecosystem_extent' },
+  { id: SECTION_IDS.contributingWatersheds, labelKey: 'charts.contributing_watersheds' },
+  { id: SECTION_IDS.references, labelKey: 'science_and_methods_page.sections.references' },
+]
+
+export const sectionLabel = Object.fromEntries(sections.map((s) => [s.id, s.labelKey]))
+
+export function getCoastedRowspan(rows: CoastedTableRow[], i: number): number {
+  if (!rows[i].parameter) { return 0 }
+  let span = 1
+  let j = i + 1
+  while (j < rows.length && !rows[j].parameter) { span++; j++ }
+  return span
+}
+
+export function getTable2NotesSpan(rows: Table2Row[], i: number): number {
+  if (rows[i].notes === null) { return 0 }
+  let span = 1
+  let j = i + 1
+  while (j < rows.length && rows[j].notes === null) { span++; j++ }
+  return span
+}
