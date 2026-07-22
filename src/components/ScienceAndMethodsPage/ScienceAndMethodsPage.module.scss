@@ -150,6 +150,7 @@ $content-max-width: 800px;
   grid-column: 2;
   padding: theme.$spacingLarge theme.$spacingLarge 40vh;
   max-width: $content-max-width;
+  min-width: 0;
 
   @include theme.panelMobileDown {
     grid-column: 1;
@@ -198,6 +199,11 @@ h2.science-page__section-heading {
   border-collapse: collapse;
   font-size: theme.$textSizeSmall;
   margin-bottom: theme.$spacingMedium;
+
+  @include theme.panelMobileDown {
+    display: block;
+    overflow-x: auto;
+  }
 
   th,
   td {
