@@ -165,7 +165,7 @@ export default function ScienceAndMethodsPage() {
                   />
                   <span>
                     <strong>{t(cls.nameKey as Parameters<typeof t>[0])}</strong>
-                    {' — '}
+                    {' = '}
                     {cls.description}
                   </span>
                 </li>
@@ -359,7 +359,7 @@ export default function ScienceAndMethodsPage() {
                   />
                   <span>
                     <strong>{t(cls.nameKey as Parameters<typeof t>[0])}</strong>
-                    {' — '}
+                    {' = '}
                     {cls.description}
                   </span>
                 </li>
