@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react'
 import { Link as InternalLink } from 'react-router'
 import { Trans, useTranslation } from 'react-i18next'
 import { Button, ClickAwayListener, IconButton } from '@mui/material'
@@ -21,6 +22,24 @@ import {
 } from '../../data/scienceMethodsData'
 import styles from './ScienceAndMethodsPage.module.scss'
 
+function RefLink({
+  children,
+  href,
+  'aria-label': ariaLabel,
+}: {
+  children?: ReactNode
+  href: string
+  'aria-label'?: string
+}) {
+  return (
+    <sup>
+      <a href={href} aria-label={ariaLabel}>
+        {children}
+      </a>
+    </sup>
+  )
+}
+
 // [N,M] → each number linked individually; [N–M] → single link to first number; [N] → single link.
 function RefText({ text }: { text: string }) {
   const parts = text.split(/(\[\d+(?:[,\-–]\d+)*\])/g)
@@ -31,7 +50,7 @@ function RefText({ text }: { text: string }) {
         if (commaMatch) {
           const nums = commaMatch[1].split(',')
           return (
-            <span key={i}>
+            <sup key={i}>
               {'['}
               {nums.map((n, j) => (
                 <span key={n}>
@@ -40,15 +59,15 @@ function RefText({ text }: { text: string }) {
                 </span>
               ))}
               {']'}
-            </span>
+            </sup>
           )
         }
         const rangeMatch = part.match(/^\[(\d+)(?:[-–]\d+)*\]$/)
         if (rangeMatch) {
           return (
-            <a key={i} href={`#ref-${rangeMatch[1]}`}>
-              {part}
-            </a>
+            <sup key={i}>
+              <a href={`#ref-${rangeMatch[1]}`}>{part}</a>
+            </sup>
           )
         }
         return part
@@ -56,8 +75,6 @@ function RefText({ text }: { text: string }) {
     </>
   )
 }
-
-
 
 export default function ScienceAndMethodsPage() {
   const { t } = useTranslation()
@@ -129,7 +146,9 @@ export default function ScienceAndMethodsPage() {
         </section>
 
         <section id={SECTION_IDS.landUse} className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.landUse])}</h2>
+          <h2 className={styles['science-page__section-heading']}>
+            {t(sectionLabel[SECTION_IDS.landUse])}
+          </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.land_use.para1')} />
@@ -159,11 +178,15 @@ export default function ScienceAndMethodsPage() {
               <li key={country}>{country}</li>
             ))}
           </ul>
-          <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
+          <p className={styles['science-page__note']}>
+            {t('science_and_methods_page.further_details')}
+          </p>
         </section>
 
         <section id={SECTION_IDS.sedimentLoad} className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.sedimentLoad])}</h2>
+          <h2 className={styles['science-page__section-heading']}>
+            {t(sectionLabel[SECTION_IDS.sedimentLoad])}
+          </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.sediment_load.para1')} />
@@ -180,7 +203,7 @@ export default function ScienceAndMethodsPage() {
                     aria-label="InVEST® toolkit (opens in a new tab)"
                   />
                 ),
-                ref4: <a href="#ref-4" aria-label="Jump to reference 4" />,
+                ref4: <RefLink href="#ref-4" aria-label="Jump to reference 4" />,
               }}
             />
           </p>
@@ -199,7 +222,9 @@ export default function ScienceAndMethodsPage() {
             <thead>
               <tr>
                 <th>{t('science_and_methods_page.sediment_load.table1_header_data')}</th>
-                <th>{t('science_and_methods_page.sediment_load.table1_header_parameterisation')}</th>
+                <th>
+                  {t('science_and_methods_page.sediment_load.table1_header_parameterisation')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -249,7 +274,9 @@ export default function ScienceAndMethodsPage() {
                   <td>{row.p_factor}</td>
                   {(() => {
                     const span = getTable2NotesSpan(table2Rows, i)
-                    if (span === 0) { return null }
+                    if (span === 0) {
+                      return null
+                    }
                     return (
                       <td rowSpan={span > 1 ? span : undefined}>
                         <RefText text={row.notes ?? ''} />
@@ -260,11 +287,15 @@ export default function ScienceAndMethodsPage() {
               ))}
             </tbody>
           </table>
-          <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
+          <p className={styles['science-page__note']}>
+            {t('science_and_methods_page.further_details')}
+          </p>
         </section>
 
         <section id={SECTION_IDS.sedimentExposure} className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.sedimentExposure])}</h2>
+          <h2 className={styles['science-page__section-heading']}>
+            {t(sectionLabel[SECTION_IDS.sedimentExposure])}
+          </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.sediment_exposure.para1')}</p>
           <p>{t('science_and_methods_page.sediment_exposure.para2')}</p>
@@ -303,11 +334,15 @@ export default function ScienceAndMethodsPage() {
               })}
             </tbody>
           </table>
-          <p className={styles['science-page__note']}>{t('science_and_methods_page.further_details')}</p>
+          <p className={styles['science-page__note']}>
+            {t('science_and_methods_page.further_details')}
+          </p>
         </section>
 
         <section id={SECTION_IDS.benthicLayers} className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.benthicLayers])}</h2>
+          <h2 className={styles['science-page__section-heading']}>
+            {t(sectionLabel[SECTION_IDS.benthicLayers])}
+          </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>
             <RefText text={t('science_and_methods_page.benthic_layers.para1')} />
@@ -344,8 +379,13 @@ export default function ScienceAndMethodsPage() {
           <p>{t('science_and_methods_page.ecosystem_extent.para1')}</p>
         </section>
 
-        <section id={SECTION_IDS.contributingWatersheds} className={styles['science-page__section']}>
-          <h2 className={styles['science-page__section-heading']}>{t(sectionLabel[SECTION_IDS.contributingWatersheds])}</h2>
+        <section
+          id={SECTION_IDS.contributingWatersheds}
+          className={styles['science-page__section']}
+        >
+          <h2 className={styles['science-page__section-heading']}>
+            {t(sectionLabel[SECTION_IDS.contributingWatersheds])}
+          </h2>
           <hr className={styles['science-page__section-divider']} />
           <p>{t('science_and_methods_page.contributing_watersheds.para1')}</p>
         </section>
