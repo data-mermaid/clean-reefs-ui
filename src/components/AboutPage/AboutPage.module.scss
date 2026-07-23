@@ -1,6 +1,6 @@
 @use '../../styles/theme';
 
-$desktop-sidebar-width: 200px;
+$desktop-sidebar-width: clamp(200px, 25%, 300px);
 $mobile-sidebar-expanded-width: 240px;
 $sidebar-item-height: 35px;
 $section-nav-indent: 30px;
