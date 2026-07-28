@@ -8,9 +8,7 @@ on:
 #      - 'v[0-9]+.[0-9]+.[0-9]+' # eg: v1.1.1
 
 permissions:
-  actions: write
   contents: read
-  id-token: write
 
 env:
   VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
@@ -20,9 +18,16 @@ jobs:
   deps-cache:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411  # v2.19.4
+        with:
+          egress-policy: audit
 
-      - uses: actions/cache@v5.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
         id: yarn-cache
         with:
           path: node_modules
@@ -38,13 +43,20 @@ jobs:
     needs: [deps-cache]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
-      - uses: actions/setup-node@v4.2.0
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411  # v2.19.4
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: '.nvmrc'
 
       - name: Fetch yarn cache
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
         id: yarn-cache
         with:
           path: node_modules
@@ -60,10 +72,17 @@ jobs:
     needs: [call-lint]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411  # v2.19.4
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Fetch yarn cache
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
         id: yarn-cache
         with:
           path: node_modules
@@ -75,7 +94,7 @@ jobs:
         run: yarn build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build-artifact
           path: build
@@ -84,19 +103,25 @@ jobs:
     needs: [call-cdk]
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411  # v2.19.4
+        with:
+          egress-policy: audit
+
       - name: 'Checkout'
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build-artifact
           path: build
 
       - name: Deploy via SFTP
-        uses: milanmk/actions-file-deployer@master
+        uses: milanmk/actions-file-deployer@b204fec5b826c391b116c40b789df470a4fb6870 # v1.18
         with:
           remote-protocol: 'sftp'
           remote-host: ${{ secrets.SFTP_HOST }}
