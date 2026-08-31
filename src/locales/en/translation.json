@@ -85,10 +85,10 @@
     "sections": {
       "contact_us": "Contact Us"
     },
-    "para1": "Global Pollution Watch (GPW) is an open-source pollution mapping and risk assessment tool which can support managers, scientists, and citizen scientists to identify and address land-based pollution risks impacting tropical coastal environments.",
-    "para2": "In over 100 countries with watersheds draining into tropical waters, the tool quantifies and maps pollution loads generated on land as well as pollution exposure in downstream coastal environments across 20 years (2000-2020). Pollution loads and exposures are based on the results of spatially explicit models developed from globally available datasets.",
-    "para3": "Under the beta version of Global Pollution Watch, users can explore the generation and impact of sediment pollution from land use change and deforestation. Sediment pollution data is available for watersheds > 500 hectares that drain into tropical waters, and is modelled using linked land-sea models. On land, sediment load is modelled using the sediment delivery ratio model within the Natural Capital Project's <invest>InVEST®</invest> toolkit, and in the sea, sediment exposure in coastal waters is modelled using a newly developed marine pollution transport model, CoaSTED. See Science & Methods for further details.",
-    "para4": "Global Pollution Watch is developed by the <em>Wildlife Conservation Society</em>, <em>Fluvio</em>, <em>Sparkgeo – Applied Geospatial</em>, and <em>The University of Queensland</em>; powered by MERMAID; and funded by <em>G20 CORDAP (Coral Research & Development Accelerator Platform)</em>.",
+    "para1": "Global Pollution Watch (GPW) is an open-source ocean observing technology that transforms environmental observations into decision intelligence by enabling users to identify and track how water pollution from land-based sources moves through rivers and coastal waters to marine ecosystems. It can support managers, scientists, and citizen scientists to identify and address land-based pollution risks impacting tropical and sub-tropical coastal environments including coral reefs and seagrass.",
+    "para2": "The tool quantifies and maps pollution loads generated on land from over 100 countries, as well as pollution exposure in downstream coastal environments across 20 years (2000-2020). Pollution loads and exposures are based on the results of spatially explicit models developed from globally available datasets. See <science>Science and Methods</science> for further details.",
+    "para3": "Under the beta version of Global Pollution Watch, users can explore sediment pollution from land use change and deforestation. We are currently hosting a subset of the data while we capture feedback on the beta version, but when the tool is officially launched in December 2026, it will include data for all the watersheds displayed, as well as data on nutrient pollution from erosion, agriculture, and domestic wastewater.",
+    "para4": "Global Pollution Watch is developed and led by the <wcs><em>Wildlife Conservation Society</em></wcs>, <fluvio><em>Fluvio</em></fluvio>, <sparkgeo><em>Sparkgeo – Applied Geospatial</em></sparkgeo>, and <uq><em>The University of Queensland</em></uq>, funded by <cordap><em>G20 CORDAP (Coral Research & Development Accelerator Platform)</em></cordap>, and powered by <mermaid>MERMAID</mermaid>.",
     "contact_para": "We would love your feedback, please contact us at <email>info@globalpollutionwatch.org</email>."
   },
   "coral_reef": "Coral reef",
@@ -172,6 +172,7 @@
   "science_and_methods": "Science and Methods",
   "science_and_methods_page": {
     "subtitle": "How GPW data is collected and processed",
+    "title_beta": "(beta)",
     "further_details": "Further methodological details to be provided in subsequent GPW updates.",
     "sections": {
       "overview": "Overview",
@@ -186,7 +187,7 @@
       "references": "References"
     },
     "note_to_users": {
-      "para1": "The models underpinning GPW are currently undergoing calibration and refinement. The release of the Beta version is intended to capture feedback on tool features and functionality, but the currently displayed results may change as the model outputs are refined."
+      "para1": "The models underpinning GPW are currently undergoing calibration and refinement. The release of the Beta version is intended to capture feedback on tool features and functionality, but the currently displayed results may change as the model outputs are refined. We are currently only hosting a subset of the data while we capture feedback, but when the tool is officially launched in December 2026, it will include data for all the watersheds displayed, as well as data on nutrient pollution from erosion, agriculture, and domestic wastewater."
     },
     "land_use": {
       "para1": "Land cover and land use maps were developed for the years 2000, 2005, 2010, 2015, and 2020 from the GLAD global land cover and land use change dataset [1]. The original GLAD dataset contains 109 land use subclasses which were reclassified into six classes for visualisation:",

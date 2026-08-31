@@ -134,7 +134,12 @@ export default function ScienceAndMethodsPage() {
       </ClickAwayListener>
 
       <main className={styles['science-page__content']}>
-        <h1 className={styles['science-page__title']}>{t('science_and_methods')}</h1>
+        <h1 className={styles['science-page__title']}>
+          {t('science_and_methods')}{' '}
+          <em className={styles['science-page__title-beta']}>
+            {t('science_and_methods_page.title_beta')}
+          </em>
+        </h1>
         <p className={styles['science-page__subtitle']}>{t('science_and_methods_page.subtitle')}</p>
 
         <section id={SECTION_IDS.noteToUsers} className={styles['science-page__section']}>

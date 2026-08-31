@@ -95,7 +95,12 @@ export const mapFitBoundsMobileConfig = {
 }
 
 /******EXTERNAL LINKS******/
-export const INVEST_URL = 'https://naturalcapitalalliance.stanford.edu/software/invest'
+export const WCS_URL = 'https://www.wcs.org/'
+export const FLUVIO_URL = 'https://fluvio.com.au/'
+export const SPARKGEO_URL = 'https://sparkgeo.com/'
+export const UQ_URL = 'https://uq.edu.au/'
+export const CORDAP_URL = 'https://cordap.org/'
+export const MERMAID_URL = 'https://datamermaid.org/'
 
 /******PAGE LAYOUT******/
 // $headerHeight (36px) + breathing room (16px)
