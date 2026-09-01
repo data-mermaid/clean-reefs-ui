@@ -13,6 +13,7 @@ permissions:
   id-token: write
 
 env:
+  VITE_ENVIRONMENT: production
   VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
   VITE_CORAL_ATLAS_APP_ID: ${{ secrets.VITE_CORAL_ATLAS_APP_ID }}
 
