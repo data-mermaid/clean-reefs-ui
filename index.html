@@ -22,6 +22,18 @@
       }
     </script>
     <!-- End Google Tag Manager -->
+    <!-- Nano Track -->
+    <script type="module">
+      const env = import.meta.env.VITE_ENVIRONMENT || 'local'
+      if (env === 'production') {
+        const s = document.createElement('script')
+        s.defer = true
+        s.src = 'https://nano-track.sparkgeo.io/tracker.js'
+        s.setAttribute('data-site', '59f3e070194660f2')
+        document.head.appendChild(s)
+      }
+    </script>
+    <!-- End Nano Track -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GPW - Global Pollution Watch</title>
