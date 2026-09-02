@@ -166,6 +166,11 @@ h1.science-page__title {
   margin: 0 0 theme.$spacingSmall;
 }
 
+.science-page__title-beta {
+  font-weight: theme.$regular;
+  color: theme.$textSecondary;
+}
+
 .science-page__subtitle {
   font-size: theme.$textSizeMedium;
   color: theme.$textSecondary;
@@ -239,7 +244,6 @@ h2.science-page__section-heading {
     margin-bottom: 4px;
   }
 }
-
 
 .science-page__note {
   font-style: italic;
