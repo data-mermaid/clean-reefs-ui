@@ -133,3 +133,18 @@ export const PCT_FIELD_PREFIXES = [
   'M_Forest_pct_',
   'Shrub_Grass_pct_',
 ] as const
+
+/******ANALYTICS******/
+/**
+ * Titles sent to Google Analytics as `page_title`, keyed by route path.
+ *
+ * GA4's default "Pages and screens" report groups by page title, and the app
+ * serves one static <title> for every route, so without this map all three
+ * routes collapse into a single row. Keep in sync with the <Route> list in
+ * main.tsx. Unmapped paths fall back to the raw pathname.
+ */
+export const ANALYTICS_PAGE_TITLES: Record<string, string> = {
+  '/': 'Map',
+  '/science-and-methods': 'Science and Methods',
+  '/about': 'About',
+}
