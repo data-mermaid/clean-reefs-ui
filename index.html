@@ -15,7 +15,8 @@
           window.dataLayer.push(arguments)
         }
         window.gtag('js', new Date())
-        window.gtag('config', 'G-1SRHVJMF00')
+        // Page views come from src/components/PageTracker/PageTracker.tsx
+        window.gtag('config', 'G-1SRHVJMF00', { send_page_view: false })
       }
     </script>
     <!-- End Google tag -->
