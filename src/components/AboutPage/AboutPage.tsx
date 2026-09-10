@@ -4,7 +4,7 @@ import { Button, ClickAwayListener, IconButton } from '@mui/material'
 import MapIcon from '@mui/icons-material/Map'
 import TocIcon from '@mui/icons-material/Toc'
 
-import { INVEST_URL } from '../../constants'
+import { CORDAP_URL, FLUVIO_URL, MERMAID_URL, SPARKGEO_URL, UQ_URL, WCS_URL } from '../../constants'
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 import styles from './AboutPage.module.scss'
 
@@ -66,18 +66,28 @@ export default function AboutPage() {
           <h2 className={styles['about-page__section-heading']}>{t('about')}</h2>
           <hr className={styles['about-page__section-divider']} />
           <p>{t('about_page.para1')}</p>
-          <p>{t('about_page.para2')}</p>
           <p>
             <Trans
-              i18nKey="about_page.para3"
-              components={{
-                // eslint-disable-next-line jsx-a11y/anchor-has-content
-                invest: <a href={INVEST_URL} target="_blank" rel="noopener noreferrer" />,
-              }}
+              i18nKey="about_page.para2"
+              components={{ science: <InternalLink to="/science-and-methods" /> }}
             />
           </p>
+          <p>{t('about_page.para3')}</p>
           <p>
-            <Trans i18nKey="about_page.para4" components={{ em: <em /> }} />
+            <Trans
+              i18nKey="about_page.para4"
+              components={{
+                em: <em />,
+                /* eslint-disable jsx-a11y/anchor-has-content */
+                wcs: <a href={WCS_URL} target="_blank" rel="noopener noreferrer" />,
+                fluvio: <a href={FLUVIO_URL} target="_blank" rel="noopener noreferrer" />,
+                sparkgeo: <a href={SPARKGEO_URL} target="_blank" rel="noopener noreferrer" />,
+                uq: <a href={UQ_URL} target="_blank" rel="noopener noreferrer" />,
+                cordap: <a href={CORDAP_URL} target="_blank" rel="noopener noreferrer" />,
+                mermaid: <a href={MERMAID_URL} target="_blank" rel="noopener noreferrer" />,
+                /* eslint-enable jsx-a11y/anchor-has-content */
+              }}
+            />
           </p>
         </section>
 

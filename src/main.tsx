@@ -8,6 +8,7 @@ import { StyledEngineProvider } from '@mui/material'
 import '../i18n'
 import MapContainer from './components/MapContainer/MapContainer'
 import NavigationHeader from './components/NavigationHeader/NavigationHeader'
+import PageTracker from './components/PageTracker/PageTracker'
 import ScienceAndMethodsPage from './components/ScienceAndMethodsPage/ScienceAndMethodsPage'
 import AboutPage from './components/AboutPage/AboutPage'
 import '@fontsource/titillium-web/300.css'
@@ -25,6 +26,7 @@ if (import.meta.env.DEV) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+      <PageTracker />
       <StyledEngineProvider injectFirst>
         <NavigationHeader />
         <Routes>

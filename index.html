@@ -1,27 +1,37 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
     <script type="module">
-      window.dataLayer = window.dataLayer || []
       const env = import.meta.env.VITE_ENVIRONMENT || 'local'
       if (env === 'production') {
-        ;(function (w, d, s, l, i) {
-          w[l] = w[l] || []
-          w[l].push({
-            'gtm.start': new Date().getTime(),
-            event: 'gtm.js',
-          })
-          var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s),
-            dl = l != 'dataLayer' ? '&l=' + l : ''
-          j.async = true
-          j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl
-          f.parentNode.insertBefore(j, f)
-        })(window, document, 'script', 'dataLayer', 'G-1SRHVJMF00')
+        const s = document.createElement('script')
+        s.async = true
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1SRHVJMF00'
+        document.head.appendChild(s)
+
+        window.dataLayer = window.dataLayer || []
+        window.gtag = function () {
+          window.dataLayer.push(arguments)
+        }
+        window.gtag('js', new Date())
+        // Page views come from src/components/PageTracker/PageTracker.tsx
+        window.gtag('config', 'G-1SRHVJMF00', { send_page_view: false })
       }
     </script>
-    <!-- End Google Tag Manager -->
+    <!-- End Google tag -->
+    <!-- Nano Track -->
+    <script type="module">
+      const env = import.meta.env.VITE_ENVIRONMENT || 'local'
+      if (env === 'production') {
+        const s = document.createElement('script')
+        s.defer = true
+        s.src = 'https://nano-track.sparkgeo.io/tracker.js'
+        s.setAttribute('data-site', '59f3e070194660f2')
+        document.head.appendChild(s)
+      }
+    </script>
+    <!-- End Nano Track -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GPW - Global Pollution Watch</title>
