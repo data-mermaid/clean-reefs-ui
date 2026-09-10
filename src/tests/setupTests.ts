@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom'
+import { TextDecoder, TextEncoder } from 'node:util'
+
+// jsdom ships neither, and react-router reads both when it is imported
+Object.assign(globalThis, { TextEncoder, TextDecoder })
 
 process.env.VITE_CORAL_ATLAS_APP_ID =
   process.env.VITE_CORAL_ATLAS_APP_ID ?? 'test-coral-atlas-app-id'
