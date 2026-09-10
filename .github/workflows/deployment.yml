@@ -10,10 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
-  VITE_CORAL_ATLAS_APP_ID: ${{ secrets.VITE_CORAL_ATLAS_APP_ID }}
-
 jobs:
   deps-cache:
     runs-on: ubuntu-latest
@@ -27,7 +23,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: yarn-cache
         with:
           path: node_modules
@@ -56,7 +52,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Fetch yarn cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: yarn-cache
         with:
           path: node_modules
@@ -82,7 +78,7 @@ jobs:
           persist-credentials: false
 
       - name: Fetch yarn cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.0.1
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: yarn-cache
         with:
           path: node_modules
@@ -92,12 +88,16 @@ jobs:
 
       - name: Yarn Build
         run: yarn build
+        env:
+          VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
+          VITE_CORAL_ATLAS_APP_ID: ${{ secrets.VITE_CORAL_ATLAS_APP_ID }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build-artifact
           path: build
+          include-hidden-files: true
 
   deploy:
     needs: [call-cdk]
@@ -111,7 +111,6 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Download build artifacts
@@ -121,7 +120,7 @@ jobs:
           path: build
 
       - name: Deploy via SFTP
-        uses: milanmk/actions-file-deployer@b204fec5b826c391b116c40b789df470a4fb6870 # v1.18
+        uses: milanmk/actions-file-deployer@b204fec5b826c391b116c40b789df470a4fb6870 # 1.18
         with:
           remote-protocol: 'sftp'
           remote-host: ${{ secrets.SFTP_HOST }}
