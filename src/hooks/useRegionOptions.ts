@@ -27,7 +27,8 @@ function deduplicateCountries(
       bySlug.set(c.id, c)
       continue
     }
-    const existingInWatershed = existing.bandId !== undefined && countryRegionMap[existing.bandId] !== undefined
+    const existingInWatershed =
+      existing.bandId !== undefined && countryRegionMap[existing.bandId] !== undefined
     const currentInWatershed = c.bandId !== undefined && countryRegionMap[c.bandId] !== undefined
     if (!existingInWatershed && currentInWatershed) {
       bySlug.set(c.id, c)
@@ -63,11 +64,13 @@ const useRegionOptions = (): RegionOptionsResult => {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([
-      fetchAllBoundaryFeatures('region'),
-      fetchAllBoundaryFeatures('country', false),
-      fetchCountryRegionMap(),
-    ]).then(([regions, countries, countryRegionMap]) => {
+    const load = async () => {
+      const [regions, countries] = await Promise.all([
+        fetchAllBoundaryFeatures('region'),
+        fetchAllBoundaryFeatures('country', false),
+      ])
+      // Needs the country list to probe countries missing from the overview tiles.
+      const countryRegionMap = await fetchCountryRegionMap(countries)
       if (cancelled) {
         return
       }
@@ -84,7 +87,8 @@ const useRegionOptions = (): RegionOptionsResult => {
         ...watershedAndDispersalRegions,
       ])
       setLoading(false)
-    })
+    }
+    load()
 
     return () => {
       cancelled = true
