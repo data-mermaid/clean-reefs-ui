@@ -23,6 +23,12 @@ function getPMTiles(url: string): PMTiles {
   return instance
 }
 
+type Tile = [z: number, x: number, y: number]
+
+// Small-island watersheds are dropped from overview tiles and only exist from the detail zoom up.
+const WATERSHED_OVERVIEW_ZOOM = 2
+const WATERSHED_DETAIL_ZOOM = 6
+
 function slugify(label: string): string {
   return label
     .toLowerCase()
@@ -150,11 +156,11 @@ export async function fetchWatershedSedLoadValues(
     const field = `total_sed_load_${year}`
     const seen = new Set<number>()
     const values: number[] = []
-    // With an extent, fetch z=6 tiles so small island countries are covered.
+    // With an extent, fetch detail-zoom tiles so small island countries are covered.
     // Without an extent (global scope), fall back to z=0.
     const tilesToFetch = extent
-      ? bboxToTiles(extent, 6)
-      : ([[0, 0, 0]] as [number, number, number][])
+      ? bboxToTiles(extent, WATERSHED_DETAIL_ZOOM)
+      : ([[0, 0, 0]] as Tile[])
     await Promise.all(
       tilesToFetch.map(([z, x, y]) =>
         getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data', z, x, y })
@@ -197,10 +203,7 @@ export async function fetchWatershedSedLoadValues(
 // longitudes > 180 (antimeridian crossing) wrap correctly. toY uses the Web Mercator projection
 // formula from the OSM wiki. When the bbox crosses the antimeridian, x1 < x0, so two x-ranges
 // are produced: [x0 → n-1] and [0 → x1].
-function bboxToTiles(
-  extent: [number, number, number, number],
-  z: number,
-): [number, number, number][] {
+function bboxToTiles(extent: [number, number, number, number], z: number): Tile[] {
   const n = Math.pow(2, z)
   const toX = (lon: number) =>
     Math.min(n - 1, Math.floor((((((lon + 180) % 360) + 360) % 360) / 360) * n))
@@ -224,7 +227,7 @@ function bboxToTiles(
           [0, x1],
         ]
       : [[x0, x1]]
-  const tiles: [number, number, number][] = []
+  const tiles: Tile[] = []
   for (const [xa, xb] of xRanges) {
     for (let x = xa; x <= xb; x++) {
       for (let y = y0; y <= y1; y++) {
@@ -243,9 +246,9 @@ export async function fetchWatershedIdsForRegion(
   try {
     const seen = new Set<number>()
 
-    // With an extent, fetch z=6 tiles in parallel — gives a complete feature set (~4–20 tiles per country).
+    // With an extent, fetch detail-zoom tiles in parallel — gives a complete feature set (~4–20 tiles per country).
     // Without an extent, fall back to the z=0 overview tile.
-    const tilesToFetch = extent ? bboxToTiles(extent, 6) : [[0, 0, 0] as [number, number, number]]
+    const tilesToFetch = extent ? bboxToTiles(extent, WATERSHED_DETAIL_ZOOM) : [[0, 0, 0] as Tile]
     await Promise.all(
       tilesToFetch.map(([z, x, y]) =>
         getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data', z, x, y })
@@ -332,66 +335,68 @@ export async function fetchGlobalBoundaryProperties(): Promise<Record<string, un
   }
 }
 
-// Returns COUNTRY_ID → [REALM_ID] mapping using numeric IDs from the watershed PMTiles.
-// Reads all 16 z=2 tiles in parallel — small island/coastal countries (e.g. New Caledonia)
-// have watersheds too small to appear in the z=0 global tile but are present at z=2.
-export async function fetchCountryRegionMap(): Promise<Record<number, number[]>> {
-  try {
-    const tileCoords: [number, number][] = []
-    for (let x = 0; x < 4; x++) {
-      for (let y = 0; y < 4; y++) {
-        tileCoords.push([x, y])
-      }
-    }
-
-    const settled = await Promise.allSettled(
-      tileCoords.map(async ([x, y]) => {
-        const fragment: Record<number, number[]> = {}
-        const layer = await getParsedLayer({
-          url: WATERSHED_PMTILES_URL,
-          sourceLayer: 'data',
-          z: 2,
-          x,
-          y,
+// Collects COUNTRY_ID → REALM_ID pairs from the given tiles, optionally restricted to
+// `onlyCountryIds`. Tiles are fetched in parallel; one that fails to fetch or decode is skipped.
+async function collectCountryRealmsFromTiles(
+  tiles: Tile[],
+  map: Record<number, number[]>,
+  onlyCountryIds?: Set<number>,
+): Promise<void> {
+  await Promise.all(
+    tiles.map(([z, x, y]) =>
+      getParsedLayer({ url: WATERSHED_PMTILES_URL, sourceLayer: 'data', z, x, y })
+        .then((layer) => {
+          if (!layer) {
+            return
+          }
+          for (let i = 0; i < layer.length; i++) {
+            const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
+            if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
+              continue
+            }
+            if (onlyCountryIds && !onlyCountryIds.has(COUNTRY_ID)) {
+              continue
+            }
+            const realmIds = (map[COUNTRY_ID] ??= [])
+            if (!realmIds.includes(REALM_ID)) {
+              realmIds.push(REALM_ID)
+            }
+          }
         })
-        if (!layer) {
-          return fragment
-        }
-        for (let i = 0; i < layer.length; i++) {
-          const { COUNTRY_ID, REALM_ID } = layer.feature(i).properties
-          if (typeof COUNTRY_ID !== 'number' || typeof REALM_ID !== 'number') {
-            continue
-          }
-          if (!fragment[COUNTRY_ID]) {
-            fragment[COUNTRY_ID] = []
-          }
-          if (!fragment[COUNTRY_ID].includes(REALM_ID)) {
-            fragment[COUNTRY_ID].push(REALM_ID)
-          }
-        }
-        return fragment
-      }),
-    )
+        .catch(() => {}),
+    ),
+  )
+}
 
-    const map: Record<number, number[]> = {}
-    for (const result of settled) {
-      if (result.status !== 'fulfilled') {
-        continue
-      }
-      for (const [countryId, realmIds] of Object.entries(result.value)) {
-        const id = Number(countryId)
-        if (!map[id]) {
-          map[id] = []
-        }
-        for (const realmId of realmIds) {
-          if (!map[id].includes(realmId)) {
-            map[id].push(realmId)
-          }
-        }
-      }
+function uniqueTiles(tiles: Tile[]): Tile[] {
+  return [...new Map(tiles.map((tile) => [tile.join('/'), tile])).values()]
+}
+
+/**
+ * Returns COUNTRY_ID → [REALM_ID] from the watershed PMTiles.
+ * Pass 1 scans the overview tiles. Pass 2 probes detail tiles over the extent of each country
+ * still unmapped, attributing realms only to those countries.
+ */
+export async function fetchCountryRegionMap(
+  countries: RegionOption[],
+): Promise<Record<number, number[]>> {
+  const map: Record<number, number[]> = {}
+
+  const n = 2 ** WATERSHED_OVERVIEW_ZOOM
+  const overviewTiles: Tile[] = []
+  for (let x = 0; x < n; x++) {
+    for (let y = 0; y < n; y++) {
+      overviewTiles.push([WATERSHED_OVERVIEW_ZOOM, x, y])
     }
-    return map
-  } catch {
-    return {}
   }
+  await collectCountryRealmsFromTiles(overviewTiles, map)
+
+  const unmapped = countries.filter((c) => c.bandId !== undefined && map[c.bandId] === undefined)
+  const unmappedIds = new Set(unmapped.map((c) => c.bandId as number))
+  const detailTiles = uniqueTiles(
+    unmapped.flatMap((c) => (c.extent ? bboxToTiles(c.extent, WATERSHED_DETAIL_ZOOM) : [])),
+  )
+  await collectCountryRealmsFromTiles(detailTiles, map, unmappedIds)
+
+  return map
 }
