@@ -25,6 +25,7 @@ jest.mock('pbf', () => jest.fn((bytes: Uint8Array) => ({ bytes })))
 jest.mock('../data/countryExtents', () => ({
   COUNTRY_EXTENTS: {
     Fiji: [174.5889, -21.7111, 181.7839, -12.4753],
+    'Saint Martin': [296.8532, 18.0334, 296.9893, 18.1221],
   },
 }))
 
@@ -76,6 +77,25 @@ describe('fetchAllBoundaryFeatures', () => {
     const results = await fetchAllBoundaryFeatures('country')
 
     expect(results[0].extent).toEqual([174.5889, -21.7111, 181.7839, -12.4753])
+  })
+
+  it('resolves extent through a TERRITORY1 alias when the name differs from Natural Earth', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([
+        {
+          properties: {
+            COUNTRY_ID: 230,
+            TERRITORY1: 'Collectivity of Saint Martin',
+            total_sed_load_2020: 1,
+          },
+        },
+      ]),
+    )
+
+    const results = await fetchAllBoundaryFeatures('country')
+
+    expect(results[0].extent).toEqual([296.8532, 18.0334, 296.9893, 18.1221])
   })
 
   it('omits extent when label is not in static map', async () => {

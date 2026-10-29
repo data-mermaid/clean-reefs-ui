@@ -9,7 +9,7 @@ import {
   PCT_FIELD_PREFIXES,
 } from '../constants'
 import { RegionOption, RegionType } from '../types/RegionDataTypes'
-import { COUNTRY_EXTENTS } from '../data/countryExtents'
+import { COUNTRY_EXTENTS_BY_TERRITORY } from '../data/countryExtentOverrides'
 import { REGION_EXTENTS } from '../data/regionExtents'
 
 const pmtilesCache = new Map<string, PMTiles>()
@@ -105,7 +105,7 @@ export async function fetchAllBoundaryFeatures(
 
   const labelProp = regionType === 'country' ? 'TERRITORY1' : 'REALM'
   const idProp = config.filterProp
-  const extents = regionType === 'country' ? COUNTRY_EXTENTS : REGION_EXTENTS
+  const extents = regionType === 'country' ? COUNTRY_EXTENTS_BY_TERRITORY : REGION_EXTENTS
 
   try {
     const layer = await getParsedLayer(config)
