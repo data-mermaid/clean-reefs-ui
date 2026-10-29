@@ -380,11 +380,20 @@ describe('fetchCountryRegionMap', () => {
 
   it('fetches a shared detail tile once when several unmapped countries cover it', async () => {
     const sintMaarten = { ...barbados, id: 'sint-maarten', label: 'Sint Maarten', bandId: 88 }
-    mockTiles((z) => (z === 2 ? [] : [barbadosDetail]))
+    mockTiles((z) => (z === 2 ? [fijiOverview] : [barbadosDetail]))
 
-    await fetchCountryRegionMap([barbados, sintMaarten])
+    await fetchCountryRegionMap([fiji, barbados, sintMaarten])
 
     expect(detailCallsOf(mockGetZxy.mock.calls)).toEqual([[6, 21, 29]])
+  })
+
+  it('skips the detail pass when the overview tiles map nothing', async () => {
+    mockTiles(() => [])
+
+    const result = await fetchCountryRegionMap([fiji, barbados])
+
+    expect(result).toEqual({})
+    expect(mockGetZxy).toHaveBeenCalledTimes(16)
   })
 
   it('merges country→realm entries across all 16 z=2 tiles', async () => {

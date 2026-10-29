@@ -390,6 +390,10 @@ export async function fetchCountryRegionMap(
     }
   }
   await collectCountryRealmsFromTiles(overviewTiles, map)
+  // An empty overview means the archive is unreachable, not that every country is a small island.
+  if (Object.keys(map).length === 0) {
+    return map
+  }
 
   const unmapped = countries.filter((c) => c.bandId !== undefined && map[c.bandId] === undefined)
   const unmappedIds = new Set(unmapped.map((c) => c.bandId as number))
