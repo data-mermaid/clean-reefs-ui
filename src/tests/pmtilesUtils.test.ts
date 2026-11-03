@@ -19,11 +19,13 @@ jest.mock('@mapbox/vector-tile', () => ({
   VectorTile: jest.fn(),
 }))
 
-jest.mock('pbf', () => jest.fn())
+// Pass tile bytes through so VectorTile mocks can tell tiles apart.
+jest.mock('pbf', () => jest.fn((bytes: Uint8Array) => ({ bytes })))
 
 jest.mock('../data/countryExtents', () => ({
   COUNTRY_EXTENTS: {
     Fiji: [174.5889, -21.7111, 181.7839, -12.4753],
+    'Saint Martin': [296.8532, 18.0334, 296.9893, 18.1221],
   },
 }))
 
@@ -75,6 +77,25 @@ describe('fetchAllBoundaryFeatures', () => {
     const results = await fetchAllBoundaryFeatures('country')
 
     expect(results[0].extent).toEqual([174.5889, -21.7111, 181.7839, -12.4753])
+  })
+
+  it('resolves extent through a TERRITORY1 alias when the name differs from Natural Earth', async () => {
+    mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
+    ;(VectorTile as jest.Mock).mockImplementation(() =>
+      makeTile([
+        {
+          properties: {
+            COUNTRY_ID: 230,
+            TERRITORY1: 'Collectivity of Saint Martin',
+            total_sed_load_2020: 1,
+          },
+        },
+      ]),
+    )
+
+    const results = await fetchAllBoundaryFeatures('country')
+
+    expect(results[0].extent).toEqual([296.8532, 18.0334, 296.9893, 18.1221])
   })
 
   it('omits extent when label is not in static map', async () => {
@@ -298,6 +319,83 @@ describe('fetchGlobalBoundaryProperties', () => {
 describe('fetchCountryRegionMap', () => {
   afterEach(() => jest.clearAllMocks())
 
+  // Serves features per tile: getZxy encodes [z, x, y] as tile bytes, VectorTile decodes them.
+  const mockTiles = (
+    featuresFor: (z: number, x: number, y: number) => { properties: Record<string, unknown> }[],
+  ) => {
+    mockGetZxy.mockImplementation((z: number, x: number, y: number) =>
+      Promise.resolve({ data: Uint8Array.of(z, x, y).buffer }),
+    )
+    ;(VectorTile as jest.Mock).mockImplementation(({ bytes }: { bytes: Uint8Array }) =>
+      makeTile(featuresFor(bytes[0], bytes[1], bytes[2])),
+    )
+  }
+
+  const fiji = {
+    id: 'fiji',
+    regionType: 'country' as const,
+    label: 'Fiji',
+    bandId: 54,
+    extent: [174.5889, -21.7111, 181.7839, -12.4753] as [number, number, number, number],
+  }
+  // Barbados sits inside a single z=6 tile: x=21, y=29.
+  const barbados = {
+    id: 'barbados',
+    regionType: 'country' as const,
+    label: 'Barbados',
+    bandId: 113,
+    extent: [300.3458, 13.0512, 300.5731, 13.3445] as [number, number, number, number],
+  }
+  const fijiOverview = { properties: { COUNTRY_ID: 54, REALM_ID: 2 } }
+  const barbadosDetail = { properties: { COUNTRY_ID: 113, REALM_ID: 10 } }
+  const detailCallsOf = (calls: unknown[][]) => calls.filter(([z]) => z === 6)
+
+  it('probes detail tiles over the extent of a country missing from the overview tiles', async () => {
+    mockTiles((z) => (z === 2 ? [fijiOverview] : [barbadosDetail]))
+
+    const result = await fetchCountryRegionMap([fiji, barbados])
+
+    expect(result[54]).toEqual([2])
+    expect(result[113]).toEqual([10])
+    expect(detailCallsOf(mockGetZxy.mock.calls)).toEqual([[6, 21, 29]])
+  })
+
+  it('does not fetch detail tiles when every country is mapped by the overview tiles', async () => {
+    mockTiles(() => [fijiOverview])
+
+    await fetchCountryRegionMap([fiji])
+
+    expect(mockGetZxy).toHaveBeenCalledTimes(16)
+  })
+
+  it('only attributes detail-tile realms to countries missing from the overview tiles', async () => {
+    const fijiDetail = { properties: { COUNTRY_ID: 54, REALM_ID: 5 } }
+    mockTiles((z) => (z === 2 ? [fijiOverview] : [fijiDetail, barbadosDetail]))
+
+    const result = await fetchCountryRegionMap([fiji, barbados])
+
+    expect(result[54]).toEqual([2])
+    expect(result[113]).toEqual([10])
+  })
+
+  it('fetches a shared detail tile once when several unmapped countries cover it', async () => {
+    const sintMaarten = { ...barbados, id: 'sint-maarten', label: 'Sint Maarten', bandId: 88 }
+    mockTiles((z) => (z === 2 ? [fijiOverview] : [barbadosDetail]))
+
+    await fetchCountryRegionMap([fiji, barbados, sintMaarten])
+
+    expect(detailCallsOf(mockGetZxy.mock.calls)).toEqual([[6, 21, 29]])
+  })
+
+  it('skips the detail pass when the overview tiles map nothing', async () => {
+    mockTiles(() => [])
+
+    const result = await fetchCountryRegionMap([fiji, barbados])
+
+    expect(result).toEqual({})
+    expect(mockGetZxy).toHaveBeenCalledTimes(16)
+  })
+
   it('merges country→realm entries across all 16 z=2 tiles', async () => {
     mockGetZxy.mockResolvedValue({ data: new ArrayBuffer(0) })
     // First tile has Fiji (54→2), second tile has New Caledonia (136→2), rest are empty
@@ -313,7 +411,7 @@ describe('fetchCountryRegionMap', () => {
       return makeTile([])
     })
 
-    const result = await fetchCountryRegionMap()
+    const result = await fetchCountryRegionMap([])
 
     expect(result[54]).toEqual([2])
     expect(result[136]).toEqual([2])
@@ -332,7 +430,7 @@ describe('fetchCountryRegionMap', () => {
       makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }]),
     )
 
-    const result = await fetchCountryRegionMap()
+    const result = await fetchCountryRegionMap([])
 
     expect(result[54]).toEqual([2])
   })
@@ -350,7 +448,7 @@ describe('fetchCountryRegionMap', () => {
       makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }]),
     )
 
-    const result = await fetchCountryRegionMap()
+    const result = await fetchCountryRegionMap([])
 
     expect(result[54]).toEqual([2])
   })
@@ -358,7 +456,7 @@ describe('fetchCountryRegionMap', () => {
   it('returns empty map when all tiles return no data', async () => {
     mockGetZxy.mockResolvedValue(null)
 
-    const result = await fetchCountryRegionMap()
+    const result = await fetchCountryRegionMap([])
 
     expect(result).toEqual({})
   })
@@ -374,7 +472,7 @@ describe('fetchCountryRegionMap', () => {
       return makeTile([{ properties: { COUNTRY_ID: 54, REALM_ID: 2 } }])
     })
 
-    const result = await fetchCountryRegionMap()
+    const result = await fetchCountryRegionMap([])
 
     expect(result[54]).toEqual([2])
   })
