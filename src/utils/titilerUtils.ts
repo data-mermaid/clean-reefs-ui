@@ -2,8 +2,11 @@ import { RegionOption } from '../types/RegionDataTypes'
 import {
   TITILER_API_BASE_URL,
   TITILER_API_TIMEOUT,
-  SED_EXPOSURE_COLLECTION_ID,
+  SED_EXPOSURE_ID,
   SED_LOAD_COLLECTION_ID,
+  SED_LOAD_ID,
+  LULC_COLLECTION_ID,
+  LULC_ID,
   LULC_COLORMAP,
 } from '../constants'
 
@@ -61,12 +64,12 @@ export function buildSedExposureExpression(region: RegionOption): ExpressionConf
 
 /** Build the TiTiler item ID for the selected year. */
 export function buildSedExposureItemId(year: number): string {
-  return `${SED_EXPOSURE_COLLECTION_ID}_${year}`
+  return `${SED_EXPOSURE_ID}_${year}`
 }
 
 /** Build a MapLibre-compatible LULC tile URL template for the given year. */
 export function buildLulcTileUrlTemplate(year: number): string {
-  const basePath = `${TITILER_API_BASE_URL}/raster/collections/lulc/items/lulc_${year}/tiles/WebMercatorQuad/{z}/{x}/{y}.png`
+  const basePath = `${TITILER_API_BASE_URL}/raster/collections/${LULC_COLLECTION_ID}/items/${LULC_ID}_${year}/tiles/WebMercatorQuad/{z}/{x}/{y}.png`
   const params = new URLSearchParams({
     assets: 'Land Use and Land Cover Collection Cloud Optimized GeoTIFF',
     colormap: JSON.stringify(LULC_COLORMAP),
@@ -249,7 +252,7 @@ export async function fetchSedLoadStatistics(
   region?: RegionOption,
   signal?: AbortSignal,
 ): Promise<SedLoadStats | null> {
-  const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
+  const itemId = `${SED_LOAD_ID}_${year}`
   const { expression, assetBidx } = region
     ? buildSedLoadExpression(region)
     : { expression: null, assetBidx: 'cog|1' }
@@ -322,7 +325,7 @@ export function buildSedLoadTileUrl(
   region?: RegionOption,
   rescaleMax?: number,
 ): string {
-  const itemId = `${SED_LOAD_COLLECTION_ID}_${year}`
+  const itemId = `${SED_LOAD_ID}_${year}`
   const basePath = `${TITILER_API_BASE_URL}/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${itemId}/tiles/WebMercatorQuad/{z}/{x}/{y}`
 
   const logMax =

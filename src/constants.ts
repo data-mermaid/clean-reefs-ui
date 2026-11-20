@@ -21,7 +21,7 @@ export const WATERSHED_PMTILES_URL =
 /* Benthic Attribute Layers */
 export const ATLAS_BENTHIC_URL = `https://allencoralatlas.org/tiles/benthic/{z}/{x}/{y}?appid=${coralAtlasAppId}`
 export const REEF_EXTENT_URL =
-  'https://mermaid.prescient.earth/raster/collections/aca_extent/items/aca_extent/tiles/WebMercatorQuad/{z}/{x}/{y}.png?assets=cog&colormap={"0":[0,0,0,0],"1":[178,8,76,200]}'
+  'https://mermaid.prescient.earth/raster/collections/mrmd_aca_extent/items/aca_extent/tiles/WebMercatorQuad/{z}/{x}/{y}.png?assets=cog&colormap={"0":[0,0,0,0],"1":[178,8,76,200]}'
 
 /* Sediment Exposure Layers */
 export const SED_EXPOSURE_2000_PMTILES_URL =
@@ -70,10 +70,16 @@ export const LULC_COLORMAP: Record<string, number[]> = {
   '12': [100, 220, 220, 255],
 }
 export const TITILER_API_TIMEOUT = 10000 // 10 seconds in milliseconds
-export const SED_EXPOSURE_COLLECTION_ID = 'gpw_sediment_exposure'
+/* STAC collection ids carry the `mrmd_` prefix; item ids (`<id>_<year>`) and asset paths do not. */
+export const STAC_COLLECTION_PREFIX = 'mrmd_'
+export const SED_EXPOSURE_ID = 'gpw_sediment_exposure'
+export const SED_EXPOSURE_COLLECTION_ID = `${STAC_COLLECTION_PREFIX}${SED_EXPOSURE_ID}`
 export const SED_EXPOSURE_STATS_BASE_URL =
   'https://d2uu99zl9amnvy.cloudfront.net/assets/gpw_sediment_exposure'
-export const SED_LOAD_COLLECTION_ID = 'gpw_sediment_load'
+export const SED_LOAD_ID = 'gpw_sediment_load'
+export const SED_LOAD_COLLECTION_ID = `${STAC_COLLECTION_PREFIX}${SED_LOAD_ID}`
+export const LULC_ID = 'lulc'
+export const LULC_COLLECTION_ID = `${STAC_COLLECTION_PREFIX}${LULC_ID}`
 
 /******STAC API******/
 export const STAC_API_BASE_URL = 'https://mermaid.prescient.earth/stac'
