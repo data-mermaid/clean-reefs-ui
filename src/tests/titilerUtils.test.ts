@@ -9,8 +9,9 @@ import {
 } from '../utils/titilerUtils'
 import { RegionOption } from '../types/RegionDataTypes'
 import {
-  SED_EXPOSURE_COLLECTION_ID,
+  SED_EXPOSURE_ID,
   SED_LOAD_COLLECTION_ID,
+  SED_LOAD_ID,
   TITILER_API_BASE_URL,
 } from '../constants'
 
@@ -62,14 +63,14 @@ describe('buildSedExposureExpression', () => {
 
 describe('buildSedExposureItemId', () => {
   it.each([2000, 2005, 2010, 2015, 2020])('builds dispersal item ID for year %i', (year) => {
-    expect(buildSedExposureItemId(year)).toBe(`${SED_EXPOSURE_COLLECTION_ID}_${year}`)
+    expect(buildSedExposureItemId(year)).toBe(`${SED_EXPOSURE_ID}_${year}`)
   })
 })
 
 describe('buildSedExposureTileUrl', () => {
   const max = 260.8
   const template = buildSedExposureTileUrl(
-    'gpw_sediment_exposure',
+    'mrmd_gpw_sediment_exposure',
     'gpw_sediment_exposure_2020',
     max,
   )
@@ -82,7 +83,7 @@ describe('buildSedExposureTileUrl', () => {
 
   it('targets the correct tile path', () => {
     expect(pathPart).toContain(
-      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/{z}/{x}/{y}',
+      '/raster/collections/mrmd_gpw_sediment_exposure/items/gpw_sediment_exposure_2020/tiles/WebMercatorQuad/{z}/{x}/{y}',
     )
   })
 
@@ -112,7 +113,7 @@ describe('buildSedExposureTileUrl', () => {
       parentRegionIds: [],
     }
     const countryUrl = buildSedExposureTileUrl(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       max,
       countryRegion,
@@ -145,7 +146,7 @@ describe('buildSedExposureTileUrl', () => {
       parentRegionIds: [],
     }
     const realmUrl = buildSedExposureTileUrl(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       max,
       realmRegion,
@@ -184,7 +185,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -200,7 +201,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
       'cog|1,9',
@@ -215,7 +216,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -229,7 +230,7 @@ describe('fetchSedExposureStatistics', () => {
       json: async () => ({ cog_b1: { percentile_2: 1.234, percentile_98: 234.567 } }),
     } as Response)
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -244,7 +245,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -261,7 +262,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
       'cog|1,8',
@@ -278,7 +279,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       expression,
       'cog|1,9',
@@ -294,7 +295,7 @@ describe('fetchSedExposureStatistics', () => {
     } as Response)
 
     await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -302,7 +303,7 @@ describe('fetchSedExposureStatistics', () => {
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.origin).toBe(TITILER_API_BASE_URL)
     expect(calledUrl.pathname).toBe(
-      '/raster/collections/gpw_sediment_exposure/items/gpw_sediment_exposure_2020/statistics',
+      '/raster/collections/mrmd_gpw_sediment_exposure/items/gpw_sediment_exposure_2020/statistics',
     )
   })
 
@@ -311,7 +312,7 @@ describe('fetchSedExposureStatistics', () => {
       .spyOn(global, 'fetch')
       .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Error' } as Response)
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -325,7 +326,7 @@ describe('fetchSedExposureStatistics', () => {
       json: async () => ({}),
     } as Response)
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -336,7 +337,7 @@ describe('fetchSedExposureStatistics', () => {
   it('returns null on fetch error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'))
     const result = await fetchSedExposureStatistics(
-      'gpw_sediment_exposure',
+      'mrmd_gpw_sediment_exposure',
       'gpw_sediment_exposure_2020',
       null,
       'cog|1',
@@ -352,7 +353,7 @@ describe('fetchSedExposureStatistics', () => {
 
     const result = await fetchSedExposureStatistics(
       SED_LOAD_COLLECTION_ID,
-      `${SED_LOAD_COLLECTION_ID}_2020`,
+      `${SED_LOAD_ID}_2020`,
       null,
       'cog|1',
     )
@@ -365,15 +366,10 @@ describe('fetchSedExposureStatistics', () => {
       json: async () => mockStats('cog_b1'),
     } as Response)
 
-    await fetchSedExposureStatistics(
-      SED_LOAD_COLLECTION_ID,
-      `${SED_LOAD_COLLECTION_ID}_2020`,
-      null,
-      'cog|1',
-    )
+    await fetchSedExposureStatistics(SED_LOAD_COLLECTION_ID, `${SED_LOAD_ID}_2020`, null, 'cog|1')
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.pathname).toBe(
-      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/statistics`,
+      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_ID}_2020/statistics`,
     )
   })
 })
@@ -419,7 +415,7 @@ describe('fetchSedLoadStatistics', () => {
     await fetchSedLoadStatistics(2015)
     const calledUrl = new URL(fetchSpy.mock.calls[0][0] as string)
     expect(calledUrl.pathname).toBe(
-      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2015/statistics`,
+      `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_ID}_2015/statistics`,
     )
     expect(calledUrl.searchParams.get('assets')).toBe('cog')
     expect(calledUrl.searchParams.get('asset_bidx')).toBe('cog|1')
@@ -462,7 +458,7 @@ describe('buildSedLoadTileUrl', () => {
 
     it('targets the correct collection and item in the path', () => {
       expect(pathPart).toContain(
-        `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_COLLECTION_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
+        `/raster/collections/${SED_LOAD_COLLECTION_ID}/items/${SED_LOAD_ID}_2020/tiles/WebMercatorQuad/{z}/{x}/{y}`,
       )
     })
 
